@@ -5,6 +5,12 @@ import fuerAlleKurseUndLeistungen from "./fuer-alle/kurse-und-leistungen";
 import fuerAllePreiseUndPositionierung from "./fuer-alle/preise-und-positionierung";
 import fuerAlleStandorteUndTeam from "./fuer-alle/standorte-und-team";
 import fuerAlleTools from "./fuer-alle/tools";
+import lehrmaterialienBuchFinden from "./lehrmaterialien/buch-finden";
+import lehrmaterialienFaqMaterial from "./lehrmaterialien/faq-material";
+import lehrmaterialienLehrbuchUndMethode from "./lehrmaterialien/lehrbuch-und-methode";
+import lehrmaterialienMaterialVerschicken from "./lehrmaterialien/material-verschicken";
+import lehrmaterialienMaterialienUeberblick from "./lehrmaterialien/materialien-ueberblick";
+import lehrmaterialienZugangClassroomUndApp from "./lehrmaterialien/zugang-classroom-und-app";
 import salesBestandskundenImMessenger from "./sales/bestandskunden-im-messenger";
 import salesErstkontaktMessenger from "./sales/erstkontakt-messenger";
 import salesFaqApp from "./sales/faq-app";
@@ -18,7 +24,14 @@ import salesKampagneProbestunde from "./sales/kampagne-probestunde";
 import salesKeineRabatte from "./sales/keine-rabatte";
 import salesProbestundeBuchen from "./sales/probestunde-buchen";
 import salesVerkaufstrichter from "./sales/verkaufstrichter";
+import studentSupportKanaele from "./student-support/kanaele";
+import studentSupportMaterialUndHausaufgaben from "./student-support/material-und-hausaufgaben";
+import studentSupportNachDerZahlung from "./student-support/nach-der-zahlung";
+import studentSupportNaechsterKursUndTreue from "./student-support/naechster-kurs-und-treue";
 import studentSupportOnboardingUndKundenbindung from "./student-support/onboarding-und-kundenbindung";
+import studentSupportProbestundenUndRueckerstattung from "./student-support/probestunden-und-rueckerstattung";
+import studentSupportPruefungenBegleiten from "./student-support/pruefungen-begleiten";
+import studentSupportTechnikHilfe from "./student-support/technik-hilfe";
 import visaKundenfragen from "./visa/kundenfragen";
 import visaUeberblick from "./visa/ueberblick";
 import visaVisumAusbildung from "./visa/visum-ausbildung";
@@ -27,8 +40,9 @@ import visaVisumStudium from "./visa/visum-studium";
 /** Pages per area slug. To add a page: create a file in the area's folder and list it here. */
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
   "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools],
+  lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
   sales: [salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesKeineRabatte, salesProbestundeBuchen, salesVerkaufstrichter],
-  "student-support": [studentSupportOnboardingUndKundenbindung],
+  "student-support": [studentSupportKanaele, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportNaechsterKursUndTreue, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportPruefungenBegleiten, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
 
@@ -43,6 +57,21 @@ export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
     },
     { de: "FAQs", vi: "Câu hỏi thường gặp", pages: [salesFaqSprachkurse, salesFaqApp, salesFaqAusbildung, salesFaqStudium] },
     { de: "Kampagnen", vi: "Chiến dịch", pages: [salesKampagneProbestunde] },
+  ],
+  lehrmaterialien: [
+    { de: "Überblick", vi: "Tổng quan", pages: [lehrmaterialienMaterialienUeberblick, lehrmaterialienLehrbuchUndMethode] },
+    { de: "Ausgabe & Zugang", vi: "Gửi tài liệu & truy cập", pages: [lehrmaterialienMaterialVerschicken, lehrmaterialienZugangClassroomUndApp] },
+    { de: "Fragen von Studierenden", vi: "Câu hỏi của học viên", pages: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial] },
+  ],
+  "student-support": [
+    { de: "Grundlagen", vi: "Nền tảng", pages: [studentSupportOnboardingUndKundenbindung, studentSupportKanaele] },
+    {
+      de: "Die ersten zwei Wochen",
+      vi: "Hai tuần đầu tiên",
+      pages: [studentSupportNachDerZahlung, studentSupportTechnikHilfe, studentSupportProbestundenUndRueckerstattung],
+    },
+    { de: "Während des Kurses", vi: "Trong khoá học", pages: [studentSupportMaterialUndHausaufgaben, studentSupportPruefungenBegleiten] },
+    { de: "Kundenbindung", vi: "Giữ chân học viên", pages: [studentSupportNaechsterKursUndTreue] },
   ],
   visa: [
     { de: "Grundlagen", vi: "Nền tảng", pages: [visaUeberblick] },
