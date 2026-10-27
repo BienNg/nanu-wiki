@@ -20,6 +20,11 @@ const page: PageContent = {
       de: "Ziel: Nach 48 Stunden hat die Person alles, ohne selbst nachfragen zu müssen – und weiß, wo sie was findet.",
       vi: "Mục tiêu: sau 48 giờ học viên có đủ mọi thứ mà không phải tự hỏi – và biết tìm cái gì ở đâu."
     },
+    {
+      type: "paragraph",
+      de: "Diese Schritte macht Customer Success – wer gerade Schicht hat, auch abends und am Wochenende. Sales meldet die Zahlung nur in Slack weiter und schickt selbst nichts mehr.",
+      vi: "Các bước này do đội Chăm sóc học viên làm – ai đang trực ca thì làm, kể cả buổi tối và cuối tuần. Sales chỉ báo việc đóng tiền lên Slack và không tự gửi gì thêm cho học viên."
+    },
     { type: "heading", de: "Die Schritte", vi: "Các bước" },
     {
       type: "steps",
@@ -33,8 +38,8 @@ const page: PageContent = {
         {
           de: "Daten zurückbestätigen",
           vi: "Xác nhận lại thông tin",
-          body_de: "Name, E-Mail, Telefonnummer, Klasse (Code, Niveau, Uhrzeit), gezahlter Betrag (ganzer oder halber Kurs). So fallen Tippfehler in der E-Mail sofort auf – sonst klappt später der App-Login nicht.",
-          body_vi: "Tên, email, số điện thoại, lớp (mã lớp, trình độ, giờ học), số tiền đã đóng (cả khoá hay nửa khoá). Như vậy sai sót trong email lộ ra ngay – nếu không, sau này sẽ không đăng nhập được app."
+          body_de: "Name, E-Mail, Telefonnummer, Klasse (Code, Niveau, Uhrzeit), gezahlter Betrag (ganzer oder halber Kurs). So fallen Tippfehler in der E-Mail sofort auf – sonst klappt später der App-Login nicht. Für die Rechnung zusätzlich Adresse und die Nummer des Personalausweises (CCCD) erfragen – siehe „Vormerken, Zahlung & Rechnung“.",
+          body_vi: "Tên, email, số điện thoại, lớp (mã lớp, trình độ, giờ học), số tiền đã đóng (cả khoá hay nửa khoá). Như vậy sai sót trong email lộ ra ngay – nếu không, sau này sẽ không đăng nhập được app. Để xuất hoá đơn, xin thêm địa chỉ và số CCCD – xem trang „Ghi danh trước, đóng học phí & hoá đơn“."
         },
         {
           de: "Kanal festlegen",

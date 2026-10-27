@@ -2,8 +2,8 @@ import type { PageContent } from "@/lib/types";
 
 const page: PageContent = {
   slug: "material-und-hausaufgaben",
-  title_de: "Material, Aufzeichnungen & Hausaufgaben",
-  title_vi: "Tài liệu, video bài giảng & bài tập",
+  title_de: "Material & Hausaufgaben",
+  title_vi: "Tài liệu & bài tập",
   kind: "process",
   section: "handbook",
   verified_until: null,
@@ -18,7 +18,8 @@ const page: PageContent = {
     {
       type: "list",
       items: [
-        { de: "Video und Hausaufgabe der letzten Stunde", vi: "Video bài giảng và bài tập của buổi trước" },
+        { de: "Unterrichtsdatei und Hausaufgabe der letzten Stunde", vi: "File bài giảng và bài tập của buổi trước" },
+        { de: "Eine Aufzeichnung der Stunde – gibt es nicht (siehe unten)", vi: "Video quay lại buổi học – trung tâm không có (xem bên dưới)" },
         { de: "Die Unterrichtsdatei fehlt noch in der Gruppe", vi: "File bài giảng chưa có trong nhóm" },
         { de: "Welche Datei aus der Mail gedruckt werden soll", vi: "File nào trong mail là file cần in" },
         { de: "Material der nächsten Stufe, bevor der Kurs zu Ende ist", vi: "Tài liệu trình độ tiếp theo khi khoá hiện tại chưa kết thúc" },
@@ -26,10 +27,24 @@ const page: PageContent = {
         { de: "Ob es Nachholstunden gibt, wenn man einen Termin verpasst", vi: "Nghỉ một buổi thì có được học bù không" }
       ]
     },
+    {
+      type: "callout",
+      tone: "warning",
+      de: "Immer die neueste Version aus Google Drive schicken. Nie eine Datei, die du dir einmal heruntergeladen hast: Drive wird ständig geändert, kleine Änderungen werden nicht angekündigt. Mit einer alten Datei schickst du schnell falsche Infos.",
+      vi: "Luôn lấy bản mới nhất trên Google Drive mỗi lần gửi. Tuyệt đối không dùng file đã tải về máy từ trước: Drive được cập nhật liên tục, các thay đổi nhỏ không được thông báo riêng. Dùng file cũ rất dễ gửi thông tin sai cho học viên."
+    },
     { type: "heading", de: "So antwortest du", vi: "Cách trả lời" },
     {
       type: "list",
       items: [
+        {
+          de: "Aufzeichnung gewünscht: Unsere Live-Stunden werden nicht aufgezeichnet – auch wenn in einem Beratungsgespräch etwas anderes angekommen ist. Biete stattdessen Unterrichtsdatei, Hausaufgabe und die Trợ-giảng-Stunde an. In NaNu Go gibt es aufgezeichnete Lektionen, bisher aber nur die ersten 8 von A1.1.",
+          vi: "Học viên xin video buổi học: trung tâm không quay lại các buổi học trực tiếp – kể cả khi lúc tư vấn học viên hiểu khác. Thay vào đó gửi file bài giảng, bài tập và nhắc buổi trợ giảng. App NaNu Go có bài giảng quay sẵn, nhưng hiện mới có 8 bài đầu của A1.1."
+        },
+        {
+          de: "Nur schicken, was gefragt ist: Fragt jemand nach B2 online, nicht auch die Datei für B2 vor Ort mitschicken.",
+          vi: "Học viên hỏi cái nào thì gửi cái đó: hỏi B2 online thì không gửi kèm file B2 offline."
+        },
         {
           de: "Seite und Aufgabe nennen, nicht nur die Datei: „Buch A1.1, ab Seite 93 beginnt das Arbeitsbuch; Hausaufgabe sind Übung 9–12 auf Seite 21.“",
           vi: "Nêu trang và số bài, không chỉ gửi file: „Quyển A1.1, từ trang 93 là phần sách bài tập; bài về nhà là bài 9–12 ở trang 21.“"

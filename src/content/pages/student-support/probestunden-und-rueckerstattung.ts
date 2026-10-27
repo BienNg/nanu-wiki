@@ -19,12 +19,16 @@ const page: PageContent = {
       type: "list",
       items: [
         {
-          de: "Zwei Probestunden: Wer zum ersten Mal einen Online-Kurs bei uns bucht und nach den ersten zwei Stunden in Folge nicht zufrieden ist, bekommt 100 % zurück – auch für die zwei besuchten Stunden.",
-          vi: "Hai buổi học thử: học viên lần đầu đăng ký lớp online, nếu sau hai buổi liên tiếp đầu tiên thấy không phù hợp thì được hoàn 100% học phí – kể cả hai buổi đã học."
+          de: "Zwei Probestunden: Wer zum ersten Mal einen Kurs bei uns bucht und es ist ein Online-Kurs, bekommt 100 % zurück, wenn er nach den ersten zwei Stunden in Folge nicht zufrieden ist – auch für die zwei besuchten Stunden.",
+          vi: "Hai buổi học thử: học viên đăng ký lần đầu tại trung tâm và học lớp online, nếu sau hai buổi liên tiếp đầu tiên thấy không phù hợp thì được hoàn 100% học phí – kể cả hai buổi đã học."
         },
         {
-          de: "Kursausfall: Kommen die mindestens 8 Teilnehmenden nicht zusammen, bieten wir eine Alternative an. Wer sie nicht will, bekommt sofort 100 % zurück.",
-          vi: "Lớp không mở: nếu không đủ tối thiểu 8 học viên, trung tâm đưa ra phương án thay thế. Ai không đồng ý thì được hoàn 100% ngay."
+          de: "Die Zusage gilt nur für beides zusammen: Online-Kurs und erster Kurs bei uns. Vor-Ort-Kurse und Folgekurse (z. B. A2 nach unserem A1) sind ausgenommen.",
+          vi: "Cam kết chỉ áp dụng khi có cả hai điều kiện: lớp online và là khoá đầu tiên tại trung tâm. Lớp offline và khoá học tiếp (ví dụ A2 sau khi đã học A1 ở trung tâm) không áp dụng."
+        },
+        {
+          de: "Kursausfall: Online braucht eine Klasse mindestens 5 Teilnehmende, vor Ort mindestens 8. Kommen sie nicht zusammen, bieten wir eine Alternative an. Wer sie nicht will, bekommt sofort 100 % zurück.",
+          vi: "Lớp không mở: lớp online cần tối thiểu 5 học viên, lớp offline tối thiểu 8. Nếu không đủ, trung tâm đưa ra phương án thay thế. Ai không đồng ý thì được hoàn 100% ngay."
         },
         {
           de: "Bezahlt wird trotzdem vorher – die Zusage ersetzt nicht die Zahlung. Sonderwünsche (nur zwei Stunden zahlen) entscheidet die Leitung.",

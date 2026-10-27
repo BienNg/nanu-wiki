@@ -24,7 +24,11 @@ import salesKampagneProbestunde from "./sales/kampagne-probestunde";
 import salesKeineRabatte from "./sales/keine-rabatte";
 import salesProbestundeBuchen from "./sales/probestunde-buchen";
 import salesVerkaufstrichter from "./sales/verkaufstrichter";
+import studentSupportAnmeldungUndZahlung from "./student-support/anmeldung-und-zahlung";
+import studentSupportAufgabenUndRhythmus from "./student-support/aufgaben-und-rhythmus";
 import studentSupportKanaele from "./student-support/kanaele";
+import studentSupportKursPausieren from "./student-support/kurs-pausieren";
+import studentSupportLehrkraefteBegleiten from "./student-support/lehrkraefte-begleiten";
 import studentSupportMaterialUndHausaufgaben from "./student-support/material-und-hausaufgaben";
 import studentSupportNachDerZahlung from "./student-support/nach-der-zahlung";
 import studentSupportNaechsterKursUndTreue from "./student-support/naechster-kurs-und-treue";
@@ -42,7 +46,7 @@ export const PAGES_BY_AREA: Record<string, PageContent[]> = {
   "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
   sales: [salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesKeineRabatte, salesProbestundeBuchen, salesVerkaufstrichter],
-  "student-support": [studentSupportKanaele, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportNaechsterKursUndTreue, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportPruefungenBegleiten, studentSupportTechnikHilfe],
+  "student-support": [studentSupportAnmeldungUndZahlung, studentSupportAufgabenUndRhythmus, studentSupportKanaele, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportNaechsterKursUndTreue, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportPruefungenBegleiten, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
 
@@ -64,13 +68,13 @@ export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
     { de: "Fragen von Studierenden", vi: "Câu hỏi của học viên", pages: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial] },
   ],
   "student-support": [
-    { de: "Grundlagen", vi: "Nền tảng", pages: [studentSupportOnboardingUndKundenbindung, studentSupportKanaele] },
+    { de: "Grundlagen", vi: "Nền tảng", pages: [studentSupportOnboardingUndKundenbindung, studentSupportAufgabenUndRhythmus, studentSupportKanaele] },
     {
       de: "Die ersten zwei Wochen",
       vi: "Hai tuần đầu tiên",
-      pages: [studentSupportNachDerZahlung, studentSupportTechnikHilfe, studentSupportProbestundenUndRueckerstattung],
+      pages: [studentSupportAnmeldungUndZahlung, studentSupportNachDerZahlung, studentSupportTechnikHilfe, studentSupportProbestundenUndRueckerstattung],
     },
-    { de: "Während des Kurses", vi: "Trong khoá học", pages: [studentSupportMaterialUndHausaufgaben, studentSupportPruefungenBegleiten] },
+    { de: "Während des Kurses", vi: "Trong khoá học", pages: [studentSupportMaterialUndHausaufgaben, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportPruefungenBegleiten] },
     { de: "Kundenbindung", vi: "Giữ chân học viên", pages: [studentSupportNaechsterKursUndTreue] },
   ],
   visa: [

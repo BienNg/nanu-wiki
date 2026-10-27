@@ -65,10 +65,28 @@ const page: PageContent = {
           vi: "Không có link Zoom: link nằm trong nhóm lớp. Ai không ở trong nhóm thì nhận link riêng trước mỗi buổi."
         },
         {
-          de: "Frage nach etwas Einfacherem als Classroom: Ja, NaNu Go hat Videos, Wortschatz und Hörübungen zu jeder Lektion. Login dort zuerst lösen.",
-          vi: "Học viên hỏi có gì dễ dùng hơn Classroom không: có, NaNu Go có video, từ vựng và bài nghe cho từng bài. Ưu tiên giúp học viên vào được NaNu Go trước."
+          de: "Frage nach etwas Einfacherem als Classroom: NaNu Go hat Wortschatz, Hörübungen und aufgezeichnete Lektionen. Login dort zuerst lösen – aber nur versprechen, was es schon gibt (siehe unten).",
+          vi: "Học viên hỏi có gì dễ dùng hơn Classroom không: NaNu Go có từ vựng, bài nghe và bài giảng quay sẵn. Ưu tiên giúp học viên vào được NaNu Go trước – nhưng chỉ hứa những gì app đã có (xem bên dưới)."
+        },
+        {
+          de: "Login im Zalo-Browser klappt nicht: Den Link in Chrome oder Safari öffnen, nicht direkt in Zalo.",
+          vi: "Không đăng nhập được khi mở trong Zalo: mở link bằng Chrome hoặc Safari, không mở trực tiếp trong Zalo."
         }
       ]
+    },
+    { type: "heading", de: "NaNu Go: was es schon gibt", vi: "NaNu Go: hiện đã có gì" },
+    {
+      type: "callout",
+      tone: "warning",
+      de: "Stand 27.10.2026: Die App wird noch gebaut. Aufgezeichnete Lektionen gibt es bisher nur für die ersten 8 Lektionen von A1.1. Aufzeichnungen unserer Live-Stunden gibt es nicht. Sag nie „alle Lektionen sind in der App“ – sonst fragt die Person bei Lektion 9 danach.",
+      vi: "Tính đến 27/10/2026: app vẫn đang được hoàn thiện. Bài giảng quay sẵn hiện mới có 8 bài đầu của A1.1. Trung tâm không có video quay lại các buổi học trực tiếp. Đừng bao giờ nói „app có đủ tất cả các bài“ – nếu không, đến bài 9 học viên sẽ hỏi."
+    },
+    {
+      type: "template",
+      label_de: "Vorlage · NaNu Go freischalten",
+      label_vi: "Mẫu · Gửi app NaNu Go",
+      text: "Trung tâm có ứng dụng NaNu Go được thiết kế riêng cho học viên NaNu NaNa. Trong app [chị/anh/bạn] có thể học từ vựng, luyện nghe và xem các bài giảng quay sẵn (hiện đã có 8 bài đầu của A1.1, các bài tiếp theo trung tâm đang cập nhật).\n[Chị/Anh/Bạn] tạo tài khoản bằng Gmail tại đây: [link]\nSau khi đăng ký, trung tâm sẽ mở quyền truy cập khóa A1.1 cho [chị/anh/bạn].\nLưu ý: mở link bằng Chrome hoặc Safari (không mở trực tiếp trong Zalo) để đăng nhập được nha.\nApp dùng song song với lớp học và bài tập về nhà. Có gì cần hỏi [chị/anh/bạn] cứ nhắn trung tâm nhé!",
+      translation_de: "„Wir haben eine eigene App für NaNu-NaNa-Teilnehmende: NaNu Go. Darin kannst du Wortschatz lernen, Hören üben und aufgezeichnete Lektionen ansehen (bisher die ersten 8 Lektionen von A1.1, weitere folgen). Registriere dich hier mit deinem Gmail-Konto: [Link]. Danach schalten wir A1.1 für dich frei. Wichtig: Öffne den Link in Chrome oder Safari, nicht direkt in Zalo. Die App ergänzt Unterricht und Hausaufgaben. Bei Fragen einfach schreiben!“"
     },
     {
       type: "template",
