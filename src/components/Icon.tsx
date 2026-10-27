@@ -10,6 +10,7 @@ const PATHS: Record<IconName | "search" | "clock" | "layers" | "bell" | "spark" 
   building: "M4 20V6l8-3 8 3v14M9 20v-5h6v5",
   compass: "M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18ZM15.5 8.5l-2 5-5 2 2-5z",
   megaphone: "M3 11v2l13 5V6zM16 9a3 3 0 0 1 0 6",
+  passport: "M6 3h12v18H6zM12 7.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM9 17h6",
   search: "M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14ZM20 20l-3.5-3.5",
   clock: "M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18ZM12 7v5l3 2",
   layers: "M12 3l9 5-9 5-9-5zM3 13l9 5 9-5",

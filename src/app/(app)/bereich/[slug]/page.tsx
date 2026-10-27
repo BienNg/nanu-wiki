@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditorAreas, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { canEditArea, getOnboarding, readablePages, visibleAreas } from "@/content";
+import { canEditArea, getHandbookGroups, getOnboarding, readablePages, visibleAreas } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -82,7 +82,7 @@ export default async function AreaPage({
 
             {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
             {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} />}
-            {tab === "handbook" && <HandbookTab pages={pages.filter((p) => p.section === "handbook")} />}
+            {tab === "handbook" && <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} />}
           </>
         )}
       </Reveal>
@@ -153,11 +153,34 @@ async function OnboardingTab({ areaSlug, profileId }: { areaSlug: string; profil
   );
 }
 
-function HandbookTab({ pages }: { pages: PageWithMeta[] }) {
+function HandbookTab({ areaSlug, pages }: { areaSlug: string; pages: PageWithMeta[] }) {
+  const newestFirst = (list: PageWithMeta[]) => [...list].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+  const groups = getHandbookGroups(areaSlug).map((g) => ({
+    ...g,
+    pages: g.pages.flatMap((c) => pages.find((p) => p.slug === c.slug) ?? []),
+  }));
+  if (!groups.length) {
+    return (
+      <div role="tabpanel" className="flex flex-col gap-3">
+        <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
+        <PageTable pages={newestFirst(pages)} />
+      </div>
+    );
+  }
+
+  const grouped = new Set(groups.flatMap((g) => g.pages.map((p) => p.id)));
+  const rest = newestFirst(pages.filter((p) => !grouped.has(p.id)));
+  const shown = [...groups, ...(rest.length ? [{ de: "Weitere", vi: "Khác", pages: rest }] : [])].filter((g) => g.pages.length);
   return (
-    <div role="tabpanel" className="flex flex-col gap-3">
-      <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
-      <PageTable pages={[...pages].sort((a, b) => b.updated_at.localeCompare(a.updated_at))} />
+    <div role="tabpanel" className="flex flex-col gap-8">
+      {shown.map((g, i) => (
+        <section key={g.de} className="flex flex-col gap-2">
+          <h2 data-reveal className="font-display m-0 px-2.5 text-lg font-bold text-heading">
+            <Bi de={g.de} vi={g.vi} />
+          </h2>
+          <PageTable pages={g.pages} header={i === 0} />
+        </section>
+      ))}
     </div>
   );
 }

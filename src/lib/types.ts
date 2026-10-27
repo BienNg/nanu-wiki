@@ -64,6 +64,9 @@ export type PageContent = {
   published?: boolean; // false = draft, only editors of the area and admins see it
 };
 
+/** A labelled group of pages in an area's Handbuch tab, listed in reading order. */
+export type HandbookGroup = { de: string; vi: string; pages: PageContent[] };
+
 /** A page plus where it lives. `id` is "<area>/<slug>" and is what the database stores (chat_responses.page_id). */
 export type PageWithMeta = PageContent & {
   id: string;
@@ -104,4 +107,5 @@ export type IconName =
   | "pen"
   | "building"
   | "compass"
-  | "megaphone";
+  | "megaphone"
+  | "passport";

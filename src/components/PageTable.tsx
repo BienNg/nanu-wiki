@@ -8,25 +8,27 @@ import { Icon } from "./Icon";
 const GRID = "grid grid-cols-[minmax(220px,1fr)_120px_120px_100px] items-center gap-3";
 
 /** Slite-style document table: page, type, status, last activity. */
-export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: React.ReactNode }) {
+export function PageTable({ pages, empty, header = true }: { pages: PageWithMeta[]; empty?: React.ReactNode; header?: boolean }) {
   if (!pages.length) {
     return <p className="rounded-lg bg-side px-4 py-6 text-center text-[13px] text-muted">{empty ?? "Noch keine Seiten · Chưa có trang"}</p>;
   }
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[570px]">
-        <div className={`${GRID} min-h-8 px-2.5`}>
-          <span className="cap">
-            <Label de="Seite" vi="Trang" />
-          </span>
-          <span className="cap">
-            <Label de="Typ" vi="Loại" />
-          </span>
-          <span className="cap">Status</span>
-          <span className="cap">
-            <Label de="Aktivität" vi="Hoạt động" />
-          </span>
-        </div>
+        {header && (
+          <div className={`${GRID} min-h-8 px-2.5`}>
+            <span className="cap">
+              <Label de="Seite" vi="Trang" />
+            </span>
+            <span className="cap">
+              <Label de="Typ" vi="Loại" />
+            </span>
+            <span className="cap">Status</span>
+            <span className="cap">
+              <Label de="Aktivität" vi="Hoạt động" />
+            </span>
+          </div>
+        )}
         {pages.map((p) => (
           <Link key={p.id} href={p.href} data-reveal className={`${GRID} min-h-11 rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-side`}>
             <span className="flex min-w-0 items-center gap-2">

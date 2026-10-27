@@ -33,6 +33,16 @@ export const AREAS: Area[] = [
     is_shared: false
   },
   {
+    slug: "visa",
+    name_de: "Visum & Aufenthalt",
+    name_vi: "Visa & cư trú",
+    description_de: "Visum für Ausbildung und Studium, Fristen, Unterlagen und die Fragen, die Kunden dazu stellen.",
+    description_vi: "Visa du học nghề và đại học, thời hạn, hồ sơ và những câu hỏi khách hay hỏi.",
+    icon: "passport",
+    color: "#5E8A2C",
+    is_shared: false
+  },
+  {
     slug: "lehrkraft",
     name_de: "Lehrkraft",
     name_vi: "Giáo viên",

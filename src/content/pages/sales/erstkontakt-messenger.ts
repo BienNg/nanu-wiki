@@ -26,6 +26,12 @@ const page: PageContent = {
       vi: "Tin nhắn đầu tiên quyết định ấn tượng. Ngắn gọn và ấm áp tốt hơn dài và hoàn hảo."
     },
     {
+      type: "callout",
+      tone: "tip",
+      de: "Antworten auf die häufigsten Fragen stehen in den FAQs: Sprachkurse, App NaNu Go, Ausbildung und Studium. Viele Chats beginnen mit einem Anzeigen-Button („Chi phí trọn gói là bao nhiêu?“, „App này giá bao nhiêu?“) – beantworte die Frage trotzdem direkt.",
+      vi: "Câu trả lời cho các câu hỏi thường gặp có trong FAQ: khóa học tiếng, app NaNu Go, du học nghề và đại học. Nhiều cuộc trò chuyện bắt đầu bằng nút quảng cáo („Chi phí trọn gói là bao nhiêu?“, „App này giá bao nhiêu?“) – vẫn trả lời thẳng vào câu hỏi."
+    },
+    {
       type: "video",
       url: "",
       caption_de: "So beantwortest du eine Anfrage (Erklärvideo – YouTube-Link einfügen)",

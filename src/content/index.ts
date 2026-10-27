@@ -1,8 +1,8 @@
 import "server-only";
 import { hasRole } from "@/lib/auth";
-import type { Area, OnboardingWeek, PageWithMeta, Profile, QuizContent } from "@/lib/types";
+import type { Area, HandbookGroup, OnboardingWeek, PageWithMeta, Profile, QuizContent } from "@/lib/types";
 import { AREAS } from "./areas";
-import { PAGES_BY_AREA } from "./pages";
+import { HANDBOOK_GROUPS_BY_AREA, PAGES_BY_AREA } from "./pages";
 import { ONBOARDING_BY_AREA } from "./onboarding";
 
 // Everything people read lives in this folder. The database only stores who did what
@@ -31,6 +31,10 @@ export function getPage(areaSlug: string, pageSlug: string): PageWithMeta | unde
 
 export function getPageById(id: string): PageWithMeta | undefined {
   return PAGES.find((p) => p.id === id);
+}
+
+export function getHandbookGroups(areaSlug: string): HandbookGroup[] {
+  return HANDBOOK_GROUPS_BY_AREA[areaSlug] ?? [];
 }
 
 export function getOnboarding(areaSlug: string): OnboardingWeek[] {
