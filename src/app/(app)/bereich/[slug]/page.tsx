@@ -40,7 +40,7 @@ export default async function AreaPage({
 
   const newPageForm = (section: PageSection) =>
     canEdit ? (
-      <form action={createPage.bind(null, area.id, section)}>
+      <form action={createPage.bind(null, area.id, section)} data-loading-href="/seite/neu/bearbeiten">
         <button type="submit" className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-3 text-[13px] font-medium text-white hover:bg-[#1F5DB5]">
           <Icon name="plus" size={14} strokeWidth={2.2} />
           <Label de="Neue Seite" vi="Trang mới" />

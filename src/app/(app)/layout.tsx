@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
+import { NavigationLoader } from "@/components/NavigationLoader";
 import type { Area } from "@/lib/types";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +33,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen flex-wrap bg-white">
       <Sidebar areas={(areas ?? []) as Area[]} profile={session.profile} onboardingPct={onboardingPct} />
-      <div className="flex min-w-0 flex-[999_1_560px] flex-col">{children}</div>
+      <div className="flex min-w-0 flex-[999_1_560px] flex-col">
+        <NavigationLoader>{children}</NavigationLoader>
+      </div>
     </div>
   );
 }

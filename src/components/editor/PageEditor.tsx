@@ -6,6 +6,7 @@ import { deletePage, savePage } from "@/app/actions";
 import type { Block, KnowledgeKind, Page, PageSection } from "@/lib/types";
 import { youtubeId } from "@/lib/youtube";
 import { KIND } from "../Badges";
+import { useNavigationLoader } from "../NavigationLoader";
 
 const NEW_BLOCK: Record<Block["type"], () => Block> = {
   heading: () => ({ type: "heading", de: "", vi: "" }),
@@ -33,6 +34,11 @@ const input = "w-full rounded-md border border-line bg-white px-2.5 py-2 text-sm
 
 export function PageEditor({ page, areaSlug }: { page: Page; areaSlug: string }) {
   const router = useRouter();
+  const showLoader = useNavigationLoader();
+  const go = (href: string) => {
+    showLoader(href);
+    router.push(href);
+  };
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [meta, setMeta] = useState({
@@ -59,7 +65,7 @@ export function PageEditor({ page, areaSlug }: { page: Page; areaSlug: string })
     setMessage(null);
     startTransition(async () => {
       const res = await savePage(page.id, { ...meta, verified_until: meta.verified_until || null, body: blocks });
-      if (res.ok) router.push(`/seite/${page.id}`);
+      if (res.ok) go(`/seite/${page.id}`);
       else setMessage(res.message);
     });
   }
@@ -131,13 +137,16 @@ export function PageEditor({ page, areaSlug }: { page: Page; areaSlug: string })
         <button
           type="button"
           onClick={() => {
-            if (confirm("Seite wirklich löschen? · Xóa trang này?")) startTransition(() => deletePage(page.id, areaSlug));
+            if (confirm("Seite wirklich löschen? · Xóa trang này?")) {
+              showLoader(`/bereich/${areaSlug}`);
+              startTransition(() => deletePage(page.id, areaSlug));
+            }
           }}
           className="h-9 rounded-md px-3 text-[13px] font-medium text-bad hover:bg-bad-soft"
         >
           Löschen
         </button>
-        <button type="button" onClick={() => router.push(`/seite/${page.id}`)} className="h-9 rounded-md bg-chip px-3 text-[13px] font-medium text-ink hover:bg-line">
+        <button type="button" onClick={() => go(`/seite/${page.id}`)} className="h-9 rounded-md bg-chip px-3 text-[13px] font-medium text-ink hover:bg-line">
           Abbrechen · Hủy
         </button>
         <button type="button" disabled={pending} onClick={save} className="h-9 rounded-md bg-accent px-4 text-[13px] font-medium text-white hover:bg-[#1F5DB5] disabled:opacity-60">
