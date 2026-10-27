@@ -176,3 +176,13 @@ html.lang-vi .vs::before { content: none; }
 @media (max-width: 1023px) {
   html[data-comment-view="on"] .doc-page { padding-bottom: 55dvh; }
 }
+/* Comment picked in the panel: a short glow around its words once the page has scrolled there. */
+.comment-pulse { animation: comment-pulse 1.3s ease-out; }
+@keyframes comment-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(242, 201, 76, 0.9); background: rgba(253, 230, 138, 0.7); }
+  60% { box-shadow: 0 0 0 10px rgba(242, 201, 76, 0); background: rgba(253, 230, 138, 0.25); }
+  100% { box-shadow: 0 0 0 10px rgba(242, 201, 76, 0); background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .comment-pulse { animation: none; }
+}
