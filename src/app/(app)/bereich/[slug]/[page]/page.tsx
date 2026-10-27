@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth";
+import { getEditorAreas, getSession, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { canEditArea, canReadPage, getPage } from "@/content";
 import { Crumb, Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -10,50 +11,46 @@ import { Icon } from "@/components/Icon";
 import { KindBadge, VerifiedPill } from "@/components/Badges";
 import { BlockRenderer, slugify } from "@/components/BlockRenderer";
 import { ChatResponses } from "@/components/ChatResponses";
-import { PAGE_SELECT } from "@/components/PageTable";
 import { formatDate } from "@/lib/format";
-import type { PageWithMeta } from "@/lib/types";
 
-async function load(id: string) {
-  const supabase = await createClient();
-  const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("id", id).maybeSingle();
-  return data as unknown as PageWithMeta | null;
+type Params = Promise<{ slug: string; page: string }>;
+
+/** The page, or undefined when it doesn't exist or this user may not read it. */
+async function load(params: Params) {
+  const { slug, page: pageSlug } = await params;
+  const session = await getSession();
+  const page = getPage(slug, pageSlug);
+  if (!page || !session || !canReadPage(session.profile, await getEditorAreas(), page)) return undefined;
+  return page;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const page = await load((await params).id);
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const page = await load(params);
   return { title: page?.title_de ?? "Seite" };
 }
 
-export default async function DocPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DocPage({ params }: { params: Params }) {
   const { profile } = await requireRole("candidate");
-  const { id } = await params;
-  const page = await load(id);
-  if (!page) notFound(); // also when RLS hides it
+  const page = await load(params);
+  if (!page) notFound();
 
-  const supabase = await createClient();
+  const canEdit = canEditArea(profile, await getEditorAreas(), page.area.slug);
   const hasChat = page.body.some((b) => b.type === "chat");
-  const [{ data: canEdit }, { data: mine }] = await Promise.all([
-    supabase.rpc("can_edit_area", { target: page.area_id }),
-    hasChat
-      ? supabase.from("chat_responses").select("sim_id").eq("page_id", page.id).eq("profile_id", profile.id)
-      : Promise.resolve({ data: [] as { sim_id: string }[] }),
-  ]);
+  const supabase = await createClient();
+  const { data: mine } = hasChat
+    ? await supabase.from("chat_responses").select("sim_id").eq("page_id", page.id).eq("profile_id", profile.id)
+    : { data: [] as { sim_id: string }[] };
   const headings = page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[];
-  const tint = `${page.area?.color ?? "#0B7793"}22`;
+  const tint = `${page.area.color}22`;
 
   return (
     <div className="flex flex-1 flex-wrap">
       <div className="flex min-w-0 flex-[999_1_520px] flex-col">
         <Topbar>
-          {page.area && (
-            <>
-              <Icon name={page.area.icon} size={14} color={page.area.color} strokeWidth={2} />
-              <Link href={`/bereich/${page.area.slug}`} className="text-body hover:text-ink">
-                <Label de={page.area.name_de} vi={page.area.name_vi} />
-              </Link>
-            </>
-          )}
+          <Icon name={page.area.icon} size={14} color={page.area.color} strokeWidth={2} />
+          <Link href={`/bereich/${page.area.slug}`} className="text-body hover:text-ink">
+            <Label de={page.area.name_de} vi={page.area.name_vi} />
+          </Link>
           <Crumb>
             <span className="max-w-[320px] truncate">
               <Label de={page.title_de} vi={page.title_vi || page.title_de} />
@@ -63,7 +60,7 @@ export default async function DocPage({ params }: { params: Promise<{ id: string
 
         <Reveal className="mx-auto flex w-full max-w-[820px] flex-col gap-5 px-8 pb-20 pt-2">
           <div data-reveal aria-hidden="true" className="flex h-[150px] items-center justify-center rounded-xl" style={{ background: tint }}>
-            {page.area && <Icon name={page.area.icon} size={64} color={page.area.color} strokeWidth={1.4} />}
+            <Icon name={page.area.icon} size={64} color={page.area.color} strokeWidth={1.4} />
           </div>
 
           <div data-reveal className="flex flex-wrap items-center gap-2.5 text-xs text-muted">

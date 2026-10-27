@@ -1,20 +1,20 @@
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { AREAS } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { UsersTable } from "@/components/admin/UsersTable";
-import type { Area, Profile } from "@/lib/types";
+import type { Profile } from "@/lib/types";
 
 export const metadata = { title: "Benutzer & Rollen" };
 
 export default async function UsersPage() {
   await requireRole("admin");
   const supabase = await createClient();
-  const [{ data: profiles }, { data: areas }, { data: editors }] = await Promise.all([
+  const [{ data: profiles }, { data: editors }] = await Promise.all([
     supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-    supabase.from("areas").select("*").order("sort"),
-    supabase.from("area_editors").select("area_id, profile_id"),
+    supabase.from("area_editors").select("area, profile_id"),
   ]);
 
   const list = ((profiles ?? []) as Profile[]).sort((a, b) => Number(b.role === "pending") - Number(a.role === "pending"));
@@ -33,8 +33,8 @@ export default async function UsersPage() {
           </h1>
           <p className="m-0 max-w-[720px] text-[#4A4F57]">
             <Bi
-              de="Neue Google-Konten landen als „pending“. Weise eine Zugriffsstufe zu: candidate (nur Interview einer Rolle), staff (alles lesen, eigenes Onboarding), editor (schreibt in ausgewählten Bereichen), admin."
-              vi="Tài khoản Google mới ở trạng thái „pending“. Hãy gán quyền: candidate (chỉ xem phỏng vấn của một vai trò), staff (đọc tất cả, lộ trình riêng), editor (viết trong các mục được chọn), admin."
+              de="Neue Google-Konten landen als „pending“. Weise eine Zugriffsstufe zu: candidate (nur Interview einer Rolle), staff (alles lesen, eigenes Onboarding), editor (sieht Entwürfe und Kandidaten-Antworten in ausgewählten Bereichen), admin."
+              vi="Tài khoản Google mới ở trạng thái „pending“. Hãy gán quyền: candidate (chỉ xem phỏng vấn của một vai trò), staff (đọc tất cả, lộ trình riêng), editor (xem bản nháp và câu trả lời của ứng viên trong các mục được chọn), admin."
             />
           </p>
         </header>
@@ -46,7 +46,7 @@ export default async function UsersPage() {
           </div>
         )}
 
-        <UsersTable profiles={list} areas={(areas ?? []) as Area[]} editors={editors ?? []} />
+        <UsersTable profiles={list} areas={AREAS} editors={editors ?? []} />
       </main>
     </>
   );

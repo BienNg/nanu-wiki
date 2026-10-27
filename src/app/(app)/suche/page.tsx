@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { getEditorAreas, requireRole } from "@/lib/auth";
+import { AREAS, readablePages, searchPages } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { KIND, KindBadge, VerifiedPill } from "@/components/Badges";
-import { PAGE_SELECT } from "@/components/PageTable";
 import { formatDate, isVerified } from "@/lib/format";
 import { snippet } from "@/lib/snippet";
-import type { Area, KnowledgeKind, PageWithMeta } from "@/lib/types";
+import type { KnowledgeKind, PageWithMeta } from "@/lib/types";
 
 export const metadata = { title: "Suche" };
 
@@ -17,22 +16,17 @@ type Params = { q?: string; type?: string | string[]; role?: string | string[]; 
 const list = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Params> }) {
-  await requireRole("staff");
+  const { profile } = await requireRole("staff");
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 80);
   const types = list(sp.type) as KnowledgeKind[];
   const roles = list(sp.role);
   const verifiedOnly = sp.verified === "1";
 
-  const supabase = await createClient();
-  const { data: areas } = await supabase.from("areas").select("*").order("sort");
-  let query = supabase.from("pages").select(PAGE_SELECT).eq("published", true).order("updated_at", { ascending: false }).limit(200);
-  if (q) query = query.ilike("search_text", `%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
-  const { data } = await query;
-  const all = (data ?? []) as unknown as PageWithMeta[];
+  const all = searchPages(readablePages(profile, await getEditorAreas()).filter((p) => p.published), q);
 
   const okType = (p: PageWithMeta) => !types.length || types.includes(p.kind);
-  const okRole = (p: PageWithMeta) => !roles.length || roles.includes(p.area?.slug ?? "");
+  const okRole = (p: PageWithMeta) => !roles.length || roles.includes(p.area.slug);
   const okVer = (p: PageWithMeta) => !verifiedOnly || isVerified(p.verified_until);
   const results = all.filter((p) => okType(p) && okRole(p) && okVer(p));
 
@@ -90,11 +84,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               </Link>
             </div>
             <div role="group" aria-label="Rolle" className="flex flex-wrap items-center gap-0.5">
-              {((areas ?? []) as Area[]).map((a) => (
-                <Link key={a.id} href={href({ role: a.slug })} aria-pressed={roles.includes(a.slug)} className={chip}>
+              {AREAS.map((a) => (
+                <Link key={a.slug} href={href({ role: a.slug })} aria-pressed={roles.includes(a.slug)} className={chip}>
                   <Icon name={a.icon} size={12} color={a.color} strokeWidth={2.4} />
                   <Label de={a.name_de} vi={a.name_vi} />
-                  <span className="text-[11px] opacity-75">{all.filter((p) => p.area?.slug === a.slug && okType(p) && okVer(p)).length}</span>
+                  <span className="text-[11px] opacity-75">{all.filter((p) => p.area.slug === a.slug && okType(p) && okVer(p)).length}</span>
                 </Link>
               ))}
               {(types.length > 0 || roles.length > 0 || verifiedOnly) && (
@@ -120,8 +114,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           {results.map((p) => {
             const s = snippet(p, q);
             return (
-              <Link key={p.id} href={`/seite/${p.id}`} className="flex items-start gap-3 rounded-md px-3 py-2.5 text-ink hover:bg-[#F2F5FA] hover:text-ink">
-                <Icon name="doc" size={15} color={p.area?.color ?? "#6B7079"} strokeWidth={2} className="mt-[3px] flex-none" />
+              <Link key={p.id} href={p.href} className="flex items-start gap-3 rounded-md px-3 py-2.5 text-ink hover:bg-[#F2F5FA] hover:text-ink">
+                <Icon name="doc" size={15} color={p.area.color} strokeWidth={2} className="mt-[3px] flex-none" />
                 <span className="flex min-w-0 flex-1 flex-col gap-px">
                   <span className="flex flex-wrap items-center gap-2 text-sm font-semibold leading-snug">
                     <span className="de">{p.title_de}</span>
@@ -130,7 +124,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                   </span>
                   <span className="vi mt-0 text-xs">{p.title_vi}</span>
                   <span className="text-xs text-[#4A4F57]">
-                    {p.area?.name_de} · {formatDate(p.updated_at)}
+                    {p.area.name_de} · {formatDate(p.updated_at)}
                   </span>
                   {s && (
                     <span className="text-[13px] leading-normal text-muted">

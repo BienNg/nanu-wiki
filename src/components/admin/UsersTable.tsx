@@ -22,7 +22,7 @@ export function UsersTable({
 }: {
   profiles: Profile[];
   areas: Area[];
-  editors: { area_id: string; profile_id: string }[];
+  editors: { area: string; profile_id: string }[];
 }) {
   return (
     <div className="overflow-x-auto rounded-[10px] border border-line">
@@ -38,7 +38,7 @@ export function UsersTable({
         </thead>
         <tbody>
           {profiles.map((p) => (
-            <UserRow key={p.id} profile={p} profiles={profiles} areas={areas} editorAreas={editors.filter((e) => e.profile_id === p.id).map((e) => e.area_id)} />
+            <UserRow key={p.id} profile={p} profiles={profiles} areas={areas} editorAreas={editors.filter((e) => e.profile_id === p.id).map((e) => e.area)} />
           ))}
         </tbody>
       </table>
@@ -49,8 +49,8 @@ export function UsersTable({
 function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; profiles: Profile[]; areas: Area[]; editorAreas: string[] }) {
   const [form, setForm] = useState({
     role: profile.role,
-    primary_area_id: profile.primary_area_id ?? "",
-    candidate_area_id: profile.candidate_area_id ?? "",
+    primary_area: profile.primary_area ?? "",
+    candidate_area: profile.candidate_area ?? "",
     buddy_id: profile.buddy_id ?? "",
     location: profile.location ?? "",
   });
@@ -58,8 +58,8 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
   const [pending, startTransition] = useTransition();
   const dirty =
     form.role !== profile.role ||
-    form.primary_area_id !== (profile.primary_area_id ?? "") ||
-    form.candidate_area_id !== (profile.candidate_area_id ?? "") ||
+    form.primary_area !== (profile.primary_area ?? "") ||
+    form.candidate_area !== (profile.candidate_area ?? "") ||
     form.buddy_id !== (profile.buddy_id ?? "") ||
     form.location !== (profile.location ?? "");
 
@@ -67,8 +67,8 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
     startTransition(async () => {
       const res = await updateUser(profile.id, {
         role: form.role,
-        primary_area_id: form.primary_area_id || null,
-        candidate_area_id: form.candidate_area_id || null,
+        primary_area: form.primary_area || null,
+        candidate_area: form.candidate_area || null,
         buddy_id: form.buddy_id || null,
         location: form.location || null,
       });
@@ -102,20 +102,20 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
           </select>
         </td>
         <td className="px-3 py-2.5">
-          <select aria-label="Eigene Rolle" className={sel} value={form.primary_area_id} onChange={(e) => setForm({ ...form, primary_area_id: e.target.value })} disabled={form.role === "candidate" || form.role === "pending"}>
+          <select aria-label="Eigene Rolle" className={sel} value={form.primary_area} onChange={(e) => setForm({ ...form, primary_area: e.target.value })} disabled={form.role === "candidate" || form.role === "pending"}>
             <option value="">–</option>
             {roleAreas.map((a) => (
-              <option key={a.id} value={a.id}>
+              <option key={a.slug} value={a.slug}>
                 {a.name_de}
               </option>
             ))}
           </select>
         </td>
         <td className="px-3 py-2.5">
-          <select aria-label="Bewerbung für" className={sel} value={form.candidate_area_id} onChange={(e) => setForm({ ...form, candidate_area_id: e.target.value })} disabled={form.role !== "candidate"}>
+          <select aria-label="Bewerbung für" className={sel} value={form.candidate_area} onChange={(e) => setForm({ ...form, candidate_area: e.target.value })} disabled={form.role !== "candidate"}>
             <option value="">–</option>
             {roleAreas.map((a) => (
-              <option key={a.id} value={a.id}>
+              <option key={a.slug} value={a.slug}>
                 {a.name_de}
               </option>
             ))}
@@ -152,15 +152,15 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
       {profile.role === "editor" && (
         <tr className="bg-side/60">
           <td colSpan={7} className="px-3 pb-3 pt-1">
-            <span className="cap mr-3">Darf schreiben in · Được viết trong</span>
+            <span className="cap mr-3">Betreut (Entwürfe & Antworten) · Phụ trách</span>
             <span className="inline-flex flex-wrap gap-3 align-middle">
               {areas.map((a) => (
-                <label key={a.id} className="inline-flex items-center gap-1.5 text-[13px]">
+                <label key={a.slug} className="inline-flex items-center gap-1.5 text-[13px]">
                   <input
                     type="checkbox"
                     className="accent-accent"
-                    defaultChecked={editorAreas.includes(a.id)}
-                    onChange={(e) => startTransition(() => setAreaEditor(a.id, profile.id, e.target.checked))}
+                    defaultChecked={editorAreas.includes(a.slug)}
+                    onChange={(e) => startTransition(() => setAreaEditor(a.slug, profile.id, e.target.checked))}
                   />
                   {a.name_de}
                 </label>

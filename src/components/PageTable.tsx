@@ -28,9 +28,9 @@ export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: Rea
           </span>
         </div>
         {pages.map((p) => (
-          <Link key={p.id} href={`/seite/${p.id}`} data-reveal className={`${GRID} min-h-11 rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-side`}>
+          <Link key={p.id} href={p.href} data-reveal className={`${GRID} min-h-11 rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-side`}>
             <span className="flex min-w-0 items-center gap-2">
-              <Icon name="doc" size={15} color={p.area?.color ?? "#6B7079"} strokeWidth={2} className="flex-none" />
+              <Icon name="doc" size={15} color={p.area.color} strokeWidth={2} className="flex-none" />
               <span className="min-w-0 leading-snug">
                 <Bi de={p.title_de} vi={p.title_vi} />
                 {!p.published && <span className="ml-1.5 rounded bg-chip px-1.5 text-[11px] text-muted">Entwurf</span>}
@@ -49,6 +49,3 @@ export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: Rea
     </div>
   );
 }
-
-export const PAGE_SELECT =
-  "id, area_id, slug, title_de, title_vi, kind, section, verified_until, published, updated_at, body, area:areas(slug, name_de, name_vi, color, icon)";

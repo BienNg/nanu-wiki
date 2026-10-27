@@ -10,14 +10,14 @@ export type Profile = {
   avatar_url: string | null;
   role: AppRole;
   location: "hcm" | "hanoi" | "stuttgart" | "online" | null;
-  candidate_area_id: string | null;
-  primary_area_id: string | null;
+  candidate_area: string | null; // area slug – candidates: the one role they applied for
+  primary_area: string | null;   // area slug – staff: their own role (for "Mein Onboarding")
   buddy_id: string | null;
   created_at: string;
 };
 
+/** Areas, pages, onboarding and quizzes are hard-coded in `src/content`; the database only stores progress. */
 export type Area = {
-  id: string;
   slug: string;
   name_de: string;
   name_vi: string;
@@ -26,7 +26,6 @@ export type Area = {
   icon: IconName;
   color: string;
   is_shared: boolean;
-  sort: number;
 };
 
 /** Content of a page is a list of blocks, each with German + Vietnamese text. */
@@ -52,9 +51,8 @@ export type ConversationMessage = { from: "customer" | "me"; text: string; trans
 /** What gets saved per reply: the customer message, the answer and how long it took. */
 export type ChatTurn = { customer: string; reply: string; seconds: number };
 
-export type Page = {
-  id: string;
-  area_id: string;
+/** One page as written in `src/content/pages/<area>/<slug>.ts`. */
+export type PageContent = {
   slug: string;
   title_de: string;
   title_vi: string;
@@ -62,12 +60,39 @@ export type Page = {
   section: PageSection;
   body: Block[];
   verified_until: string | null;
-  published: boolean;
-  updated_at: string;
+  updated_at: string; // YYYY-MM-DD – bump when the content changes (sorts "Neuigkeiten")
+  published?: boolean; // false = draft, only editors of the area and admins see it
 };
 
-export type PageWithMeta = Page & {
-  area: Pick<Area, "slug" | "name_de" | "name_vi" | "color" | "icon"> | null;
+/** A page plus where it lives. `id` is "<area>/<slug>" and is what the database stores (chat_responses.page_id). */
+export type PageWithMeta = PageContent & {
+  id: string;
+  href: string;
+  published: boolean;
+  area: Pick<Area, "slug" | "name_de" | "name_vi" | "color" | "icon">;
+};
+
+/** A weekly quiz. `correct` never leaves the server: content modules are server-only. */
+export type QuizContent = {
+  id: string;
+  pass_percent: number;
+  questions: {
+    question_de: string;
+    question_vi: string;
+    options: { de: string; vi: string }[];
+    correct: number;
+    explanation_de: string | null;
+    explanation_vi: string | null;
+  }[];
+};
+
+/** One week of a role's learning path. Item ids are stored in checklist_progress, so keep them stable. */
+export type OnboardingWeek = {
+  week: number;
+  title_de: string;
+  title_vi: string;
+  items: { id: string; label_de: string; label_vi: string; page?: string }[]; // page = "<area>/<slug>"
+  quiz?: QuizContent;
 };
 
 export type IconName =

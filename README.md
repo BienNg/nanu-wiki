@@ -13,29 +13,41 @@ German main text, Vietnamese underneath, with a DE+VI / DE / VI toggle.
 | --- | --- |
 | Home ("Neuigkeiten"), "Start hier", Für alle table, role cards | `src/app/(app)/page.tsx` |
 | Role page with tabs Interview / Onboarding / Handbuch | `src/app/(app)/bereich/[slug]/page.tsx` |
-| Page view (SOPs etc.), table of contents, YouTube blocks | `src/app/(app)/seite/[id]/page.tsx` |
-| Weekly quiz (graded in the database) | `src/app/(app)/quiz/[id]`, `src/components/QuizRunner.tsx` |
+| Page view (SOPs etc.), table of contents, YouTube blocks | `src/app/(app)/bereich/[slug]/[page]/page.tsx` |
+| Weekly quiz (graded on the server) | `src/app/(app)/quiz/[id]`, `src/components/QuizRunner.tsx` |
 | Search with filters by type, role, "nur geprüfte" | `src/app/(app)/suche/page.tsx` |
 | Admin: approve sign-ups, set roles, buddy, editor areas | `src/app/(app)/admin/benutzer` |
 | Slack: buddy notifications | `src/lib/slack.ts`, `src/app/actions.ts` |
-| Database schema, RLS, quiz RPCs | `supabase/migrations/20261027000000_init.sql` |
-| Sample content (Sales SOP, onboarding, quiz) | `supabase/seed.sql` |
+| **All content**: areas, pages, onboarding weeks, quizzes | `src/content/` |
+| Database schema + RLS (people and progress only) | `supabase/migrations/` (latest: `20261027230000_content_in_code.sql`) |
 
-### Access levels (role-based access, enforced by RLS in Postgres)
+### Content lives in code
+Everything people read is hard-coded in `src/content` and ships with each deploy; the database only stores
+profiles/roles and progress (`checklist_progress`, `quiz_attempts`, `chat_responses`).
+
+- **New page:** add `src/content/pages/<area>/<slug>.ts` (a `PageContent` with bilingual blocks) and list it in
+  `src/content/pages/index.ts`. URL: `/bereich/<area>/<slug>`. Bump `updated_at` when you change a page.
+- **Onboarding & quiz:** `src/content/onboarding/<area>.ts`. Checklist item `id`s and quiz `id`s are what progress
+  rows point at – keep them stable, otherwise people lose their ticks/attempts for that item.
+- **Areas:** `src/content/areas.ts`. The slug is stored on profiles (`primary_area`, `candidate_area`) and `area_editors`.
+- Old `/seite/<uuid>` links redirect to the new URLs (`next.config.ts`).
+
+### Access levels (checked in `src/content/index.ts` for content, RLS in Postgres for progress)
 
 | Level | Can see / do |
 | --- | --- |
 | `pending` | Nothing – waits on `/pending` until an admin approves (every new Google sign-up starts here) |
 | `candidate` | Only the **Interview** tab of the one role they applied for |
 | `staff` | Read all published pages, own onboarding checklist, quizzes, search |
-| `editor` | Staff + sees candidates' chat answers in the areas an admin assigns (pages themselves are written in code) |
+| `editor` | Staff + sees drafts and candidates' chat answers in the areas an admin assigns |
 | `admin` | Everything, including user management |
 
-Security notes: users can never change their own role (DB trigger), quiz answers are hidden from the browser
-(column grant – grading happens in `submit_quiz()`), and the service-role key is used only by the cron job.
+Security notes: users can never change their own role (DB trigger), quiz answers never reach the browser
+(`src/content` is server-only; grading happens in server actions), and the service-role key is used only to
+write quiz attempts, so nobody can record a pass from the browser.
 
 ### Explainer videos
-Add a `youtube` block anywhere in a page's `body` with any YouTube URL (watch, youtu.be, shorts, embed).
+Add a `video` block anywhere in a page's `body` (in `src/content/pages`) with any YouTube URL (watch, youtu.be, shorts, embed).
 The player loads only on click, via `youtube-nocookie.com`.
 
 ---
@@ -52,8 +64,8 @@ npm run dev                  # http://localhost:3000
 
 ### 2. Supabase
 1. Create a project at <https://supabase.com> (region: Singapore is closest to Vietnam).
-2. **SQL Editor** → paste and run `supabase/migrations/20261027000000_init.sql`, then `supabase/seed.sql`.
-   (Or with the CLI: `supabase link --project-ref <ref>` → `supabase db push` → run the seed in the SQL editor.)
+2. Apply the migrations: `supabase link --project-ref <ref>` → `supabase db push`
+   (or run every file in `supabase/migrations/` in order in the **SQL Editor**). There is no seed – content is in code.
 3. **Project Settings → API** → copy URL, `anon` key and `service_role` key into `.env.local`.
 
 ### 3. Google sign-in
@@ -93,7 +105,6 @@ gh repo create nanunana/nanu-wiki --private --source=. --push   # or create the 
 ---
 
 ## Not in v1 (good next steps)
-- Editing onboarding weeks, checklists and quiz questions in the app (for now: Supabase table editor).
 - Rich-text formatting inside paragraphs (bold/links).
 - Location-based visibility for Operations pages.
 - Generated Supabase types (`supabase gen types typescript`) for stricter typing.

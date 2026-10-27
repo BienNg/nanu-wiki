@@ -1,39 +1,31 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { getEditorAreas, requireRole } from "@/lib/auth";
+import { AREAS, getArea, readablePages } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { KindBadge } from "@/components/Badges";
-import { PageTable, PAGE_SELECT } from "@/components/PageTable";
+import { PageTable } from "@/components/PageTable";
 import { formatDate } from "@/lib/format";
-import type { Area, PageWithMeta } from "@/lib/types";
 
 const NO_AREA_TOAST = "Dir ist noch keine Rolle zugewiesen · Bạn chưa được gán vai trò";
 
 export default async function HomePage() {
   const { profile } = await requireRole("candidate");
-  const supabase = await createClient();
 
   if (profile.role === "candidate") {
-    const { data: area } = await supabase.from("areas").select("slug").eq("id", profile.candidate_area_id ?? "").maybeSingle();
+    const area = getArea(profile.candidate_area);
     redirect(area ? `/bereich/${area.slug}?tab=interview` : "/pending");
   }
 
-  const [{ data: areas }, { data: recent }] = await Promise.all([
-    supabase.from("areas").select("*").order("sort"),
-    supabase.from("pages").select(PAGE_SELECT).eq("published", true).order("updated_at", { ascending: false }).limit(6),
-  ]);
-  const allAreas = (areas ?? []) as Area[];
-  const shared = allAreas.find((a) => a.is_shared);
-  const roles = allAreas.filter((a) => !a.is_shared);
-  const myArea = allAreas.find((a) => a.id === profile.primary_area_id);
-
-  const { data: sharedPages } = shared
-    ? await supabase.from("pages").select(PAGE_SELECT).eq("area_id", shared.id).eq("published", true).order("title_de")
-    : { data: [] };
+  const published = readablePages(profile, await getEditorAreas()).filter((p) => p.published);
+  const recent = [...published].sort((a, b) => b.updated_at.localeCompare(a.updated_at)).slice(0, 6);
+  const shared = AREAS.find((a) => a.is_shared);
+  const roles = AREAS.filter((a) => !a.is_shared);
+  const myArea = getArea(profile.primary_area);
+  const sharedPages = published.filter((p) => p.area.slug === shared?.slug).sort((a, b) => a.title_de.localeCompare(b.title_de, "de"));
 
   return (
     <>
@@ -124,7 +116,7 @@ export default async function HomePage() {
             <h2 data-reveal className="title-display m-0 text-2xl">
               <Bi de={shared.name_de} vi={shared.name_vi} />
             </h2>
-            <PageTable pages={(sharedPages ?? []) as unknown as PageWithMeta[]} />
+            <PageTable pages={sharedPages} />
           </section>
         )}
 
@@ -135,7 +127,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-2.5 rounded-lg bg-side p-2.5">
             {roles.map((a) => (
               <Link
-                key={a.id}
+                key={a.slug}
                 href={`/bereich/${a.slug}`}
                 data-reveal
                 className="flex flex-col gap-2 rounded-lg border border-line bg-white p-3.5 text-ink shadow-[0_1px_2px_rgba(16,24,40,.04)] transition hover:-translate-y-0.5 hover:border-[#D3D6DC] hover:shadow-md"
@@ -157,8 +149,8 @@ export default async function HomePage() {
           <span className="cap border-b border-line-soft pb-1.5">
             <Label de="Änderungen im Wiki" vi="Thay đổi trong Wiki" />
           </span>
-          {((recent ?? []) as unknown as PageWithMeta[]).map((p) => (
-            <Link key={p.id} href={`/seite/${p.id}`} data-reveal className="flex gap-2.5 rounded-md px-1.5 py-2.5 text-ink hover:bg-side">
+          {recent.map((p) => (
+            <Link key={p.id} href={p.href} data-reveal className="flex gap-2.5 rounded-md px-1.5 py-2.5 text-ink hover:bg-side">
               <Icon name="doc" size={15} color="#6B7079" className="mt-0.5 flex-none" />
               <span className="flex flex-col gap-0.5">
                 <span className="flex flex-wrap items-center gap-2 font-medium">
@@ -168,7 +160,7 @@ export default async function HomePage() {
                   {p.kind === "living" && <KindBadge kind="living" />}
                 </span>
                 <span className="text-xs text-muted">
-                  {p.area?.name_de} · {formatDate(p.updated_at)}
+                  {p.area.name_de} · {formatDate(p.updated_at)}
                 </span>
               </span>
             </Link>
