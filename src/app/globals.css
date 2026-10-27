@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* Design tokens taken from the NaNu Wiki canvas (Slite-inspired). */
+@theme {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+
+  --color-ink: #2b2d31;
+  --color-body: #3c3f44;
+  --color-muted: #6b7079;
+  --color-faint: #8a8f98;
+  --color-line: #e6e8ec;
+  --color-line-soft: #eef0f2;
+  --color-side: #f5f6f8;
+  --color-hover: #ebedf0;
+  --color-active: #e4e6ea;
+  --color-chip: #f0f1f3;
+
+  --color-brand: #0b7793;
+  --color-accent: #2c6ecb;
+  --color-accent-dark: #1f56a8;
+  --color-accent-soft: #dce8fb;
+  --color-ask: #5b3fb5;
+  --color-ask-soft: #ece7fa;
+  --color-heading: #3f7f9e;
+  --color-peach: #f8eee5;
+
+  --color-ok: #23794a;
+  --color-ok-soft: #e6f4ea;
+  --color-warn: #a87400;
+  --color-warn-soft: #fbf3da;
+  --color-bad: #b9382a;
+  --color-bad-soft: #fcedea;
+}
+
+html,
+body {
+  background: #fff;
+  color: var(--color-body);
+}
+
+/* ---------- Bilingual display (DE main, VI italic underneath) ---------- */
+.vi {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-muted);
+  font-size: 0.92em;
+  line-height: 1.5;
+  margin-top: 2px;
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+}
+h1 .vi { font-size: 0.46em; margin-top: 8px; line-height: 1.4; }
+h2 .vi { font-size: 0.68em; }
+h3 .vi { font-size: 0.88em; }
+.vs { font-style: italic; font-weight: 400; color: var(--color-muted); }
+.vs::before { content: " · "; font-style: normal; }
+.vx { display: none; }
+
+html.lang-de .vi,
+html.lang-de .vs { display: none; }
+html.lang-vi .de,
+html.lang-vi .dx { display: none; }
+html.lang-vi .vx { display: inline; }
+html.lang-vi .vi { font-style: normal; font-size: 1em; color: inherit; font-weight: inherit; margin-top: 0; font-family: inherit; }
+html.lang-vi .vs { font-style: normal; color: inherit; }
+html.lang-vi .vs::before { content: none; }
+
+/* ---------- Small shared pieces ---------- */
+.cap {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.title-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+
