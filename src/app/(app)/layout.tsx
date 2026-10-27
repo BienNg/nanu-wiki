@@ -5,34 +5,27 @@ import { Sidebar } from "@/components/Sidebar";
 import { AppShell } from "@/components/AppShell";
 import { NavigationLoader } from "@/components/NavigationLoader";
 import { Toaster } from "@/components/Toaster";
-import type { Area } from "@/lib/types";
+import { getOnboarding, visibleAreas } from "@/content";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
   if (!session) redirect("/login");
   if (session.profile.role === "pending") redirect("/pending");
 
-  const supabase = await createClient();
-  // RLS decides which areas come back (candidates only get their own role).
-  const { data: areas } = await supabase.from("areas").select("*").order("sort");
+  // Candidates only get their own role.
+  const areaList = visibleAreas(session.profile);
 
   let onboardingPct: number | null = null;
-  if (session.profile.primary_area_id && session.profile.role !== "candidate") {
-    const [{ count: total }, { count: done }] = await Promise.all([
-      supabase
-        .from("checklist_items")
-        .select("id, onboarding_weeks!inner(area_id)", { count: "exact", head: true })
-        .eq("onboarding_weeks.area_id", session.profile.primary_area_id),
-      supabase
-        .from("checklist_progress")
-        .select("item_id, checklist_items!inner(onboarding_weeks!inner(area_id))", { count: "exact", head: true })
-        .eq("profile_id", session.profile.id)
-        .eq("checklist_items.onboarding_weeks.area_id", session.profile.primary_area_id),
-    ]);
-    if (total) onboardingPct = Math.round(((done ?? 0) / total) * 100);
+  const itemIds = getOnboarding(session.profile.primary_area ?? "").flatMap((w) => w.items.map((i) => i.id));
+  if (itemIds.length && session.profile.role !== "candidate") {
+    const supabase = await createClient();
+    const { count: done } = await supabase
+      .from("checklist_progress")
+      .select("item_id", { count: "exact", head: true })
+      .eq("profile_id", session.profile.id)
+      .in("item_id", itemIds);
+    onboardingPct = Math.round(((done ?? 0) / itemIds.length) * 100);
   }
-
-  const areaList = (areas ?? []) as Area[];
 
   return (
     <>

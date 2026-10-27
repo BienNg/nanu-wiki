@@ -15,7 +15,7 @@ export type WeekData = {
   quizId: string | null;
   quizPassed: boolean;
   bestScore: string | null;
-  items: { id: string; label_de: string; label_vi: string; pageId: string | null }[];
+  items: { id: string; label_de: string; label_vi: string; href: string | null }[];
 };
 
 export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekData[]; initialDone: string[]; areaSlug: string }) {
@@ -97,8 +97,8 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
                       <span className={checked ? "text-faint line-through" : "text-ink"}>
                         <Bi de={it.label_de} vi={it.label_vi} />
                       </span>
-                      {it.pageId && (
-                        <Link href={`/seite/${it.pageId}`} className="ml-auto flex-none text-xs" onClick={(e) => e.stopPropagation()}>
+                      {it.href && (
+                        <Link href={it.href} className="ml-auto flex-none text-xs" onClick={(e) => e.stopPropagation()}>
                           <Label de="Öffnen" vi="Mở" /> →
                         </Link>
                       )}

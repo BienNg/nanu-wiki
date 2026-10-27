@@ -4,21 +4,15 @@ import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Area, KnowledgeKind, PageWithMeta } from "@/lib/types";
-import { createClient } from "@/lib/supabase/client";
+import { searchWiki } from "@/app/actions";
 import { formatDate, isVerified } from "@/lib/format";
 import { snippet } from "@/lib/snippet";
-import { PAGE_SELECT } from "./PageTable";
 import { KIND, KindBadge, VerifiedPill } from "./Badges";
 import { Icon } from "./Icon";
 import { Label } from "./Bi";
 
 const chip =
   "inline-flex h-8 items-center gap-1.5 rounded-[5px] px-2.5 text-xs font-medium text-[#4A4F57] hover:bg-chip aria-pressed:bg-accent-soft aria-pressed:text-accent-dark";
-
-function normalize(row: PageWithMeta): PageWithMeta {
-  const area = Array.isArray(row.area) ? row.area[0] : row.area;
-  return { ...row, area: area ?? null };
-}
 
 export function SearchOverlay({
   open,
@@ -93,29 +87,23 @@ export function SearchOverlay({
     let ignore = false;
     setLoading(true);
     const timer = setTimeout(async () => {
-      const supabase = createClient();
       const broad = term.length > 0 || types.length > 0 || roles.length > 0 || verifiedOnly;
-      let request = supabase
-        .from("pages")
-        .select(PAGE_SELECT)
-        .eq("published", true)
-        .order("updated_at", { ascending: false })
-        .limit(broad ? 40 : 8);
-      if (term) {
-        const escaped = term.replace(/[%_\\]/g, (c) => `\\${c}`);
-        request = request.ilike("search_text", `%${escaped}%`);
-      }
-      const { data, error } = await request;
-      if (ignore) return;
-      setLoading(false);
-      setSettled(true);
-      if (error) {
+      let data: PageWithMeta[];
+      try {
+        data = await searchWiki(term, broad ? 40 : 8);
+      } catch {
+        if (ignore) return;
+        setLoading(false);
+        setSettled(true);
         setFailed(true);
         setResults([]);
         return;
       }
+      if (ignore) return;
+      setLoading(false);
+      setSettled(true);
       setFailed(false);
-      setResults(((data ?? []) as unknown as PageWithMeta[]).map(normalize));
+      setResults(data);
     }, 140);
     return () => {
       ignore = true;
@@ -127,7 +115,7 @@ export function SearchOverlay({
     () =>
       results.filter((page) => {
         if (types.length && !types.includes(page.kind)) return false;
-        if (roles.length && !roles.includes(page.area?.slug ?? "")) return false;
+        if (roles.length && !roles.includes(page.area.slug)) return false;
         if (verifiedOnly && !isVerified(page.verified_until)) return false;
         return true;
       }),
@@ -236,7 +224,7 @@ export function SearchOverlay({
               </div>
               <div role="group" aria-label="Rolle" className="flex flex-wrap items-center gap-0.5">
                 {areas.map((area) => (
-                  <button key={area.id} type="button" aria-pressed={roles.includes(area.slug)} onClick={() => toggleRole(area.slug)} className={chip}>
+                  <button key={area.slug} type="button" aria-pressed={roles.includes(area.slug)} onClick={() => toggleRole(area.slug)} className={chip}>
                     <Icon name={area.icon} size={12} color={area.color} strokeWidth={2.4} />
                     <Label de={area.name_de} vi={area.name_vi} />
                   </button>
@@ -290,11 +278,11 @@ export function SearchOverlay({
                     className={index === active ? "rounded-md bg-[#F2F5FA]" : undefined}
                   >
                     <Link
-                      href={`/seite/${page.id}`}
+                      href={page.href}
                       onClick={onClose}
                       className="flex items-start gap-3 rounded-md px-3 py-2.5 text-ink hover:bg-[#F2F5FA] hover:text-ink"
                     >
-                      <Icon name="doc" size={15} color={page.area?.color ?? "#6B7079"} strokeWidth={2} className="mt-[3px] flex-none" />
+                      <Icon name="doc" size={15} color={page.area.color} strokeWidth={2} className="mt-[3px] flex-none" />
                       <span className="flex min-w-0 flex-1 flex-col gap-px">
                         <span className="flex flex-wrap items-center gap-2 text-sm font-semibold leading-snug">
                           <span className="de">{page.title_de}</span>
@@ -303,7 +291,7 @@ export function SearchOverlay({
                         </span>
                         <span className="vi mt-0 text-xs">{page.title_vi}</span>
                         <span className="text-xs text-[#4A4F57]">
-                          {page.area?.name_de} · {formatDate(page.updated_at)}
+                          {page.area.name_de} · {formatDate(page.updated_at)}
                         </span>
                         {match && term && (
                           <span className="text-[13px] leading-normal text-muted">

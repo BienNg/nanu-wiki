@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { getEditorAreas, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { canEditArea, getOnboarding, readablePages, visibleAreas } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { BlockRenderer } from "@/components/BlockRenderer";
-import { PageTable, PAGE_SELECT } from "@/components/PageTable";
+import { PageTable } from "@/components/PageTable";
 import { OnboardingPanel, type WeekData } from "@/components/OnboardingPanel";
-import type { Area, PageWithMeta } from "@/lib/types";
+import type { PageWithMeta } from "@/lib/types";
 
 type Tab = "interview" | "onboarding" | "handbook";
 const TABS: { key: Tab; de: string; vi: string }[] = [
@@ -28,14 +29,15 @@ export default async function AreaPage({
   const { profile } = await requireRole("candidate");
   const { slug } = await params;
   const { tab: tabParam } = await searchParams;
-  const supabase = await createClient();
 
-  const { data: area } = await supabase.from("areas").select("*").eq("slug", slug).maybeSingle<Area>();
+  const area = visibleAreas(profile).find((a) => a.slug === slug);
   if (!area) notFound();
 
   const isCandidate = profile.role === "candidate";
   const tab: Tab = isCandidate ? "interview" : TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : "onboarding";
-  const { data: canEdit } = await supabase.rpc("can_edit_area", { target: area.id });
+  const editorAreas = await getEditorAreas();
+  const canEdit = canEditArea(profile, editorAreas, area.slug);
+  const pages = readablePages(profile, editorAreas).filter((p) => p.area.slug === area.slug);
 
   return (
     <>
@@ -59,7 +61,7 @@ export default async function AreaPage({
         </header>
 
         {area.is_shared ? (
-          <SharedArea areaId={area.id} />
+          <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} />
         ) : (
           <>
             {!isCandidate && (
@@ -78,9 +80,9 @@ export default async function AreaPage({
               </div>
             )}
 
-            {tab === "interview" && <InterviewTab areaId={area.id} profileId={profile.id} canEdit={!!canEdit} />}
-            {tab === "onboarding" && <OnboardingTab areaId={area.id} areaSlug={area.slug} profileId={profile.id} />}
-            {tab === "handbook" && <HandbookTab areaId={area.id} />}
+            {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
+            {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} />}
+            {tab === "handbook" && <HandbookTab pages={pages.filter((p) => p.section === "handbook")} />}
           </>
         )}
       </Reveal>
@@ -88,16 +90,8 @@ export default async function AreaPage({
   );
 }
 
-async function SharedArea({ areaId }: { areaId: string }) {
+async function InterviewTab({ pages, profileId, canEdit }: { pages: PageWithMeta[]; profileId: string; canEdit: boolean }) {
   const supabase = await createClient();
-  const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).order("title_de");
-  return <PageTable pages={(data ?? []) as unknown as PageWithMeta[]} />;
-}
-
-async function InterviewTab({ areaId, profileId, canEdit }: { areaId: string; profileId: string; canEdit: boolean }) {
-  const supabase = await createClient();
-  const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).eq("section", "interview").order("created_at");
-  const pages = (data ?? []) as unknown as PageWithMeta[];
   const withChat = pages.filter((p) => p.body.some((b) => b.type === "chat")).map((p) => p.id);
   const { data: mine } = withChat.length
     ? await supabase.from("chat_responses").select("page_id, sim_id").eq("profile_id", profileId).in("page_id", withChat)
@@ -108,13 +102,13 @@ async function InterviewTab({ areaId, profileId, canEdit }: { areaId: string; pr
       {pages.map((p) => (
         <article key={p.id} className="flex flex-col gap-4">
           <h2 data-reveal className="font-display m-0 text-2xl font-bold text-heading">
-            <Link href={`/seite/${p.id}`} className="text-heading hover:text-heading">
+            <Link href={p.href} className="text-heading hover:text-heading">
               <Bi de={p.title_de} vi={p.title_vi} />
             </Link>
           </h2>
           <BlockRenderer blocks={p.body} chat={{ pageId: p.id, done: (mine ?? []).filter((r) => r.page_id === p.id).map((r) => r.sim_id) }} />
           {canEdit && withChat.includes(p.id) && (
-            <Link href={`/seite/${p.id}`} className="self-start text-[13px] font-medium text-accent">
+            <Link href={p.href} className="self-start text-[13px] font-medium text-accent">
               <Label de="Antworten der Kandidaten ansehen" vi="Xem câu trả lời của ứng viên" /> →
             </Link>
           )}
@@ -124,15 +118,12 @@ async function InterviewTab({ areaId, profileId, canEdit }: { areaId: string; pr
   );
 }
 
-async function OnboardingTab({ areaId, areaSlug, profileId }: { areaId: string; areaSlug: string; profileId: string }) {
-  const supabase = await createClient();
-  const { data: weeks } = await supabase
-    .from("onboarding_weeks")
-    .select("id, week, title_de, title_vi, checklist_items(id, sort, label_de, label_vi, page_id), quizzes(id)")
-    .eq("area_id", areaId)
-    .order("week");
+async function OnboardingTab({ areaSlug, profileId }: { areaSlug: string; profileId: string }) {
+  const weeks = getOnboarding(areaSlug);
+  if (!weeks.length) return <p className="text-muted">Für diese Rolle gibt es noch keinen Lernpfad · Chưa có lộ trình cho vai trò này</p>;
 
-  const quizIds = (weeks ?? []).flatMap((w) => (w.quizzes as unknown as { id: string } | null)?.id ?? []);
+  const supabase = await createClient();
+  const quizIds = weeks.flatMap((w) => w.quiz?.id ?? []);
   const [{ data: progress }, { data: attempts }] = await Promise.all([
     supabase.from("checklist_progress").select("item_id").eq("profile_id", profileId),
     quizIds.length
@@ -140,25 +131,21 @@ async function OnboardingTab({ areaId, areaSlug, profileId }: { areaId: string; 
       : Promise.resolve({ data: [] as { quiz_id: string; score: number; total: number; passed: boolean }[] }),
   ]);
 
-  const data: WeekData[] = (weeks ?? []).map((w) => {
-    const quiz = w.quizzes as unknown as { id: string } | null;
-    const mine = (attempts ?? []).filter((a) => a.quiz_id === quiz?.id);
+  const data: WeekData[] = weeks.map((w) => {
+    const mine = (attempts ?? []).filter((a) => a.quiz_id === w.quiz?.id);
     const best = mine.sort((a, b) => b.score - a.score)[0];
     return {
-      id: w.id,
+      id: `${areaSlug}.w${w.week}`,
       week: w.week,
       title_de: w.title_de,
       title_vi: w.title_vi,
-      quizId: quiz?.id ?? null,
+      quizId: w.quiz?.id ?? null,
       quizPassed: mine.some((a) => a.passed),
       bestScore: best ? `${best.score}/${best.total}` : null,
-      items: [...(w.checklist_items ?? [])]
-        .sort((a, b) => a.sort - b.sort)
-        .map((i) => ({ id: i.id, label_de: i.label_de, label_vi: i.label_vi, pageId: i.page_id })),
+      items: w.items.map((i) => ({ id: i.id, label_de: i.label_de, label_vi: i.label_vi, href: i.page ? `/bereich/${i.page}` : null })),
     };
   });
 
-  if (!data.length) return <p className="text-muted">Für diese Rolle gibt es noch keinen Lernpfad · Chưa có lộ trình cho vai trò này</p>;
   return (
     <div role="tabpanel">
       <OnboardingPanel weeks={data} initialDone={(progress ?? []).map((p) => p.item_id)} areaSlug={areaSlug} />
@@ -166,13 +153,11 @@ async function OnboardingTab({ areaId, areaSlug, profileId }: { areaId: string; 
   );
 }
 
-async function HandbookTab({ areaId }: { areaId: string }) {
-  const supabase = await createClient();
-  const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).eq("section", "handbook").order("updated_at", { ascending: false });
+function HandbookTab({ pages }: { pages: PageWithMeta[] }) {
   return (
     <div role="tabpanel" className="flex flex-col gap-3">
       <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
-      <PageTable pages={(data ?? []) as unknown as PageWithMeta[]} />
+      <PageTable pages={[...pages].sort((a, b) => b.updated_at.localeCompare(a.updated_at))} />
     </div>
   );
 }

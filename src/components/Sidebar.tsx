@@ -9,7 +9,7 @@ import { CollapseSidebarButton, SearchTrigger } from "./AppShell";
 
 export function Sidebar({ areas, profile, onboardingPct }: { areas: Area[]; profile: Profile; onboardingPct: number | null }) {
   const isCandidate = profile.role === "candidate";
-  const myArea = areas.find((a) => a.id === profile.primary_area_id);
+  const myArea = areas.find((a) => a.slug === profile.primary_area);
 
   return (
     <aside aria-label="Seitenleiste" className="flex h-full min-h-0 w-full flex-col bg-side px-2.5 pb-3 pt-2.5">
@@ -50,7 +50,7 @@ export function Sidebar({ areas, profile, onboardingPct }: { areas: Area[]; prof
         </div>
         {areas.map((a) => (
           <NavLink
-            key={a.id}
+            key={a.slug}
             href={isCandidate ? `/bereich/${a.slug}?tab=interview` : `/bereich/${a.slug}`}
             matchPrefix={`/bereich/${a.slug}`}
             title={a.name_de}

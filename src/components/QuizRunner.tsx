@@ -8,7 +8,6 @@ import { checkAnswer, submitQuiz } from "@/app/actions";
 import { Bi, Label } from "./Bi";
 
 export type QuizQuestion = {
-  id: string;
   question_de: string;
   question_vi: string;
   options: { de: string; vi: string }[];
@@ -65,7 +64,7 @@ export function QuizRunner({
   function check() {
     if (picked === null) return;
     startTransition(async () => {
-      const res = await checkAnswer(q.id, picked);
+      const res = await checkAnswer(quizId, index, picked);
       setFeedback(res);
       setAnswers((a) => [...a, picked]);
       setMarks((m) => [...m, res.isCorrect]);
@@ -80,7 +79,7 @@ export function QuizRunner({
       return;
     }
     startTransition(async () => {
-      setResult(await submitQuiz(quizId, answers, `Woche ${week.number} · ${week.de}`));
+      setResult(await submitQuiz(quizId, answers));
     });
   }
 
@@ -243,7 +242,7 @@ export function QuizRunner({
                 {questions.map((qq, k) => {
                   const ok = answers[k] === result.correct[k];
                   return (
-                    <div key={qq.id} className="flex items-start gap-2.5 border-t border-[#F0F1F3] px-0.5 py-2.5 text-[13px]">
+                    <div key={k} className="flex items-start gap-2.5 border-t border-[#F0F1F3] px-0.5 py-2.5 text-[13px]">
                       <span className={`mt-px flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full text-[10px] font-bold ${ok ? "bg-ok-soft text-ok" : "bg-bad-soft text-bad"}`}>
                         {ok ? "✓" : "✗"}
                       </span>
