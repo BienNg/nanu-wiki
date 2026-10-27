@@ -6,7 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
 import { canReadPage, getOnboarding, getPageById, getQuiz, readablePages, searchPages } from "@/content";
 import { dmByEmail, siteUrl } from "@/lib/slack";
-import type { AppRole, ChatTurn, PageWithMeta } from "@/lib/types";
+import { blockKey, COMMENT_STATUSES, tagInfo } from "@/lib/comments";
+import type { AppRole, ChatTurn, CommentAnchor, CommentStatus, CommentTag, PageWithMeta } from "@/lib/types";
 
 // ------------------------------------------------------------------ helpers
 async function notifyBuddy(text: string) {
@@ -115,6 +116,109 @@ export async function submitChat(pageId: string, simId: string, turns: ChatTurn[
     return { ok: false as const, message: error.code === "23505" ? "Schon abgeschickt · Bạn đã gửi rồi" : error.message };
   }
   revalidatePath(page.href);
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+// ------------------------------------------------------------------ page comments
+const clip = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : undefined);
+
+/** Staff leave a comment on a page, a block or a few words of it. Editors of the area hear about it on Slack. */
+export async function addComment(input: { pageId: string; anchor: CommentAnchor; tag: CommentTag | null; body: string }) {
+  const session = await getSession();
+  if (!session || !hasRole(session.profile.role, "staff")) return { ok: false as const, message: "Nicht erlaubt · Không được phép" };
+  const page = getPageById(input.pageId);
+  if (!page || !canReadPage(session.profile, await getEditorAreas(), page)) {
+    return { ok: false as const, message: "Seite nicht gefunden · Không tìm thấy trang" };
+  }
+  const tag = tagInfo(input.tag) ? input.tag : null;
+  const body = String(input.body ?? "").trim().slice(0, 2000);
+  if (!tag && !body) return { ok: false as const, message: "Bitte Tag wählen oder Text schreiben · Hãy chọn nhãn hoặc viết vài chữ" };
+
+  let anchor: CommentAnchor = null;
+  if (input.anchor) {
+    const block = page.body.find((b) => blockKey(b) === input.anchor?.block);
+    if (!block) return { ok: false as const, message: "Stelle nicht gefunden – bitte Seite neu laden · Hãy tải lại trang" };
+    const a = input.anchor;
+    anchor = {
+      block: a.block,
+      field: a.field === "de" || a.field === "vi" ? a.field : undefined,
+      exact: clip(a.exact?.trim(), 500) || undefined,
+      prefix: clip(a.prefix, 32),
+      suffix: clip(a.suffix, 32),
+      context: clip(a.context, 600),
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("page_comments")
+    .insert({ page_id: page.id, area: page.area.slug, author_id: session.profile.id, anchor, tag, body, page_version: page.updated_at })
+    .select("id")
+    .single();
+  if (error) return { ok: false as const, message: error.message };
+
+  await notifyEditors(page, `💬 ${who(session)}`, { anchor, tag, body, id: data.id }, session.profile.id);
+  revalidatePath("/admin/kommentare");
+  return { ok: true as const };
+}
+
+/** DMs the editors of the page's area (or the admins when the area has none). */
+async function notifyEditors(
+  page: PageWithMeta,
+  from: string,
+  c: { anchor: CommentAnchor; tag: CommentTag | null; body: string; id: string },
+  authorId: string,
+) {
+  // Service role only to look up who to tell; what is read is decided here, not by the user.
+  const admin = createAdminClient();
+  const { data: editors } = await admin.from("area_editors").select("profiles(id, email, role)").eq("area", page.area.slug);
+  let people = (editors ?? []).flatMap((e) => (e.profiles ? [e.profiles as unknown as { id: string; email: string; role: AppRole }] : []));
+  people = people.filter((p) => p.role === "editor" || p.role === "admin");
+  if (people.length === 0) {
+    const { data: admins } = await admin.from("profiles").select("id, email, role").eq("role", "admin");
+    people = (admins ?? []) as typeof people;
+  }
+  const t = tagInfo(c.tag);
+  const lines = [
+    `${from} hat „${page.title_de}“ kommentiert${t ? ` (${t.emoji} ${t.de})` : ""}:`,
+    c.anchor?.exact ? `> „${c.anchor.exact.slice(0, 200)}“` : null,
+    c.body ? c.body.slice(0, 500) : null,
+    `${siteUrl(`${page.href}?c=${c.id}`)}  ·  Alle Kommentare: ${siteUrl(`/admin/kommentare?area=${page.area.slug}`)}`,
+  ].filter(Boolean);
+  await Promise.all(people.filter((p) => p.id !== authorId && p.email).map((p) => dmByEmail(p.email, lines.join("\n"))));
+}
+
+/** Editors and admins move a comment along. On "resolved"/"declined" the author gets a thank-you DM. */
+export async function setCommentStatus(id: string, status: CommentStatus, note?: string) {
+  const session = await getSession();
+  if (!session || !hasRole(session.profile.role, "editor")) throw new Error("editors only");
+  if (!COMMENT_STATUSES.some((s) => s.id === status)) throw new Error("unknown status");
+  const supabase = await createClient();
+  const { data: before } = await supabase.from("page_comments").select("status, page_id, anchor, author_id").eq("id", id).single();
+  if (!before) return { ok: false as const, message: "Kommentar nicht gefunden · Không tìm thấy bình luận" };
+
+  const resolution_note = note?.trim().slice(0, 2000) || null;
+  // RLS only lets editors of the comment's area (and admins) update; 0 rows means not allowed.
+  const { data: updated, error } = await supabase.from("page_comments").update({ status, resolution_note }).eq("id", id).select("id");
+  if (error) return { ok: false as const, message: error.message };
+  if (!updated?.length) return { ok: false as const, message: "Nicht erlaubt · Không được phép" };
+
+  const closing = (status === "resolved" || status === "declined") && before.status !== status;
+  if (closing && before.author_id !== session.profile.id) {
+    const page = getPageById(before.page_id);
+    const { data: author } = await supabase.from("profiles").select("email").eq("id", before.author_id).single();
+    const quote = (before.anchor as CommentAnchor)?.exact;
+    const where = `„${page?.title_de ?? before.page_id}“${quote ? ` („${quote.slice(0, 80)}“)` : ""}`;
+    const text =
+      status === "resolved"
+        ? `🙏 Danke! Dein Hinweis zu ${where} wurde umgesetzt. · Cảm ơn bạn! Góp ý của bạn đã được cập nhật.`
+        : `Dein Hinweis zu ${where} wurde angesehen, wird aber nicht umgesetzt. · Góp ý của bạn đã được xem nhưng sẽ không thay đổi.`;
+    if (author?.email) {
+      await dmByEmail(author.email, [text, resolution_note ? `${who(session)}: ${resolution_note}` : null, page ? siteUrl(page.href) : null].filter(Boolean).join("\n"));
+    }
+  }
+  revalidatePath("/admin/kommentare");
   revalidatePath("/", "layout");
   return { ok: true as const };
 }

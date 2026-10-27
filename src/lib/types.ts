@@ -28,8 +28,10 @@ export type Area = {
   is_shared: boolean;
 };
 
-/** Content of a page is a list of blocks, each with German + Vietnamese text. */
-export type Block =
+/** Content of a page is a list of blocks, each with German + Vietnamese text.
+ *  `id` is optional: give a block one to keep its comments attached when its text is rewritten
+ *  (otherwise the comment key is a hash of the block's content, see `blockKey`). */
+export type Block = (
   | { type: "heading"; de: string; vi: string }
   | { type: "paragraph"; de: string; vi: string }
   | { type: "list"; ordered?: boolean; items: { de: string; vi: string }[] }
@@ -38,7 +40,8 @@ export type Block =
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
   | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; messages: ChatMessage[] }
-  | { type: "conversation"; customer: string; label_de?: string; label_vi?: string; note_de?: string; note_vi?: string; messages: ConversationMessage[] };
+  | { type: "conversation"; customer: string; label_de?: string; label_vi?: string; note_de?: string; note_vi?: string; messages: ConversationMessage[] }
+) & { id?: string };
 
 /** One message of an imaginary customer in a Messenger simulation.
  *  A blank line inside `text` splits it into several bubbles sent in a row. */
@@ -73,6 +76,37 @@ export type PageWithMeta = PageContent & {
   href: string;
   published: boolean;
   area: Pick<Area, "slug" | "name_de" | "name_vi" | "color" | "icon">;
+};
+
+/** Quick tag a commenter can pick instead of (or next to) writing text. */
+export type CommentTag = "unklar" | "fehler" | "veraltet" | "idee" | "hilfreich";
+export type CommentStatus = "open" | "in_progress" | "resolved" | "declined";
+
+/** Where a comment points. null = the whole page. `field` is the language the text was selected in. */
+export type CommentAnchor = {
+  block: string;
+  field?: "de" | "vi";
+  exact?: string;   // the selected words
+  prefix?: string;  // up to 32 characters before them …
+  suffix?: string;  // … and after them, to find the right spot again
+  context?: string; // the block's text when the comment was written (shown in the inbox)
+} | null;
+
+/** One row of page_comments. */
+export type PageComment = {
+  id: string;
+  page_id: string;
+  area: string;
+  author_id: string;
+  anchor: CommentAnchor;
+  tag: CommentTag | null;
+  body: string;
+  status: CommentStatus;
+  resolution_note: string | null;
+  page_version: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  created_at: string;
 };
 
 /** A weekly quiz. `correct` never leaves the server: content modules are server-only. */

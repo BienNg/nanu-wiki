@@ -7,7 +7,18 @@ import { NavLink } from "./NavLink";
 import { initials } from "@/lib/format";
 import { CollapseSidebarButton, SearchTrigger } from "./AppShell";
 
-export function Sidebar({ areas, profile, onboardingPct }: { areas: Area[]; profile: Profile; onboardingPct: number | null }) {
+/** `openComments`: open comments in the areas this editor/admin works through, null for everyone else. */
+export function Sidebar({
+  areas,
+  profile,
+  onboardingPct,
+  openComments,
+}: {
+  areas: Area[];
+  profile: Profile;
+  onboardingPct: number | null;
+  openComments: number | null;
+}) {
   const isCandidate = profile.role === "candidate";
   const myArea = areas.find((a) => a.slug === profile.primary_area);
 
@@ -64,6 +75,15 @@ export function Sidebar({ areas, profile, onboardingPct }: { areas: Area[]; prof
       </div>
 
       <div className="flex flex-col gap-px pt-2">
+        {openComments !== null && (
+          <NavLink href="/admin/kommentare" title="Kommentare">
+            <Icon name="chat" size={15} />
+            <span className="side-text min-w-0 flex-1 truncate">
+              <Label de="Kommentare" vi="Bình luận" />
+            </span>
+            {openComments > 0 && <span className="side-text rounded-full bg-accent px-1.5 text-[11px] font-semibold leading-[18px] text-white">{openComments}</span>}
+          </NavLink>
+        )}
         {hasRole(profile.role, "admin") && (
           <NavLink href="/admin/benutzer" title="Benutzer & Rollen">
             <Icon name="shield" size={15} />

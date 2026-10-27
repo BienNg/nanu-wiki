@@ -5,6 +5,7 @@ import { VideoEmbed } from "./VideoEmbed";
 import { CopyButton } from "./CopyButton";
 import { MessengerSim } from "./MessengerSim";
 import { MessengerMockup } from "./MessengerMockup";
+import { blockKey } from "@/lib/comments";
 
 export function slugify(text: string) {
   return text
@@ -25,90 +26,97 @@ const CALLOUT = {
 export function BlockRenderer({ blocks, chat }: { blocks: Block[]; chat?: { pageId: string; done: string[] } }) {
   return (
     <div className="flex flex-col gap-5 text-[15px] leading-[1.7] text-ink">
-      {blocks.map((b, i) => {
-        switch (b.type) {
-          case "heading":
-            return (
-              <h2 key={i} id={slugify(b.de)} data-reveal className="font-display mt-3 scroll-mt-6 text-2xl font-bold leading-tight tracking-tight text-heading">
-                <Bi de={b.de} vi={b.vi} />
-              </h2>
-            );
-          case "paragraph":
-            return (
-              <p key={i} data-reveal className="m-0 whitespace-pre-line">
-                <Bi de={b.de} vi={b.vi} />
-              </p>
-            );
-          case "list": {
-            const Tag = b.ordered ? "ol" : "ul";
-            return (
-              <Tag key={i} data-reveal className={`m-0 flex flex-col gap-1 pl-6 ${b.ordered ? "list-decimal" : "list-disc"}`}>
-                {b.items.map((it, j) => (
-                  <li key={j}>
-                    <Bi de={it.de} vi={it.vi} />
-                  </li>
-                ))}
-              </Tag>
-            );
-          }
-          case "steps":
-            return (
-              <ol key={i} data-reveal className="m-0 flex list-decimal flex-col gap-4 pl-6 marker:font-semibold marker:text-muted">
-                {b.items.map((it, j) => (
-                  <li key={j}>
-                    <h3 className="m-0 text-base font-semibold leading-snug">
-                      <Bi de={it.de} vi={it.vi} />
-                    </h3>
-                    {it.body_de ? (
-                      <p className="m-0 mt-0.5 text-body">
-                        <Bi de={it.body_de} vi={it.body_vi} />
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ol>
-            );
-          case "callout": {
-            const c = CALLOUT[b.tone];
-            return (
-              <aside key={i} data-reveal className={`flex gap-3 rounded-lg px-4 py-3 text-sm leading-relaxed ${c.box}`}>
-                <Icon name={b.tone === "warning" ? "shield" : "spark"} size={16} color={c.icon} strokeWidth={2} className="mt-[3px] flex-none" />
-                <div>
-                  <strong className="font-semibold">
-                    <Label de={c.de} vi={c.vi} />:
-                  </strong>{" "}
-                  <Bi de={b.de} vi={b.vi} />
-                </div>
-              </aside>
-            );
-          }
-          case "template":
-            return (
-              <div key={i} data-reveal className="overflow-hidden rounded-lg border border-line">
-                <div className="flex items-center justify-between gap-2.5 border-b border-line bg-side py-1.5 pl-3 pr-2">
-                  <span className="cap">
-                    <Label de={b.label_de} vi={b.label_vi} />
-                  </span>
-                  <CopyButton text={b.text} />
-                </div>
-                <p className="m-0 px-3.5 py-3 text-sm">{b.text}</p>
-                {b.translation_de ? <p className="de m-0 px-3.5 pb-3 text-[13px] text-muted">{b.translation_de}</p> : null}
-              </div>
-            );
-          case "video":
-            return (
-              <div key={i} data-reveal>
-                <VideoEmbed url={b.url} captionDe={b.caption_de} captionVi={b.caption_vi} />
-              </div>
-            );
-          case "chat":
-            return <MessengerSim key={i} block={b} pageId={chat?.pageId} done={chat?.done.includes(b.id)} />;
-          case "conversation":
-            return <MessengerMockup key={i} block={b} />;
-          default:
-            return null;
-        }
-      })}
+      {blocks.map((b, i) => (
+        // `data-block` is what comments point at (see CommentLayer).
+        <div key={i} data-block={blockKey(b)} className="flex flex-col">
+          {renderBlock(b, i, chat)}
+        </div>
+      ))}
     </div>
   );
+}
+
+function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[] }) {
+  switch (b.type) {
+    case "heading":
+      return (
+        <h2 key={i} id={slugify(b.de)} data-reveal className="font-display mt-3 scroll-mt-6 text-2xl font-bold leading-tight tracking-tight text-heading">
+          <Bi de={b.de} vi={b.vi} />
+        </h2>
+      );
+    case "paragraph":
+      return (
+        <p key={i} data-reveal className="m-0 whitespace-pre-line">
+          <Bi de={b.de} vi={b.vi} />
+        </p>
+      );
+    case "list": {
+      const Tag = b.ordered ? "ol" : "ul";
+      return (
+        <Tag key={i} data-reveal className={`m-0 flex flex-col gap-1 pl-6 ${b.ordered ? "list-decimal" : "list-disc"}`}>
+          {b.items.map((it, j) => (
+            <li key={j}>
+              <Bi de={it.de} vi={it.vi} />
+            </li>
+          ))}
+        </Tag>
+      );
+    }
+    case "steps":
+      return (
+        <ol key={i} data-reveal className="m-0 flex list-decimal flex-col gap-4 pl-6 marker:font-semibold marker:text-muted">
+          {b.items.map((it, j) => (
+            <li key={j}>
+              <h3 className="m-0 text-base font-semibold leading-snug">
+                <Bi de={it.de} vi={it.vi} />
+              </h3>
+              {it.body_de ? (
+                <p className="m-0 mt-0.5 text-body">
+                  <Bi de={it.body_de} vi={it.body_vi} />
+                </p>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      );
+    case "callout": {
+      const c = CALLOUT[b.tone];
+      return (
+        <aside key={i} data-reveal className={`flex gap-3 rounded-lg px-4 py-3 text-sm leading-relaxed ${c.box}`}>
+          <Icon name={b.tone === "warning" ? "shield" : "spark"} size={16} color={c.icon} strokeWidth={2} className="mt-[3px] flex-none" />
+          <div>
+            <strong className="font-semibold">
+              <Label de={c.de} vi={c.vi} />:
+            </strong>{" "}
+            <Bi de={b.de} vi={b.vi} />
+          </div>
+        </aside>
+      );
+    }
+    case "template":
+      return (
+        <div key={i} data-reveal className="overflow-hidden rounded-lg border border-line">
+          <div className="flex items-center justify-between gap-2.5 border-b border-line bg-side py-1.5 pl-3 pr-2">
+            <span className="cap">
+              <Label de={b.label_de} vi={b.label_vi} />
+            </span>
+            <CopyButton text={b.text} />
+          </div>
+          <p className="m-0 px-3.5 py-3 text-sm">{b.text}</p>
+          {b.translation_de ? <p className="de m-0 px-3.5 pb-3 text-[13px] text-muted">{b.translation_de}</p> : null}
+        </div>
+      );
+    case "video":
+      return (
+        <div key={i} data-reveal>
+          <VideoEmbed url={b.url} captionDe={b.caption_de} captionVi={b.caption_vi} />
+        </div>
+      );
+    case "chat":
+      return <MessengerSim key={i} block={b} pageId={chat?.pageId} done={chat?.done.includes(b.id)} />;
+    case "conversation":
+      return <MessengerMockup key={i} block={b} />;
+    default:
+      return null;
+  }
 }

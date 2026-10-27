@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getEditorAreas, getSession, requireRole } from "@/lib/auth";
+import { getEditorAreas, getSession, hasRole, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { canEditArea, canReadPage, getPage } from "@/content";
 import { Crumb, Topbar } from "@/components/Topbar";
@@ -11,6 +11,8 @@ import { Icon } from "@/components/Icon";
 import { KindBadge, VerifiedPill } from "@/components/Badges";
 import { BlockRenderer, slugify } from "@/components/BlockRenderer";
 import { ChatResponses } from "@/components/ChatResponses";
+import { CommentLayer } from "@/components/CommentLayer";
+import type { CommentAnchor } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 
 type Params = Promise<{ slug: string; page: string }>;
@@ -29,7 +31,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return { title: page?.title_de ?? "Seite" };
 }
 
-export default async function DocPage({ params }: { params: Params }) {
+export default async function DocPage({ params, searchParams }: { params: Params; searchParams: Promise<{ c?: string }> }) {
   const { profile } = await requireRole("candidate");
   const page = await load(params);
   if (!page) notFound();
@@ -40,6 +42,14 @@ export default async function DocPage({ params }: { params: Params }) {
   const { data: mine } = hasChat
     ? await supabase.from("chat_responses").select("sim_id").eq("page_id", page.id).eq("profile_id", profile.id)
     : { data: [] as { sim_id: string }[] };
+  const canComment = hasRole(profile.role, "staff");
+  // `?c=<comment id>` (links from the inbox and Slack) → scroll to that comment's spot.
+  const { c } = await searchParams;
+  let focus: CommentAnchor | "missing" | undefined;
+  if (canComment && c && /^[0-9a-f-]{36}$/.test(c)) {
+    const { data } = await supabase.from("page_comments").select("anchor").eq("id", c).eq("page_id", page.id).maybeSingle();
+    focus = data ? (data.anchor as CommentAnchor) ?? undefined : "missing";
+  }
   const headings = page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[];
   const tint = `${page.area.color}22`;
 
@@ -78,7 +88,13 @@ export default async function DocPage({ params }: { params: Params }) {
             </span>
           </header>
 
-          <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
+          {canComment ? (
+            <CommentLayer pageId={page.id} focus={focus}>
+              <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
+            </CommentLayer>
+          ) : (
+            <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
+          )}
           {canEdit && hasChat && <ChatResponses pageId={page.id} blocks={page.body} />}
         </Reveal>
       </div>
