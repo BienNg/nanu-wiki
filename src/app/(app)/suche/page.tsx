@@ -8,50 +8,13 @@ import { Icon } from "@/components/Icon";
 import { KIND, KindBadge, VerifiedPill } from "@/components/Badges";
 import { PAGE_SELECT } from "@/components/PageTable";
 import { formatDate, isVerified } from "@/lib/format";
-import type { Area, Block, KnowledgeKind, PageWithMeta } from "@/lib/types";
+import { snippet } from "@/lib/snippet";
+import type { Area, KnowledgeKind, PageWithMeta } from "@/lib/types";
 
 export const metadata = { title: "Suche" };
 
 type Params = { q?: string; type?: string | string[]; role?: string | string[]; verified?: string };
 const list = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
-
-/** Flattens German + Vietnamese text of all blocks (for snippets). */
-function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
-  return blocks.flatMap((b): { de: string; vi: string }[] => {
-    switch (b.type) {
-      case "heading":
-      case "paragraph":
-      case "callout":
-        return [{ de: b.de, vi: b.vi }];
-      case "list":
-      case "steps":
-        return b.items.map((i) => ({ de: `${i.de} ${"body_de" in i ? (i.body_de ?? "") : ""}`, vi: i.vi }));
-      case "template":
-        return [{ de: b.translation_de ?? b.text, vi: b.text }];
-      case "video":
-        return [{ de: b.caption_de ?? "", vi: b.caption_vi ?? "" }];
-      case "chat":
-        return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, ...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text }))];
-    }
-  });
-}
-
-function snippet(page: PageWithMeta, q: string) {
-  const texts = blockTexts(page.body);
-  const needle = q.toLowerCase();
-  const hit = texts.find((t) => t.de.toLowerCase().includes(needle) || t.vi.toLowerCase().includes(needle)) ?? texts[0];
-  if (!hit) return null;
-  const src = hit.de.toLowerCase().includes(needle) || !q ? hit.de : hit.vi;
-  const at = q ? src.toLowerCase().indexOf(needle) : -1;
-  if (at < 0) return { pre: src.slice(0, 160), hit: "", post: src.length > 160 ? " …" : "", vi: hit.vi.slice(0, 140) };
-  const start = Math.max(0, at - 60);
-  return {
-    pre: (start > 0 ? "… " : "") + src.slice(start, at),
-    hit: src.slice(at, at + q.length),
-    post: src.slice(at + q.length, at + q.length + 90) + " …",
-    vi: hit.vi.slice(0, 140),
-  };
-}
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Params> }) {
   await requireRole("staff");
@@ -167,7 +130,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                   </span>
                   <span className="vi mt-0 text-xs">{p.title_vi}</span>
                   <span className="text-xs text-[#4A4F57]">
-                    {p.area?.name_de} · {p.owner?.full_name ?? "–"} · {formatDate(p.updated_at)}
+                    {p.area?.name_de} · {formatDate(p.updated_at)}
                   </span>
                   {s && (
                     <span className="text-[13px] leading-normal text-muted">

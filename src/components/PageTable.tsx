@@ -1,20 +1,20 @@
 import Link from "next/link";
 import type { PageWithMeta } from "@/lib/types";
-import { formatDate, initials } from "@/lib/format";
-import { Avatar, KindBadge, VerifiedPill } from "./Badges";
+import { formatDate } from "@/lib/format";
+import { KindBadge, VerifiedPill } from "./Badges";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 
-const GRID = "grid grid-cols-[minmax(220px,1fr)_120px_120px_150px_100px] items-center gap-3";
+const GRID = "grid grid-cols-[minmax(220px,1fr)_120px_120px_100px] items-center gap-3";
 
-/** Slite-style document table: page, type, status, owner, last activity. */
+/** Slite-style document table: page, type, status, last activity. */
 export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: React.ReactNode }) {
   if (!pages.length) {
     return <p className="rounded-lg bg-side px-4 py-6 text-center text-[13px] text-muted">{empty ?? "Noch keine Seiten · Chưa có trang"}</p>;
   }
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[720px]">
+      <div className="min-w-[570px]">
         <div className={`${GRID} min-h-8 px-2.5`}>
           <span className="cap">
             <Label de="Seite" vi="Trang" />
@@ -23,7 +23,6 @@ export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: Rea
             <Label de="Typ" vi="Loại" />
           </span>
           <span className="cap">Status</span>
-          <span className="cap">Owner</span>
           <span className="cap">
             <Label de="Aktivität" vi="Hoạt động" />
           </span>
@@ -43,10 +42,6 @@ export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: Rea
             <span>
               <VerifiedPill until={p.verified_until} />
             </span>
-            <span className="flex min-w-0 items-center gap-1.5 truncate">
-              <Avatar text={initials(p.owner?.full_name, p.owner?.email)} />
-              <span className="truncate">{p.owner?.full_name ?? p.owner?.email ?? "–"}</span>
-            </span>
             <span className="text-muted">{formatDate(p.updated_at)}</span>
           </Link>
         ))}
@@ -56,4 +51,4 @@ export function PageTable({ pages, empty }: { pages: PageWithMeta[]; empty?: Rea
 }
 
 export const PAGE_SELECT =
-  "id, area_id, slug, title_de, title_vi, kind, section, owner_id, verified_until, published, updated_at, body, area:areas(slug, name_de, name_vi, color, icon), owner:profiles!pages_owner_id_fkey(full_name, email)";
+  "id, area_id, slug, title_de, title_vi, kind, section, verified_until, published, updated_at, body, area:areas(slug, name_de, name_vi, color, icon)";

@@ -5,7 +5,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import HomeLoading from "@/app/(app)/loading";
 import AreaLoading from "@/app/(app)/bereich/[slug]/loading";
 import PageLoading from "@/app/(app)/seite/[id]/loading";
-import EditorLoading from "@/app/(app)/seite/[id]/bearbeiten/loading";
 import SearchLoading from "@/app/(app)/suche/loading";
 import QuizLoading from "@/app/(app)/quiz/[id]/loading";
 import UsersLoading from "@/app/(app)/admin/benutzer/loading";
@@ -14,7 +13,6 @@ import UsersLoading from "@/app/(app)/admin/benutzer/loading";
 function loaderFor(pathname: string): React.ComponentType | null {
   if (pathname === "/") return HomeLoading;
   if (/^\/bereich\/[^/]+$/.test(pathname)) return AreaLoading;
-  if (/^\/seite\/[^/]+\/bearbeiten$/.test(pathname)) return EditorLoading;
   if (/^\/seite\/[^/]+$/.test(pathname)) return PageLoading;
   if (pathname === "/suche") return SearchLoading;
   if (/^\/quiz\/[^/]+$/.test(pathname)) return QuizLoading;

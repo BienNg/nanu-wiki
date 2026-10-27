@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
+import { AppShell } from "@/components/AppShell";
 import { NavigationLoader } from "@/components/NavigationLoader";
 import { Toaster } from "@/components/Toaster";
 import type { Area } from "@/lib/types";
@@ -31,13 +32,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     if (total) onboardingPct = Math.round(((done ?? 0) / total) * 100);
   }
 
+  const areaList = (areas ?? []) as Area[];
+
   return (
-    <div className="flex min-h-screen flex-wrap bg-white">
-      <Sidebar areas={(areas ?? []) as Area[]} profile={session.profile} onboardingPct={onboardingPct} />
-      <div className="flex min-w-0 flex-[999_1_560px] flex-col">
+    <>
+      <AppShell sidebar={<Sidebar areas={areaList} profile={session.profile} onboardingPct={onboardingPct} />} areas={areaList} showSearch={session.profile.role !== "candidate"}>
         <NavigationLoader>{children}</NavigationLoader>
-      </div>
+      </AppShell>
       <Toaster />
-    </div>
+    </>
   );
 }

@@ -168,7 +168,7 @@ export default async function HomePage() {
                   {p.kind === "living" && <KindBadge kind="living" />}
                 </span>
                 <span className="text-xs text-muted">
-                  {p.owner?.full_name ?? p.area?.name_de} · {formatDate(p.updated_at)}
+                  {p.area?.name_de} · {formatDate(p.updated_at)}
                 </span>
               </span>
             </Link>

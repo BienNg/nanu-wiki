@@ -56,7 +56,6 @@ export type Page = {
   kind: KnowledgeKind;
   section: PageSection;
   body: Block[];
-  owner_id: string | null;
   verified_until: string | null;
   published: boolean;
   updated_at: string;
@@ -64,7 +63,6 @@ export type Page = {
 
 export type PageWithMeta = Page & {
   area: Pick<Area, "slug" | "name_de" | "name_vi" | "color" | "icon"> | null;
-  owner: Pick<Profile, "full_name" | "email"> | null;
 };
 
 export type IconName =

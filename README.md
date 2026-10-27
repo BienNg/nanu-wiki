@@ -14,11 +14,10 @@ German main text, Vietnamese underneath, with a DE+VI / DE / VI toggle.
 | Home ("Neuigkeiten"), "Start hier", Für alle table, role cards | `src/app/(app)/page.tsx` |
 | Role page with tabs Interview / Onboarding / Handbuch | `src/app/(app)/bereich/[slug]/page.tsx` |
 | Page view (SOPs etc.), table of contents, YouTube blocks | `src/app/(app)/seite/[id]/page.tsx` |
-| In-app editor (DE + VI side by side, blocks incl. YouTube) | `src/components/editor/PageEditor.tsx` |
 | Weekly quiz (graded in the database) | `src/app/(app)/quiz/[id]`, `src/components/QuizRunner.tsx` |
 | Search with filters by type, role, "nur geprüfte" | `src/app/(app)/suche/page.tsx` |
 | Admin: approve sign-ups, set roles, buddy, editor areas | `src/app/(app)/admin/benutzer` |
-| Slack: buddy notifications + verification reminders | `src/lib/slack.ts`, `src/app/actions.ts`, `src/app/api/cron/...` |
+| Slack: buddy notifications | `src/lib/slack.ts`, `src/app/actions.ts` |
 | Database schema, RLS, quiz RPCs | `supabase/migrations/20261027000000_init.sql` |
 | Sample content (Sales SOP, onboarding, quiz) | `supabase/seed.sql` |
 
@@ -29,14 +28,14 @@ German main text, Vietnamese underneath, with a DE+VI / DE / VI toggle.
 | `pending` | Nothing – waits on `/pending` until an admin approves (every new Google sign-up starts here) |
 | `candidate` | Only the **Interview** tab of the one role they applied for |
 | `staff` | Read all published pages, own onboarding checklist, quizzes, search |
-| `editor` | Staff + create/edit/delete pages and onboarding content in the areas an admin assigns |
+| `editor` | Staff + sees candidates' chat answers in the areas an admin assigns (pages themselves are written in code) |
 | `admin` | Everything, including user management |
 
 Security notes: users can never change their own role (DB trigger), quiz answers are hidden from the browser
 (column grant – grading happens in `submit_quiz()`), and the service-role key is used only by the cron job.
 
 ### Explainer videos
-Editors add a **YouTube-Video** block anywhere in a page and paste any YouTube URL (watch, youtu.be, shorts, embed).
+Add a `youtube` block anywhere in a page's `body` with any YouTube URL (watch, youtu.be, shorts, embed).
 The player loads only on click, via `youtube-nocookie.com`.
 
 ---
@@ -78,7 +77,6 @@ From then on, approve everyone else under **Benutzer & Rollen** in the app.
 
 What it sends (people are matched by their Google e-mail = Slack e-mail):
 - **To the buddy** when a new hire finishes an onboarding week or takes a weekly quiz.
-- **To page owners** every weekday at 08:00 (Vietnam) when a page's "Geprüft bis" date has passed or ends within 7 days.
 
 ### 6. GitHub
 ```bash
@@ -89,8 +87,8 @@ gh repo create nanunana/nanu-wiki --private --source=. --push   # or create the 
 
 ### 7. Vercel
 1. <https://vercel.com/new> → import the GitHub repo (framework: Next.js, defaults are fine).
-2. Add all variables from `.env.example` (set `NEXT_PUBLIC_SITE_URL` to the Vercel URL and a long random `CRON_SECRET`).
-3. Deploy. The cron job in `vercel.json` is picked up automatically.
+2. Add all variables from `.env.example` (set `NEXT_PUBLIC_SITE_URL` to the Vercel URL).
+3. Deploy.
 
 ---
 

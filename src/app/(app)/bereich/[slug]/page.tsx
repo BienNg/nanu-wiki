@@ -9,8 +9,7 @@ import { Icon } from "@/components/Icon";
 import { BlockRenderer } from "@/components/BlockRenderer";
 import { PageTable, PAGE_SELECT } from "@/components/PageTable";
 import { OnboardingPanel, type WeekData } from "@/components/OnboardingPanel";
-import { createPage } from "@/app/actions";
-import type { Area, PageSection, PageWithMeta } from "@/lib/types";
+import type { Area, PageWithMeta } from "@/lib/types";
 
 type Tab = "interview" | "onboarding" | "handbook";
 const TABS: { key: Tab; de: string; vi: string }[] = [
@@ -38,16 +37,6 @@ export default async function AreaPage({
   const tab: Tab = isCandidate ? "interview" : TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : "onboarding";
   const { data: canEdit } = await supabase.rpc("can_edit_area", { target: area.id });
 
-  const newPageForm = (section: PageSection) =>
-    canEdit ? (
-      <form action={createPage.bind(null, area.id, section)} data-loading-href="/seite/neu/bearbeiten">
-        <button type="submit" className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-3 text-[13px] font-medium text-white hover:bg-[#1F5DB5]">
-          <Icon name="plus" size={14} strokeWidth={2.2} />
-          <Label de="Neue Seite" vi="Trang mới" />
-        </button>
-      </form>
-    ) : null;
-
   return (
     <>
       <Topbar>
@@ -70,7 +59,7 @@ export default async function AreaPage({
         </header>
 
         {area.is_shared ? (
-          <SharedArea areaId={area.id} action={newPageForm("general")} />
+          <SharedArea areaId={area.id} />
         ) : (
           <>
             {!isCandidate && (
@@ -89,9 +78,9 @@ export default async function AreaPage({
               </div>
             )}
 
-            {tab === "interview" && <InterviewTab areaId={area.id} profileId={profile.id} canEdit={!!canEdit} action={newPageForm("interview")} />}
+            {tab === "interview" && <InterviewTab areaId={area.id} profileId={profile.id} canEdit={!!canEdit} />}
             {tab === "onboarding" && <OnboardingTab areaId={area.id} areaSlug={area.slug} profileId={profile.id} />}
-            {tab === "handbook" && <HandbookTab areaId={area.id} action={newPageForm("handbook")} />}
+            {tab === "handbook" && <HandbookTab areaId={area.id} />}
           </>
         )}
       </Reveal>
@@ -99,18 +88,13 @@ export default async function AreaPage({
   );
 }
 
-async function SharedArea({ areaId, action }: { areaId: string; action: React.ReactNode }) {
+async function SharedArea({ areaId }: { areaId: string }) {
   const supabase = await createClient();
   const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).order("title_de");
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-end">{action}</div>
-      <PageTable pages={(data ?? []) as unknown as PageWithMeta[]} />
-    </div>
-  );
+  return <PageTable pages={(data ?? []) as unknown as PageWithMeta[]} />;
 }
 
-async function InterviewTab({ areaId, profileId, canEdit, action }: { areaId: string; profileId: string; canEdit: boolean; action: React.ReactNode }) {
+async function InterviewTab({ areaId, profileId, canEdit }: { areaId: string; profileId: string; canEdit: boolean }) {
   const supabase = await createClient();
   const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).eq("section", "interview").order("created_at");
   const pages = (data ?? []) as unknown as PageWithMeta[];
@@ -120,7 +104,6 @@ async function InterviewTab({ areaId, profileId, canEdit, action }: { areaId: st
     : { data: [] as { page_id: string; sim_id: string }[] };
   return (
     <div role="tabpanel" className="flex max-w-[720px] flex-col gap-10">
-      {action && <div className="flex justify-end">{action}</div>}
       {pages.length === 0 && <p className="text-muted">Noch keine Interview-Seite · Chưa có trang phỏng vấn</p>}
       {pages.map((p) => (
         <article key={p.id} className="flex flex-col gap-4">
@@ -183,15 +166,12 @@ async function OnboardingTab({ areaId, areaSlug, profileId }: { areaId: string; 
   );
 }
 
-async function HandbookTab({ areaId, action }: { areaId: string; action: React.ReactNode }) {
+async function HandbookTab({ areaId }: { areaId: string }) {
   const supabase = await createClient();
   const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).eq("section", "handbook").order("updated_at", { ascending: false });
   return (
     <div role="tabpanel" className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
-        {action}
-      </div>
+      <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
       <PageTable pages={(data ?? []) as unknown as PageWithMeta[]} />
     </div>
   );

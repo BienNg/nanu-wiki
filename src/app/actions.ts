@@ -1,11 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession, hasRole } from "@/lib/auth";
 import { dmByEmail, siteUrl } from "@/lib/slack";
-import type { AppRole, Block, ChatTurn, KnowledgeKind, PageSection } from "@/lib/types";
+import type { AppRole, ChatTurn } from "@/lib/types";
 
 // ------------------------------------------------------------------ helpers
 async function notifyBuddy(text: string) {
@@ -103,60 +102,6 @@ export async function submitChat(pageId: string, simId: string, turns: ChatTurn[
   revalidatePath(`/seite/${pageId}`);
   revalidatePath("/", "layout");
   return { ok: true as const };
-}
-
-// ------------------------------------------------------------------ pages (editor)
-export type PageInput = {
-  title_de: string;
-  title_vi: string;
-  kind: KnowledgeKind;
-  section: PageSection;
-  verified_until: string | null;
-  published: boolean;
-  body: Block[];
-};
-
-export async function savePage(pageId: string, input: PageInput) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("pages")
-    .update({ ...input, verified_until: input.verified_until || null })
-    .eq("id", pageId)
-    .select("id")
-    .single();
-  // RLS blocks the update if the user may not edit this area → no row returned.
-  if (error || !data) return { ok: false as const, message: error?.message ?? "Keine Berechtigung" };
-  revalidatePath(`/seite/${pageId}`);
-  return { ok: true as const };
-}
-
-export async function createPage(areaId: string, section: PageSection) {
-  const session = await getSession();
-  if (!session) throw new Error("not signed in");
-  const supabase = await createClient();
-  const slug = `neue-seite-${Date.now().toString(36)}`;
-  const { data, error } = await supabase
-    .from("pages")
-    .insert({
-      area_id: areaId,
-      slug,
-      section,
-      title_de: "Neue Seite",
-      title_vi: "Trang mới",
-      owner_id: session.profile.id,
-      published: false,
-      body: [{ type: "paragraph", de: "", vi: "" }],
-    })
-    .select("id")
-    .single();
-  if (error || !data) throw new Error(error?.message ?? "Keine Berechtigung");
-  redirect(`/seite/${data.id}/bearbeiten`);
-}
-
-export async function deletePage(pageId: string, areaSlug: string) {
-  const supabase = await createClient();
-  await supabase.from("pages").delete().eq("id", pageId);
-  redirect(`/bereich/${areaSlug}?tab=handbook`);
 }
 
 // ------------------------------------------------------------------ admin: users

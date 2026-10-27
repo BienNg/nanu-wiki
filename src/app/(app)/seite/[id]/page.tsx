@@ -7,11 +7,11 @@ import { Crumb, Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
-import { Avatar, KindBadge, VerifiedPill } from "@/components/Badges";
+import { KindBadge, VerifiedPill } from "@/components/Badges";
 import { BlockRenderer, slugify } from "@/components/BlockRenderer";
 import { ChatResponses } from "@/components/ChatResponses";
 import { PAGE_SELECT } from "@/components/PageTable";
-import { formatDate, initials } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import type { PageWithMeta } from "@/lib/types";
 
 async function load(id: string) {
@@ -45,16 +45,7 @@ export default async function DocPage({ params }: { params: Promise<{ id: string
   return (
     <div className="flex flex-1 flex-wrap">
       <div className="flex min-w-0 flex-[999_1_520px] flex-col">
-        <Topbar
-          actions={
-            canEdit ? (
-              <Link href={`/seite/${page.id}/bearbeiten`} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-chip px-2.5 text-[13px] font-medium text-ink hover:bg-line hover:text-ink">
-                <Icon name="edit" size={13} />
-                <Label de="Bearbeiten" vi="Chỉnh sửa" />
-              </Link>
-            ) : null
-          }
-        >
+        <Topbar>
           {page.area && (
             <>
               <Icon name={page.area.icon} size={14} color={page.area.color} strokeWidth={2} />
@@ -85,9 +76,7 @@ export default async function DocPage({ params }: { params: Promise<{ id: string
             <h1 data-reveal className="title-display m-0 text-[40px] leading-[1.12]">
               <Bi de={page.title_de} vi={page.title_vi} />
             </h1>
-            <span data-reveal className="flex items-center gap-2 text-xs text-muted">
-              <Avatar text={initials(page.owner?.full_name, page.owner?.email)} />
-              Owner: {page.owner?.full_name ?? page.owner?.email ?? "–"} ·{" "}
+            <span data-reveal className="text-xs text-muted">
               <Label de={`Aktualisiert ${formatDate(page.updated_at)}`} vi={`Cập nhật ${formatDate(page.updated_at)}`} />
             </span>
           </header>
