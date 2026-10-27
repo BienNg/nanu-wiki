@@ -38,11 +38,16 @@ export type Block =
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
-  | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; messages: ChatMessage[] };
+  | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; messages: ChatMessage[] }
+  | { type: "conversation"; customer: string; label_de?: string; label_vi?: string; note_de?: string; note_vi?: string; messages: ConversationMessage[] };
 
 /** One message of an imaginary customer in a Messenger simulation.
  *  A blank line inside `text` splits it into several bubbles sent in a row. */
 export type ChatMessage = { text: string; translation_de?: string };
+
+/** One bubble of a static Messenger example; "me" is NaNu NaNa.
+ *  `stamp_de`/`stamp_vi` show a small centred line above it (time, "next day", where the customer came from). */
+export type ConversationMessage = { from: "customer" | "me"; text: string; translation_de?: string; stamp_de?: string; stamp_vi?: string };
 
 /** What gets saved per reply: the customer message, the answer and how long it took. */
 export type ChatTurn = { customer: string; reply: string; seconds: number };

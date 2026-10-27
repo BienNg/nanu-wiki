@@ -17,6 +17,11 @@ function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
         return [{ de: b.caption_de ?? "", vi: b.caption_vi ?? "" }];
       case "chat":
         return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, ...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text }))];
+      case "conversation":
+        return [...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })), { de: b.note_de ?? "", vi: b.note_vi ?? "" }];
+      default:
+        // Blocks this build doesn't know yet (content can be newer than the deployed code).
+        return [];
     }
   });
 }

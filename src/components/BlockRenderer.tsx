@@ -4,6 +4,7 @@ import { Icon } from "./Icon";
 import { VideoEmbed } from "./VideoEmbed";
 import { CopyButton } from "./CopyButton";
 import { MessengerSim } from "./MessengerSim";
+import { MessengerMockup } from "./MessengerMockup";
 
 export function slugify(text: string) {
   return text
@@ -102,6 +103,8 @@ export function BlockRenderer({ blocks, chat }: { blocks: Block[]; chat?: { page
             );
           case "chat":
             return <MessengerSim key={i} block={b} pageId={chat?.pageId} done={chat?.done.includes(b.id)} />;
+          case "conversation":
+            return <MessengerMockup key={i} block={b} />;
           default:
             return null;
         }
