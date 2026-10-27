@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession, hasRole } from "@/lib/auth";
 import { dmByEmail, siteUrl } from "@/lib/slack";
-import type { AppRole, Block, KnowledgeKind, PageSection } from "@/lib/types";
+import type { AppRole, Block, ChatTurn, KnowledgeKind, PageSection } from "@/lib/types";
 
 // ------------------------------------------------------------------ helpers
 async function notifyBuddy(text: string) {
@@ -84,6 +84,25 @@ export async function submitQuiz(quizId: string, answers: number[], weekLabel: s
   );
   revalidatePath("/", "layout");
   return result;
+}
+
+// ------------------------------------------------------------------ messenger simulation
+export async function submitChat(pageId: string, simId: string, turns: ChatTurn[]) {
+  const session = await getSession();
+  if (!session) throw new Error("not signed in");
+  const clean = turns.slice(0, 30).map((t) => ({
+    customer: String(t.customer).slice(0, 2000),
+    reply: String(t.reply).trim().slice(0, 2000),
+    seconds: Math.max(0, Math.round(Number(t.seconds) || 0)),
+  }));
+  const supabase = await createClient();
+  const { error } = await supabase.from("chat_responses").insert({ page_id: pageId, sim_id: simId, profile_id: session.profile.id, turns: clean });
+  if (error) {
+    return { ok: false as const, message: error.code === "23505" ? "Schon abgeschickt · Bạn đã gửi rồi" : error.message };
+  }
+  revalidatePath(`/seite/${pageId}`);
+  revalidatePath("/", "layout");
+  return { ok: true as const };
 }
 
 // ------------------------------------------------------------------ pages (editor)

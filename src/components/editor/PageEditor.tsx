@@ -15,6 +15,7 @@ const NEW_BLOCK: Record<Block["type"], () => Block> = {
   callout: () => ({ type: "callout", tone: "info", de: "", vi: "" }),
   template: () => ({ type: "template", label_de: "Vorlage", label_vi: "Mẫu", text: "", translation_de: "" }),
   video: () => ({ type: "video", url: "", caption_de: "", caption_vi: "" }),
+  chat: () => ({ type: "chat", id: Math.random().toString(36).slice(2, 10), customer: "", intro_de: "", intro_vi: "", messages: [{ text: "", translation_de: "" }] }),
 };
 
 const BLOCK_LABEL: Record<Block["type"], string> = {
@@ -25,6 +26,7 @@ const BLOCK_LABEL: Record<Block["type"], string> = {
   callout: "Hinweis · Ghi chú",
   template: "Vorlage · Mẫu tin nhắn",
   video: "YouTube-Video",
+  chat: "Messenger-Simulation · Mô phỏng Messenger",
 };
 
 const input = "w-full rounded-md border border-line bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft";
@@ -218,6 +220,36 @@ function BlockFields({ block: b, onChange }: { block: Block; onChange: (b: Block
           <textarea className={input} rows={2} placeholder="Deutsche Übersetzung (optional)" value={b.translation_de ?? ""} onChange={(e) => onChange({ ...b, translation_de: e.target.value })} />
         </div>
       );
+    case "chat": {
+      const set = (messages: typeof b.messages) => onChange({ ...b, messages });
+      return (
+        <div className="flex flex-col gap-2">
+          <Field label="Name der Kundin / des Kunden (erfunden) · Tên khách hàng (giả định)">
+            <input className={`${input} max-w-[280px]`} placeholder="z. B. Linh" value={b.customer} onChange={(e) => onChange({ ...b, customer: e.target.value })} />
+          </Field>
+          <Pair
+            de={<textarea className={input} rows={2} placeholder="Aufgabe für die Person, die antwortet" value={b.intro_de ?? ""} onChange={(e) => onChange({ ...b, intro_de: e.target.value })} />}
+            vi={<textarea className={input} rows={2} placeholder="Đề bài cho người trả lời" value={b.intro_vi ?? ""} onChange={(e) => onChange({ ...b, intro_vi: e.target.value })} />}
+          />
+          <span className="text-xs text-muted">
+            Nach jeder Kundennachricht muss geantwortet werden. Leerzeile = mehrere Nachrichten hintereinander · Sau mỗi tin nhắn phải trả lời. Dòng trống = gửi nhiều tin liên tiếp.
+          </span>
+          {b.messages.map((m, j) => (
+            <div key={j} className="flex gap-2">
+              <span className="w-5 pt-2 text-xs text-muted">{j + 1}.</span>
+              <div className="flex flex-1 flex-col gap-1.5">
+                <textarea className={input} rows={2} placeholder="Nachricht der Kundin (Vietnamesisch) · Tin nhắn của khách" value={m.text} onChange={(e) => set(b.messages.map((x, k) => (k === j ? { ...x, text: e.target.value } : x)))} />
+                <input className={input} placeholder="Deutsche Übersetzung (optional)" value={m.translation_de ?? ""} onChange={(e) => set(b.messages.map((x, k) => (k === j ? { ...x, translation_de: e.target.value } : x)))} />
+              </div>
+              <SmallBtn onClick={() => set(b.messages.filter((_, k) => k !== j))} label="Nachricht löschen">✕</SmallBtn>
+            </div>
+          ))}
+          <button type="button" onClick={() => set([...b.messages, { text: "", translation_de: "" }])} className="self-start text-[13px] font-medium text-accent">
+            + Nachricht · Thêm tin nhắn
+          </button>
+        </div>
+      );
+    }
     case "video": {
       const valid = b.url === "" || youtubeId(b.url) !== null;
       return (

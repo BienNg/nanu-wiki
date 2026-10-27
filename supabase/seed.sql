@@ -81,8 +81,15 @@ insert into public.pages (id, area_id, slug, title_de, title_vi, kind, section, 
    {"type":"list","items":[{"de":"Vietnamesisch (Muttersprache)","vi":"Tiếng Việt bản ngữ"},{"de":"Deutsch: [NIVEAU]","vi":"Tiếng Đức: [TRÌNH ĐỘ]"},{"de":"Klare schriftliche Kommunikation, Empathie","vi":"Viết rõ ràng, đồng cảm"}]},
    {"type":"heading","de":"Interviewfragen","vi":"Câu hỏi phỏng vấn"},
    {"type":"list","ordered":true,"items":[{"de":"Erzähl von einem Gespräch, in dem jemand unsicher war. Was hast du getan?","vi":"Kể về một lần khách hàng còn phân vân. Bạn đã làm gì?"},{"de":"„Bei einer anderen Schule ist es günstiger.“ Wie antwortest du?","vi":"„Trung tâm khác rẻ hơn.“ Bạn trả lời thế nào?"},{"de":"Wie organisierst du 40 offene Chats an einem Montagmorgen?","vi":"Bạn sắp xếp 40 tin nhắn chưa trả lời vào sáng thứ Hai thế nào?"}]},
-   {"type":"heading","de":"Testaufgabe · 45 Min.","vi":"Bài test · 45 phút"},
-   {"type":"callout","tone":"tip","de":"Beantworte drei anonymisierte Messenger-Anfragen in einem Google Doc. Wir achten auf Ton, Richtigkeit und den nächsten Schritt.","vi":"Trả lời ba tin nhắn Messenger ẩn danh trong Google Doc. Chúng tôi đánh giá giọng điệu, độ chính xác và bước tiếp theo."}]');
+   {"type":"heading","de":"Testaufgabe: Messenger-Simulation","vi":"Bài test: Mô phỏng Messenger"},
+   {"type":"callout","tone":"tip","de":"Beantworte drei Nachrichten einer erfundenen Interessentin direkt hier. Wir achten auf Ton, Richtigkeit und den nächsten Schritt. Du hast einen Versuch.","vi":"Trả lời ba tin nhắn của một khách hàng giả định ngay tại đây. Chúng tôi đánh giá giọng điệu, độ chính xác và bước tiếp theo. Bạn có một lượt làm."},
+   {"type":"chat","id":"sales-test","customer":"Linh",
+    "intro_de":"Linh schreibt der NaNu-NaNa-Seite auf Messenger. Antworte so, wie du es im Job tun würdest – auf Vietnamesisch. Die Zeit läuft ab jeder neuen Nachricht.",
+    "intro_vi":"Linh nhắn tin cho trang NaNu NaNa trên Messenger. Hãy trả lời như khi bạn đang làm việc – bằng tiếng Việt. Thời gian được tính từ mỗi tin nhắn mới.",
+    "messages":[
+      {"text":"Chào ad\n\nCho mình hỏi học phí khoá A1 bao nhiêu vậy ạ?","translation_de":"„Hallo Admin! Darf ich fragen, wie viel der A1-Kurs kostet?“"},
+      {"text":"Mình đang học lớp 12, muốn sang Đức học nghề điều dưỡng. Giờ mới bắt đầu học tiếng Đức thì có kịp không ạ?","translation_de":"„Ich bin in der 12. Klasse und möchte in Deutschland eine Pflege-Ausbildung machen. Schaffe ich das, wenn ich jetzt erst mit Deutsch anfange?“"},
+      {"text":"Trung tâm kia rẻ hơn bên mình 2 triệu lận\n\nBên mình có giảm giá gì không ad?","translation_de":"„Bei der anderen Schule ist es ganze 2 Millionen günstiger. Gibt es bei euch irgendeinen Rabatt?“"}]}]');
 
 -- Onboarding: 4 weeks with checklists and quizzes
 insert into public.onboarding_weeks (id, area_id, week, title_de, title_vi) values

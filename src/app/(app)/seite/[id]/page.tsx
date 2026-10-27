@@ -9,6 +9,7 @@ import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { Avatar, KindBadge, VerifiedPill } from "@/components/Badges";
 import { BlockRenderer, slugify } from "@/components/BlockRenderer";
+import { ChatResponses } from "@/components/ChatResponses";
 import { PAGE_SELECT } from "@/components/PageTable";
 import { formatDate, initials } from "@/lib/format";
 import type { PageWithMeta } from "@/lib/types";
@@ -25,13 +26,19 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function DocPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole("candidate");
+  const { profile } = await requireRole("candidate");
   const { id } = await params;
   const page = await load(id);
   if (!page) notFound(); // also when RLS hides it
 
   const supabase = await createClient();
-  const { data: canEdit } = await supabase.rpc("can_edit_area", { target: page.area_id });
+  const hasChat = page.body.some((b) => b.type === "chat");
+  const [{ data: canEdit }, { data: mine }] = await Promise.all([
+    supabase.rpc("can_edit_area", { target: page.area_id }),
+    hasChat
+      ? supabase.from("chat_responses").select("sim_id").eq("page_id", page.id).eq("profile_id", profile.id)
+      : Promise.resolve({ data: [] as { sim_id: string }[] }),
+  ]);
   const headings = page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[];
   const tint = `${page.area?.color ?? "#0B7793"}22`;
 
@@ -85,7 +92,8 @@ export default async function DocPage({ params }: { params: Promise<{ id: string
             </span>
           </header>
 
-          <BlockRenderer blocks={page.body} />
+          <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
+          {canEdit && hasChat && <ChatResponses pageId={page.id} blocks={page.body} />}
         </Reveal>
       </div>
 

@@ -3,6 +3,7 @@ import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { VideoEmbed } from "./VideoEmbed";
 import { CopyButton } from "./CopyButton";
+import { MessengerSim } from "./MessengerSim";
 
 export function slugify(text: string) {
   return text
@@ -19,7 +20,8 @@ const CALLOUT = {
   warning: { box: "bg-warn-soft text-[#5C4505]", icon: "#A87400", de: "Achtung", vi: "Cảnh báo" },
 } as const;
 
-export function BlockRenderer({ blocks }: { blocks: Block[] }) {
+/** `chat`: which page the blocks belong to and which simulations the viewer already submitted. */
+export function BlockRenderer({ blocks, chat }: { blocks: Block[]; chat?: { pageId: string; done: string[] } }) {
   return (
     <div className="flex flex-col gap-5 text-[15px] leading-[1.7] text-ink">
       {blocks.map((b, i) => {
@@ -98,6 +100,8 @@ export function BlockRenderer({ blocks }: { blocks: Block[] }) {
                 <VideoEmbed url={b.url} captionDe={b.caption_de} captionVi={b.caption_vi} />
               </div>
             );
+          case "chat":
+            return <MessengerSim key={i} block={b} pageId={chat?.pageId} done={chat?.done.includes(b.id)} />;
           default:
             return null;
         }

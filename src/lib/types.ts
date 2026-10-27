@@ -37,7 +37,15 @@ export type Block =
   | { type: "steps"; items: { de: string; vi: string; body_de?: string; body_vi?: string }[] }
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
-  | { type: "video"; url: string; caption_de?: string; caption_vi?: string };
+  | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
+  | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; messages: ChatMessage[] };
+
+/** One message of an imaginary customer in a Messenger simulation.
+ *  A blank line inside `text` splits it into several bubbles sent in a row. */
+export type ChatMessage = { text: string; translation_de?: string };
+
+/** What gets saved per reply: the customer message, the answer and how long it took. */
+export type ChatTurn = { customer: string; reply: string; seconds: number };
 
 export type Page = {
   id: string;

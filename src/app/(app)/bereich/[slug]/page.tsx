@@ -89,7 +89,7 @@ export default async function AreaPage({
               </div>
             )}
 
-            {tab === "interview" && <InterviewTab areaId={area.id} action={newPageForm("interview")} />}
+            {tab === "interview" && <InterviewTab areaId={area.id} profileId={profile.id} canEdit={!!canEdit} action={newPageForm("interview")} />}
             {tab === "onboarding" && <OnboardingTab areaId={area.id} areaSlug={area.slug} profileId={profile.id} />}
             {tab === "handbook" && <HandbookTab areaId={area.id} action={newPageForm("handbook")} />}
           </>
@@ -110,10 +110,14 @@ async function SharedArea({ areaId, action }: { areaId: string; action: React.Re
   );
 }
 
-async function InterviewTab({ areaId, action }: { areaId: string; action: React.ReactNode }) {
+async function InterviewTab({ areaId, profileId, canEdit, action }: { areaId: string; profileId: string; canEdit: boolean; action: React.ReactNode }) {
   const supabase = await createClient();
   const { data } = await supabase.from("pages").select(PAGE_SELECT).eq("area_id", areaId).eq("section", "interview").order("created_at");
   const pages = (data ?? []) as unknown as PageWithMeta[];
+  const withChat = pages.filter((p) => p.body.some((b) => b.type === "chat")).map((p) => p.id);
+  const { data: mine } = withChat.length
+    ? await supabase.from("chat_responses").select("page_id, sim_id").eq("profile_id", profileId).in("page_id", withChat)
+    : { data: [] as { page_id: string; sim_id: string }[] };
   return (
     <div role="tabpanel" className="flex max-w-[720px] flex-col gap-10">
       {action && <div className="flex justify-end">{action}</div>}
@@ -125,7 +129,12 @@ async function InterviewTab({ areaId, action }: { areaId: string; action: React.
               <Bi de={p.title_de} vi={p.title_vi} />
             </Link>
           </h2>
-          <BlockRenderer blocks={p.body} />
+          <BlockRenderer blocks={p.body} chat={{ pageId: p.id, done: (mine ?? []).filter((r) => r.page_id === p.id).map((r) => r.sim_id) }} />
+          {canEdit && withChat.includes(p.id) && (
+            <Link href={`/seite/${p.id}`} className="self-start text-[13px] font-medium text-accent">
+              <Label de="Antworten der Kandidaten ansehen" vi="Xem câu trả lời của ứng viên" /> →
+            </Link>
+          )}
         </article>
       ))}
     </div>
