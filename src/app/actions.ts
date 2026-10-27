@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
 import { canReadPage, getOnboarding, getPageById, getQuiz, readablePages, searchPages } from "@/content";
 import { dmByEmail, siteUrl } from "@/lib/slack";
-import { blockKey, COMMENT_STATUSES, tagInfo } from "@/lib/comments";
+import { blockKey, blockText, COMMENT_STATUSES, tagInfo } from "@/lib/comments";
 import type { AppRole, ChatTurn, CommentAnchor, CommentStatus, CommentTag, PageWithMeta } from "@/lib/types";
 
 // ------------------------------------------------------------------ helpers
@@ -146,7 +146,8 @@ export async function addComment(input: { pageId: string; anchor: CommentAnchor;
       exact: clip(a.exact?.trim(), 500) || undefined,
       prefix: clip(a.prefix, 32),
       suffix: clip(a.suffix, 32),
-      context: clip(a.context, 600),
+      // Comments on a whole block keep its text (from the content), so they can be found again after edits.
+      context: a.exact ? clip(a.context, 600) : blockText(block).slice(0, 600),
     };
   }
 

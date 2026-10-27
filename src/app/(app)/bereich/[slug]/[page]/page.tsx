@@ -14,6 +14,7 @@ import { ChatResponses } from "@/components/ChatResponses";
 import { CommentLayer, type PanelComment } from "@/components/CommentLayer";
 import { CommentToggle } from "@/components/CommentView";
 import type { CommentAnchor } from "@/lib/types";
+import { resolveAnchor } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 
 type Params = Promise<{ slug: string; page: string }>;
@@ -49,7 +50,9 @@ export default async function DocPage({ params, searchParams }: { params: Params
   let focus: CommentAnchor | "missing" | undefined;
   if (canComment && c && /^[0-9a-f-]{36}$/.test(c)) {
     const { data } = await supabase.from("page_comments").select("anchor").eq("id", c).eq("page_id", page.id).maybeSingle();
-    focus = data ? (data.anchor as CommentAnchor) ?? undefined : "missing";
+    const anchor = data?.anchor as CommentAnchor | undefined;
+    const where = anchor ? resolveAnchor(page.body, anchor) : null;
+    focus = !data ? "missing" : !anchor ? undefined : where!.detached ? "missing" : { ...anchor, block: where!.block };
   }
   // All comments on this page except declined ones, for the comment view.
   let comments: PanelComment[] = [];
@@ -62,7 +65,11 @@ export default async function DocPage({ params, searchParams }: { params: Params
       .order("created_at");
     comments = (data ?? []).map(({ author, ...c }) => {
       const a = author as unknown as { full_name: string | null; email: string } | null;
-      return { ...(c as Omit<PanelComment, "author">), author: a?.full_name ?? a?.email ?? "?" };
+      const comment = { ...(c as Omit<PanelComment, "author">), author: a?.full_name ?? a?.email ?? "?" };
+      // Point it at its block on the current version of the page (it may have been edited since).
+      if (!comment.anchor) return comment;
+      const where = resolveAnchor(page.body, comment.anchor);
+      return where.detached ? { ...comment, detached: true } : { ...comment, anchor: { ...comment.anchor, block: where.block } };
     });
   }
   const openComments = comments.filter((c) => c.status !== "resolved").length;

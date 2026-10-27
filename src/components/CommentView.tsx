@@ -9,7 +9,11 @@ import { Label } from "./Bi";
 import { CommentActions } from "./admin/CommentActions";
 import { caretAt, rangeForAnchor } from "./commentDom";
 
-export type PanelComment = Pick<PageComment, "id" | "anchor" | "tag" | "body" | "status" | "resolution_note" | "created_at"> & { author: string };
+/** `anchor.block` is already the block's key on the current page (see resolveAnchor); `detached` = its spot is gone. */
+export type PanelComment = Pick<PageComment, "id" | "anchor" | "tag" | "body" | "status" | "resolution_note" | "created_at"> & {
+  author: string;
+  detached?: boolean;
+};
 
 type Placed = {
   groups: { block: string; top: number; ids: string[] }[];
@@ -74,6 +78,10 @@ export function CommentView({
       const groups = new Map<string, Placed["groups"][number]>();
       for (const c of list) {
         if (!c.anchor) continue;
+        if (c.detached) {
+          next.detached.add(c.id);
+          continue;
+        }
         const block = blocks.find((b) => b.dataset.block === c.anchor!.block);
         const range = block && c.anchor.exact ? rangeForAnchor(block, c.anchor) : null;
         if (!block || (c.anchor.exact && !range)) {

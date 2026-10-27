@@ -1,4 +1,5 @@
 import type { CommentAnchor } from "@/lib/types";
+import { locate, strip } from "@/lib/anchorMatch";
 
 // DOM helpers for comments: turn a selection into an anchor, and find an anchor's words again.
 
@@ -34,29 +35,31 @@ export function anchorFromRange(range: Range, root: HTMLElement): CommentAnchor 
   };
 }
 
-/** Finds the quoted words again inside a block (prefix + exact first, then exact alone). */
+/** Finds the quoted words again inside a block. Whitespace is ignored (see anchorMatch), and a quote in
+ *  one language is searched in all of that language's parts of the block (every list item, step …). */
 export function rangeForAnchor(block: HTMLElement, a: NonNullable<CommentAnchor>) {
   if (!a.exact) return null;
-  const scope = (a.field && block.querySelector<HTMLElement>(a.field === "de" ? ".de" : ".vi, .vs")) || block;
-  const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+  const parts = a.field ? [...block.querySelectorAll<HTMLElement>(a.field === "de" ? ".de" : ".vi, .vs")] : [];
   const nodes: { node: Text; from: number }[] = [];
-  let text = "";
-  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-    nodes.push({ node: n as Text, from: text.length });
-    text += n.textContent;
+  let raw = "";
+  for (const scope of parts.length ? parts : [block]) {
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      nodes.push({ node: n as Text, from: raw.length });
+      raw += n.textContent;
+    }
   }
-  let at = a.prefix ? text.indexOf(a.prefix + a.exact) : -1;
-  at = at >= 0 ? at + (a.prefix?.length ?? 0) : text.indexOf(a.exact);
-  if (at < 0) return null;
-  const locate = (pos: number) => {
-    const hit = [...nodes].reverse().find((n) => n.from <= pos) ?? nodes[0];
-    return { node: hit.node, offset: Math.min(pos - hit.from, hit.node.length) };
-  };
-  const s = locate(at);
-  const e = locate(at + a.exact.length);
+  const { text, at } = strip(raw);
+  const m = locate(text, a);
+  if (!m) return null;
+  // Back to positions in the real text nodes: start of the first kept character, end of the last one.
+  const start = at[m.start];
+  const end = at[m.end - 1] + 1;
+  const s = nodes.findLast((n) => n.from <= start)!;
+  const e = nodes.findLast((n) => n.from < end)!;
   const range = document.createRange();
-  range.setStart(s.node, s.offset);
-  range.setEnd(e.node, e.offset);
+  range.setStart(s.node, start - s.from);
+  range.setEnd(e.node, end - e.from);
   return range;
 }
 

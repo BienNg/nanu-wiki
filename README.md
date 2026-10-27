@@ -31,9 +31,12 @@ profiles/roles and progress (`checklist_progress`, `quiz_attempts`, `chat_respon
   `src/content/pages/index.ts`. URL: `/bereich/<area>/<slug>`. Bump `updated_at` when you change a page.
 - **Onboarding & quiz:** `src/content/onboarding/<area>.ts`. Checklist item `id`s and quiz `id`s are what progress
   rows point at – keep them stable, otherwise people lose their ticks/attempts for that item.
-- **Comments** (`page_comments`) point at a block by `blockKey` – the block's optional `id`, else a hash of its
-  content – plus the quoted words. Rewriting a block without an `id` marks its comments "Stelle geändert" (they keep
-  the old text). Give a block an `id` if it has comments you want to keep attached across edits.
+- **Comments** (`page_comments`) remember the block (`blockKey`: its optional `id`, else a hash of its content), the
+  quoted words with a bit of text around them, and for a whole-block comment the block's text. After an edit,
+  `resolveAnchor` (`src/lib/comments.ts`) finds the words again anywhere on the page, ignoring whitespace, or the
+  most similar block. Only when they're really gone does a comment show "Stelle geändert", still with the old text.
+  **Renaming a page slug** orphans its comments; move them along with
+  `update page_comments set page_id = '<area>/<new-slug>' where page_id = '<area>/<old-slug>';`
 - **Areas:** `src/content/areas.ts`. The slug is stored on profiles (`primary_area`, `candidate_area`) and `area_editors`.
 - Old `/seite/<uuid>` links redirect to the new URLs (`next.config.ts`).
 

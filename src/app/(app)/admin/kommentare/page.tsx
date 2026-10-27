@@ -7,7 +7,7 @@ import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { CopyButton } from "@/components/CopyButton";
 import { CommentActions } from "@/components/admin/CommentActions";
-import { blockKey, COMMENT_STATUSES, COMMENT_TAGS, tagInfo } from "@/lib/comments";
+import { COMMENT_STATUSES, COMMENT_TAGS, resolveAnchor, tagInfo } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 import type { CommentStatus, PageComment, PageWithMeta } from "@/lib/types";
 
@@ -118,7 +118,8 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
 
         {pages.map(([pageId, list]) => {
           const page = getPageById(pageId);
-          const keys = new Set(page?.body.map(blockKey));
+          // A comment's spot is gone when the page itself is gone, or its block and words can't be found any more.
+          const isDetached = (c: Row) => !page || Boolean(c.anchor && resolveAnchor(page.body, c.anchor).detached);
           return (
             <section key={pageId} className="overflow-hidden rounded-[10px] border border-line">
               <header className="flex flex-wrap items-center gap-2.5 border-b border-line bg-side px-4 py-2.5">
@@ -127,11 +128,11 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
                   {page?.title_de ?? pageId}
                 </Link>
                 <span className="text-xs text-muted">{list.length}</span>
-                {view.id === "offen" && page && <CopyButton text={asTask(page, list, keys)} />}
+                {view.id === "offen" && page && <CopyButton text={asTask(page, list, isDetached)} />}
               </header>
               <ul className="m-0 list-none p-0">
                 {list.map((c) => (
-                  <CommentRow key={c.id} c={c} page={page} detached={Boolean(c.anchor && !keys.has(c.anchor.block))} />
+                  <CommentRow key={c.id} c={c} page={page} detached={isDetached(c)} />
                 ))}
               </ul>
             </section>
@@ -161,10 +162,19 @@ function CommentRow({ c, page, detached }: { c: Row; page?: PageWithMeta; detach
             <Label de="ganze Seite" vi="cả trang" />
           </span>
         )}
-        {detached && (
+        {detached ? (
           <span className="rounded bg-warn-soft px-1.5 py-0.5 text-[#5C4505]">
-            <Label de="Stelle geändert" vi="Đoạn đã thay đổi" />
+            {page ? <Label de="Stelle geändert" vi="Đoạn đã thay đổi" /> : <Label de="Seite gibt es nicht mehr" vi="Trang không còn nữa" />}
           </span>
+        ) : (
+          page &&
+          c.page_version &&
+          c.page_version !== page.updated_at && (
+            // Comments remember the page's updated_at: a newer version may already have handled this.
+            <span className="rounded bg-chip px-1.5 py-0.5" title={`Kommentar zu Version ${formatDate(c.page_version)}`}>
+              <Label de={`Seite seit dem Kommentar geändert (${formatDate(page.updated_at)})`} vi={`Trang đã sửa sau bình luận (${formatDate(page.updated_at)})`} />
+            </span>
+          )
         )}
         {c.status === "in_progress" && (
           <span className="rounded bg-accent-soft px-1.5 py-0.5 text-accent-dark">
@@ -215,7 +225,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
 }
 
 /** Markdown for one page's open comments – paste into Claude Code (or an issue) to work through them. */
-function asTask(page: PageWithMeta, list: Row[], keys: Set<string>) {
+function asTask(page: PageWithMeta, list: Row[], isDetached: (c: Row) => boolean) {
   const lines = [
     `Arbeite diese Kommentare zur Seite „${page.title_de}“ ab.`,
     `Datei: src/content/pages/${page.area.slug}/${page.slug}.ts (danach updated_at erhöhen)`,
@@ -225,7 +235,7 @@ function asTask(page: PageWithMeta, list: Row[], keys: Set<string>) {
     const t = tagInfo(c.tag);
     const where = !c.anchor
       ? "ganze Seite"
-      : `Block ${c.anchor.block}${c.anchor.field ? ` (${c.anchor.field.toUpperCase()})` : ""}${keys.has(c.anchor.block) ? "" : " – Stelle inzwischen geändert"}`;
+      : `${c.anchor.exact ? "Textstelle" : "Abschnitt"}${c.anchor.field ? ` (${c.anchor.field.toUpperCase()})` : ""}${isDetached(c) ? " – Stelle inzwischen geändert" : ""}`;
     lines.push(`${i + 1}. [${t ? t.de : "Kommentar"}] ${where}`);
     if (c.anchor?.exact) lines.push(`   Text: „${c.anchor.exact}“`);
     else if (c.anchor?.context) lines.push(`   Abschnitt: „${c.anchor.context.slice(0, 200)}“`);
