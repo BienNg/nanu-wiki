@@ -24,8 +24,9 @@ export function LangToggle({ initial }: { initial: Lang }) {
   const expanded = !stuck || open;
 
   useEffect(() => {
-    const slot = slotRef.current;
-    if (!slot) return;
+    const el = slotRef.current;
+    if (!el) return;
+    const slot: HTMLDivElement = el;
 
     let frame = 0;
     function update() {
