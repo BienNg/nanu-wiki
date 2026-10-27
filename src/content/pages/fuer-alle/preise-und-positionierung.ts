@@ -18,19 +18,21 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "warning",
-      de: "Zu bestätigen: Diese Preise stammen aus den Messenger-Antworten im Oktober 2026. Für A1, A2 und B1 wurden auch höhere Listenpreise genannt (16.799.000 / 17.499.000 / 17.999.000). Das Management legt fest, welche gelten.",
-      vi: "Cần xác nhận: Các mức giá này lấy từ câu trả lời trên Messenger tháng 10/2026. Với A1, A2 và B1 cũng từng báo giá gốc cao hơn (16.799.000 / 17.499.000 / 17.999.000). Ban điều hành sẽ chốt giá áp dụng."
+      de: "Zu klären: Am 14.10.2026 hat das Team im Slack diese Listen- und Endpreise bestätigt (online = vor Ort). In Messenger wurden für A1, A2 und B1 aber auch höhere Listenpreise genannt (16.799.000 / 17.499.000 / 17.999.000). Welcher Listenpreis gilt? Die Endpreise sind in beiden Fällen gleich.",
+      vi: "Cần làm rõ: Ngày 14/10/2026 team đã xác nhận trên Slack các mức giá gốc và giá sau ưu đãi này (online = offline). Nhưng trên Messenger với A1, A2 và B1 cũng từng báo giá gốc cao hơn (16.799.000 / 17.499.000 / 17.999.000). Giá gốc nào áp dụng? Giá sau ưu đãi thì như nhau."
     },
     { type: "heading", de: "Sprachkurse (Gruppe, online = vor Ort)", vi: "Khóa học tiếng (lớp nhóm, online = offline)" },
     {
       type: "list",
       items: [
         { de: "A1 (A1.1 + A1.2): 13.800.000 VND – Frühbucher (≥ 1 Woche vorher): 11.800.000", vi: "A1 (A1.1 + A1.2): 13.800.000 VND – đăng ký sớm (trước ≥ 1 tuần): 11.800.000" },
-        { de: "A2: 14.500.000 VND", vi: "A2: 14.500.000 VND" },
+        { de: "A2: 14.500.000 VND – Frühbucher (−15 %): 12.300.000", vi: "A2: 14.500.000 VND – đăng ký sớm (giảm 15%): 12.300.000" },
         { de: "B1: 15.000.000 VND – Frühbucher (≥ 2 Wochen vorher, −15 %): 12.800.000", vi: "B1: 15.000.000 VND – đăng ký sớm (trước ≥ 2 tuần, giảm 15%): 12.800.000" },
-        { de: "B2 (B2.1 + B2.2): 17.300.000 VND", vi: "B2 (B2.1 + B2.2): 17.300.000 VND" },
+        { de: "B2 (B2.1 + B2.2): 17.300.000 VND – Frühbucher (−20 %): 13.800.000", vi: "B2 (B2.1 + B2.2): 17.300.000 VND – đăng ký sớm (giảm 20%): 13.800.000" },
         { de: "Kombi A1 + A2: 23.600.000 statt 28.300.000 VND", vi: "Combo A1 + A2: 23.600.000 thay vì 28.300.000 VND" },
-        { de: "Kombi A1 – B1: 36.000.000 statt 43.300.000 VND", vi: "Combo A1 – B1: 36.000.000 thay vì 43.300.000 VND" }
+        { de: "Kombi A2 – B1: 24.500.000 VND", vi: "Combo A2 – B1: 24.500.000 VND" },
+        { de: "Kombi A1 – B1: 36.000.000 statt 43.300.000 VND (im Oktober 2026 zusätzlich −1.000.000)", vi: "Combo A1 – B1: 36.000.000 thay vì 43.300.000 VND (tháng 10/2026 giảm thêm 1.000.000)" },
+        { de: "Wiederholungskurs A1–A2 mit der Assistenz: 2.999.000 VND (10 Termine)", vi: "Lớp trợ giảng ôn A1–A2: 2.999.000 VND (10 buổi)" }
       ]
     },
     { type: "heading", de: "Feste Rabatte", vi: "Ưu đãi cố định" },

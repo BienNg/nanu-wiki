@@ -60,8 +60,8 @@ const page: PageContent = {
     },
     {
       type: "paragraph",
-      de: "Unsere Social-Media-Kanäle erreichen jeden Tag Tausende Menschen. Bien und Phương verbessern laufend Videos und Anzeigen, damit wir noch mehr Menschen erreichen.",
-      vi: "Các kênh mạng xã hội của mình tiếp cận hàng nghìn người mỗi ngày. Bien và Phương liên tục cải thiện video và quảng cáo để tiếp cận nhiều người hơn."
+      de: "Unsere Social-Media-Kanäle erreichen jeden Tag Tausende Menschen. Die Leitung und Marketing verbessern laufend Videos und Anzeigen, damit wir noch mehr Menschen erreichen.",
+      vi: "Các kênh mạng xã hội của mình tiếp cận hàng nghìn người mỗi ngày. Quản lý và Marketing liên tục cải thiện video và quảng cáo để tiếp cận nhiều người hơn."
     },
     {
       type: "conversation",

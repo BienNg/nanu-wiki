@@ -18,8 +18,8 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "warning",
-      de: "Zu klären: Im Oktober wurden für denselben Kurs zwei Listenpreise genannt (A1 13.800.000 bzw. 16.799.000 – beide mit Endpreis 11.800.000). Bis die Preisliste bestätigt ist, nenne immer den Preis aus „Preise & Positionierung“.",
-      vi: "Cần làm rõ: Trong tháng 10, cùng một khóa học được báo hai mức giá gốc (A1 13.800.000 hoặc 16.799.000 – cả hai đều còn 11.800.000 sau ưu đãi). Cho đến khi bảng giá được xác nhận, luôn báo giá theo trang „Học phí & định vị“."
+      de: "Zu klären: Am 14.10. hat das Team diese Preise bestätigt (online und vor Ort gleich): A1 13.800.000 → 11.800.000, A2 14.500.000 → 12.300.000, B1 15.000.000 → 12.800.000, B2 17.300.000 → 13.800.000 VND (−20 %). In Messenger wurden im Oktober aber auch Listenpreise von 16.799.000 genannt. Welcher Listenpreis gilt? Bis dahin den Endpreis nennen und den Listenpreis aus „Preise & Positionierung“.",
+      vi: "Cần làm rõ: Ngày 14/10 team đã xác nhận học phí (online và offline như nhau): A1 13.800.000 → 11.800.000, A2 14.500.000 → 12.300.000, B1 15.000.000 → 12.800.000, B2 17.300.000 → 13.800.000 VND (giảm 20%). Nhưng trên Messenger tháng 10 cũng có lúc báo giá gốc 16.799.000. Giá gốc nào đúng? Trong lúc chờ, báo giá sau ưu đãi và giá gốc theo trang „Học phí & định vị“."
     },
     { type: "heading", de: "1. „Wie viel kostet der Kurs?“", vi: "1. „Học phí bao nhiêu?“" },
     {
@@ -93,17 +93,24 @@ const page: PageContent = {
     {
       type: "list",
       items: [
-        { de: "A1 = 40 Einheiten (A1.1 und A1.2 je 20), A2 = 42, B1 = 44, B2 = 58.", vi: "A1 = 40 buổi (A1.1 và A1.2 mỗi phần 20 buổi), A2 = 42, B1 = 44, B2 = 58." },
+        { de: "Online: A1 = 40 Termine à 1,5 Stunden (A1.1 und A1.2 je 20), A2 = 42, B1 = 44. In Unterrichtsstunden à 45 Minuten: A1 80, A2 84, B1 88, B2 100.", vi: "Online: A1 = 40 buổi, mỗi buổi 1,5 tiếng (A1.1 và A1.2 mỗi phần 20 buổi), A2 = 42, B1 = 44. Tính theo tiết 45 phút: A1 80, A2 84, B1 88, B2 100." },
+        { de: "Vor Ort: A1, A2 und B1 je 160 Unterrichtsstunden, B2 224 (à 45 Minuten).", vi: "Offline: A1, A2, B1 mỗi cấp 160 tiết, B2 224 tiết (1 tiết = 45 phút)." },
         { de: "Jede Stufe A1–B1 dauert mindestens 2,5–3 Monate. Schneller geht es nicht seriös – auch B2 nicht in 2 Monaten.", vi: "Mỗi cấp độ A1–B1 cần tối thiểu 2,5–3 tháng. Nhanh hơn thì không đảm bảo – B2 cũng không thể học trong 2 tháng." },
         { de: "Von null bis B1 also realistisch 8–9 Monate. Lieber ehrlich als ein Versprechen, das wir nicht halten.", vi: "Từ con số 0 đến B1 thực tế khoảng 8–9 tháng. Thà nói thật còn hơn hứa điều không làm được." }
       ]
+    },
+    {
+      type: "callout",
+      tone: "warning",
+      de: "Zu klären: Wie viele Termine hat B2? Bisher stand hier 58. Die Liste vom 14.10. nennt online 100 Unterrichtsstunden (= 50 Termine); im Team wurden auch 56 Termine vor Ort und 45 Termine 1:1 genannt. Welche Zahl nennen wir?",
+      vi: "Cần làm rõ: B2 có bao nhiêu buổi? Trước đây trang ghi 58. Bảng ngày 14/10 ghi online 100 tiết (= 50 buổi); trong team cũng có nhắc offline 56 buổi và kèm 1-1 45 buổi. Mình báo con số nào?"
     },
     { type: "heading", de: "8. Lehrbuch und Material", vi: "8. Giáo trình và tài liệu" },
     {
       type: "list",
       items: [
         { de: "Nach der Zahlung kommen PDF-Lehrbuch, Folien und Übungen per E-Mail, dazu Google Classroom und die App.", vi: "Sau khi đóng học phí, học viên nhận giáo trình PDF, slide và bài tập qua email, cùng Google Classroom và app." },
-        { de: "Den Lehrplan hat Chị Phương selbst geschrieben; alle Lehrkräfte sind von ihr geschult.", vi: "Giáo trình do chị Phương trực tiếp biên soạn; tất cả giáo viên đều được chị Phương đào tạo." },
+        { de: "Den Lehrplan hat NaNu NaNa selbst geschrieben; alle Lehrkräfte werden intern nach unserer Methode geschult.", vi: "Giáo trình do NaNu NaNa tự biên soạn; tất cả giáo viên đều được trung tâm đào tạo theo phương pháp riêng." },
         { de: "Das Arbeitsbuch lohnt sich gedruckt: in Vietnam ausdrucken, in Deutschland bei Thalia oder Amazon kaufen.", vi: "Nên in sách bài tập ra giấy: ở Việt Nam thì in, ở Đức thì mua ở Thalia hoặc Amazon." },
         { de: "Bücher verkaufen wir nicht an Nicht-Teilnehmende.", vi: "Trung tâm không bán sách cho người không học tại trung tâm." }
       ]
@@ -111,8 +118,14 @@ const page: PageContent = {
     { type: "heading", de: "9. Wer unterrichtet?", vi: "9. Ai dạy?" },
     {
       type: "paragraph",
-      de: "Je nach Klasse vietnamesische oder deutsche Lehrkräfte. Alle haben in Deutschland gelebt, studiert und einen Bachelor oder Master abgeschlossen. Wer viel Wert auf Aussprache legt, bekommt den Namen der Lehrkraft und ein Wort zu ihr (z. B. in Deutschland aufgewachsen). Chị Phương unterrichtet nicht jede Klasse, erklärt aber in den App-Videos jede Lektion.",
-      vi: "Tùy lớp sẽ có giáo viên người Việt hoặc người Đức. Tất cả đều đã sống, học tập và tốt nghiệp đại học hoặc thạc sĩ tại Đức. Khách chú trọng phát âm thì gửi tên giáo viên và vài dòng giới thiệu (ví dụ lớn lên ở Đức). Chị Phương không dạy mọi lớp, nhưng giải thích lại từng bài trong video trên app."
+      de: "Je nach Klasse vietnamesische oder deutsche Lehrkräfte. Alle haben in Deutschland gelebt, studiert und einen Bachelor oder Master abgeschlossen. Wer viel Wert auf Aussprache legt, bekommt den Namen der Lehrkraft und ein Wort zu ihr (z. B. in Deutschland aufgewachsen). Eine bestimmte Lehrkraft für die ganze Zeit versprechen wir nicht.",
+      vi: "Tùy lớp sẽ có giáo viên người Việt hoặc người Đức. Tất cả đều đã sống, học tập và tốt nghiệp đại học hoặc thạc sĩ tại Đức. Khách chú trọng phát âm thì gửi tên giáo viên và vài dòng giới thiệu (ví dụ lớn lên ở Đức). Không hứa một giáo viên cụ thể cho cả khoá."
+    },
+    {
+      type: "callout",
+      tone: "warning",
+      de: "Zu klären: Dürfen wir „Bachelor oder Master“ sagen? Im August wollte ein Teilnehmer sein Geld zurück, weil ihm „Unterricht mit Master“ versprochen worden war. Siehe „Beratung: Reihenfolge, Einstufung & Termine“.",
+      vi: "Cần làm rõ: có được nói „tốt nghiệp đại học hoặc thạc sĩ“ không? Tháng 8 có học viên đòi hoàn tiền vì lúc tư vấn được hứa „thạc sĩ dạy“. Xem trang „Tư vấn: thứ tự, xếp trình độ & lịch hẹn“."
     },
     { type: "heading", de: "10. Probestunde", vi: "10. Học thử" },
     {
@@ -126,7 +139,9 @@ const page: PageContent = {
       items: [
         { de: "Normal: einmal den ganzen Kurs zahlen, damit der Platz sicher ist. Eine Anzahlung (z. B. 2 Mio.) gibt es nicht.", vi: "Thông thường: đóng một lần cả khóa để giữ chỗ. Trung tâm không nhận cọc (ví dụ 2 triệu)." },
         { de: "Auf Nachfrage geht eine Zahlung in 2 Raten (die Hälfte vorab), der Frühbucherpreis bleibt. Die zweite Rate vor Ende von A1.1.", vi: "Nếu khách hỏi, có thể chia 2 đợt (đóng nửa khóa trước) và vẫn giữ ưu đãi. Đợt 2 đóng trước khi kết thúc A1.1." },
-        { de: "Kontodaten nur aus der Standardvorlage schicken. Danach: Überweisungsbeleg + E-Mail + Zalo-Nummer erfragen, Daten (Name, E-Mail, Telefon, Klasse, gezahlter Betrag) zur Bestätigung zurückschreiben.", vi: "Chỉ gửi thông tin tài khoản theo mẫu chuẩn. Sau đó: xin ảnh biên lai + email + số Zalo, rồi gửi lại thông tin (tên, email, SĐT, lớp, số tiền đã đóng) để khách xác nhận." },
+        { de: "Noch nicht zahlen, aber Platz wollen? 1–2 Wochen vor Start vormerken – ein fester Platz gilt erst mit der Zahlung. Vorlage: „Vormerken, Zahlung & Rechnung“ (Student Support).", vi: "Khách chưa đóng tiền nhưng muốn giữ chỗ? Ghi danh trước 1–2 tuần trước khai giảng – chỉ khi đóng học phí mới được xác nhận chỗ. Mẫu tin nhắn: „Ghi danh trước, đóng học phí & hoá đơn“ (Student Support)." },
+        { de: "Zahlung in Deutschland in Euro geht, 1:1 umgerechnet – nicht teurer als in Dong. Details auf derselben Seite.", vi: "Đóng bằng Euro ở Đức được, đổi ngang – không đắt hơn đóng tiền Việt. Chi tiết ở cùng trang đó." },
+        { de: "Kontodaten nur aus der Standardvorlage schicken. Danach: Überweisungsbeleg + E-Mail + Zalo-Nummer erfragen und die Zahlung in Slack an Customer Success melden. Ab dann schreibt Customer Success der Person – Sales schickt nichts mehr.", vi: "Chỉ gửi thông tin tài khoản theo mẫu chuẩn. Sau đó: xin ảnh biên lai + email + số Zalo và báo lên Slack cho đội Chăm sóc học viên. Từ đây đội Chăm sóc học viên liên hệ học viên – Sales không gửi gì thêm." },
         { de: "Kein Zalo (häufig bei Kunden in Deutschland)? Dann WhatsApp.", vi: "Khách không dùng Zalo (thường gặp với khách ở Đức)? Thì dùng WhatsApp." }
       ]
     },
@@ -135,7 +150,8 @@ const page: PageContent = {
       type: "list",
       items: [
         { de: "Frühbucher: A1/A2 mindestens 1 Woche vor Start, B1 mindestens 2 Wochen (15 %).", vi: "Đăng ký sớm: A1/A2 trước ít nhất 1 tuần, B1 trước ít nhất 2 tuần (giảm 15%)." },
-        { de: "Kombi-Pakete: A1+A2 und A1–B1 sind deutlich günstiger als einzeln.", vi: "Combo: A1+A2 và A1–B1 rẻ hơn nhiều so với đăng ký từng khóa." },
+        { de: "Kombi-Pakete: A1+A2, A2–B1 (24.500.000 VND) und A1–B1 sind deutlich günstiger als einzeln.", vi: "Combo: A1+A2, A2–B1 (24.500.000 VND) và A1–B1 rẻ hơn nhiều so với đăng ký từng khóa." },
+        { de: "Im Oktober 2026 gilt zusätzlich die Aktion – siehe „Aktion Oktober 2026“.", vi: "Trong tháng 10/2026 có thêm ưu đãi – xem „Ưu đãi tháng 10/2026“." },
         { de: "Ehemalige Teilnehmende: −500.000 VND. Zweite Person aus derselben Familie: −500.000 VND.", vi: "Học viên cũ: giảm 500.000 VND. Người thứ hai trong cùng gia đình: giảm 500.000 VND." },
         { de: "Saisonaktionen (z. B. Tết) gelten nur in ihrem Zeitraum – ehrlich sagen, wenn sie vorbei sind.", vi: "Ưu đãi theo dịp (ví dụ Tết) chỉ áp dụng trong thời gian đó – nói thật nếu đã hết." },
         { de: "Kann jemand erst ein paar Tage nach der Frist zahlen und meldet sich vorher: Frühbucherpreis nach Rücksprache halten.", vi: "Khách báo trước là chỉ đóng được trễ vài ngày: hỏi quản lý để giữ ưu đãi đăng ký sớm." }
@@ -177,7 +193,8 @@ const page: PageContent = {
     {
       type: "list",
       items: [
-        { de: "Zum Wiederholen hat die App Videos von Chị Phương zu jeder wichtigen Grammatik der Lektion.", vi: "Để ôn lại, app có video của chị Phương cho các điểm ngữ pháp quan trọng của từng bài." },
+        { de: "Aufzeichnungen der Stunden gibt es nicht – nie versprechen.", vi: "Trung tâm không quay lại buổi học – không bao giờ hứa có video." },
+        { de: "Die App NaNu Go hat vorab aufgenommene Lektionen, ist aber noch im Aufbau: Stand 27.10.2026 gibt es nur die ersten 8 Lektionen von A1.1.", vi: "App NaNu Go có bài giảng quay sẵn nhưng vẫn đang hoàn thiện: tính đến 27/10/2026 mới có 8 bài đầu của A1.1." },
         { de: "Verpasst? Wir schicken die Unterlagen der Stunde. Bei genug Interessenten öffnen wir eine Nachhilfestunde mit der Assistenz.", vi: "Nghỉ buổi nào? Trung tâm gửi file bài buổi đó. Nếu đủ học viên đăng ký, trung tâm mở lớp trợ giảng." }
       ]
     },
@@ -187,7 +204,8 @@ const page: PageContent = {
       items: [
         { de: "Sprechen und Aussprache: Kommunikationskurs, sinnvoll ab A2–B1. Bei A1 ehrlich sagen, dass erst Wortschatz und Grammatik kommen.", vi: "Giao tiếp và phát âm: lớp giao tiếp, phù hợp từ trình độ A2–B1. Với A1 thì nói thật là cần học từ vựng và ngữ pháp trước." },
         { de: "Fachsprache (z. B. Hotel und Gastronomie): bieten wir nicht als eigenen Kurs an – ehrlich sagen, Kommunikationskurs vorschlagen.", vi: "Tiếng Đức chuyên ngành (ví dụ nhà hàng khách sạn): chưa có lớp riêng – nói thật và gợi ý lớp giao tiếp." },
-        { de: "Kurs jeden Tag, 5× pro Woche oder in 2 Monaten fertig: gibt es nicht. Intensivster Kurs: vor Ort 4× pro Woche.", vi: "Học mỗi ngày, 5 buổi/tuần hoặc xong trong 2 tháng: không có. Lớp cấp tốc nhất là offline 4 buổi/tuần." }
+        { de: "Kurs jeden Tag, 5× pro Woche oder in 2 Monaten fertig: gibt es nicht. Intensivster Kurs: vor Ort 4× pro Woche.", vi: "Học mỗi ngày, 5 buổi/tuần hoặc xong trong 2 tháng: không có. Lớp cấp tốc nhất là offline 4 buổi/tuần." },
+        { de: "A1 und A2 wiederholen: Wiederholungskurs mit der Assistenz, 2.999.000 VND, 10 Termine à 1,5 Stunden, online oder vor Ort, frei innerhalb von 5 Monaten.", vi: "Muốn ôn lại A1–A2: lớp trợ giảng ôn A1–A2, 2.999.000 VND, 10 buổi mỗi buổi 1,5 tiếng, online hoặc offline, học trong vòng 5 tháng, thích học lúc nào thì học." }
       ]
     },
     { type: "heading", de: "18. Kunden außerhalb von Vietnam", vi: "18. Khách ở ngoài Việt Nam" },
@@ -202,6 +220,7 @@ const page: PageContent = {
       items: [
         { de: "Häufig: Mutter, Tante oder Geschwister fragen für ein Kind (Klasse 6, 8, 9, 11) oder einen Neffen.", vi: "Thường gặp: mẹ, cô, dì hoặc anh chị hỏi giúp cho con (lớp 6, 8, 9, 11) hoặc cháu." },
         { de: "Frag nach Alter/Klasse, Wohnort und wann das Kind Zeit hat (Schule!). Abendkurse passen meist am besten.", vi: "Hỏi tuổi/lớp, nơi ở và khung giờ rảnh của con (còn đi học!). Lớp buổi tối thường phù hợp nhất." },
+        { de: "Mindestalter 14 Jahre. Fragt jemand für jüngere Kinder (z. B. 5 und 9 Jahre), nichts zusagen und an die Leitung geben.", vi: "Tuổi tối thiểu 14. Khách hỏi cho bé nhỏ hơn (ví dụ 5 và 9 tuổi) thì không tự nhận, chuyển quản lý." },
         { de: "Ziel klären: Ausbildung oder Studium – und ab wann. Wer erst nächsten Sommer starten will: Warteliste mit Datum.", vi: "Hỏi rõ mục tiêu: du học nghề hay đại học – và khi nào. Muốn bắt đầu vào hè năm sau: ghi danh sách chờ kèm ngày." },
         { de: "Ältere Kunden reden uns oft familiär an („cháu“, „con“). Antworte in derselben Anrede.", vi: "Khách lớn tuổi hay xưng hô thân mật („cháu“, „con“). Hãy trả lời theo đúng cách xưng hô đó." }
       ]

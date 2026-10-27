@@ -31,8 +31,8 @@ const page: PageContent = {
         { de: "Passenden Kurs mit Datum und Uhrzeit vorschlagen", vi: "Gợi ý lớp phù hợp kèm ngày giờ" },
         { de: "Regel erklären", vi: "Giải thích quy định", body_de: "Mit den Daten der zwei Testtermine („Montag und Mittwoch nächste Woche“).", body_vi: "Kèm ngày của 2 buổi học thử („thứ 2 và thứ 4 tuần sau“)." },
         { de: "Zahlung und Daten", vi: "Thanh toán và thông tin", body_de: "Kontovorlage schicken, Beleg + E-Mail + Zalo erfragen, Daten bestätigen.", body_vi: "Gửi mẫu tài khoản, xin biên lai + email + Zalo, xác nhận lại thông tin." },
-        { de: "Material und Klassengruppe", vi: "Tài liệu và nhóm lớp", body_de: "Unterlagen per E-Mail, Person in die Zalo-Gruppe aufnehmen, Zoom-Link teilen.", body_vi: "Gửi tài liệu qua email, thêm vào nhóm Zalo của lớp, gửi link Zoom." },
-        { de: "Nach Termin 2 nachfragen", vi: "Hỏi thăm sau buổi 2", body_de: "„Wie waren die ersten zwei Stunden?“ – und Feedback im CRM eintragen.", body_vi: "„Hai buổi đầu em thấy thế nào?“ – và ghi nhận xét vào CRM." }
+        { de: "Zahlung in Slack melden", vi: "Báo thanh toán lên Slack", body_de: "Beleg, Name, Klasse, Betrag und alles, was zugesagt wurde (auch: „Erster Online-Kurs – Probestunden-Regel gilt“).", body_vi: "Biên lai, tên, lớp, số tiền và mọi điều đã cam kết (kể cả: „Lần đầu học online – áp dụng chính sách học thử“)." },
+        { de: "An Customer Success übergeben", vi: "Bàn giao cho đội Chăm sóc học viên", body_de: "Material, Zalo-Gruppe, Zoom-Link und die Nachfrage nach Termin 2 macht Customer Success. Sales schickt der Person nach der Zahlung nichts mehr.", body_vi: "Tài liệu, nhóm Zalo, link Zoom và hỏi thăm sau buổi 2 do đội Chăm sóc học viên làm. Sau khi khách đóng tiền, Sales không gửi gì thêm." }
       ]
     },
     {

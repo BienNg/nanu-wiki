@@ -66,8 +66,8 @@ const page: PageContent = {
     },
     {
       type: "paragraph",
-      de: "Jede Stufe A1–B1 dauert 2,5–3 Monate. Lehrkräfte: vietnamesisch oder deutsch, alle mit Studium in Deutschland; Lehrplan von Chị Phương.",
-      vi: "Mỗi cấp độ A1–B1 kéo dài 2,5–3 tháng. Giáo viên người Việt hoặc người Đức, đều đã học tập tại Đức; giáo trình do chị Phương biên soạn."
+      de: "Jede Stufe A1–B1 dauert 2,5–3 Monate. Lehrkräfte: vietnamesisch oder deutsch, alle mit Studium in Deutschland; Lehrplan von NaNu NaNa selbst geschrieben.",
+      vi: "Mỗi cấp độ A1–B1 kéo dài 2,5–3 tháng. Giáo viên người Việt hoặc người Đức, đều đã học tập tại Đức; giáo trình do NaNu NaNa tự biên soạn."
     }
   ]
 };

@@ -29,9 +29,16 @@ const page: PageContent = {
       items: [
         { de: "Die App ist für unsere Kursteilnehmenden zu 100 % kostenlos. Einzeln verkaufen wir sie nicht – ihr Inhalt folgt genau dem Unterricht.", vi: "App miễn phí 100% cho học viên đang học tại trung tâm. App không bán riêng – nội dung bám sát bài học trên lớp." },
         { de: "Wer neu einen A1-Kurs bucht, bekommt die App als Erstes. Ihr Wert außerhalb: 49 Euro (ca. 1.300.000 VND).", vi: "Học viên mới đăng ký khóa A1 được dùng app đầu tiên. Giá trị nếu mua ngoài: 49 Euro (khoảng 1.300.000 VND)." },
-        { de: "Was sie kann: Lernvideos wie im Unterricht, Wortschatz und Hörübungen zu jeder Lektion, Lernfortschritt, Rangliste und Duelle mit der Klasse.", vi: "App có: video bài giảng giống trên lớp, từ vựng và bài luyện nghe cho từng bài, theo dõi tiến độ, bảng xếp hạng và thách đấu với cả lớp." },
+        { de: "Was sie kann: vorab aufgenommene Lektionen, Wortschatz und Hörübungen, Lernfortschritt, Rangliste und Duelle mit der Klasse.", vi: "App có: bài giảng quay sẵn, từ vựng và bài luyện nghe, theo dõi tiến độ, bảng xếp hạng và thách đấu với cả lớp." },
+        { de: "Die App ist noch im Aufbau: Stand 27.10.2026 gibt es nur die ersten 8 Lektionen von A1.1. Wer A2 oder höher lernt, findet dort noch nichts zu seiner Stufe.", vi: "App vẫn đang hoàn thiện: tính đến 27/10/2026 mới có 8 bài đầu của A1.1. Học viên A2 trở lên hiện chưa có nội dung cho trình độ của mình." },
         { de: "Wer gleich nach der Zahlung einsteigt, kann schon vor Kursbeginn in der App lernen.", vi: "Đóng học phí xong là có thể vào app học trước khi lớp khai giảng." }
       ]
+    },
+    {
+      type: "callout",
+      tone: "warning",
+      de: "Nicht „Videos zu jeder Lektion“ versprechen und die App nicht als Ersatz für verpasste Stunden anbieten. Aufzeichnungen der Stunden gibt es nicht.",
+      vi: "Không hứa „có video cho từng bài“ và không giới thiệu app như cách bù buổi nghỉ. Trung tâm không quay lại buổi học."
     },
     {
       type: "template",

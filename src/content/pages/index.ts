@@ -11,10 +11,14 @@ import lehrmaterialienLehrbuchUndMethode from "./lehrmaterialien/lehrbuch-und-me
 import lehrmaterialienMaterialVerschicken from "./lehrmaterialien/material-verschicken";
 import lehrmaterialienMaterialienUeberblick from "./lehrmaterialien/materialien-ueberblick";
 import lehrmaterialienZugangClassroomUndApp from "./lehrmaterialien/zugang-classroom-und-app";
+import salesAktionOktober2026 from "./sales/aktion-oktober-2026";
+import salesAufgabenUndKpis from "./sales/aufgaben-und-kpis";
+import salesBeratungUndTermine from "./sales/beratung-und-termine";
 import salesBestandskundenImMessenger from "./sales/bestandskunden-im-messenger";
 import salesErstkontaktMessenger from "./sales/erstkontakt-messenger";
 import salesFaqApp from "./sales/faq-app";
 import salesFaqAusbildung from "./sales/faq-ausbildung";
+import salesFaqProgramme from "./sales/faq-programme";
 import salesFaqSprachkurse from "./sales/faq-sprachkurse";
 import salesFaqStudium from "./sales/faq-studium";
 import salesInterview from "./sales/interview";
@@ -24,6 +28,7 @@ import salesKampagneProbestunde from "./sales/kampagne-probestunde";
 import salesKeineRabatte from "./sales/keine-rabatte";
 import salesProbestundeBuchen from "./sales/probestunde-buchen";
 import salesVerkaufstrichter from "./sales/verkaufstrichter";
+import salesWebsitePostsUndWerbung from "./sales/website-posts-und-werbung";
 import studentSupportAnmeldungUndZahlung from "./student-support/anmeldung-und-zahlung";
 import studentSupportAufgabenUndRhythmus from "./student-support/aufgaben-und-rhythmus";
 import studentSupportKanaele from "./student-support/kanaele";
@@ -45,7 +50,7 @@ import visaVisumStudium from "./visa/visum-studium";
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
   "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
-  sales: [salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesKeineRabatte, salesProbestundeBuchen, salesVerkaufstrichter],
+  sales: [salesAktionOktober2026, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesKeineRabatte, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
   "student-support": [studentSupportAnmeldungUndZahlung, studentSupportAufgabenUndRhythmus, studentSupportKanaele, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportNaechsterKursUndTreue, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportPruefungenBegleiten, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
@@ -53,14 +58,15 @@ export const PAGES_BY_AREA: Record<string, PageContent[]> = {
 /** Handbuch categories per area, in reading order. Pages left out land in "Weitere", newest first. */
 export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
   sales: [
-    { de: "Grundlagen", vi: "Nền tảng", pages: [salesVerkaufstrichter, salesKeineRabatte] },
+    { de: "Grundlagen", vi: "Nền tảng", pages: [salesVerkaufstrichter, salesAufgabenUndKpis, salesKeineRabatte] },
     {
       de: "Messenger-Gespräche",
       vi: "Trò chuyện qua Messenger",
-      pages: [salesErstkontaktMessenger, salesProbestundeBuchen, salesBestandskundenImMessenger, salesKeineKunden],
+      pages: [salesErstkontaktMessenger, salesBeratungUndTermine, salesProbestundeBuchen, salesBestandskundenImMessenger, salesKeineKunden],
     },
-    { de: "FAQs", vi: "Câu hỏi thường gặp", pages: [salesFaqSprachkurse, salesFaqApp, salesFaqAusbildung, salesFaqStudium] },
-    { de: "Kampagnen", vi: "Chiến dịch", pages: [salesKampagneProbestunde] },
+    { de: "FAQs", vi: "Câu hỏi thường gặp", pages: [salesFaqSprachkurse, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqStudium] },
+    { de: "Kampagnen", vi: "Chiến dịch", pages: [salesAktionOktober2026, salesKampagneProbestunde] },
+    { de: "Website & Social Media", vi: "Website & mạng xã hội", pages: [salesWebsitePostsUndWerbung] },
   ],
   lehrmaterialien: [
     { de: "Überblick", vi: "Tổng quan", pages: [lehrmaterialienMaterialienUeberblick, lehrmaterialienLehrbuchUndMethode] },

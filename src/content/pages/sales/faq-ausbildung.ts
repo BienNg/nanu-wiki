@@ -29,7 +29,7 @@ const page: PageContent = {
         { de: "Mindestens 18 Jahre und mindestens B1 in allen vier Fertigkeiten. Drei Fertigkeiten reichen nicht – erst nach dem vierten Ergebnis weiter.", vi: "Từ 18 tuổi và có tối thiểu B1 đủ 4 kỹ năng. 3 kỹ năng là chưa đủ – chờ có điểm kỹ năng thứ 4 rồi mới tiếp tục." },
         { de: "Pflege und Zahnmedizinische Fachangestellte: mindestens B2. Hotel: zusätzlich gutes Englisch.", vi: "Điều dưỡng và trợ lý nha khoa: tối thiểu B2. Khách sạn: cần thêm tiếng Anh tốt." },
         { de: "Ein B1-Zertifikat gilt für das Visum nur 12 Monate. Deshalb früh starten.", vi: "Bằng B1 chỉ có hiệu lực 12 tháng để xin visa. Vì vậy nên bắt đầu sớm." },
-        { de: "Auch Bewerber, die nicht bei uns gelernt haben, nehmen wir an – aber nur nach einem Sprachtest bei Chị Phương.", vi: "Trung tâm nhận cả hồ sơ của các bạn không học tại trung tâm – nhưng phải test tiếng với chị Phương trước." },
+        { de: "Auch Bewerber, die nicht bei uns gelernt haben, nehmen wir an – aber nur nach einem Sprachtest bei der Leitung.", vi: "Trung tâm nhận cả hồ sơ của các bạn không học tại trung tâm – nhưng phải test tiếng với quản lý trước." },
         { de: "Alter oder älterer Abschluss (z. B. 38 Jahre): ehrlich sagen, dass wir den Einzelfall nach den Unterlagen prüfen – nichts versprechen.", vi: "Lớn tuổi hoặc tốt nghiệp đã lâu (ví dụ 38 tuổi): nói thật là trung tâm cần xem hồ sơ cụ thể – không hứa trước." }
       ]
     },
@@ -50,6 +50,12 @@ const page: PageContent = {
         { de: "Flug: Ist er beim Kauf teurer als 12 Mio., zahlt die Familie den Rest; ist er billiger, gibt es nichts zurück. Bisher war keiner billiger.", vi: "Vé máy bay: nếu lúc mua đắt hơn 12 triệu thì gia đình bù phần chênh; nếu rẻ hơn thì không hoàn lại. Đến nay chưa có vé nào dưới 12 triệu." },
         { de: "Kostenloses B2-Programm: B1 in allen vier Fertigkeiten mit je mindestens 70 Punkten, nicht älter als 2 Monate. Wer teilnimmt, geht danach über unsere Ausbildungsvermittlung.", vi: "Chương trình học B2 miễn phí: B1 đủ 4 kỹ năng, mỗi kỹ năng từ 70 điểm, bằng thi chưa quá 2 tháng. Tham gia chương trình thì sau đó đi theo đơn du học nghề của trung tâm." }
       ]
+    },
+    {
+      type: "callout",
+      tone: "warning",
+      de: "Zu klären: (1) Paket mit Sprachkurs: In Slack wurden für Verkauf 220 Mio. in 3 Raten 54 / 50 / 116 Mio. genannt – nicht 50 / 50 / 99 wie beim Paket mit B1. Gilt das für alle Berufe? (2) Kostenloses B2-Programm: Im August hieß es „B1 noch 10 Monate gültig“ statt „nicht älter als 2 Monate“; offen ist auch, ob ÖSD zählt und wie die neue Anzahlung aussieht. Details und alle offenen Punkte: „FAQ Programme“.",
+      vi: "Cần làm rõ: (1) Gói kèm học tiếng: trên Slack ngành bán hàng ghi 220 triệu chia 3 đợt 54 / 50 / 116 triệu – không phải 50 / 50 / 99 như gói đã có B1. Áp dụng cho mọi ngành không? (2) Chương trình B2 miễn phí: tháng 8 có nói „bằng B1 còn hạn 10 tháng“ thay vì „chưa quá 2 tháng“; chưa rõ ÖSD có được tính không và tiền cọc mới thế nào. Chi tiết và các điểm cần làm rõ: „FAQ các chương trình“."
     },
     { type: "heading", de: "„Was, wenn es nicht klappt?“", vi: "„Nếu không đậu thì sao?“" },
     {
@@ -72,7 +78,7 @@ const page: PageContent = {
       items: [
         { de: "Daten und Zertifikat erhalten", vi: "Nhận thông tin và bằng" },
         { de: "Kosten schicken, Fragen klären", vi: "Gửi chi phí, giải đáp thắc mắc" },
-        { de: "Sprachtest bei Chị Phương", vi: "Test tiếng với chị Phương", body_de: "Termin aktiv vereinbaren und dem Kunden sagen, wann er von uns hört – sonst fragt die Familie nach („Niemand hat angerufen“).", body_vi: "Chủ động hẹn lịch và báo khách khi nào trung tâm liên hệ – nếu không gia đình sẽ hỏi lại („Chưa thấy ai gọi“)." },
+        { de: "Sprachtest bei der Leitung", vi: "Test tiếng với quản lý", body_de: "Termin aktiv vereinbaren und dem Kunden sagen, wann er von uns hört – sonst fragt die Familie nach („Niemand hat angerufen“).", body_vi: "Chủ động hẹn lịch và báo khách khi nào trung tâm liên hệ – nếu không gia đình sẽ hỏi lại („Chưa thấy ai gọi“)." },
         { de: "Rate 1, Unterlagen, Interviewtraining", vi: "Đóng đợt 1, chuẩn bị hồ sơ, luyện phỏng vấn" },
         { de: "Vorstellungsgespräch, Vertrag, Visum, Flug", vi: "Phỏng vấn, hợp đồng, visa, bay" }
       ]
