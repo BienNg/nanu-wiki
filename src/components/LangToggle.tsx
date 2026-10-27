@@ -11,12 +11,13 @@ const OPTIONS: { value: Lang; label: string }[] = [
 
 /** Switches language instantly by swapping the class on <html>;
  *  the choice is remembered in a cookie for server rendering.
- *  Once the bar scrolls away, the control pins to the top and
- *  collapses to the current language until it is opened. */
+ *  Once the bar scrolls away, the control pins to the top of its
+ *  own column and collapses to the current language until it is opened. */
 export function LangToggle({ initial }: { initial: Lang }) {
   const [lang, setLang] = useState<Lang>(initial);
   const [stuck, setStuck] = useState(false);
   const [open, setOpen] = useState(false);
+  const [pinRight, setPinRight] = useState<number | null>(null);
   const slotRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const stuckRef = useRef(false);
@@ -28,12 +29,16 @@ export function LangToggle({ initial }: { initial: Lang }) {
 
     let frame = 0;
     function update() {
-      const top = slot.getBoundingClientRect().top;
-      const next = top < 8;
-      if (next === stuckRef.current) return;
-      stuckRef.current = next;
-      setStuck(next);
-      if (!next) setOpen(false);
+      const rect = slot.getBoundingClientRect();
+      const next = rect.top < 8;
+      if (next !== stuckRef.current) {
+        stuckRef.current = next;
+        setStuck(next);
+        if (!next) setOpen(false);
+      }
+      if (!next) return;
+      const right = Math.max(0, window.innerWidth - rect.right);
+      setPinRight((prev) => (prev !== null && Math.abs(prev - right) < 0.5 ? prev : right));
     }
     function onScroll() {
       cancelAnimationFrame(frame);
@@ -94,9 +99,10 @@ export function LangToggle({ initial }: { initial: Lang }) {
           expanded ? "gap-0.5" : "gap-0"
         } ${
           stuck
-            ? "fixed top-2 right-4 z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]"
+            ? "fixed top-2 z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]"
             : "absolute inset-y-0 right-0"
         }`}
+        style={stuck && pinRight !== null ? { right: pinRight } : undefined}
       >
         {OPTIONS.map((option) => {
           const shown = expanded || option.value === lang;
