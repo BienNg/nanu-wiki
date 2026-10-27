@@ -11,7 +11,8 @@ import { Icon } from "@/components/Icon";
 import { KindBadge, VerifiedPill } from "@/components/Badges";
 import { BlockRenderer, slugify } from "@/components/BlockRenderer";
 import { ChatResponses } from "@/components/ChatResponses";
-import { CommentLayer } from "@/components/CommentLayer";
+import { CommentLayer, type PanelComment } from "@/components/CommentLayer";
+import { CommentToggle } from "@/components/CommentView";
 import type { CommentAnchor } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 
@@ -50,13 +51,28 @@ export default async function DocPage({ params, searchParams }: { params: Params
     const { data } = await supabase.from("page_comments").select("anchor").eq("id", c).eq("page_id", page.id).maybeSingle();
     focus = data ? (data.anchor as CommentAnchor) ?? undefined : "missing";
   }
+  // All comments on this page except declined ones, for the comment view.
+  let comments: PanelComment[] = [];
+  if (canComment) {
+    const { data } = await supabase
+      .from("page_comments")
+      .select("id, anchor, tag, body, status, resolution_note, created_at, author:profiles!page_comments_author_id_fkey(full_name, email)")
+      .eq("page_id", page.id)
+      .neq("status", "declined")
+      .order("created_at");
+    comments = (data ?? []).map(({ author, ...c }) => {
+      const a = author as unknown as { full_name: string | null; email: string } | null;
+      return { ...(c as Omit<PanelComment, "author">), author: a?.full_name ?? a?.email ?? "?" };
+    });
+  }
+  const openComments = comments.filter((c) => c.status !== "resolved").length;
   const headings = page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[];
   const tint = `${page.area.color}22`;
 
   return (
-    <div className="flex flex-1 flex-wrap">
+    <div className="doc-page flex flex-1 flex-wrap">
       <div className="flex min-w-0 flex-[999_1_520px] flex-col">
-        <Topbar>
+        <Topbar actions={canComment ? <CommentToggle open={openComments} /> : undefined}>
           <Icon name={page.area.icon} size={14} color={page.area.color} strokeWidth={2} />
           <Link href={`/bereich/${page.area.slug}`} className="text-body hover:text-ink">
             <Label de={page.area.name_de} vi={page.area.name_vi} />
@@ -89,7 +105,7 @@ export default async function DocPage({ params, searchParams }: { params: Params
           </header>
 
           {canComment ? (
-            <CommentLayer pageId={page.id} focus={focus}>
+            <CommentLayer pageId={page.id} focus={focus} comments={comments} canManage={canEdit}>
               <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
             </CommentLayer>
           ) : (
@@ -100,7 +116,7 @@ export default async function DocPage({ params, searchParams }: { params: Params
       </div>
 
       {headings.length > 1 && (
-        <aside aria-label="Inhaltsverzeichnis" className="hidden min-w-0 max-w-[240px] flex-[1_1_220px] flex-col bg-side px-[18px] lg:flex">
+        <aside aria-label="Inhaltsverzeichnis" className="doc-toc hidden min-w-0 max-w-[240px] flex-[1_1_220px] flex-col bg-side px-[18px] lg:flex">
           <nav className="sticky top-0 flex max-h-dvh flex-col gap-0.5 overflow-y-auto py-3.5">
             <span className="pb-3 pt-1 text-[13px] text-body">
               <Label de="Inhaltsverzeichnis" vi="Mục lục" />

@@ -160,6 +160,7 @@ export async function addComment(input: { pageId: string; anchor: CommentAnchor;
 
   await notifyEditors(page, `💬 ${who(session)}`, { anchor, tag, body, id: data.id }, session.profile.id);
   revalidatePath("/admin/kommentare");
+  revalidatePath(page.href);
   return { ok: true as const };
 }
 
@@ -219,7 +220,7 @@ export async function setCommentStatus(id: string, status: CommentStatus, note?:
     }
   }
   revalidatePath("/admin/kommentare");
-  revalidatePath("/", "layout");
+  revalidatePath("/", "layout"); // sidebar badge and the page's comment view
   return { ok: true as const };
 }
 
