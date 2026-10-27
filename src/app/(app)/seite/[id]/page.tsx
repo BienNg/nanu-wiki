@@ -98,19 +98,21 @@ export default async function DocPage({ params }: { params: Promise<{ id: string
       </div>
 
       {headings.length > 1 && (
-        <aside aria-label="Inhaltsverzeichnis" className="hidden min-w-0 max-w-[240px] flex-[1_1_220px] flex-col gap-0.5 bg-side px-[18px] py-3.5 lg:flex">
-          <span className="pb-3 pt-1 text-[13px] text-body">
-            <Label de="Inhaltsverzeichnis" vi="Mục lục" />
-          </span>
-          {headings.map((h, i) => (
-            <a
-              key={i}
-              href={`#${slugify(h.de)}`}
-              className="flex items-center gap-2.5 py-1 text-[13px] leading-snug text-muted before:h-px before:w-3.5 before:flex-none before:bg-[#C9CDD3] hover:text-ink"
-            >
-              <Label de={h.de} vi={h.vi || h.de} />
-            </a>
-          ))}
+        <aside aria-label="Inhaltsverzeichnis" className="hidden min-w-0 max-w-[240px] flex-[1_1_220px] flex-col bg-side px-[18px] lg:flex">
+          <nav className="sticky top-0 flex max-h-dvh flex-col gap-0.5 overflow-y-auto py-3.5">
+            <span className="pb-3 pt-1 text-[13px] text-body">
+              <Label de="Inhaltsverzeichnis" vi="Mục lục" />
+            </span>
+            {headings.map((h, i) => (
+              <a
+                key={i}
+                href={`#${slugify(h.de)}`}
+                className="flex items-center gap-2.5 py-1 text-[13px] leading-snug text-muted before:h-px before:w-3.5 before:flex-none before:bg-[#C9CDD3] hover:text-ink"
+              >
+                <Label de={h.de} vi={h.vi || h.de} />
+              </a>
+            ))}
+          </nav>
         </aside>
       )}
     </div>
