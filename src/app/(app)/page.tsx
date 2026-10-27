@@ -11,6 +11,8 @@ import { PageTable, PAGE_SELECT } from "@/components/PageTable";
 import { formatDate } from "@/lib/format";
 import type { Area, PageWithMeta } from "@/lib/types";
 
+const NO_AREA_TOAST = "Dir ist noch keine Rolle zugewiesen · Bạn chưa được gán vai trò";
+
 export default async function HomePage() {
   const { profile } = await requireRole("candidate");
   const supabase = await createClient();
@@ -88,7 +90,7 @@ export default async function HomePage() {
                 { de: "Wöchentliches Quiz bestehen", vi: "Hoàn thành quiz hằng tuần", href: myArea ? `/bereich/${myArea.slug}?tab=onboarding` : "#" },
               ].map((s, i) => (
                 <li key={i}>
-                  <Link href={s.href} className="flex items-start gap-2.5 rounded-md px-2 py-2.5 text-ink hover:bg-side">
+                  <Link href={s.href} data-toast={s.href === "#" ? NO_AREA_TOAST : undefined} className="flex items-start gap-2.5 rounded-md px-2 py-2.5 text-ink hover:bg-side">
                     <span className="mt-px flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full bg-chip text-[11px] font-semibold text-body">
                       {i + 1}
                     </span>
