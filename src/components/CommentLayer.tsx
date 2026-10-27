@@ -65,17 +65,24 @@ export function CommentLayer({
   }, [offset]);
 
   // Link from the inbox or Slack: scroll there and highlight the words.
+  // Only the server decides that a spot is gone ("missing", see resolveAnchor); if the browser can't
+  // place the exact words it still shows the block. `?c=` is dropped afterwards, so a reload is a normal visit.
   useEffect(() => {
+    if (focus === undefined) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("c")) {
+      url.searchParams.delete("c");
+      window.history.replaceState(window.history.state, "", url);
+    }
     if (focus === "missing") return setMoved(true);
     if (!focus || !root.current) return;
     const block = root.current.querySelector<HTMLElement>(`[data-block="${CSS.escape(focus.block)}"]`);
-    if (!block) return setMoved(true);
+    if (!block) return;
     block.scrollIntoView({ block: "center" });
     block.classList.add("comment-flash");
     const range = rangeForAnchor(block, focus);
     const highlights = typeof CSS !== "undefined" && "highlights" in CSS ? CSS.highlights : null;
     if (range && highlights) highlights.set("comment-focus", new Highlight(range));
-    else if (focus.exact && !range) setMoved(true);
     const t = setTimeout(() => block.classList.remove("comment-flash"), 2400);
     return () => {
       clearTimeout(t);

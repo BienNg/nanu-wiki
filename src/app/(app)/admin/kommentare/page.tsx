@@ -3,10 +3,11 @@ import { getEditorAreas, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AREAS, getPageById } from "@/content";
 import { Topbar } from "@/components/Topbar";
-import { Bi, Label } from "@/components/Bi";
+import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { CopyButton } from "@/components/CopyButton";
 import { CommentActions } from "@/components/admin/CommentActions";
+import { FilterChip } from "@/components/admin/FilterChip";
 import { COMMENT_STATUSES, COMMENT_TAGS, resolveAnchor, tagInfo } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 import type { CommentStatus, PageComment, PageWithMeta } from "@/lib/types";
@@ -14,51 +15,78 @@ import type { CommentStatus, PageComment, PageWithMeta } from "@/lib/types";
 export const metadata = { title: "Kommentare" };
 
 type Row = PageComment & { author: { full_name: string | null; email: string } | null };
-type Search = Promise<{ status?: string; area?: string; tag?: string }>;
+type Params = { status?: string; area?: string; tag?: string; page?: string; sort?: string };
 
-/** "offen" = open + in progress, the default view. */
-const VIEWS: { id: string; de: string; vi: string; statuses: CommentStatus[] }[] = [
-  { id: "offen", de: "Offen", vi: "Đang mở", statuses: ["open", "in_progress"] },
-  { id: "erledigt", de: "Erledigt", vi: "Đã xong", statuses: ["resolved"] },
-  { id: "abgelehnt", de: "Abgelehnt", vi: "Không làm", statuses: ["declined"] },
+/** Status tabs; "offen" is the default view. */
+const VIEWS: { id: string; de: string; vi: string; status: CommentStatus }[] = [
+  { id: "offen", de: "Offen", vi: "Đang mở", status: "open" },
+  { id: "in-arbeit", de: "In Arbeit", vi: "Đang xử lý", status: "in_progress" },
+  { id: "erledigt", de: "Erledigt", vi: "Đã xong", status: "resolved" },
+  { id: "abgelehnt", de: "Abgelehnt", vi: "Không làm", status: "declined" },
 ];
 
-export default async function CommentsPage({ searchParams }: { searchParams: Search }) {
+const SORTS = [
+  { id: "alt", de: "Älteste zuerst", vi: "Cũ nhất trước" },
+  { id: "neu", de: "Neueste zuerst", vi: "Mới nhất trước" },
+  { id: "seite", de: "Meiste pro Seite", vi: "Trang nhiều góp ý nhất" },
+];
+
+const DEFAULTS: Required<Params> = { status: "offen", area: "", tag: "", page: "", sort: "alt" };
+
+export default async function CommentsPage({ searchParams }: { searchParams: Promise<Params> }) {
   const { profile } = await requireRole("editor");
   const sp = await searchParams;
-  const view = VIEWS.find((v) => v.id === sp.status) ?? VIEWS[0];
   const myAreas = profile.role === "admin" ? AREAS.map((a) => a.slug) : await getEditorAreas();
-  const picked = sp.area && myAreas.includes(sp.area) ? [sp.area] : myAreas;
-  const areas = picked.length ? picked : ["-"]; // an editor without areas sees nothing
-  const tag = tagInfo((sp.tag ?? null) as PageComment["tag"])?.id;
 
+  // Everything in the user's areas, filtered here: the tabs and every dropdown show counts for the other filters.
   const supabase = await createClient();
-  let query = supabase
+  const { data } = await supabase
     .from("page_comments")
     .select("*, author:profiles!page_comments_author_id_fkey(full_name, email)")
-    .in("area", areas)
-    .in("status", view.statuses)
-    .order("created_at", { ascending: view.id === "offen" })
-    .limit(500);
-  if (tag) query = query.eq("tag", tag);
-  const [{ data }, { data: openRows }] = await Promise.all([
-    query,
-    supabase.from("page_comments").select("area").in("area", myAreas).in("status", ["open", "in_progress"]),
-  ]);
-  const rows = (data ?? []) as Row[];
-  const openByArea = new Map<string, number>();
-  for (const r of openRows ?? []) openByArea.set(r.area, (openByArea.get(r.area) ?? 0) + 1);
+    .in("area", myAreas.length ? myAreas : ["-"]) // an editor without areas sees nothing
+    .order("created_at")
+    .limit(2000);
+  const all = (data ?? []) as Row[];
 
-  // Group by page, pages with the most comments first.
-  const groups = new Map<string, Row[]>();
-  for (const r of rows) groups.set(r.page_id, [...(groups.get(r.page_id) ?? []), r]);
-  const pages = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+  const view = VIEWS.find((v) => v.id === sp.status) ?? VIEWS[0];
+  const f: Required<Params> = {
+    status: view.id,
+    area: sp.area && myAreas.includes(sp.area) ? sp.area : "",
+    tag: tagInfo((sp.tag ?? null) as PageComment["tag"])?.id ?? "",
+    page: sp.page && all.some((c) => c.page_id === sp.page) ? sp.page : "",
+    sort: SORTS.some((s) => s.id === sp.sort) ? sp.sort! : "alt",
+  };
+  const matches = (c: Row, skip?: keyof Params) =>
+    (skip === "status" || c.status === view.status) &&
+    (skip === "area" || !f.area || c.area === f.area) &&
+    (skip === "tag" || !f.tag || c.tag === f.tag) &&
+    (skip === "page" || !f.page || c.page_id === f.page);
+  const count = (skip: keyof Params, pick: (c: Row) => boolean) => all.filter((c) => matches(c, skip) && pick(c)).length;
+  const rows = all.filter((c) => matches(c));
 
-  const href = (patch: Partial<{ status: string; area: string; tag: string }>) => {
-    const next = { status: view.id, area: sp.area ?? "", tag: tag ?? "", ...patch };
-    const qs = new URLSearchParams(Object.entries(next).filter(([k, v]) => v && !(k === "status" && v === "offen")));
+  const href = (patch: Partial<Params>) => {
+    const next = { ...f, ...patch };
+    const qs = new URLSearchParams(Object.entries(next).filter(([k, v]) => v && v !== DEFAULTS[k as keyof Params]));
     return `/admin/kommentare${qs.size ? `?${qs}` : ""}`;
   };
+  const filtered = Boolean(f.area || f.tag || f.page);
+
+  // Group by page; within a page oldest first unless "Neueste zuerst".
+  const groups = new Map<string, Row[]>();
+  for (const r of rows) groups.set(r.page_id, [...(groups.get(r.page_id) ?? []), r]);
+  if (f.sort === "neu") for (const list of groups.values()) list.reverse();
+  const pages = [...groups.entries()].sort(([, a], [, b]) =>
+    f.sort === "seite" ? b.length - a.length : f.sort === "neu" ? b[0].created_at.localeCompare(a[0].created_at) : a[0].created_at.localeCompare(b[0].created_at),
+  );
+
+  const areaList = AREAS.filter((a) => myAreas.includes(a.slug));
+  const area = AREAS.find((a) => a.slug === f.area);
+  const tag = tagInfo((f.tag || null) as PageComment["tag"]);
+  const pageIds = [...new Set(all.filter((c) => matches(c, "page")).map((c) => c.page_id))];
+  if (f.page && !pageIds.includes(f.page)) pageIds.push(f.page);
+  const pageTitle = (id: string) => getPageById(id)?.title_de ?? id;
+  const sort = SORTS.find((s) => s.id === f.sort)!;
+  const all_ = { de: "Alle", vi: "Tất cả" };
 
   return (
     <>
@@ -66,54 +94,120 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
         <Icon name="chat" size={14} />
         <Label de="Kommentare" vi="Bình luận" />
       </Topbar>
-      <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-8 pb-20 pt-9">
-        <header className="flex flex-col gap-2">
+      <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-8 pb-20 pt-9 max-sm:px-4">
+        <header className="flex items-center gap-2">
           <h1 className="title-display m-0 text-[34px] leading-tight">
-            <Bi de="Kommentare" vi="Bình luận" />
+            <Label de="Kommentare" vi="Bình luận" />
           </h1>
-          <p className="m-0 max-w-[720px] text-[#4A4F57]">
-            <Bi
-              de="Hinweise aus dem Team zu den Seiten deiner Bereiche. Inhalt in src/content anpassen, dann auf „Erledigt“ – die Person bekommt ein Danke auf Slack."
-              vi="Góp ý của mọi người về các trang trong mục của bạn. Sửa nội dung trong src/content, rồi bấm „Đã xong“ – người góp ý sẽ nhận lời cảm ơn qua Slack."
-            />
-          </p>
+          <span
+            title={"Inhalt in src/content anpassen, dann auf „Erledigt“ – die Person bekommt ein Danke auf Slack.\nSửa nội dung trong src/content, rồi bấm „Đã xong“ – người góp ý nhận lời cảm ơn qua Slack."}
+            className="mt-1 flex h-5 w-5 cursor-help items-center justify-center rounded-full border border-line text-[11px] font-semibold text-muted"
+          >
+            i
+          </span>
         </header>
 
-        <nav aria-label="Filter" className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-1.5">
-            {VIEWS.map((v) => (
-              <Chip key={v.id} href={href({ status: v.id })} active={v.id === view.id}>
+        <nav aria-label="Status" className="-mb-1 flex gap-1 overflow-x-auto max-sm:gap-0 border-b border-line [scrollbar-width:none]">
+          {VIEWS.map((v) => {
+            const n = count("status", (c) => c.status === v.status);
+            return (
+              <Link
+                key={v.id}
+                href={href({ status: v.id })}
+                aria-current={v.id === view.id ? "page" : undefined}
+                className="-mb-px flex flex-none items-center gap-1.5 border-b-2 border-transparent px-2.5 pb-2.5 max-sm:gap-1 max-sm:px-1.5 pt-1 text-sm text-muted hover:text-ink aria-[current=page]:border-ink aria-[current=page]:font-medium aria-[current=page]:text-ink"
+              >
                 <Label de={v.de} vi={v.vi} />
-              </Chip>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            <Chip href={href({ area: "" })} active={!sp.area}>
-              <Label de="Alle Bereiche" vi="Tất cả" />
-            </Chip>
-            {AREAS.filter((a) => myAreas.includes(a.slug)).map((a) => (
-              <Chip key={a.slug} href={href({ area: a.slug })} active={sp.area === a.slug}>
-                <Label de={a.name_de} vi={a.name_vi} />
-                {openByArea.get(a.slug) ? <span className="ml-1 text-faint">{openByArea.get(a.slug)}</span> : null}
-              </Chip>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            <Chip href={href({ tag: "" })} active={!tag}>
-              <Label de="Alle Arten" vi="Mọi loại" />
-            </Chip>
-            {COMMENT_TAGS.map((t) => (
-              <Chip key={t.id} href={href({ tag: t.id })} active={tag === t.id}>
-                {t.emoji} <Label de={t.de} vi={t.vi} />
-              </Chip>
-            ))}
-          </div>
+                <span className={`rounded-full px-1.5 text-[11px] leading-[18px] ${v.id === view.id && n > 0 ? "bg-ink text-white" : "bg-chip text-muted"}`}>{n}</span>
+              </Link>
+            );
+          })}
         </nav>
 
+        <div className="flex items-center gap-2">
+          <div aria-label="Filter" className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none]">
+            {areaList.length > 1 && (
+              <FilterChip
+                label={{ de: "Bereich", vi: "Mục" }}
+                value={area ? { de: area.name_de, vi: area.name_vi } : all_}
+                active={Boolean(area)}
+                clearHref={href({ area: "" })}
+                options={[
+                  { href: href({ area: "" }), ...all_, count: count("area", () => true), selected: !area },
+                  ...areaList.map((a) => ({ href: href({ area: a.slug }), de: a.name_de, vi: a.name_vi, count: count("area", (c) => c.area === a.slug), selected: a.slug === f.area })),
+                ]}
+              />
+            )}
+            <FilterChip
+              label={{ de: "Art", vi: "Loại" }}
+              value={tag ? { de: tag.de, vi: tag.vi, prefix: tag.emoji } : all_}
+              active={Boolean(tag)}
+              clearHref={href({ tag: "" })}
+              options={[
+                { href: href({ tag: "" }), ...all_, count: count("tag", () => true), selected: !tag },
+                ...COMMENT_TAGS.map((t) => ({ href: href({ tag: t.id }), de: t.de, vi: t.vi, prefix: t.emoji, count: count("tag", (c) => c.tag === t.id), selected: t.id === f.tag })),
+              ]}
+            />
+            {(pageIds.length > 1 || f.page) && (
+              <FilterChip
+                label={{ de: "Seite", vi: "Trang" }}
+                value={f.page ? { de: pageTitle(f.page), vi: getPageById(f.page)?.title_vi || pageTitle(f.page) } : all_}
+                active={Boolean(f.page)}
+                clearHref={href({ page: "" })}
+                options={[
+                  { href: href({ page: "" }), ...all_, count: count("page", () => true), selected: !f.page },
+                  ...pageIds
+                    .map((id) => ({ id, n: count("page", (c) => c.page_id === id) }))
+                    .sort((a, b) => b.n - a.n)
+                    .map(({ id, n }) => ({ href: href({ page: id }), de: pageTitle(id), vi: getPageById(id)?.title_vi || pageTitle(id), count: n, selected: id === f.page })),
+                ]}
+              />
+            )}
+            {filtered && (
+              <Link href={href({ area: "", tag: "", page: "" })} className="flex-none whitespace-nowrap px-1.5 text-[13px] text-muted hover:text-ink hover:underline">
+                <Label de="Zurücksetzen" vi="Bỏ lọc" />
+              </Link>
+            )}
+          </div>
+          <FilterChip
+            compact
+            label={{ de: "Sortierung", vi: "Sắp xếp" }}
+            value={{ de: sort.de, vi: sort.vi }}
+            active={false}
+            clearHref={href({ sort: "" })}
+            options={SORTS.map((s) => ({ href: href({ sort: s.id }), de: s.de, vi: s.vi, selected: s.id === f.sort }))}
+          />
+        </div>
+
         {pages.length === 0 && (
-          <p className="m-0 rounded-lg bg-side px-4 py-8 text-center text-sm text-muted">
-            <Label de="Keine Kommentare in dieser Ansicht. 🎉" vi="Không có bình luận nào. 🎉" />
-          </p>
+          <div className="flex flex-col items-center gap-3 rounded-xl bg-side px-6 py-12 text-center">
+            {filtered ? (
+              <>
+                <p className="m-0 text-sm text-muted">
+                  <Label de="Keine Kommentare für diese Filter." vi="Không có bình luận nào với bộ lọc này." />
+                </p>
+                <Link href={href({ area: "", tag: "", page: "" })} className="rounded-md border border-line bg-white px-3 py-1.5 text-[13px] font-medium text-ink hover:bg-hover">
+                  <Label de="Filter zurücksetzen" vi="Bỏ bộ lọc" />
+                </Link>
+              </>
+            ) : view.id === "offen" ? (
+              <>
+                <p className="m-0 text-base font-medium text-ink">
+                  <Label de="Alles abgearbeitet 🎉" vi="Đã xử lý hết 🎉" />
+                </p>
+                <p className="m-0 max-w-[460px] text-[13px] leading-relaxed text-muted">
+                  <Label
+                    de="Neue Hinweise aus dem Team landen hier. Inhalt in src/content anpassen, dann „Erledigt“ – die Person bekommt ein Danke auf Slack."
+                    vi="Góp ý mới sẽ hiện ở đây. Sửa nội dung trong src/content, rồi bấm „Đã xong“ – người góp ý nhận lời cảm ơn qua Slack."
+                  />
+                </p>
+              </>
+            ) : (
+              <p className="m-0 text-sm text-muted">
+                <Label de="Hier ist noch nichts." vi="Chưa có gì ở đây." />
+              </p>
+            )}
+          </div>
         )}
 
         {pages.map(([pageId, list]) => {
@@ -128,7 +222,7 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
                   {page?.title_de ?? pageId}
                 </Link>
                 <span className="text-xs text-muted">{list.length}</span>
-                {view.id === "offen" && page && <CopyButton text={asTask(page, list, isDetached)} />}
+                {(view.status === "open" || view.status === "in_progress") && page && <CopyButton text={asTask(page, list, isDetached)} />}
               </header>
               <ul className="m-0 list-none p-0">
                 {list.map((c) => (
@@ -209,18 +303,6 @@ function CommentRow({ c, page, detached }: { c: Row; page?: PageWithMeta; detach
         <CommentActions id={c.id} status={c.status} />
       </div>
     </li>
-  );
-}
-
-function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? "page" : undefined}
-      className="rounded-full border border-line px-3 py-1 text-[13px] text-body hover:border-accent aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-white"
-    >
-      {children}
-    </Link>
   );
 }
 

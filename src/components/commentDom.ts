@@ -6,13 +6,23 @@ import { locate, strip } from "@/lib/anchorMatch";
 const elementOf = (n: Node | null) => (n instanceof Element ? n : n?.parentElement ?? null);
 const squash = (t: string) => t.replace(/\s+/g, " ");
 
+/** Labels and buttons the app adds around content ("Hinweis:", "Kopieren" …) are not part of a quote. */
+const UI_TEXT = "[data-ui-text], button";
+
+/** A range's text without app UI, so the server can find it again in the page content. */
+function textOf(range: Range) {
+  const fragment = range.cloneContents();
+  fragment.querySelectorAll(UI_TEXT).forEach((el) => el.remove());
+  return fragment.textContent ?? "";
+}
+
 /** Turns a text selection inside one `[data-block]` into an anchor (quote + a bit of text around it). */
 export function anchorFromRange(range: Range, root: HTMLElement): CommentAnchor {
   const start = elementOf(range.startContainer);
   const block = start?.closest<HTMLElement>("[data-block]");
   if (!block || !root.contains(block) || block !== elementOf(range.endContainer)?.closest("[data-block]")) return null;
   if (start?.closest("input, textarea, button")) return null;
-  const exact = squash(range.toString()).trim();
+  const exact = squash(textOf(range)).trim();
   if (!exact) return null;
 
   // DE or VI part of a bilingual text (see Bi); a selection across both belongs to the whole block.
@@ -29,8 +39,8 @@ export function anchorFromRange(range: Range, root: HTMLElement): CommentAnchor 
     block: block.dataset.block!,
     field: lang ? (lang.classList.contains("de") ? "de" : "vi") : undefined,
     exact: exact.slice(0, 500),
-    prefix: squash(before.toString()).slice(-32),
-    suffix: squash(after.toString()).slice(0, 32),
+    prefix: squash(textOf(before)).slice(-32),
+    suffix: squash(textOf(after)).slice(0, 32),
     context: squash(scope.textContent ?? "").trim().slice(0, 600),
   };
 }
@@ -43,7 +53,9 @@ export function rangeForAnchor(block: HTMLElement, a: NonNullable<CommentAnchor>
   const nodes: { node: Text; from: number }[] = [];
   let raw = "";
   for (const scope of parts.length ? parts : [block]) {
-    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.parentElement?.closest(UI_TEXT) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    });
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
       nodes.push({ node: n as Text, from: raw.length });
       raw += n.textContent;

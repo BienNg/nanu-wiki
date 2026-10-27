@@ -85,7 +85,7 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
         <aside key={i} data-reveal className={`flex gap-3 rounded-lg px-4 py-3 text-sm leading-relaxed ${c.box}`}>
           <Icon name={b.tone === "warning" ? "shield" : "spark"} size={16} color={c.icon} strokeWidth={2} className="mt-[3px] flex-none" />
           <div>
-            <strong className="font-semibold">
+            <strong data-ui-text className="font-semibold">
               <Label de={c.de} vi={c.vi} />:
             </strong>{" "}
             <Bi de={b.de} vi={b.vi} />
