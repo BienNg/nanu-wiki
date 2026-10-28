@@ -94,8 +94,21 @@ export function CommentLayer({
     const target = e.target as Element;
     if (target.closest("[data-comment-ui]")) return;
     const block = target.closest<HTMLElement>("[data-block]");
-    if (!block) return setHover(null);
-    if (hover?.block !== block.dataset.block) setHover({ block: block.dataset.block!, top: offset(block.getBoundingClientRect()).top });
+    if (block && root.current?.contains(block)) {
+      const id = block.dataset.block!;
+      if (hover?.block !== id) setHover({ block: id, top: offset(block.getBoundingClientRect()).top });
+      return;
+    }
+    // The button sits in the left margin, outside the section. Keep it up while the
+    // pointer travels through that gutter, otherwise it vanishes before it can be clicked.
+    if (hover && root.current) {
+      const el = root.current.querySelector<HTMLElement>(`[data-block="${CSS.escape(hover.block)}"]`);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        if (e.clientX <= r.left + 12 && e.clientY >= r.top - 12 && e.clientY <= r.bottom + 12) return;
+      }
+    }
+    setHover(null);
   }
 
   function openFor(spot: Spot) {
@@ -131,7 +144,7 @@ export function CommentLayer({
           title="Kommentieren · Bình luận"
           aria-label="Diesen Abschnitt kommentieren · Bình luận phần này"
           onClick={() => openFor({ anchor: { block: hover.block }, top: hover.top + 30, left: 0 })}
-          className="absolute -left-8 flex h-7 w-7 items-center justify-center rounded-md text-faint hover:bg-hover hover:text-accent"
+          className="absolute -left-8 z-20 flex h-7 w-7 items-center justify-center rounded-md text-faint before:absolute before:-inset-y-2 before:left-0 before:w-12 before:content-[''] hover:bg-hover hover:text-accent"
           style={{ top: hover.top }}
         >
           <ChatIcon />

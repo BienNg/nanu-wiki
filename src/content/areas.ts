@@ -64,22 +64,12 @@ export const AREAS: Area[] = [
   },
   {
     slug: "redaktion",
-    name_de: "Redaktion: Content & Social Media",
-    name_vi: "Biên tập: Nội dung & mạng xã hội",
+    name_de: "Content & Social Media",
+    name_vi: "Nội dung & mạng xã hội",
     description_de: "Facebook, TikTok, Erklärvideos und Redaktionsplan.",
     description_vi: "Facebook, TikTok, video giải thích và lịch nội dung.",
     icon: "pen",
     color: "#C9417F",
-    is_shared: false
-  },
-  {
-    slug: "operations",
-    name_de: "Operations Manager (je Standort)",
-    name_vi: "Quản lý vận hành (từng cơ sở)",
-    description_de: "Räume, Stundenpläne, Kasse und Team vor Ort.",
-    description_vi: "Phòng học, lịch học, thu chi và đội ngũ tại chỗ.",
-    icon: "building",
-    color: "#2F7DC0",
     is_shared: false
   },
   {

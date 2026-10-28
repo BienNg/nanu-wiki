@@ -172,9 +172,11 @@ html.lang-vi .vs::before { content: none; }
 @media (min-width: 1024px) {
   html[data-comment-view="on"] .doc-page { padding-right: 360px; }
   html[data-comment-view="on"] .doc-toc { display: none; }
+  html[data-comment-view="on"] .doc-pane { padding-right: 360px; }
 }
 @media (max-width: 1023px) {
-  html[data-comment-view="on"] .doc-page { padding-bottom: 55dvh; }
+  html[data-comment-view="on"] .doc-page,
+  html[data-comment-view="on"] .doc-pane { padding-bottom: 55dvh; }
 }
 /* Comment picked in the panel: a short glow around its words once the page has scrolled there. */
 .comment-pulse { animation: comment-pulse 1.3s ease-out; }
@@ -185,4 +187,13 @@ html.lang-vi .vs::before { content: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .comment-pulse { animation: none; }
+}
+
+/* ---------- Side pane (area page with ?seite=) ---------- */
+.pane-in { animation: pane-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes pane-in {
+  from { transform: translateX(48px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pane-in { animation: none; }
 }

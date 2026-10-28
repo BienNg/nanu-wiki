@@ -9,7 +9,6 @@ const LEGACY_PAGE_IDS: Record<string, string> = {
   "c22ccec1-d645-4723-b358-3cacc375de07": "/bereich/fuer-alle/tools",
   "11eb5757-fa03-44f5-a1a4-6acf26aca01a": "/bereich/fuer-alle/allgemeine-regeln",
   "00000000-0000-0000-0000-0000000b0002": "/bereich/sales/probestunde-buchen",
-  "00000000-0000-0000-0000-0000000b0003": "/bereich/sales/keine-rabatte",
   "00000000-0000-0000-0000-0000000b0001": "/bereich/sales/erstkontakt-messenger",
   "00000000-0000-0000-0000-0000000b0004": "/bereich/sales/kampagne-probestunde",
   "00000000-0000-0000-0000-0000000b0005": "/bereich/sales/interview",

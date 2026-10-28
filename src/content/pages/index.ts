@@ -25,7 +25,6 @@ import salesInterview from "./sales/interview";
 import salesInterviewFaelle from "./sales/interview-faelle";
 import salesKeineKunden from "./sales/keine-kunden";
 import salesKampagneProbestunde from "./sales/kampagne-probestunde";
-import salesKeineRabatte from "./sales/keine-rabatte";
 import salesProbestundeBuchen from "./sales/probestunde-buchen";
 import salesVerkaufstrichter from "./sales/verkaufstrichter";
 import salesWebsitePostsUndWerbung from "./sales/website-posts-und-werbung";
@@ -50,7 +49,7 @@ import visaVisumStudium from "./visa/visum-studium";
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
   "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
-  sales: [salesAktionOktober2026, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesKeineRabatte, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
+  sales: [salesAktionOktober2026, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
   "student-support": [studentSupportAnmeldungUndZahlung, studentSupportAufgabenUndRhythmus, studentSupportKanaele, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportNaechsterKursUndTreue, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportPruefungenBegleiten, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
@@ -58,7 +57,7 @@ export const PAGES_BY_AREA: Record<string, PageContent[]> = {
 /** Handbuch categories per area, in reading order. Pages left out land in "Weitere", newest first. */
 export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
   sales: [
-    { de: "Grundlagen", vi: "Nền tảng", pages: [salesVerkaufstrichter, salesAufgabenUndKpis, salesKeineRabatte] },
+    { de: "Grundlagen", vi: "Nền tảng", pages: [salesVerkaufstrichter, salesAufgabenUndKpis] },
     {
       de: "Messenger-Gespräche",
       vi: "Trò chuyện qua Messenger",

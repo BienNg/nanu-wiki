@@ -6,6 +6,7 @@ import { toggleChecklistItem } from "@/app/actions";
 import { AnimatedBar } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
+import { PaneLink } from "./PaneLink";
 
 export type WeekData = {
   id: string;
@@ -15,7 +16,7 @@ export type WeekData = {
   quizId: string | null;
   quizPassed: boolean;
   bestScore: string | null;
-  items: { id: string; label_de: string; label_vi: string; href: string | null }[];
+  items: { id: string; label_de: string; label_vi: string; href: string | null; fullHref: string | null }[]; // fullHref set → href opens the side pane
 };
 
 export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekData[]; initialDone: string[]; areaSlug: string }) {
@@ -97,10 +98,16 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
                       <span className={checked ? "text-faint line-through" : "text-ink"}>
                         <Bi de={it.label_de} vi={it.label_vi} />
                       </span>
-                      {it.href && (
-                        <Link href={it.href} className="ml-auto flex-none text-xs" onClick={(e) => e.stopPropagation()}>
+                      {it.href && it.fullHref ? (
+                        <PaneLink href={it.href} fullHref={it.fullHref} className="ml-auto flex-none text-xs" onClick={(e) => e.stopPropagation()}>
                           <Label de="Öffnen" vi="Mở" /> →
-                        </Link>
+                        </PaneLink>
+                      ) : (
+                        it.href && (
+                          <Link href={it.href} className="ml-auto flex-none text-xs" onClick={(e) => e.stopPropagation()}>
+                            <Label de="Öffnen" vi="Mở" /> →
+                          </Link>
+                        )
                       )}
                     </label>
                   );

@@ -39,12 +39,6 @@ export function Sidebar({
       <div className="flex min-h-0 flex-1 flex-col gap-px overflow-y-auto overscroll-contain">
         {!isCandidate && (
           <>
-            <NavLink href="/" exact title="Neuigkeiten">
-              <Icon name="clock" size={15} />
-              <span className="side-text min-w-0 truncate">
-                <Label de="Neuigkeiten" vi="Cập nhật" />
-              </span>
-            </NavLink>
             {myArea && (
               <NavLink href={`/bereich/${myArea.slug}?tab=onboarding`} title="Mein Onboarding">
                 <Icon name="layers" size={15} />

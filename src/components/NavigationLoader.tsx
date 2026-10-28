@@ -72,6 +72,7 @@ export function NavigationLoader({ children }: { children: React.ReactNode }) {
       const a = (e.target as Element | null)?.closest?.("a[href]");
       if (!(a instanceof HTMLAnchorElement)) return;
       if ((a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+      if (a.hasAttribute("data-pane")) return; // side pane: the list stays on screen (see PaneLink)
       start(a.href);
     }
     function onSubmit(e: SubmitEvent) {
