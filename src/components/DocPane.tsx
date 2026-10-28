@@ -12,6 +12,16 @@ let lastUnmount = 0;
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/** Drop any leftover window scroll. The pane scrolls on its own; a previous long page must not
+ *  leave the window parked below a shorter one (`html` uses smooth scrolling, so this is instant). */
+export function scrollWindowToTop() {
+  const root = document.documentElement;
+  const prev = root.style.scrollBehavior;
+  root.style.scrollBehavior = "auto";
+  window.scrollTo(0, 0);
+  root.style.scrollBehavior = prev;
+}
+
 /** The side pane next to an area's page list: slides in from the right when it opens and out when it closes.
  *  Esc closes it – unless someone is typing or a comment popup is open (Esc closes that first). */
 export function PaneFrame({ closeHref, label, children }: { closeHref: string; label: string; children: React.ReactNode }) {
@@ -22,6 +32,10 @@ export function PaneFrame({ closeHref, label, children }: { closeHref: string; l
   useLayoutEffect(() => {
     const el = ref.current!;
     if (!reduceMotion()) el.classList.add(Date.now() - lastUnmount < 600 ? "pane-swap" : "pane-in");
+    // A long page scrolls this pane, not the window. Start the new page at the top either way:
+    // the window may still be offset from before the pane became its own scroller.
+    scrollWindowToTop();
+    el.scrollTop = 0;
     return () => {
       lastUnmount = Date.now();
     };
@@ -51,7 +65,7 @@ export function PaneFrame({ closeHref, label, children }: { closeHref: string; l
 
   return (
     <CloseContext.Provider value={close}>
-      <section ref={ref} aria-label={label} className="doc-pane min-w-0 flex-1 self-stretch border-l border-line bg-white">
+      <section ref={ref} aria-label={label} className="doc-pane min-h-0 min-w-0 flex-1 self-stretch overflow-y-auto border-l border-line bg-white">
         {children}
       </section>
     </CloseContext.Provider>

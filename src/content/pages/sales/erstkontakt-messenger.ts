@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: "2027-01-15",
-  updated_at: "2026-10-27",
+  updated_at: "2026-10-28",
   body: [
     {
       type: "heading",
@@ -32,12 +32,6 @@ const page: PageContent = {
       vi: "Câu trả lời cho các câu hỏi thường gặp có trong FAQ: khóa học tiếng, app NaNu Go, du học nghề và đại học. Nhiều cuộc trò chuyện bắt đầu bằng nút quảng cáo („Chi phí trọn gói là bao nhiêu?“, „App này giá bao nhiêu?“) – vẫn trả lời thẳng vào câu hỏi."
     },
     {
-      type: "video",
-      url: "",
-      caption_de: "So beantwortest du eine Anfrage (Erklärvideo – YouTube-Link einfügen)",
-      caption_vi: "Cách trả lời tin nhắn (video hướng dẫn – thêm link YouTube)"
-    },
-    {
       type: "heading",
       de: "Schritt für Schritt",
       vi: "Từng bước"
@@ -46,16 +40,10 @@ const page: PageContent = {
       type: "steps",
       items: [
         {
-          de: "Anfrage öffnen und Kontext prüfen",
-          vi: "Mở tin nhắn và kiểm tra bối cảnh",
-          body_de: "Schau, über welche Anzeige die Person kam, und suche im Notion-CRM nach früheren Gesprächen.",
-          body_vi: "Xem khách đến từ quảng cáo nào và tìm lịch sử trò chuyện trong CRM Notion."
-        },
-        {
           de: "Persönlich begrüßen",
           vi: "Chào hỏi thân thiện",
-          body_de: "Sprich die Person mit Namen an und stell dich vor. Kunden schreiben wir auf Vietnamesisch.",
-          body_vi: "Gọi tên khách và giới thiệu bản thân. Với khách hàng, chúng ta nhắn bằng tiếng Việt."
+          body_de: "Sprich die Person mit Namen an. Kunden schreiben wir auf Vietnamesisch.",
+          body_vi: "Gọi tên khách. Với khách hàng, chúng ta nhắn bằng tiếng Việt."
         },
         {
           de: "Bedarf mit nur zwei Fragen klären",
@@ -81,8 +69,8 @@ const page: PageContent = {
       type: "template",
       label_de: "Vorlage · Vietnamesisch",
       label_vi: "Mẫu tin nhắn",
-      text: "Chào bạn [Tên] ạ! Mình là [Tên nhân viên] từ NaNu NaNa. Cảm ơn bạn đã nhắn tin cho tụi mình. Bạn đang sống ở đâu và đã học tiếng Đức đến trình độ nào rồi ạ?",
-      translation_de: "„Hallo [Name]! Ich bin [Name] von NaNu NaNa. Danke für deine Nachricht. Wo wohnst du, und bis zu welchem Niveau hast du schon Deutsch gelernt?“"
+      text: "Chào bạn [Tên] ạ! Cảm ơn bạn đã nhắn tin cho tụi mình. Bạn đang sống ở đâu và đã học tiếng Đức đến trình độ nào rồi ạ?",
+      translation_de: "„Hallo [Name]! Danke für deine Nachricht. Wo wohnst du, und bis zu welchem Niveau hast du schon Deutsch gelernt?“"
     },
     {
       type: "callout",

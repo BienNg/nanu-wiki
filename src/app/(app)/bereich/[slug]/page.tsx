@@ -89,35 +89,45 @@ export default async function AreaPage({
     </Reveal>
   );
 
-  return (
-    <>
-      <Topbar>
-        <Icon name={area.icon} size={14} color={area.color} strokeWidth={2} />
-        <span>
-          <Label de={area.name_de} vi={area.name_vi} />
-        </span>
-        {open && (
-          <Crumb>
-            <span className="max-w-[320px] truncate">
-              <Label de={open.title_de} vi={open.title_vi || open.title_de} />
-            </span>
-          </Crumb>
-        )}
-      </Topbar>
-
-      {open ? (
-        <div className="flex flex-1 items-start overflow-x-clip">
-          <aside aria-label="Seiten" className="sticky top-0 max-h-dvh w-[300px] flex-none self-start overflow-y-auto max-lg:hidden">
-            {list}
-          </aside>
-          <PaneFrame closeHref={base} label={open.title_de}>
-            <DocView page={open} profile={profile} pane />
-          </PaneFrame>
-        </div>
-      ) : (
-        list
+  const topbar = (
+    <Topbar>
+      <Icon name={area.icon} size={14} color={area.color} strokeWidth={2} />
+      <span>
+        <Label de={area.name_de} vi={area.name_vi} />
+      </span>
+      {open && (
+        <Crumb>
+          <span className="max-w-[320px] truncate">
+            <Label de={open.title_de} vi={open.title_vi || open.title_de} />
+          </span>
+        </Crumb>
       )}
-    </>
+    </Topbar>
+  );
+
+  if (!open) {
+    return (
+      <>
+        {topbar}
+        {list}
+      </>
+    );
+  }
+
+  // Exactly one screen: the list and the page each scroll on their own, so a long page
+  // cannot stretch the window and leave the next, shorter page scrolled into empty space.
+  return (
+    <div className="flex h-dvh min-h-0 flex-col overflow-hidden [overflow-anchor:none]">
+      {topbar}
+      <div className="flex min-h-0 flex-1">
+        <aside aria-label="Seiten" className="w-[300px] flex-none overflow-y-auto max-lg:hidden">
+          {list}
+        </aside>
+        <PaneFrame key={open.id} closeHref={base} label={open.title_de}>
+          <DocView page={open} profile={profile} pane />
+        </PaneFrame>
+      </div>
+    </div>
   );
 }
 
