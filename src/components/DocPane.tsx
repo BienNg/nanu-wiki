@@ -36,8 +36,19 @@ export function PaneFrame({ closeHref, label, children }: { closeHref: string; l
     // the window may still be offset from before the pane became its own scroller.
     scrollWindowToTop();
     el.scrollTop = 0;
+    // The slide uses a transform. While that animation is applied, position:fixed inside the pane
+    // (the comment panel, the pinned language and comment buttons) sticks to the pane and scrolls
+    // away with it. Drop the animation once it has finished so they pin to the screen again.
+    function clearSlide(e?: Event) {
+      if (e && e.target !== el) return;
+      if (!el.classList.contains("pane-out")) el.classList.remove("pane-in", "pane-swap");
+    }
+    el.addEventListener("animationend", clearSlide);
+    const fallback = window.setTimeout(clearSlide, 700);
     return () => {
       lastUnmount = Date.now();
+      el.removeEventListener("animationend", clearSlide);
+      window.clearTimeout(fallback);
     };
   }, []);
 

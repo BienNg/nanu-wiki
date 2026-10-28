@@ -59,6 +59,23 @@ export function CommentView({
   const [tip, setTip] = useState<{ ids: string[]; top: number; left: number } | null>(null);
   const [pulse, setPulse] = useState<{ key: number; rects: Box[] } | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
+  // Below the breadcrumb bar when this page is open in the side pane. Null on the full page and on phones.
+  const [paneTop, setPaneTop] = useState<number | null>(null);
+  useEffect(() => {
+    const pane = root.current?.closest<HTMLElement>(".doc-pane");
+    if (!pane) return;
+    const wide = window.matchMedia("(min-width: 1024px)");
+    function update() {
+      setPaneTop(wide.matches ? pane.getBoundingClientRect().top : null);
+    }
+    update();
+    window.addEventListener("resize", update);
+    wide.addEventListener("change", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      wide.removeEventListener("change", update);
+    };
+  }, [on, root]);
 
   const doneCount = comments.filter((c) => c.status === "resolved").length;
   const list = useMemo(() => comments.filter((c) => showDone || c.status !== "resolved"), [comments, showDone]);
@@ -280,6 +297,7 @@ export function CommentView({
         data-comment-ui
         aria-label="Kommentare"
         className="fixed bottom-0 right-0 top-0 z-40 flex w-[360px] flex-col border-l border-line bg-white shadow-[-8px_0_24px_rgba(0,0,0,0.04)] max-lg:top-auto max-lg:h-[55dvh] max-lg:w-full max-lg:rounded-t-xl max-lg:border-l-0 max-lg:border-t"
+        style={paneTop != null ? { top: paneTop } : undefined}
       >
         <header className="flex items-center gap-2 border-b border-line px-4 py-3">
           <h2 className="m-0 flex-1 text-sm font-semibold text-ink">
