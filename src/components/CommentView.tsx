@@ -406,20 +406,25 @@ export function CommentToggle({ open }: { open: number }) {
   const slotRef = useRef<HTMLDivElement>(null);
   const [stuck, setStuck] = useState(false);
   const [pinRight, setPinRight] = useState<number | null>(null);
+  const [pinTop, setPinTop] = useState(8);
 
   useEffect(() => {
     const slot = slotRef.current;
     if (!slot) return;
     const el: HTMLDivElement = slot;
+    // In the side pane the pane scrolls, not the window: pin to the top of the pane instead.
+    const pane = el.closest<HTMLElement>(".doc-pane");
     // The language toggle's pinned panel (see LangToggle); its slot keeps the full width in the bar.
-    const lang = document.querySelector<HTMLElement>('[role="group"][aria-label^="Sprache"]');
+    const lang = (pane ?? document).querySelector<HTMLElement>('[role="group"][aria-label^="Sprache"]');
 
     let frame = 0;
     function update() {
       const rect = el.getBoundingClientRect();
-      const next = rect.top < 8;
+      const top = (pane?.getBoundingClientRect().top ?? 0) + 8;
+      const next = rect.top < top;
       setStuck(next);
       if (!next) return;
+      setPinTop(top);
       const langSlot = lang?.parentElement?.getBoundingClientRect();
       const right = lang && langSlot ? window.innerWidth - langSlot.right + lang.offsetWidth + 6 : window.innerWidth - rect.right;
       setPinRight((prev) => (prev !== null && Math.abs(prev - right) < 0.5 ? prev : right));
@@ -430,13 +435,14 @@ export function CommentToggle({ open }: { open: number }) {
     }
 
     update();
-    window.addEventListener("scroll", onChange, { passive: true });
+    const scroller = pane ?? window;
+    scroller.addEventListener("scroll", onChange, { passive: true });
     window.addEventListener("resize", onChange);
     const ro = lang ? new ResizeObserver(onChange) : null; // follows the language toggle collapsing
     if (lang) ro!.observe(lang);
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onChange);
+      scroller.removeEventListener("scroll", onChange);
       window.removeEventListener("resize", onChange);
       ro?.disconnect();
     };
@@ -474,9 +480,9 @@ export function CommentToggle({ open }: { open: number }) {
         onClick={() => setCommentView(!on)}
         title={on ? "Normale Ansicht · Chế độ đọc" : "Kommentare anzeigen · Hiện bình luận"}
         className={`${look} transition-shadow duration-200 ease-out motion-reduce:transition-none ${
-          stuck ? "fixed top-2 z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]" : "absolute inset-y-0 right-0"
+          stuck ? "fixed z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]" : "absolute inset-y-0 right-0"
         }`}
-        style={stuck && pinRight !== null ? { right: pinRight } : undefined}
+        style={stuck && pinRight !== null ? { right: pinRight, top: pinTop } : undefined}
       >
         {content(!stuck)}
       </button>

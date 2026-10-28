@@ -90,7 +90,7 @@ export default async function AreaPage({
   );
 
   const topbar = (
-    <Topbar>
+    <Topbar showLang={!open}>
       <Icon name={area.icon} size={14} color={area.color} strokeWidth={2} />
       <span>
         <Label de={area.name_de} vi={area.name_vi} />

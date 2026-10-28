@@ -2,12 +2,14 @@ import Link from "next/link";
 import { getEditorAreas, hasRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { canEditArea } from "@/content";
-import { Crumb, Topbar } from "./Topbar";
+import { Crumb, Topbar, currentLang } from "./Topbar";
+import { LangToggle } from "./LangToggle";
 import { Reveal } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { KindBadge, VerifiedPill } from "./Badges";
 import { BlockRenderer, slugify } from "./BlockRenderer";
+import { DocToc } from "./DocToc";
 import { ChatResponses } from "./ChatResponses";
 import { CommentLayer, type PanelComment } from "./CommentLayer";
 import { CommentToggle } from "./CommentView";
@@ -65,7 +67,11 @@ export async function DocView({
     });
   }
   const openComments = comments.filter((c) => c.status !== "resolved").length;
-  const headings = page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[];
+  const headings = (page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[]).map((h) => ({
+    id: slugify(h.de),
+    de: h.de,
+    vi: h.vi,
+  }));
   const tint = `${page.area.color}22`;
   const toggle = canComment ? <CommentToggle open={openComments} /> : undefined;
 
@@ -111,28 +117,23 @@ export async function DocView({
             </svg>
             <Label de="Als ganze Seite öffnen" vi="Mở toàn trang" />
           </Link>
-          {headings.length > 1 && (
-            <details className="relative">
-              <summary className="inline-flex h-8 cursor-pointer list-none items-center gap-1.5 rounded-[7px] px-2.5 text-xs font-medium text-body hover:bg-hover hover:text-ink [&::-webkit-details-marker]:hidden">
-                <Label de="Inhalt" vi="Mục lục" /> ▾
-              </summary>
-              <nav
-                aria-label="Inhaltsverzeichnis"
-                className="absolute left-0 top-9 z-30 flex max-h-[60vh] w-[280px] flex-col gap-0.5 overflow-y-auto rounded-xl border border-line bg-white p-2 shadow-xl"
-              >
-                {headings.map((h, i) => (
-                  <a key={i} href={`#${slugify(h.de)}`} className="rounded-md px-2 py-1.5 text-[13px] leading-snug text-body hover:bg-side hover:text-ink">
-                    <Label de={h.de} vi={h.vi || h.de} />
-                  </a>
-                ))}
-              </nav>
-            </details>
-          )}
-          <div className="ml-auto flex items-center gap-1.5">{toggle}</div>
+          {/* Same as the full page's top bar: both pin to the top right once this row scrolls away. */}
+          <div className="ml-auto flex items-center gap-1.5">
+            {toggle}
+            <LangToggle initial={await currentLang()} />
+          </div>
         </div>
-        <Reveal className="mx-auto flex w-full max-w-[760px] flex-col gap-5 px-8 pb-20 pt-2">
-          {body}
-        </Reveal>
+        <div className="flex">
+          <Reveal className="mx-auto flex w-full min-w-0 max-w-[760px] flex-col gap-5 px-8 pb-20 pt-2">
+            {body}
+          </Reveal>
+          {headings.length > 1 && (
+            // Height = the pane below the 48px top bar: centered in what is visible of the pane.
+            <div className="doc-toc hidden w-[220px] flex-none pr-4 xl:block">
+              <DocToc headings={headings} height="calc(100dvh - 3rem)" />
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -161,22 +162,9 @@ export async function DocView({
       </div>
 
       {headings.length > 1 && (
-        <aside aria-label="Inhaltsverzeichnis" className="doc-toc hidden min-w-0 max-w-[240px] flex-[1_1_220px] flex-col bg-side px-[18px] lg:flex">
-          <nav className="sticky top-0 flex max-h-dvh flex-col gap-0.5 overflow-y-auto py-3.5">
-            <span className="pb-3 pt-1 text-[13px] text-body">
-              <Label de="Inhaltsverzeichnis" vi="Mục lục" />
-            </span>
-            {headings.map((h, i) => (
-              <a
-                key={i}
-                href={`#${slugify(h.de)}`}
-                className="flex items-center gap-2.5 py-1 text-[13px] leading-snug text-muted before:h-px before:w-3.5 before:flex-none before:bg-[#C9CDD3] hover:text-ink"
-              >
-                <Label de={h.de} vi={h.vi || h.de} />
-              </a>
-            ))}
-          </nav>
-        </aside>
+        <div className="doc-toc hidden min-w-0 max-w-[240px] flex-[1_1_220px] pr-4 lg:block">
+          <DocToc headings={headings} height="100dvh" />
+        </div>
       )}
     </div>
   );

@@ -18,6 +18,7 @@ export function LangToggle({ initial }: { initial: Lang }) {
   const [stuck, setStuck] = useState(false);
   const [open, setOpen] = useState(false);
   const [pinRight, setPinRight] = useState<number | null>(null);
+  const [pinTop, setPinTop] = useState(8);
   const slotRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const stuckRef = useRef(false);
@@ -27,17 +28,21 @@ export function LangToggle({ initial }: { initial: Lang }) {
     const el = slotRef.current;
     if (!el) return;
     const slot: HTMLDivElement = el;
+    // In the side pane the pane scrolls, not the window: pin to the top of the pane.
+    const pane = slot.closest<HTMLElement>(".doc-pane");
 
     let frame = 0;
     function update() {
       const rect = slot.getBoundingClientRect();
-      const next = rect.top < 8;
+      const top = (pane?.getBoundingClientRect().top ?? 0) + 8;
+      const next = rect.top < top;
       if (next !== stuckRef.current) {
         stuckRef.current = next;
         setStuck(next);
         if (!next) setOpen(false);
       }
       if (!next) return;
+      setPinTop(top);
       const right = Math.max(0, window.innerWidth - rect.right);
       setPinRight((prev) => (prev !== null && Math.abs(prev - right) < 0.5 ? prev : right));
     }
@@ -47,11 +52,12 @@ export function LangToggle({ initial }: { initial: Lang }) {
     }
 
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const scroller = pane ?? window;
+    scroller.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
+      scroller.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
   }, []);
@@ -100,10 +106,10 @@ export function LangToggle({ initial }: { initial: Lang }) {
           expanded ? "gap-0.5" : "gap-0"
         } ${
           stuck
-            ? "fixed top-2 z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]"
+            ? "fixed z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]"
             : "absolute inset-y-0 right-0"
         }`}
-        style={stuck && pinRight !== null ? { right: pinRight } : undefined}
+        style={stuck && pinRight !== null ? { right: pinRight, top: pinTop } : undefined}
       >
         {OPTIONS.map((option) => {
           const shown = expanded || option.value === lang;
