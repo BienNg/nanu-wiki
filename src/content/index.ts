@@ -49,10 +49,21 @@ export function getQuiz(id: string): { quiz: QuizContent; week: OnboardingWeek; 
   return undefined;
 }
 
+export type AreaTab = "handbook" | "onboarding" | "interview";
+
 // ------------------------------------------------------------------ access rules (formerly RLS on the content tables)
 /** Staff+ see every area; candidates only the role they applied for. */
 export function visibleAreas(profile: Profile): Area[] {
   return hasRole(profile.role, "staff") ? AREAS : AREAS.filter((a) => a.slug === profile.candidate_area);
+}
+
+/** Tabs on a role page, in display order.
+ *  Only admin sees all three. Staff and editors: Handbuch and Onboarding.
+ *  Candidates: Handbuch and Interview of the role they applied for. */
+export function areaTabs(profile: Profile): AreaTab[] {
+  if (profile.role === "admin") return ["handbook", "onboarding", "interview"];
+  if (profile.role === "candidate") return ["handbook", "interview"];
+  return ["handbook", "onboarding"];
 }
 
 /** Admins everywhere; editors in the areas an admin assigned them (area_editors). */
@@ -60,12 +71,18 @@ export function canEditArea(profile: Profile, editorAreas: string[], areaSlug: s
   return profile.role === "admin" || (profile.role === "editor" && editorAreas.includes(areaSlug));
 }
 
-/** Staff read published pages, editors also drafts of their areas, candidates only published interview pages of their role. */
+/** Admins read everything, including Interview. Editors read drafts of their areas, but not Interview.
+ *  Staff read published Handbuch and Onboarding, not Interview.
+ *  Candidates read published Handbuch and Interview of the role they applied for. */
 export function canReadPage(profile: Profile, editorAreas: string[], page: PageWithMeta) {
+  if (profile.role === "admin") return true;
+  if (page.section === "interview") {
+    return page.published && profile.role === "candidate" && page.area.slug === profile.candidate_area;
+  }
   if (canEditArea(profile, editorAreas, page.area.slug)) return true;
   if (!page.published) return false;
   if (hasRole(profile.role, "staff")) return true;
-  return profile.role === "candidate" && page.section === "interview" && page.area.slug === profile.candidate_area;
+  return profile.role === "candidate" && page.section === "handbook" && page.area.slug === profile.candidate_area;
 }
 
 export function readablePages(profile: Profile, editorAreas: string[]) {

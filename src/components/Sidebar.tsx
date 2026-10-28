@@ -62,7 +62,7 @@ export function Sidebar({
         {areas.map((a) => (
           <NavLink
             key={a.slug}
-            href={isCandidate ? `/bereich/${a.slug}?tab=interview` : `/bereich/${a.slug}`}
+            href={isCandidate ? `/bereich/${a.slug}?tab=handbook` : `/bereich/${a.slug}`}
             matchPrefix={`/bereich/${a.slug}`}
             title={a.name_de}
           >

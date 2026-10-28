@@ -33,8 +33,8 @@ export default async function UsersPage() {
           </h1>
           <p className="m-0 max-w-[720px] text-[#4A4F57]">
             <Bi
-              de="Neue Google-Konten landen als „pending“. Weise eine Zugriffsstufe zu: candidate (nur Interview einer Rolle), staff (alles lesen, eigenes Onboarding), editor (sieht Entwürfe und Kandidaten-Antworten in ausgewählten Bereichen), admin."
-              vi="Tài khoản Google mới ở trạng thái „pending“. Hãy gán quyền: candidate (chỉ xem phỏng vấn của một vai trò), staff (đọc tất cả, lộ trình riêng), editor (xem bản nháp và câu trả lời của ứng viên trong các mục được chọn), admin."
+              de="Neue Google-Konten landen als „pending“. Weise eine Zugriffsstufe zu: candidate (Handbuch und Interview einer Rolle), staff (Handbuch und Onboarding), editor (wie staff, plus Entwürfe in ausgewählten Bereichen), admin (Handbuch, Onboarding und Interview)."
+              vi="Tài khoản Google mới ở trạng thái „pending“. Hãy gán quyền: candidate (Sổ tay và phỏng vấn của một vai trò), staff (Sổ tay và hội nhập), editor (như staff, thêm bản nháp trong các mục được chọn), admin (Sổ tay, hội nhập và phỏng vấn)."
             />
           </p>
         </header>

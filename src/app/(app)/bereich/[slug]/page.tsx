@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditorAreas, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { canEditArea, getHandbookGroups, getOnboarding, readablePages, visibleAreas } from "@/content";
+import { areaTabs, canEditArea, getHandbookGroups, getOnboarding, readablePages, visibleAreas, type AreaTab } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -12,11 +12,10 @@ import { PageTable } from "@/components/PageTable";
 import { OnboardingPanel, type WeekData } from "@/components/OnboardingPanel";
 import type { PageWithMeta } from "@/lib/types";
 
-type Tab = "interview" | "onboarding" | "handbook";
-const TABS: { key: Tab; de: string; vi: string }[] = [
-  { key: "interview", de: "Interview", vi: "Phỏng vấn" },
-  { key: "onboarding", de: "Onboarding", vi: "Hội nhập" },
+const TABS: { key: AreaTab; de: string; vi: string }[] = [
   { key: "handbook", de: "Handbuch", vi: "Sổ tay" },
+  { key: "onboarding", de: "Onboarding", vi: "Hội nhập" },
+  { key: "interview", de: "Interview", vi: "Phỏng vấn" },
 ];
 
 export default async function AreaPage({
@@ -33,9 +32,9 @@ export default async function AreaPage({
   const area = visibleAreas(profile).find((a) => a.slug === slug);
   if (!area) notFound();
 
-  const isCandidate = profile.role === "candidate";
-  const tab: Tab = isCandidate ? "interview" : TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : "onboarding";
   const editorAreas = await getEditorAreas();
+  const tabs = areaTabs(profile);
+  const tab: AreaTab = tabs.includes(tabParam as AreaTab) ? (tabParam as AreaTab) : tabs[0];
   const canEdit = canEditArea(profile, editorAreas, area.slug);
   const pages = readablePages(profile, editorAreas).filter((p) => p.area.slug === area.slug);
 
@@ -64,21 +63,19 @@ export default async function AreaPage({
           <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} />
         ) : (
           <>
-            {!isCandidate && (
-              <div role="tablist" aria-label="Bereiche der Rolle" className="flex flex-wrap gap-1 self-start rounded-lg bg-side p-[3px]">
-                {TABS.map((t) => (
-                  <Link
-                    key={t.key}
-                    role="tab"
-                    aria-selected={tab === t.key}
-                    href={`/bereich/${area.slug}?tab=${t.key}`}
-                    className="inline-flex h-8 items-center rounded-md px-3 text-[13px] font-medium text-[#4A4F57] hover:text-ink aria-selected:bg-accent-soft aria-selected:text-accent-dark"
-                  >
-                    <Label de={t.de} vi={t.vi} />
-                  </Link>
-                ))}
-              </div>
-            )}
+            <div role="tablist" aria-label="Bereiche der Rolle" className="flex flex-wrap gap-1 self-start rounded-lg bg-side p-[3px]">
+              {TABS.filter((t) => tabs.includes(t.key)).map((t) => (
+                <Link
+                  key={t.key}
+                  role="tab"
+                  aria-selected={tab === t.key}
+                  href={`/bereich/${area.slug}?tab=${t.key}`}
+                  className="inline-flex h-8 items-center rounded-md px-3 text-[13px] font-medium text-[#4A4F57] hover:text-ink aria-selected:bg-accent-soft aria-selected:text-accent-dark"
+                >
+                  <Label de={t.de} vi={t.vi} />
+                </Link>
+              ))}
+            </div>
 
             {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
             {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} />}

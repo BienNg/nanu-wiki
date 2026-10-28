@@ -17,7 +17,7 @@ export default async function HomePage() {
 
   if (profile.role === "candidate") {
     const area = getArea(profile.candidate_area);
-    redirect(area ? `/bereich/${area.slug}?tab=interview` : "/pending");
+    redirect(area ? `/bereich/${area.slug}?tab=handbook` : "/pending");
   }
 
   const published = readablePages(profile, await getEditorAreas()).filter((p) => p.published);
@@ -136,7 +136,9 @@ export default async function HomePage() {
                 <h3 className="m-0 text-sm font-semibold leading-snug">
                   <Bi de={a.name_de} vi={a.name_vi} />
                 </h3>
-                <span className="text-xs text-muted">Interview · Onboarding · Handbuch</span>
+                <span className="text-xs text-muted">
+                  {profile.role === "admin" ? "Handbuch · Onboarding · Interview" : "Handbuch · Onboarding"}
+                </span>
               </Link>
             ))}
           </div>
