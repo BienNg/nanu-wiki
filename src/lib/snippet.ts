@@ -7,6 +7,7 @@ function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
       case "heading":
       case "paragraph":
       case "callout":
+      case "link":
         return [{ de: b.de, vi: b.vi }];
       case "list":
       case "steps":
@@ -16,9 +17,11 @@ function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
       case "video":
         return [{ de: b.caption_de ?? "", vi: b.caption_vi ?? "" }];
       case "chat":
-        return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, ...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text }))];
+        return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, { de: b.message.translation_de ?? b.message.text, vi: b.message.text }];
       case "conversation":
         return [...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })), { de: b.note_de ?? "", vi: b.note_vi ?? "" }];
+      case "mcq":
+        return b.questions.map((q) => ({ de: q.question_de, vi: q.question_vi }));
       default:
         // Blocks this build doesn't know yet (content can be newer than the deployed code).
         return [];

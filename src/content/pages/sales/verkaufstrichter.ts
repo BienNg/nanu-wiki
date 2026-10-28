@@ -20,37 +20,20 @@ const page: PageContent = {
       vi: "Bảy bước của phễu"
     },
     {
-      type: "list",
-      ordered: true,
-      items: [
-        {
-          de: "Bekanntheit – Marketing",
-          vi: "Biết đến – Marketing"
-        },
-        {
-          de: "Erstkontakt – Sales",
-          vi: "Liên hệ đầu tiên – Sales"
-        },
-        {
-          de: "Bedarf klären – Sales",
-          vi: "Tìm hiểu nhu cầu – Sales"
-        },
-        {
-          de: "Passende Kurse vorstellen – Sales",
-          vi: "Giới thiệu lớp phù hợp – Sales"
-        },
-        {
-          de: "Angebot & Abschluss – Sales",
-          vi: "Báo giá & chốt – Sales"
-        },
-        {
-          de: "Sofort mit dem Lernen beginnen (Onboarding) – Customer Success",
-          vi: "Bắt đầu học ngay (Onboarding) – Chăm sóc học viên"
-        },
-        {
-          de: "Kundenbindung – Customer Success mit den Lehrkräften",
-          vi: "Giữ chân học viên – Chăm sóc học viên cùng giáo viên"
-        }
+      type: "funnel",
+      stages: [
+        { de: "Bekanntheit", vi: "Biết đến", sub: "Awareness", tone: "brand" },
+        { de: "Erstkontakt", vi: "Liên hệ đầu tiên", sub: "First contact", tone: "dark" },
+        { de: "Bedarf klären", vi: "Tìm hiểu nhu cầu", sub: "Explore needs (qualifying)", tone: "dark" },
+        { de: "Passende Kurse vorstellen", vi: "Giới thiệu lớp phù hợp", sub: "Present matching classes", tone: "dark" },
+        { de: "Angebot & Abschluss", vi: "Báo giá & chốt", sub: "Quote & decision", tone: "dark" },
+        { de: "Kursstart", vi: "Bắt đầu học ngay", sub: "Onboarding", tone: "light" },
+        { de: "Kundenbindung", vi: "Giữ chân", sub: "Retention", tone: "light" }
+      ],
+      legend: [
+        { tone: "brand", de: "Marketing", vi: "Marketing" },
+        { tone: "dark", de: "Sales", vi: "Sales" },
+        { tone: "light", de: "Customer Success mit den Lehrkräften", vi: "Chăm sóc học viên cùng giáo viên" }
       ]
     },
     {

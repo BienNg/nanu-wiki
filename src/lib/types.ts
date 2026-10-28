@@ -31,6 +31,8 @@ export type Area = {
 /** Content of a page is a list of blocks, each with German + Vietnamese text.
  *  `id` is optional: give a block one to keep its comments attached when its text is rewritten
  *  (otherwise the comment key is a hash of the block's content, see `blockKey`). */
+type FunnelTone = "brand" | "dark" | "light";
+
 export type Block = (
   | { type: "heading"; de: string; vi: string }
   | { type: "paragraph"; de: string; vi: string }
@@ -39,11 +41,17 @@ export type Block = (
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
-  | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; messages: ChatMessage[] }
+  | { type: "link"; url: string; de: string; vi: string }
+  | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; message: ChatMessage }
   | { type: "conversation"; customer: string; label_de?: string; label_vi?: string; note_de?: string; note_vi?: string; messages: ConversationMessage[] }
+  | { type: "funnel"; stages: { de: string; vi: string; sub: string; tone: FunnelTone }[]; legend?: { tone: FunnelTone; de: string; vi: string }[] }
+  | { type: "mcq"; id: string; intro_de?: string; intro_vi?: string; questions: McqQuestion[] }
 ) & { id?: string };
 
-/** One message of an imaginary customer in a Messenger simulation.
+/** One card of a multiple-choice round on a page. `correct` is stripped before the block reaches the browser. */
+export type McqQuestion = { question_de: string; question_vi: string; options: { de: string; vi: string }[]; correct: number };
+
+/** The one message of an imaginary customer in a Messenger simulation (one scenario = one message, one reply).
  *  A blank line inside `text` splits it into several bubbles sent in a row. */
 export type ChatMessage = { text: string; translation_de?: string };
 

@@ -11,6 +11,7 @@ import { KindBadge, VerifiedPill } from "./Badges";
 import { BlockRenderer, slugify } from "./BlockRenderer";
 import { DocToc } from "./DocToc";
 import { ChatResponses } from "./ChatResponses";
+import { McqResponses } from "./McqResponses";
 import { CommentLayer, type PanelComment } from "./CommentLayer";
 import { CommentToggle } from "./CommentView";
 import { PaneClose } from "./DocPane";
@@ -39,6 +40,11 @@ export async function DocView({
   const { data: mine } = hasChat
     ? await supabase.from("chat_responses").select("sim_id").eq("page_id", page.id).eq("profile_id", profile.id)
     : { data: [] as { sim_id: string }[] };
+  const hasMcq = page.body.some((b) => b.type === "mcq");
+  const { data: mineMcq } = hasMcq
+    ? await supabase.from("quiz_attempts").select("quiz_id").eq("profile_id", profile.id).like("quiz_id", `${page.id}#%`)
+    : { data: [] as { quiz_id: string }[] };
+  const done = [...(mine ?? []).map((r) => r.sim_id), ...(mineMcq ?? []).map((r) => r.quiz_id.slice(page.id.length + 1))];
   const canComment = hasRole(profile.role, "staff");
   // `?c=<comment id>` (links from the inbox and Slack) → scroll to that comment's spot.
   let focus: CommentAnchor | "missing" | undefined;
@@ -94,11 +100,12 @@ export async function DocView({
 
       {canComment ? (
         <CommentLayer pageId={page.id} focus={focus} comments={comments} canManage={canEdit}>
-          <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
+          <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done }} />
         </CommentLayer>
       ) : (
-        <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done: (mine ?? []).map((r) => r.sim_id) }} />
+        <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done }} />
       )}
+      {canEdit && hasMcq && <McqResponses pageId={page.id} blocks={page.body} />}
       {canEdit && hasChat && <ChatResponses pageId={page.id} blocks={page.body} />}
     </>
   );

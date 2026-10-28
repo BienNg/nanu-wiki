@@ -62,8 +62,9 @@ export function CommentView({
   // Below the breadcrumb bar when this page is open in the side pane. Null on the full page and on phones.
   const [paneTop, setPaneTop] = useState<number | null>(null);
   useEffect(() => {
-    const pane = root.current?.closest<HTMLElement>(".doc-pane");
-    if (!pane) return;
+    const found = root.current?.closest<HTMLElement>(".doc-pane");
+    if (!found) return;
+    const pane: HTMLElement = found;
     const wide = window.matchMedia("(min-width: 1024px)");
     function update() {
       setPaneTop(wide.matches ? pane.getBoundingClientRect().top : null);

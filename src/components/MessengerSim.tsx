@@ -22,15 +22,14 @@ export function chatBubbles(text: string) {
 /** How long the "is typing" dots show before a bubble pops up. */
 const typingMs = (text: string) => Math.min(2600, 700 + text.length * 22);
 
-/** Messenger-style simulation: an imaginary customer writes, the user has to reply to each message. */
+/** Messenger-style simulation: an imaginary customer sends one message, the user replies once and that reply is saved. */
 export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock; pageId?: string; done?: boolean }) {
-  const messages = block.messages.filter((m) => m.text.trim());
+  const message = block.message;
   const [started, setStarted] = useState(false);
   const [lines, setLines] = useState<Line[]>([]);
-  const [turn, setTurn] = useState(0);
   const [typing, setTyping] = useState(false);
   const [waitingSince, setWaitingSince] = useState<number | null>(null);
-  const [turns, setTurns] = useState<ChatTurn[]>([]);
+  const [turn, setTurn] = useState<ChatTurn | null>(null);
   const [draft, setDraft] = useState("");
   const [sent, setSent] = useState(done);
   const [error, setError] = useState<string | null>(null);
@@ -39,16 +38,14 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
   const feed = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
 
-  const finished = started && turn >= messages.length;
-  const canSend = waitingSince !== null && draft.trim() !== "";
+  const canSend = waitingSince !== null && turn === null && draft.trim() !== "";
 
-  // Customer "types" and sends the bubbles of the current message one after another.
+  // Customer "types" and sends the bubbles of the message one after another.
   useEffect(() => {
-    if (!started || turn >= messages.length) return;
-    const message = messages[turn];
+    if (!started) return;
     const parts = chatBubbles(message.text);
     const timers: number[] = [];
-    let t = turn === 0 ? 400 : 900;
+    let t = 400;
     parts.forEach((part, k) => {
       const last = k === parts.length - 1;
       timers.push(window.setTimeout(() => setTyping(true), t));
@@ -67,7 +64,7 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
     });
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, turn]);
+  }, [started]);
 
   // Keep the newest message in view.
   useEffect(() => {
@@ -85,22 +82,22 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
     { scope, dependencies: [lines.length] },
   );
 
+  /** The one reply ends the scenario and is saved right away. */
   function send() {
     if (!canSend) return;
     const reply = draft.trim();
-    const seconds = Math.round((Date.now() - waitingSince!) / 1000);
+    const t = { customer: message.text, reply, seconds: Math.round((Date.now() - waitingSince!) / 1000) };
     setLines((ls) => [...ls, { from: "me", text: reply }]);
-    setTurns((ts) => [...ts, { customer: messages[turn].text, reply, seconds }]);
     setDraft("");
-    setWaitingSince(null);
-    setTurn((t) => t + 1);
+    setTurn(t);
+    save(t);
   }
 
-  function submit() {
+  function save(t: ChatTurn) {
     if (!pageId) return;
     setError(null);
     startTransition(async () => {
-      const res = await submitChat(pageId, block.id, turns);
+      const res = await submitChat(pageId, block.id, [t]);
       if (res.ok) setSent(true);
       else setError(res.message);
     });
@@ -128,10 +125,10 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
         <div className="flex flex-col items-center gap-1.5 bg-side px-6 py-10 text-center text-sm">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ok-soft text-lg text-ok">✓</span>
           <strong className="text-ink">
-            <Label de="Simulation abgeschlossen" vi="Đã hoàn thành mô phỏng" />
+            <Label de="Antwort gespeichert" vi="Đã lưu câu trả lời" />
           </strong>
           <span className="text-muted">
-            <Bi de="Deine Antworten wurden gespeichert. Das Team schaut sie sich an." vi="Câu trả lời của bạn đã được lưu. Đội ngũ sẽ xem và phản hồi." />
+            <Bi de="Deine Antwort wurde gespeichert. Das Team schaut sie sich an." vi="Câu trả lời của bạn đã được lưu. Đội ngũ sẽ xem và phản hồi." />
           </span>
         </div>
       </div>
@@ -150,12 +147,9 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
                 <Bi de={block.intro_de} vi={block.intro_vi} />
               </p>
             )}
-            <span className="cap">
-              <Label de={`${messages.length} Nachrichten`} vi={`${messages.length} tin nhắn`} />
-            </span>
             <button
               type="button"
-              disabled={!messages.length}
+              disabled={!message.text.trim()}
               onClick={() => setStarted(true)}
               className="h-10 rounded-[7px] bg-accent px-[18px] text-sm font-medium text-white hover:bg-[#1F5DB5] disabled:opacity-50"
             >
@@ -191,20 +185,21 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
         )}
       </div>
 
-      {finished ? (
+      {turn ? (
         <div className="flex flex-wrap items-center gap-3 border-t border-line bg-side px-3.5 py-3 text-sm">
           <span className="flex-1 text-body">
-            <Bi de="Alle Nachrichten beantwortet. Bereit zum Abschicken?" vi="Bạn đã trả lời hết tin nhắn. Gửi bài nhé?" />
+            {pending ? <Label de="Wird gespeichert …" vi="Đang lưu …" /> : error ? <span role="alert" className="text-bad">{error}</span> : null}
           </span>
-          {error && <span role="alert" className="text-[13px] text-bad">{error}</span>}
-          <button
-            type="button"
-            onClick={submit}
-            disabled={pending || !pageId}
-            className="h-9 rounded-md bg-accent px-4 text-[13px] font-medium text-white hover:bg-[#1F5DB5] disabled:opacity-60"
-          >
-            {pending ? <Label de="Sendet …" vi="Đang gửi …" /> : <Label de="Antworten abschicken" vi="Gửi câu trả lời" />}
-          </button>
+          {error && (
+            <button
+              type="button"
+              onClick={() => save(turn)}
+              disabled={pending}
+              className="h-9 rounded-md bg-accent px-4 text-[13px] font-medium text-white hover:bg-[#1F5DB5] disabled:opacity-60"
+            >
+              <Label de="Nochmal versuchen" vi="Thử lại" />
+            </button>
+          )}
         </div>
       ) : (
         started && (
@@ -235,7 +230,7 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
               type="submit"
               disabled={!canSend}
               aria-label="Senden"
-              title={waitingSince === null ? "Warte auf die nächste Nachricht · Chờ tin nhắn tiếp theo" : "Senden · Gửi"}
+              title={waitingSince === null ? "Warte auf die Nachricht · Chờ tin nhắn" : "Senden · Gửi"}
               className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full text-accent hover:bg-accent-soft disabled:text-faint disabled:hover:bg-transparent"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

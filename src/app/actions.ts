@@ -120,6 +120,31 @@ export async function submitChat(pageId: string, simId: string, turns: ChatTurn[
   return { ok: true as const };
 }
 
+// ------------------------------------------------------------------ multiple-choice round on a page
+/** Grades a page's `mcq` block on the server and stores it in quiz_attempts as "<page id>#<block id>". One run per person. */
+export async function submitMcq(pageId: string, mcqId: string, answers: number[]) {
+  const session = await getSession();
+  if (!session) throw new Error("not signed in");
+  const page = getPageById(pageId);
+  const block = page?.body.find((b) => b.type === "mcq" && b.id === mcqId);
+  if (!page || !block || block.type !== "mcq" || !canReadPage(session.profile, await getEditorAreas(), page)) {
+    return { ok: false as const, message: "Seite nicht gefunden · Không tìm thấy trang" };
+  }
+  const quizId = `${pageId}#${mcqId}`;
+  const admin = createAdminClient();
+  const { count } = await admin.from("quiz_attempts").select("id", { count: "exact", head: true }).eq("quiz_id", quizId).eq("profile_id", session.profile.id);
+  if (count) return { ok: false as const, message: "Schon abgeschickt · Bạn đã gửi rồi" };
+
+  const total = block.questions.length;
+  const clean = block.questions.map((_, i) => (Number.isInteger(answers[i]) ? answers[i] : -1));
+  const score = block.questions.filter((q, i) => clean[i] === q.correct).length;
+  // No pass mark in an interview round: `passed` just means everything was right.
+  const { error } = await admin.from("quiz_attempts").insert({ quiz_id: quizId, profile_id: session.profile.id, answers: clean, score, total, passed: score === total });
+  if (error) return { ok: false as const, message: error.message };
+  revalidatePath(page.href);
+  return { ok: true as const };
+}
+
 // ------------------------------------------------------------------ page comments
 const clip = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : undefined);
 
