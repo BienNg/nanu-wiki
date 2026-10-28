@@ -22,10 +22,6 @@ export function chatBubbles(text: string) {
 /** How long the "is typing" dots show before a bubble pops up. */
 const typingMs = (text: string) => Math.min(2600, 700 + text.length * 22);
 
-function clock(seconds: number) {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-}
-
 /** Messenger-style simulation: an imaginary customer writes, the user has to reply to each message. */
 export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock; pageId?: string; done?: boolean }) {
   const messages = block.messages.filter((m) => m.text.trim());
@@ -34,7 +30,6 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
   const [turn, setTurn] = useState(0);
   const [typing, setTyping] = useState(false);
   const [waitingSince, setWaitingSince] = useState<number | null>(null);
-  const [now, setNow] = useState(0);
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [draft, setDraft] = useState("");
   const [sent, setSent] = useState(done);
@@ -73,14 +68,6 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, turn]);
-
-  // Response timer.
-  useEffect(() => {
-    if (waitingSince === null) return;
-    setNow(Date.now());
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, [waitingSince]);
 
   // Keep the newest message in view.
   useEffect(() => {
@@ -131,11 +118,6 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
           {typing ? <Label de="schreibt …" vi="đang soạn tin …" /> : <Label de="Messenger · aktiv" vi="Messenger · đang hoạt động" />}
         </span>
       </span>
-      {waitingSince !== null && (
-        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-warn-soft px-2.5 py-1 text-xs font-medium tabular-nums text-[#5C4505]" aria-live="off">
-          <Label de="Antwortzeit" vi="Thời gian" /> {clock(Math.max(0, Math.round((now - waitingSince) / 1000)))}
-        </span>
-      )}
     </div>
   );
 
