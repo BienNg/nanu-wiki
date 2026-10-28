@@ -11,28 +11,26 @@ import { BlockRenderer, slugify } from "./BlockRenderer";
 import { ChatResponses } from "./ChatResponses";
 import { CommentLayer, type PanelComment } from "./CommentLayer";
 import { CommentToggle } from "./CommentView";
-import { PaneLink } from "./PaneLink";
-import { PaneEscape } from "./DocPane";
+import { PaneClose } from "./DocPane";
 import type { CommentAnchor, PageWithMeta, Profile } from "@/lib/types";
 import { resolveAnchor } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 
 /**
- * One handbook page: the full page at /bereich/<area>/<page>, or the side pane next to an area's page list.
- * `closeHref` (pane only) = the area URL without `?seite=`. `c` = comment id to scroll to (full page only).
+ * One handbook page: the full page at /bereich/<area>/<page>, or (`pane`) the inside of the side pane
+ * next to an area's page list (see PaneFrame). `c` = comment id to scroll to (full page only).
  */
 export async function DocView({
   page,
   profile,
   c,
-  closeHref,
+  pane = false,
 }: {
   page: PageWithMeta;
   profile: Profile;
   c?: string;
-  closeHref?: string;
+  pane?: boolean;
 }) {
-  const pane = closeHref !== undefined;
   const canEdit = canEditArea(profile, await getEditorAreas(), page.area.slug);
   const hasChat = page.body.some((b) => b.type === "chat");
   const supabase = await createClient();
@@ -102,18 +100,8 @@ export async function DocView({
   if (pane) {
     return (
       <div className="flex min-w-0 flex-col">
-        <PaneEscape closeHref={closeHref} />
         <div className="flex min-h-12 flex-wrap items-center gap-1.5 px-4 text-[13px] text-muted">
-          <PaneLink
-            href={closeHref}
-            aria-label="Schließen · Đóng"
-            title="Schließen (Esc) · Đóng"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </PaneLink>
+          <PaneClose className="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink" />
           <Link
             href={page.href}
             className="inline-flex h-8 items-center gap-1.5 rounded-[7px] border border-line bg-white px-2.5 text-xs font-medium text-body hover:bg-hover hover:text-ink"
@@ -142,7 +130,7 @@ export async function DocView({
           )}
           <div className="ml-auto flex items-center gap-1.5">{toggle}</div>
         </div>
-        <Reveal key={page.id} className="mx-auto flex w-full max-w-[760px] flex-col gap-5 px-8 pb-20 pt-2">
+        <Reveal className="mx-auto flex w-full max-w-[760px] flex-col gap-5 px-8 pb-20 pt-2">
           {body}
         </Reveal>
       </div>

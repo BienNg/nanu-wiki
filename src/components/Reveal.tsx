@@ -1,19 +1,30 @@
 "use client";
 
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
+// `once` key → when that Reveal last unmounted. A Reveal that comes back right away (the area page
+// remounts when the side pane switches pages) shows its children without animating them again.
+const lastUnmount = new Map<string, number>();
+
 /** Fades and lifts every child marked with `data-reveal` in a short stagger.
  *  Respects "reduce motion". */
-export function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
+export function Reveal({ children, className, once }: { children: React.ReactNode; className?: string; once?: string }) {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Layout effect: its cleanup runs before the next Reveal's useGSAP in the same commit.
+  useLayoutEffect(() => {
+    if (!once) return;
+    return () => void lastUnmount.set(once, Date.now());
+  }, [once]);
 
   useGSAP(
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (once && Date.now() - (lastUnmount.get(once) ?? 0) < 600) return;
       gsap.from("[data-reveal]", {
         opacity: 0,
         y: 14,

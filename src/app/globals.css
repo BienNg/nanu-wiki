@@ -189,11 +189,18 @@ html.lang-vi .vs::before { content: none; }
   .comment-pulse { animation: none; }
 }
 
-/* ---------- Side pane (area page with ?seite=) ---------- */
-.pane-in { animation: pane-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
+/* ---------- Side pane (area page with ?seite=, see PaneFrame) ---------- */
+/* Opening: the pane glides in from the right edge. Switching pages: the new page fades in place. */
+.pane-in { animation: pane-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.pane-swap { animation: pane-swap 0.22s ease-out both; }
+.pane-out { animation: pane-out 0.24s cubic-bezier(0.4, 0, 1, 1) both; pointer-events: none; }
 @keyframes pane-in {
-  from { transform: translateX(48px); opacity: 0; }
+  from { transform: translateX(100%); opacity: 0.4; }
+  to { transform: none; opacity: 1; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .pane-in { animation: none; }
+@keyframes pane-swap {
+  from { opacity: 0; transform: translateX(12px); }
+}
+@keyframes pane-out {
+  to { transform: translateX(100%); opacity: 0.4; }
 }

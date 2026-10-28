@@ -11,6 +11,7 @@ import { BlockRenderer } from "@/components/BlockRenderer";
 import { PageTable } from "@/components/PageTable";
 import { OnboardingPanel, type WeekData } from "@/components/OnboardingPanel";
 import { DocView } from "@/components/DocView";
+import { PaneFrame } from "@/components/DocPane";
 import type { PageWithMeta } from "@/lib/types";
 
 const TABS: { key: AreaTab; de: string; vi: string }[] = [
@@ -46,7 +47,7 @@ export default async function AreaPage({
   const narrow = open !== undefined;
 
   const list = (
-    <Reveal className={narrow ? "flex flex-col gap-5 px-3 pb-10 pt-5" : "mx-auto flex w-full max-w-[960px] flex-col gap-6 px-8 pb-20 pt-9"}>
+    <Reveal once={`area-list:${area.slug}`} className={narrow ? "flex flex-col gap-5 px-3 pb-10 pt-5" : "mx-auto flex w-full max-w-[960px] flex-col gap-6 px-8 pb-20 pt-9"}>
       <header className={`flex flex-col gap-1.5 ${narrow ? "px-2.5" : ""}`}>
         <h1 data-reveal className={`title-display m-0 leading-[1.12] ${narrow ? "text-[22px]" : "text-[38px]"}`}>
           <Bi de={area.name_de} vi={area.name_vi} />
@@ -62,19 +63,21 @@ export default async function AreaPage({
         <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} paneHref={paneHref} active={open?.id} />
       ) : (
         <>
-          <div role="tablist" aria-label="Bereiche der Rolle" className="flex flex-wrap gap-1 self-start rounded-lg bg-side p-[3px]">
-            {TABS.filter((t) => tabs.includes(t.key)).map((t) => (
-              <Link
-                key={t.key}
-                role="tab"
-                aria-selected={tab === t.key}
-                href={`/bereich/${area.slug}?tab=${t.key}`}
-                className="inline-flex h-8 items-center rounded-md px-3 text-[13px] font-medium text-[#4A4F57] hover:text-ink aria-selected:bg-accent-soft aria-selected:text-accent-dark"
-              >
-                <Label de={t.de} vi={t.vi} />
-              </Link>
-            ))}
-          </div>
+          {!narrow && (
+            <div role="tablist" aria-label="Bereiche der Rolle" className="flex flex-wrap gap-1 self-start rounded-lg bg-side p-[3px]">
+              {TABS.filter((t) => tabs.includes(t.key)).map((t) => (
+                <Link
+                  key={t.key}
+                  role="tab"
+                  aria-selected={tab === t.key}
+                  href={`/bereich/${area.slug}?tab=${t.key}`}
+                  className="inline-flex h-8 items-center rounded-md px-3 text-[13px] font-medium text-[#4A4F57] hover:text-ink aria-selected:bg-accent-soft aria-selected:text-accent-dark"
+                >
+                  <Label de={t.de} vi={t.vi} />
+                </Link>
+              ))}
+            </div>
+          )}
 
           {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
           {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
@@ -103,13 +106,13 @@ export default async function AreaPage({
       </Topbar>
 
       {open ? (
-        <div className="flex flex-1 items-start">
+        <div className="flex flex-1 items-start overflow-x-clip">
           <aside aria-label="Seiten" className="sticky top-0 max-h-dvh w-[300px] flex-none self-start overflow-y-auto max-lg:hidden">
             {list}
           </aside>
-          <section aria-label={open.title_de} className="doc-pane pane-in min-w-0 flex-1 self-stretch border-l border-line">
-            <DocView page={open} profile={profile} closeHref={base} />
-          </section>
+          <PaneFrame closeHref={base} label={open.title_de}>
+            <DocView page={open} profile={profile} pane />
+          </PaneFrame>
         </div>
       ) : (
         list
