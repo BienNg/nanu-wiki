@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: "2027-01-25",
-  updated_at: "2026-10-27",
+  updated_at: "2026-10-28",
   body: [
     {
       type: "paragraph",
@@ -116,8 +116,8 @@ const page: PageContent = {
           from: "me",
           stamp_de: "20:15",
           stamp_vi: "20:15",
-          text: "Chào Minh Anh ạ! Mình là Trang từ NaNu NaNa 😊 Có nha bạn, bên mình có lớp online và lớp tại Hà Nội, TP.HCM.",
-          translation_de: "„Hallo Minh Anh! Ich bin Trang von NaNu NaNa 😊 Ja, wir haben Online-Kurse und Kurse in Hà Nội und HCM.“"
+          text: "Chào Minh Anh ạ! Bên mình là NaNu NaNa 😊 Có nha bạn, bên mình có lớp online và lớp tại Hà Nội, TP.HCM.",
+          translation_de: "„Hallo Minh Anh! Hier ist NaNu NaNa 😊 Ja, wir haben Online-Kurse und Kurse in Hà Nội und HCM.“"
         }
       ]
     },
@@ -160,8 +160,8 @@ const page: PageContent = {
     {
       type: "conversation",
       customer: "Minh Anh",
-      note_de: "Nur Wohnort und Niveau. Als Minh Anh nicht antwortet, fasst Trang am nächsten Tag einmal freundlich nach.",
-      note_vi: "Chỉ hỏi nơi ở và trình độ. Khi Minh Anh chưa trả lời, hôm sau Trang nhắn lại một lần thật nhẹ nhàng.",
+      note_de: "Nur Wohnort und Niveau. Als Minh Anh nicht antwortet, schreiben wir am nächsten Tag einmal freundlich nach.",
+      note_vi: "Chỉ hỏi nơi ở và trình độ. Khi Minh Anh chưa trả lời, hôm sau mình nhắn lại một lần thật nhẹ nhàng.",
       messages: [
         {
           from: "me",
@@ -250,18 +250,24 @@ const page: PageContent = {
         {
           de: "Erst die Leistungen, dann der Preis",
           vi: "Quyền lợi trước, giá sau",
-          body_de: "Ein Satz, der an das Ziel des Kunden anknüpft, z. B. „mit derselben Lehrkraft von A1 bis B1, inklusive kostenloser Lern-App“.",
-          body_vi: "Thêm 1 câu nối với mục tiêu của khách, ví dụ „cùng giáo viên từ A1 lên B1, có app học miễn phí đi kèm“."
+          body_de: "Hier später die vorgefertigten Bilder zu Leistungen und Vorteilen einsetzen.",
+          body_vi: "Sau này gắn ảnh có sẵn về dịch vụ và quyền lợi vào chỗ này."
         },
         {
           de: "Direkt in der Angebotsnachricht zum Abschluss fragen",
           vi: "Hỏi chốt ngay trong tin nhắn báo giá",
-          body_de: "Nicht auf die Antwort warten, sondern konkret fragen, ob wir den Platz reservieren sollen (Vorlage unten).",
-          body_vi: "Không chờ khách tự quyết, hỏi cụ thể có giữ chỗ cho khách không (mẫu bên dưới)."
+          body_de: "Nicht auf die Antwort warten, sondern konkret fragen, ob wir den Platz reservieren sollen.",
+          body_vi: "Không chờ khách tự quyết, hỏi cụ thể có giữ chỗ cho khách không.",
+          template: {
+            label_de: "Vorlage · Abschlussfrage",
+            label_vi: "Mẫu · Hỏi chốt",
+            text: "Chị giữ chỗ cho em lớp tối 2-4-6 khai giảng [ngày] nha?",
+            translation_de: "„Soll ich dir einen Platz im Abendkurs Mo-Mi-Fr ab [Datum] reservieren?“"
+          }
         },
         {
-          de: "„Ja“ ist nur ein Schritt",
-          vi: "Cho „có“ chỉ một bước",
+          de: "Beim Ja gleich sagen, wie reserviert und bezahlt wird",
+          vi: "Khi khách đồng ý, nói ngay cách giữ chỗ và thanh toán",
           body_de: "Sag klar, was passiert, wenn der Kunde zusagt: wie der Platz reserviert wird und wie er bezahlt – damit er nicht nachfragen muss. Alles passiert im Chat.",
           body_vi: "Nói rõ chuyện gì xảy ra khi khách đồng ý: giữ chỗ thế nào, thanh toán ra sao – để khách không phải hỏi. Mọi thứ ở trong chat."
         },
@@ -274,17 +280,10 @@ const page: PageContent = {
       ]
     },
     {
-      type: "template",
-      label_de: "Vorlage · Abschlussfrage",
-      label_vi: "Mẫu · Hỏi chốt",
-      text: "Chị giữ chỗ cho em lớp tối 2-4-6 khai giảng [ngày] nha?",
-      translation_de: "„Soll ich dir einen Platz im Abendkurs Mo-Mi-Fr ab [Datum] reservieren?“"
-    },
-    {
       type: "conversation",
       customer: "Minh Anh",
-      note_de: "Leistungen vor dem Preis, die Abschlussfrage direkt im Angebot, „Ja“ in einem Schritt – und am nächsten Tag ein Nachfassen mit etwas Neuem (freie Plätze).",
-      note_vi: "Quyền lợi trước giá, hỏi chốt ngay trong tin báo giá, cho „có“ chỉ một bước – và hôm sau nhắn lại với điều mới (số chỗ còn trống).",
+      note_de: "Leistungen vor dem Preis, die Abschlussfrage direkt im Angebot, Reservierung und Zahlung gleich miterklärt – und am nächsten Tag ein Nachfassen mit etwas Neuem (freie Plätze).",
+      note_vi: "Quyền lợi trước giá, hỏi chốt ngay trong tin báo giá, nói luôn cách giữ chỗ và thanh toán – và hôm sau nhắn lại với điều mới (số chỗ còn trống).",
       messages: [
         {
           from: "me",

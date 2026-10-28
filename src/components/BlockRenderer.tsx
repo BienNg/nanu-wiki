@@ -75,6 +75,18 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
                   <Bi de={it.body_de} vi={it.body_vi} />
                 </p>
               ) : null}
+              {it.template ? (
+                <div className="mt-2 overflow-hidden rounded-lg border border-line">
+                  <div className="flex items-center justify-between gap-2.5 border-b border-line bg-side py-1.5 pl-3 pr-2">
+                    <span className="cap">
+                      <Label de={it.template.label_de} vi={it.template.label_vi} />
+                    </span>
+                    <CopyButton text={it.template.text} />
+                  </div>
+                  <p className="m-0 px-3.5 py-3 text-sm">{it.template.text}</p>
+                  {it.template.translation_de ? <p className="de m-0 px-3.5 pb-3 text-[13px] text-muted">{it.template.translation_de}</p> : null}
+                </div>
+              ) : null}
             </li>
           ))}
         </ol>

@@ -35,7 +35,7 @@ export type Block = (
   | { type: "heading"; de: string; vi: string }
   | { type: "paragraph"; de: string; vi: string }
   | { type: "list"; ordered?: boolean; items: { de: string; vi: string }[] }
-  | { type: "steps"; items: { de: string; vi: string; body_de?: string; body_vi?: string }[] }
+  | { type: "steps"; items: { de: string; vi: string; body_de?: string; body_vi?: string; template?: { label_de: string; label_vi: string; text: string; translation_de?: string } }[] }
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
