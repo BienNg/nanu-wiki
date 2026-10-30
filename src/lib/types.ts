@@ -58,10 +58,23 @@ export type McqQuestion = { question_de: string; question_vi: string; options: {
 export type ChatMessage = { text: string; translation_de?: string };
 
 /** One bubble of a static Messenger example; "me" is NaNu NaNa.
- *  `stamp_de`/`stamp_vi` show a small centred line above it (time, "next day", where the customer came from). */
-export type ConversationMessage = { from: "customer" | "me"; text: string; translation_de?: string; stamp_de?: string; stamp_vi?: string };
+ *  `stamp_de`/`stamp_vi` show a small centred line above it (time, "next day", where the customer came from).
+ *  `image` sends a photo instead of text (a file in `public/`, e.g. "/sales/vorteile-online.png"); `text` is then empty.
+ *  `note_de`/`note_vi` is a handwritten margin note with an arrow pointing at this bubble. */
+export type ConversationMessage = {
+  from: "customer" | "me";
+  text: string;
+  translation_de?: string;
+  stamp_de?: string;
+  stamp_vi?: string;
+  note_de?: string;
+  note_vi?: string;
+  image?: { src: string; alt_de: string; alt_vi: string };
+};
 
-/** A static Messenger example. `goal_de`/`goal_vi` say what our last message should get from the customer's next one. */
+/** A static Messenger example. `goal_de`/`goal_vi` say what our last message should get from the customer's next one.
+ *  Both show as handwritten notes in the chat: `note_de` next to our first reply (unless messages carry their own notes),
+ *  `goal_de` under the last message. */
 export type Conversation = {
   customer: string;
   label_de?: string;

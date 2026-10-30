@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Inter_Tight } from "next/font/google";
+import { Inter, Inter_Tight, Patrick_Hand } from "next/font/google";
 import { cookies } from "next/headers";
 import type { Lang } from "@/lib/types";
 import "./globals.css";
@@ -11,6 +11,8 @@ const interTight = Inter_Tight({
   variable: "--font-inter-tight",
   display: "swap",
 });
+// Handwriting for the margin notes in Messenger examples.
+const patrickHand = Patrick_Hand({ subsets: ["latin", "vietnamese"], weight: "400", variable: "--font-patrick-hand", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "NaNu Wiki", template: "%s · NaNu Wiki" },
@@ -23,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const lang = (store.get("lang")?.value as Lang | undefined) ?? "both";
 
   return (
-    <html lang={lang === "vi" ? "vi" : "de"} className={`${inter.variable} ${interTight.variable} lang-${lang}`}>
+    <html lang={lang === "vi" ? "vi" : "de"} className={`${inter.variable} ${interTight.variable} ${patrickHand.variable} lang-${lang}`}>
       <body className="font-sans text-sm leading-relaxed antialiased">{children}</body>
     </html>
   );

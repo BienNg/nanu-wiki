@@ -22,7 +22,7 @@ function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
         return [...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })), { de: b.note_de ?? "", vi: b.note_vi ?? "" }];
       case "conversation_tabs":
         return b.tabs.flatMap((t) => [
-          ...t.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })),
+          ...t.messages.flatMap((m) => [{ de: m.translation_de ?? m.text, vi: m.text }, { de: m.note_de ?? "", vi: m.note_vi ?? "" }]),
           { de: t.note_de ?? "", vi: t.note_vi ?? "" },
           { de: t.goal_de ?? "", vi: t.goal_vi ?? "" },
         ]);

@@ -4,6 +4,7 @@
 @theme {
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-display: var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+  --font-hand: var(--font-patrick-hand), "Comic Sans MS", cursive;
 
   --color-ink: #2b2d31;
   --color-body: #3c3f44;
@@ -76,6 +77,9 @@ html.lang-vi .vx { display: inline; }
 html.lang-vi .vi { font-style: normal; font-size: 1em; color: inherit; font-weight: inherit; margin-top: 0; font-family: inherit; }
 html.lang-vi .vs { font-style: normal; color: inherit; }
 html.lang-vi .vs::before { content: none; }
+
+/* Handwritten margin notes keep the hand font for the Vietnamese line too. */
+.font-hand .vi { font-family: inherit; font-style: normal; font-size: 0.95em; color: inherit; }
 
 /* ---------- Small shared pieces ---------- */
 .cap {

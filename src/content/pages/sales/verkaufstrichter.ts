@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-28",
+  updated_at: "2026-10-30",
   body: [
     {
       type: "paragraph",
@@ -144,18 +144,46 @@ const page: PageContent = {
           tab_de: "Preis",
           tab_vi: "Học phí",
           customer: "Ngọc Lan",
-          note_de: "Den Preis sofort und vollständig nennen: Listenpreis, Frühbucherpreis, was enthalten ist. Nicht erst zurückfragen – sonst wirkt der Preis versteckt.",
-          note_vi: "Báo học phí ngay và đầy đủ: giá niêm yết, giá đóng sớm, những gì được kèm theo. Không hỏi lại trước – nếu không khách sẽ thấy mình giấu giá.",
-          goal_de: "Erfahren, ob Ngọc Lan in Vietnam oder Deutschland lebt – dann schicken wir einen A2-Kurs mit Datum und Uhrzeit.",
-          goal_vi: "Biết Ngọc Lan ở Việt Nam hay ở Đức – rồi gửi một lớp A2 có ngày khai giảng và giờ học.",
+          goal_de: "Erfahren, ob Ngọc Lan A1 abgeschlossen hat – dann schicken wir einen A2-Online-Kurs mit Datum und Uhrzeit.",
+          goal_vi: "Biết Ngọc Lan đã học xong A1 chưa – rồi gửi một lớp A2 online có ngày khai giảng và giờ học.",
           messages: [
             { from: "customer", stamp_de: "12:40", stamp_vi: "12:40", text: "Em xin phí học khoá a2 ạ", translation_de: "„Ich hätte gern den Preis für den A2-Kurs.“" },
             {
               from: "me",
               stamp_de: "12:41",
               stamp_vi: "12:41",
-              text: "Chào Ngọc Lan ạ! Khoá A2 trọn gói là [HỌC PHÍ]. Đóng trước khai giảng ít nhất 1 tuần chỉ còn [GIÁ ĐÓNG SỚM]. Đã gồm tài liệu PDF, Google Classroom và app NaNu Go. Online hay tại lớp đều cùng giá nha.\nBạn đang ở Việt Nam hay ở Đức ạ? Mình gửi lớp A2 hợp giờ với bạn.",
-              translation_de: "„Hallo Ngọc Lan! Der ganze A2-Kurs kostet [PREIS]. Wer mindestens eine Woche vor Start zahlt, zahlt nur [FRÜHBUCHERPREIS]. Enthalten sind PDF-Materialien, Google Classroom und die App NaNu Go. Online und vor Ort kosten gleich viel. Bist du in Vietnam oder in Deutschland? Dann schicke ich dir einen A2-Kurs zu deiner Uhrzeit.“"
+              text: "Chào Ngọc Lan ạ! Mình gửi bạn học phí và quyền lợi khoá A2 ngay nha.\nBạn đang ở Hà Nội, TP.HCM, tỉnh khác hay ở Đức ạ? Học phí như nhau, nhưng quyền lợi và lịch học mỗi nơi khác nhau.",
+              translation_de: "„Hallo Ngọc Lan! Ich schicke dir gleich Preis und Leistungen für den A2-Kurs. Bist du in Hà Nội, in HCM, in einer anderen Provinz oder in Deutschland? Der Preis ist überall gleich, aber Leistungen und Kurszeiten sind je nach Ort anders.“",
+              note_de: "Erst den Ort klären: Der Preis ist überall gleich, die Vorteile nicht. Den Preis versprechen, damit die Rückfrage nicht wie Ausweichen wirkt.",
+              note_vi: "Hỏi nơi ở trước: học phí như nhau, quyền lợi thì khác. Hứa gửi học phí để câu hỏi lại không giống né tránh."
+            },
+            { from: "customer", stamp_de: "12:43", stamp_vi: "12:43", text: "Em ở Đà Nẵng ạ", translation_de: "„Ich bin in Đà Nẵng.“" },
+            {
+              from: "me",
+              stamp_de: "12:43",
+              stamp_vi: "12:43",
+              text: "",
+              image: {
+                src: "/sales/vorteile-online.png",
+                alt_de: "Vorteilsbild Online-Kurs: kleine Klasse, 100 % Rückerstattung, App NaNu Go, Zoom, Google Classroom, PDF, Zusammenfassung nach jedem Termin",
+                alt_vi: "Ảnh quyền lợi lớp online: lớp nhỏ, hoàn 100% học phí, app NaNu Go, Zoom, Google Classroom, PDF, tổng kết sau mỗi buổi"
+              },
+              note_de: "Đà Nẵng heißt: nur online. Also das Online-Bild – der Wert kommt vor dem Preis.",
+              note_vi: "Đà Nẵng nghĩa là chỉ học online. Gửi ảnh online – giá trị trước, học phí sau."
+            },
+            {
+              from: "me",
+              text: "Ở Đà Nẵng thì bạn học online qua Zoom nha. Khoá A2 gồm 42 buổi học trực tiếp với giáo viên, lớp nhỏ, app NaNu Go, Google Classroom và tài liệu PDF.\nHọc phí [HỌC PHÍ], đăng ký giữ chỗ sớm chỉ còn [GIÁ ƯU ĐÃI]. Sau 2 buổi đầu không hài lòng thì bên mình hoàn 100% học phí.",
+              translation_de: "„In Đà Nẵng lernst du online über Zoom. Der A2-Kurs hat 42 Live-Termine mit einer Lehrkraft, eine kleine Klasse, die App NaNu Go, Google Classroom und PDF-Materialien. Er kostet [PREIS], wer früh einen Platz reserviert, zahlt nur [FRÜHBUCHERPREIS]. Wer nach den ersten 2 Terminen nicht zufrieden ist, bekommt 100 % zurück.“",
+              note_de: "Erst die Leistungen, dann der Preis – in einer Nachricht.",
+              note_vi: "Quyền lợi trước, học phí sau – trong cùng một tin."
+            },
+            {
+              from: "me",
+              text: "Bạn học xong A1 chưa ạ? Mình gửi lớp A2 gần nhất hợp với bạn nha.",
+              translation_de: "„Hast du A1 schon abgeschlossen? Dann schicke ich dir den nächsten passenden A2-Kurs.“",
+              note_de: "Die Frage als eigene, letzte Nachricht: Die Benachrichtigung zeigt dann die Frage, nicht „hat ein Foto gesendet“.",
+              note_vi: "Câu hỏi là tin riêng, cuối cùng: thông báo sẽ hiện câu hỏi, không phải „đã gửi một ảnh“."
             }
           ]
         },
@@ -331,6 +359,44 @@ const page: PageContent = {
           ]
         }
       ]
+    },
+    {
+      type: "paragraph",
+      de: "Fragt jemand nach dem Preis, klären wir zuerst den Wohnort. Danach schicken wir genau ein Vorteilsbild vor dem Preis. Es zeigt, was im Preis steckt, damit die Zahl nicht allein dasteht.",
+      vi: "Khi khách hỏi học phí, mình hỏi nơi ở trước. Sau đó gửi đúng một ảnh quyền lợi trước khi báo giá. Ảnh cho thấy học phí đã gồm những gì, để con số không đứng một mình."
+    },
+    {
+      type: "list",
+      items: [
+        {
+          de: "Online-Bild: für alle außerhalb von Hà Nội und HCM, in Deutschland oder wer lieber online lernt. Nur hier steht die 100-%-Rückerstattung – sie gilt nur für Online-Kurse.",
+          vi: "Ảnh online: cho khách ở ngoài Hà Nội và TP.HCM, đang ở Đức hoặc muốn học online. Chỉ ảnh này có hoàn 100% học phí – chỉ áp dụng cho lớp online."
+        },
+        {
+          de: "Offline-Bild: für alle in Hà Nội oder HCM. Wer dort wohnt, aber online lernen möchte, bekommt das Online-Bild. Handbuch und Tasche gibt es nur in Offline-Kursen.",
+          vi: "Ảnh offline: cho khách ở Hà Nội hoặc TP.HCM. Khách ở đó nhưng muốn học online thì gửi ảnh online. Sách Handbuch và túi tote chỉ dành cho lớp offline."
+        },
+        {
+          de: "Nicht mehr schicken: das alte Bild „Bộ quà tặng“ – es verspricht auch Online-Kunden Buch und Tasche. „Tại sao chúng tôi được lựa chọn?“ und „Các khoá học tại NaNu NaNa“ passen zu Facebook-Beiträgen, nicht in den Chat.",
+          vi: "Không gửi nữa: ảnh cũ „Bộ quà tặng“ – ảnh này hứa cả với khách online là có sách và túi. „Tại sao chúng tôi được lựa chọn?“ và „Các khoá học tại NaNu NaNa“ hợp với bài đăng Facebook, không hợp để gửi trong chat."
+        },
+        {
+          de: "Die Preistabelle nur schicken, wenn jemand nach Details fragt, z. B. nach Kombi-Angeboten oder der Zahlung in Deutschland.",
+          vi: "Chỉ gửi bảng học phí khi khách hỏi chi tiết, ví dụ ưu đãi học trọn nhiều khoá hoặc đóng học phí tại Đức."
+        }
+      ]
+    },
+    {
+      type: "link",
+      url: "/sales/vorteile-online.png",
+      de: "Vorteilsbild Online herunterladen",
+      vi: "Tải ảnh quyền lợi lớp online"
+    },
+    {
+      type: "link",
+      url: "/sales/vorteile-offline.png",
+      de: "Vorteilsbild Offline herunterladen",
+      vi: "Tải ảnh quyền lợi lớp offline"
     },
     {
       type: "callout",
