@@ -7,6 +7,7 @@ import { COMMENT_STATUSES, tagInfo } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 import type { PageComment } from "@/lib/types";
 import { Label } from "./Bi";
+import { Icon } from "./Icon";
 import { CommentActions } from "./admin/CommentActions";
 import { caretAt, rangeForAnchor } from "./commentDom";
 
@@ -263,11 +264,12 @@ export function CommentView({
             focusCard(g.ids[0]);
           }}
           title={`${g.ids.length} Kommentar(e)`}
-          className={`absolute -right-8 flex h-6 min-w-6 items-center justify-center gap-0.5 rounded-full px-1.5 text-[11px] font-semibold ${
-            g.ids.includes(active ?? "") ? "bg-accent text-white" : "bg-accent-soft text-accent-dark hover:bg-accent hover:text-white"
+          className={`absolute -right-11 flex h-6 items-center gap-1 rounded-full border px-1.5 text-[11px] font-semibold text-[#7a5a00] ${
+            g.ids.includes(active ?? "") ? "border-[#e0b42f] bg-[#f2c94c]" : "border-[#f2c94c] bg-[#fdf0b8] hover:bg-[#f2c94c]"
           }`}
           style={{ top: g.top }}
         >
+          <Icon name="chat" size={13} strokeWidth={2.2} />
           {g.ids.length}
         </button>
       ))}
