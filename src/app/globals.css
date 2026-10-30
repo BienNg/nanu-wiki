@@ -168,12 +168,13 @@ html.lang-vi .vs::before { content: none; }
 }
 
 /* ---------- Comments (CommentLayer) ---------- */
+/* Highlights set dark text: words in our blue Messenger bubbles are white and unreadable on yellow. */
 [data-block] { scroll-margin-top: 30vh; border-radius: 8px; transition: background-color 0.6s ease, box-shadow 0.6s ease; }
 [data-block].comment-flash { background: var(--color-warn-soft); box-shadow: 0 0 0 8px var(--color-warn-soft); }
-::highlight(comment-focus) { background: #fde68a; color: inherit; }
-::highlight(comments) { background: #fdf0b8; text-decoration: underline 2px #f2c94c; text-underline-offset: 3px; }
+::highlight(comment-focus) { background: #fde68a; color: #2b2d31; }
+::highlight(comments) { background: #fdf0b8; color: #2b2d31; text-decoration: underline 2px #f2c94c; text-underline-offset: 3px; }
 ::highlight(comments-done) { text-decoration: underline 1px dotted #23794a; text-underline-offset: 3px; }
-::highlight(comment-active) { background: #fde68a; }
+::highlight(comment-active) { background: #fde68a; color: #2b2d31; }
 /* Comment view: make room for the panel on wide screens (it is a bottom sheet below lg). */
 @media (min-width: 1024px) {
   html[data-comment-view="on"] .doc-page { padding-right: 360px; }
