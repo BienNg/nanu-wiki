@@ -52,12 +52,28 @@ export function blockText(b: Block): string {
 /** Where a comment belongs on the current version of the page.
  *  - `block`: the key of the block it belongs to now (may differ from the saved one after an edit)
  *  - `moved`: it was re-attached to another block key
- *  - detached: its block and words are gone. */
-export type ResolvedAnchor = { detached: false; block: string; moved: boolean } | { detached: true };
+ *  - detached: its words are gone. `near` is the Messenger example it most likely was on, so it can still be opened. */
+export type ResolvedAnchor = { detached: false; block: string; moved: boolean } | { detached: true; near?: string };
 
 /** Messenger examples fill `{tokens}` (pronoun, place, the ticked classes …) in the browser, so words quoted
  *  from them are often not in the page content at all. */
 const generated = (b: Block) => /\{\w+\}/.test(blockText(b));
+
+const words = (t: string) => t.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+
+/** The generated block that still holds at least half of the quoted words, after its text was rewritten. */
+function nearestGenerated(body: Block[], keys: string[], exact: string) {
+  const quote = words(exact);
+  let best: string | undefined;
+  let bestScore = 0.5;
+  body.forEach((b, i) => {
+    if (!generated(b)) return;
+    const own = new Set(words(blockText(b)));
+    const score = quote.filter((w) => own.has(w)).length / quote.length;
+    if (score >= bestScore) [best, bestScore] = [keys[i], score];
+  });
+  return best;
+}
 
 export function resolveAnchor(body: Block[], anchor: NonNullable<CommentAnchor>): ResolvedAnchor {
   const keys = body.map(blockKey);
@@ -77,7 +93,7 @@ export function resolveAnchor(body: Block[], anchor: NonNullable<CommentAnchor>)
     }
     return best && trustworthy(best.m, anchor.exact, total)
       ? { detached: false, block: keys[best.i], moved: keys[best.i] !== anchor.block }
-      : { detached: true };
+      : { detached: true, near: nearestGenerated(body, keys, anchor.exact) };
   }
 
   if (own >= 0) return { detached: false, block: anchor.block, moved: false };

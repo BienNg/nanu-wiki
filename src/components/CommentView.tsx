@@ -11,7 +11,8 @@ import { Icon } from "./Icon";
 import { CommentActions } from "./admin/CommentActions";
 import { caretAt, rangeForAnchor, revealAnchor } from "./commentDom";
 
-/** `anchor.block` is already the block's key on the current page (see resolveAnchor); `detached` = its spot is gone. */
+/** `anchor.block` is already the block's key on the current page (see resolveAnchor); `detached` = its words are gone
+ *  (`anchor.block` is then the Messenger example it was most likely on, if any). */
 export type PanelComment = Pick<PageComment, "id" | "anchor" | "tag" | "body" | "status" | "resolution_note" | "created_at"> & {
   author: string;
   detached?: boolean;
@@ -212,7 +213,8 @@ export function CommentView({
   function focusSpot(c: PanelComment) {
     setActive(c.id);
     setTip(null);
-    if (!c.anchor || placed.detached.has(c.id)) return;
+    if (!c.anchor) return;
+    // A comment whose words are gone can still open the Messenger example (and tab) it was on.
     const block = root.current?.querySelector<HTMLElement>(`[data-block="${CSS.escape(c.anchor.block)}"]`);
     if (!block) return;
     // On another tab: switch to it first, and look for the words once it has rendered.

@@ -5,26 +5,30 @@ import type { Block, CommentAnchor, ConversationTab } from "@/lib/types";
 import { Label } from "./Bi";
 import { MessengerMockup } from "./MessengerMockup";
 import { contentChanged } from "./commentDom";
+import { defaultSelection, resolveConversation } from "@/lib/dialogue";
+import { similarity } from "@/lib/anchorMatch";
 
 type ConversationTabsBlock = Extract<Block, { type: "conversation_tabs" }>;
 
-const words = (t: string) => t.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+/** A tab's messages as shown with its start selection (`{tokens}` filled): Vietnamese and German. */
+function shownText(t: ConversationTab) {
+  const messages = resolveConversation(t, defaultSelection(t)).messages;
+  return [messages.map((m) => m.text).join(" "), messages.map((m) => m.translation_de ?? "").join(" ")];
+}
 
-/** The tab a comment was written on: saved with it, or (older comments) the tab whose text has most of its words.
- *  The text on screen is filled from `{tokens}`, so the quote never matches a tab's content exactly. */
+/** The tab a comment was written on: saved with it, or (older comments) the tab whose shown text is most like the quote.
+ *  Its text may have been rewritten since, so the words are compared, not matched exactly. */
 function tabOf(tabs: ConversationTab[], a: NonNullable<CommentAnchor>) {
   const saved = tabs.findIndex((t) => t.tab_de === a.tab);
   if (saved >= 0) return saved;
-  const quote = words(a.exact ?? "");
-  if (!quote.length) return -1;
+  if (!a.exact) return -1;
   let best = -1;
-  let bestScore = 0;
+  let bestScore = 0.15;
   tabs.forEach((t, i) => {
-    const own = new Set(words(JSON.stringify(t)));
-    const score = quote.filter((w) => own.has(w)).length / quote.length;
+    const score = Math.max(...shownText(t).map((text) => similarity(a.exact!, text)));
     if (score > bestScore) [best, bestScore] = [i, score];
   });
-  return bestScore >= 0.5 ? best : -1;
+  return best;
 }
 
 /** Several static Messenger examples behind one row of tabs; only the chosen one is shown.

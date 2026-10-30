@@ -52,7 +52,8 @@ export async function DocView({
     const { data } = await supabase.from("page_comments").select("anchor").eq("id", c).eq("page_id", page.id).maybeSingle();
     const anchor = data?.anchor as CommentAnchor | undefined;
     const where = anchor ? resolveAnchor(page.body, anchor) : null;
-    focus = !data ? "missing" : !anchor ? undefined : where!.detached ? "missing" : { ...anchor, block: where!.block };
+    const block = !where ? undefined : where.detached ? where.near : where.block;
+    focus = !data ? "missing" : !anchor ? undefined : block ? { ...anchor, block } : "missing";
   }
   // All comments on this page except declined ones, for the comment view.
   let comments: PanelComment[] = [];
@@ -69,7 +70,8 @@ export async function DocView({
       // Point it at its block on the current version of the page (it may have been edited since).
       if (!comment.anchor) return comment;
       const where = resolveAnchor(page.body, comment.anchor);
-      return where.detached ? { ...comment, detached: true } : { ...comment, anchor: { ...comment.anchor, block: where.block } };
+      if (where.detached) return { ...comment, detached: true, anchor: where.near ? { ...comment.anchor, block: where.near } : comment.anchor };
+      return { ...comment, anchor: { ...comment.anchor, block: where.block } };
     });
   }
   const openComments = comments.filter((c) => c.status !== "resolved").length;
