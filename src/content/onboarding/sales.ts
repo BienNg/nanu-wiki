@@ -7,7 +7,8 @@ const weeks: OnboardingWeek[] = [
       {
         id: "sales.w1.seiten-fur-alle-lesen",
         label_de: "Seiten „Für alle“ lesen",
-        label_vi: "Đọc các trang „Cho tất cả“"
+        label_vi: "Đọc các trang „Cho tất cả“",
+        page: "fuer-alle"
       },
       {
         id: "sales.w1.zugange-slack-notion-zalo-oa-mes",
@@ -17,7 +18,8 @@ const weeks: OnboardingWeek[] = [
       {
         id: "sales.w1.kursniveaus-a1-c1-kennenlernen",
         label_de: "Kursniveaus A1–C1 kennenlernen",
-        label_vi: "Tìm hiểu các trình độ A1–C1"
+        label_vi: "Tìm hiểu các trình độ A1–C1",
+        page: "fuer-alle/kurse-und-leistungen"
       },
       {
         id: "sales.w1.3-beratungsgesprache-mithoren",
@@ -34,7 +36,8 @@ const weeks: OnboardingWeek[] = [
       {
         id: "sales.w2.preisliste-und-positionierung-le",
         label_de: "Preisliste und Positionierung lesen",
-        label_vi: "Đọc bảng học phí và định vị"
+        label_vi: "Đọc bảng học phí và định vị",
+        page: "fuer-alle/preise-und-positionierung"
       },
       {
         id: "sales.w2.sop-erstkontakt-uber-messenger",
