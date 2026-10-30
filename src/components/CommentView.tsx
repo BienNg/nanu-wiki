@@ -102,11 +102,13 @@ export function CommentView({
           continue;
         }
         const block = blocks.find((b) => b.dataset.block === c.anchor!.block);
-        const range = block && c.anchor.exact ? rangeForAnchor(block, c.anchor) : null;
-        if (!block || (c.anchor.exact && !range)) {
+        if (!block) {
           next.detached.add(c.id);
           continue;
         }
+        // Only the server decides that a spot is gone. Words it still found may not be on screen right now
+        // (another tab, pronoun or class picked in a Messenger example): then the comment marks the block only.
+        const range = c.anchor.exact ? rangeForAnchor(block, c.anchor) : null;
         if (range) next.ranges.set(c.id, range);
         const g = groups.get(c.anchor.block) ?? { block: c.anchor.block, top: block.getBoundingClientRect().top - box.top, ids: [] };
         g.ids.push(c.id);

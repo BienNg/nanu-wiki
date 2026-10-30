@@ -55,13 +55,17 @@ export function blockText(b: Block): string {
  *  - detached: its block and words are gone. */
 export type ResolvedAnchor = { detached: false; block: string; moved: boolean } | { detached: true };
 
+/** Messenger examples fill `{tokens}` (pronoun, place, the ticked classes …) in the browser, so words quoted
+ *  from them are often not in the page content at all. */
+const generated = (b: Block) => /\{\w+\}/.test(blockText(b));
+
 export function resolveAnchor(body: Block[], anchor: NonNullable<CommentAnchor>): ResolvedAnchor {
   const keys = body.map(blockKey);
   const own = keys.indexOf(anchor.block);
 
   if (anchor.exact) {
     const texts = body.map((b) => strip(blockText(b)).text);
-    if (own >= 0 && locate(texts[own], anchor)) return { detached: false, block: anchor.block, moved: false };
+    if (own >= 0 && (locate(texts[own], anchor) || generated(body[own]))) return { detached: false, block: anchor.block, moved: false };
     // The block changed: look for the words (and the text around them) anywhere on the page.
     let best: { i: number; m: QuoteMatch } | null = null;
     let total = 0;
