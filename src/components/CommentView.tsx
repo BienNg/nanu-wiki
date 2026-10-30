@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setCommentView, useCommentView } from "@/lib/commentViewStore";
+import { pinTopEdge } from "./AppShell";
 import { COMMENT_STATUSES, tagInfo } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 import type { PageComment } from "@/lib/types";
@@ -439,7 +440,7 @@ export function CommentToggle({ open }: { open: number }) {
     let frame = 0;
     function update() {
       const rect = el.getBoundingClientRect();
-      const top = (pane?.getBoundingClientRect().top ?? 0) + 8;
+      const top = pinTopEdge(pane) + 8;
       const next = rect.top < top;
       setStuck(next);
       if (!next) return;

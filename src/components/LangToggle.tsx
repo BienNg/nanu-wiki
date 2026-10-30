@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Lang } from "@/lib/types";
+import { pinTopEdge } from "./AppShell";
 
 const OPTIONS: { value: Lang; label: string }[] = [
   { value: "both", label: "DE+VI" },
@@ -34,7 +35,7 @@ export function LangToggle({ initial }: { initial: Lang }) {
     let frame = 0;
     function update() {
       const rect = slot.getBoundingClientRect();
-      const top = (pane?.getBoundingClientRect().top ?? 0) + 8;
+      const top = pinTopEdge(pane) + 8;
       const next = rect.top < top;
       if (next !== stuckRef.current) {
         stuckRef.current = next;

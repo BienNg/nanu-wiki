@@ -172,7 +172,7 @@ export function SearchOverlay({
   const term = query.trim();
 
   return (
-    <div className="fixed bottom-0 right-0 top-0 z-40" style={{ left }}>
+    <div className="fixed bottom-0 right-0 top-0 z-40 max-md:left-0!" style={{ left }}>
       <button type="button" aria-label="Suche schließen" className="absolute inset-0 bg-[#2B2D31]/25" onClick={onClose} />
       <div className="relative mx-auto mt-4 w-full max-w-[760px] px-4">
         <div

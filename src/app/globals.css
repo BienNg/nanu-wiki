@@ -119,46 +119,48 @@ html.lang-vi .vs::before { content: none; }
   .toast-in { animation: none; }
 }
 
-/* ---------- Collapsed sidebar: icons stay, labels recede ---------- */
-[data-collapsed="true"] .side-text {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-[data-collapsed="true"] .side-hide {
-  display: none;
-}
-[data-collapsed="true"] aside {
-  padding-left: 6px;
-  padding-right: 6px;
-}
-[data-collapsed="true"] .side-head,
-[data-collapsed="true"] .side-user {
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding-left: 0;
-  padding-right: 0;
-}
-[data-collapsed="true"] .side-search {
-  width: 36px;
-  margin-left: auto;
-  margin-right: auto;
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-}
-[data-collapsed="true"] aside a {
-  justify-content: center;
-  gap: 0;
-  padding-left: 0;
-  padding-right: 0;
+/* ---------- Collapsed sidebar: icons stay, labels recede (phones get the full drawer) ---------- */
+@media (min-width: 768px) {
+  [data-collapsed="true"] .side-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  [data-collapsed="true"] .side-hide {
+    display: none;
+  }
+  [data-collapsed="true"] aside {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  [data-collapsed="true"] .side-head,
+  [data-collapsed="true"] .side-user {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  [data-collapsed="true"] .side-search {
+    width: 36px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  [data-collapsed="true"] aside a {
+    justify-content: center;
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 /* ---------- Comments (CommentLayer) ---------- */

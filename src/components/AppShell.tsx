@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import type { Area } from "@/lib/types";
 import { Icon } from "./Icon";
 import { SearchOverlay } from "./SearchOverlay";
@@ -16,6 +17,7 @@ type ShellContextValue = {
   collapsed: boolean;
   toggleCollapsed: () => void;
   openSearch: () => void;
+  closeDrawer: () => void;
 };
 
 const ShellContext = createContext<ShellContextValue | null>(null);
@@ -39,19 +41,35 @@ export function SearchTrigger({ className }: { className?: string }) {
   );
 }
 
+/** Where controls that pin to the top of the screen sit: below the side pane's top, or below the phone bar. */
+export function pinTopEdge(pane: HTMLElement | null) {
+  const bar = document.querySelector<HTMLElement>("[data-mobile-bar]");
+  return Math.max(pane?.getBoundingClientRect().top ?? 0, bar?.getBoundingClientRect().bottom ?? 0);
+}
+
 export function CollapseSidebarButton() {
-  const { collapsed, toggleCollapsed } = useShell();
+  const { collapsed, toggleCollapsed, closeDrawer } = useShell();
   return (
-    <button
+    <>
+      <button
+        type="button"
+        onClick={closeDrawer}
+        aria-label="Menü schließen"
+        className="flex h-9 w-9 flex-none items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink md:hidden"
+      >
+        <CloseIcon />
+      </button>
+      <button
       type="button"
       onClick={toggleCollapsed}
       aria-expanded={!collapsed}
       aria-label={collapsed ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"}
       title={collapsed ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"}
-      className="flex h-7 w-7 flex-none items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink"
-    >
-      <PanelIcon />
-    </button>
+      className="hidden h-7 w-7 flex-none items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink md:flex"
+      >
+        <PanelIcon />
+      </button>
+    </>
   );
 }
 
@@ -71,6 +89,8 @@ export function AppShell({
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const pathname = usePathname();
   const drag = useRef<{ startX: number; startW: number } | null>(null);
 
   useEffect(() => {
@@ -78,7 +98,6 @@ export function AppShell({
     if (stored >= MIN_WIDTH && stored <= MAX_WIDTH) setWidth(stored);
     const collapsedStored = localStorage.getItem(COLLAPSED_KEY);
     if (collapsedStored === "1") setCollapsed(true);
-    else if (collapsedStored === null && window.innerWidth < 768) setCollapsed(true);
     setReady(true);
   }, []);
 
@@ -112,15 +131,41 @@ export function AppShell({
     return () => window.removeEventListener("keydown", onKey);
   }, [showSearch]);
 
+  // Phones: the sidebar is a drawer. It closes on every page change, on Esc and once the screen is wide
+  // enough for the sidebar column; while it is open the page behind it does not scroll.
+  useEffect(() => setDrawerOpen(false), [pathname]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const root = document.documentElement;
+    const previous = root.style.overflow;
+    root.style.overflow = "hidden";
+    const wide = window.matchMedia("(min-width: 768px)");
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setDrawerOpen(false);
+    }
+    function onWide() {
+      if (wide.matches) setDrawerOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    wide.addEventListener("change", onWide);
+    return () => {
+      root.style.overflow = previous;
+      document.removeEventListener("keydown", onKey);
+      wide.removeEventListener("change", onWide);
+    };
+  }, [drawerOpen]);
+
   const toggleCollapsed = useCallback(() => setCollapsed((value) => !value), []);
   const openSearch = useCallback(() => {
     if (showSearch) setSearchOpen(true);
   }, [showSearch]);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   const shell = useMemo(
-    () => ({ collapsed, toggleCollapsed, openSearch }),
-    [collapsed, toggleCollapsed, openSearch],
+    () => ({ collapsed, toggleCollapsed, openSearch, closeDrawer }),
+    [collapsed, toggleCollapsed, openSearch, closeDrawer],
   );
 
   const offset = collapsed ? RAIL_WIDTH : width;
@@ -149,14 +194,26 @@ export function AppShell({
   return (
     <ShellContext.Provider value={shell}>
       <div className="flex min-h-dvh items-start bg-white">
+        {drawerOpen && (
+          <button
+            type="button"
+            aria-label="Menü schließen"
+            onClick={closeDrawer}
+            className="fixed inset-0 z-40 bg-[#2B2D31]/30 md:hidden"
+          />
+        )}
         <div
-          className={`sticky top-0 z-20 h-dvh flex-none self-start border-r border-line bg-side ${
-            dragging ? "" : "transition-[width] duration-200 ease-out motion-reduce:transition-none"
-          }`}
+          id="app-sidebar"
+          className={`sticky top-0 z-20 h-dvh flex-none self-start border-r border-line bg-side max-md:fixed max-md:left-0 max-md:z-50 max-md:w-[min(300px,85vw)]! max-md:transition-transform max-md:duration-200 max-md:ease-out motion-reduce:transition-none ${
+            drawerOpen ? "max-md:translate-x-0 max-md:shadow-[8px_0_24px_rgba(0,0,0,0.12)]" : "max-md:invisible max-md:-translate-x-full"
+          } ${dragging ? "" : "md:transition-[width] md:duration-200 md:ease-out"}`}
           style={{ width: offset }}
           data-collapsed={collapsed ? "true" : "false"}
         >
-          <div className="h-full min-w-0">{sidebar}</div>
+          {/* A link to the page already open (another tab of it) does not change the path: close here too. */}
+          <div className="h-full min-w-0" onClick={(e) => (e.target as HTMLElement).closest("a") && closeDrawer()}>
+            {sidebar}
+          </div>
 
           {!collapsed && (
             <div
@@ -178,20 +235,64 @@ export function AppShell({
                 if (e.key === "Home") setWidth(MIN_WIDTH);
                 if (e.key === "End") setWidth(MAX_WIDTH);
               }}
-              className="group absolute -right-1 top-0 z-30 h-full w-2 cursor-col-resize touch-none outline-none"
+              className="group absolute -right-1 top-0 z-30 h-full w-2 cursor-col-resize touch-none outline-none max-md:hidden"
             >
               <span className="pointer-events-none absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-accent opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
             </div>
           )}
         </div>
 
-        <div className="flex min-h-dvh min-w-0 flex-1 flex-col">{children}</div>
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
+          <div data-mobile-bar className="sticky top-0 z-30 flex h-12 flex-none items-center gap-1 border-b border-line bg-white/95 px-2 backdrop-blur md:hidden">
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Menü öffnen"
+              aria-expanded={drawerOpen}
+              aria-controls="app-sidebar"
+              className="flex h-10 w-10 items-center justify-center rounded-md text-body hover:bg-hover"
+            >
+              <MenuIcon />
+            </button>
+            <span aria-hidden="true" className="flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white">
+              N
+            </span>
+            <span className="min-w-0 flex-1 truncate pl-1 text-sm font-semibold text-ink">NaNu NaNa</span>
+            {showSearch && (
+              <button
+                type="button"
+                onClick={openSearch}
+                aria-label="Suchen"
+                className="flex h-10 w-10 items-center justify-center rounded-md text-body hover:bg-hover"
+              >
+                <Icon name="search" size={18} strokeWidth={2} />
+              </button>
+            )}
+          </div>
+          {children}
+        </div>
       </div>
 
       {showSearch && (
         <SearchOverlay open={searchOpen} onClose={closeSearch} areas={areas} left={offset} />
       )}
     </ShellContext.Provider>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
   );
 }
 
