@@ -2,6 +2,7 @@ import type { Block } from "@/lib/types";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { VideoEmbed } from "./VideoEmbed";
+import { ImageModal } from "./ImageModal";
 import { CopyButton } from "./CopyButton";
 import { MessengerSim } from "./MessengerSim";
 import { MessengerMockup } from "./MessengerMockup";
@@ -156,6 +157,27 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
         </div>
       );
     case "link":
+      // Links to an image open it in a modal with a download button instead of a new tab.
+      if (/\.(png|jpe?g|webp|gif)$/i.test(b.url)) {
+        return (
+          <div key={i} data-reveal>
+            <ImageModal
+              src={b.url}
+              alt={b.de}
+              title={<Bi de={b.de} vi={b.vi} inline />}
+              className="flex w-full cursor-zoom-in items-center gap-3 rounded-lg border border-line bg-white px-4 py-3 text-left text-sm hover:bg-side"
+            >
+              <img src={b.url} alt="" className="h-12 w-10 flex-none rounded border border-line object-cover object-top" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">
+                  <Bi de={b.de} vi={b.vi} />
+                </span>
+                <span className="block truncate text-[13px] text-muted">{b.url}</span>
+              </span>
+            </ImageModal>
+          </div>
+        );
+      }
       return (
         <a
           key={i}

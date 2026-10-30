@@ -389,14 +389,14 @@ const page: PageContent = {
     {
       type: "link",
       url: "/sales/vorteile-online.png",
-      de: "Vorteilsbild Online herunterladen",
-      vi: "Tải ảnh quyền lợi lớp online"
+      de: "Vorteilsbild Online",
+      vi: "Ảnh quyền lợi lớp online"
     },
     {
       type: "link",
       url: "/sales/vorteile-offline.png",
-      de: "Vorteilsbild Offline herunterladen",
-      vi: "Tải ảnh quyền lợi lớp offline"
+      de: "Vorteilsbild Offline",
+      vi: "Ảnh quyền lợi lớp offline"
     },
     {
       type: "callout",

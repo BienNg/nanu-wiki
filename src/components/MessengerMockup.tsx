@@ -5,6 +5,7 @@ import { initials } from "@/lib/format";
 import type { Conversation } from "@/lib/types";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
+import { ImageModal } from "./ImageModal";
 
 type Note = { at: number; de: string; vi?: string | null };
 type Box = { x: number; y: number; w: number; h: number };
@@ -174,9 +175,9 @@ export function MessengerMockup({ block }: { block: Conversation }) {
                       className="relative block"
                     >
                       {m.image ? (
-                        <a href={m.image.src} target="_blank" rel="noreferrer" className="block">
+                        <ImageModal src={m.image.src} alt={m.image.alt_de} className="block cursor-zoom-in">
                           <img src={m.image.src} alt={m.image.alt_de} className="block w-[220px] max-w-full rounded-[18px] border border-line" />
-                        </a>
+                        </ImageModal>
                       ) : (
                         <span
                           className={`block whitespace-pre-line rounded-[18px] px-3.5 py-2 text-[14px] leading-snug ${
