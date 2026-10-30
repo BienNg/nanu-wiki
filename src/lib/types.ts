@@ -43,7 +43,8 @@ export type Block = (
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
   | { type: "link"; url: string; de: string; vi: string }
   | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; message: ChatMessage }
-  | { type: "conversation"; customer: string; label_de?: string; label_vi?: string; note_de?: string; note_vi?: string; messages: ConversationMessage[] }
+  | ({ type: "conversation" } & Conversation)
+  | { type: "conversation_tabs"; tabs: ConversationTab[] }
   | { type: "funnel"; stages: { de: string; vi: string; sub: string; tone: FunnelTone }[]; legend?: { tone: FunnelTone; de: string; vi: string }[] }
   | { type: "channels"; note_de?: string; note_vi?: string; reel: ChannelReel; profile: ChannelProfile }
   | { type: "mcq"; id: string; intro_de?: string; intro_vi?: string; questions: McqQuestion[] }
@@ -59,6 +60,21 @@ export type ChatMessage = { text: string; translation_de?: string };
 /** One bubble of a static Messenger example; "me" is NaNu NaNa.
  *  `stamp_de`/`stamp_vi` show a small centred line above it (time, "next day", where the customer came from). */
 export type ConversationMessage = { from: "customer" | "me"; text: string; translation_de?: string; stamp_de?: string; stamp_vi?: string };
+
+/** A static Messenger example. `goal_de`/`goal_vi` say what our last message should get from the customer's next one. */
+export type Conversation = {
+  customer: string;
+  label_de?: string;
+  label_vi?: string;
+  note_de?: string;
+  note_vi?: string;
+  goal_de?: string;
+  goal_vi?: string;
+  messages: ConversationMessage[];
+};
+
+/** One tab of a tabbed Messenger example; `tab_de`/`tab_vi` is the short tab label. */
+export type ConversationTab = Conversation & { tab_de: string; tab_vi: string };
 
 /** A Facebook Reel someone is watching, and the TikTok profile they might open. No message yet. */
 export type ChannelReel = {
