@@ -20,6 +20,12 @@ function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
         return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, { de: b.message.translation_de ?? b.message.text, vi: b.message.text }];
       case "conversation":
         return [...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })), { de: b.note_de ?? "", vi: b.note_vi ?? "" }];
+      case "channels":
+        return [
+          { de: b.reel.caption_de, vi: b.reel.caption_vi },
+          { de: b.profile.bio_de, vi: b.profile.bio_vi },
+          { de: b.note_de ?? "", vi: b.note_vi ?? "" },
+        ];
       case "mcq":
         return b.questions.map((q) => ({ de: q.question_de, vi: q.question_vi }));
       default:

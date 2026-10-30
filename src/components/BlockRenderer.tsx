@@ -5,6 +5,7 @@ import { VideoEmbed } from "./VideoEmbed";
 import { CopyButton } from "./CopyButton";
 import { MessengerSim } from "./MessengerSim";
 import { MessengerMockup } from "./MessengerMockup";
+import { ChannelMockups } from "./ChannelMockups";
 import { McqCards } from "./McqCards";
 import { blockKey } from "@/lib/comments";
 
@@ -176,6 +177,8 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
       return <MessengerSim key={i} block={b} pageId={chat?.pageId} done={chat?.done.includes(b.id)} />;
     case "conversation":
       return <MessengerMockup key={i} block={b} />;
+    case "channels":
+      return <ChannelMockups key={i} block={b} />;
     case "mcq":
       return (
         <McqCards

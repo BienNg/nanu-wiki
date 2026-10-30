@@ -45,6 +45,7 @@ export type Block = (
   | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; message: ChatMessage }
   | { type: "conversation"; customer: string; label_de?: string; label_vi?: string; note_de?: string; note_vi?: string; messages: ConversationMessage[] }
   | { type: "funnel"; stages: { de: string; vi: string; sub: string; tone: FunnelTone }[]; legend?: { tone: FunnelTone; de: string; vi: string }[] }
+  | { type: "channels"; note_de?: string; note_vi?: string; reel: ChannelReel; profile: ChannelProfile }
   | { type: "mcq"; id: string; intro_de?: string; intro_vi?: string; questions: McqQuestion[] }
 ) & { id?: string };
 
@@ -58,6 +59,29 @@ export type ChatMessage = { text: string; translation_de?: string };
 /** One bubble of a static Messenger example; "me" is NaNu NaNa.
  *  `stamp_de`/`stamp_vi` show a small centred line above it (time, "next day", where the customer came from). */
 export type ConversationMessage = { from: "customer" | "me"; text: string; translation_de?: string; stamp_de?: string; stamp_vi?: string };
+
+/** A Facebook Reel someone is watching, and the TikTok profile they might open. No message yet. */
+export type ChannelReel = {
+  page: string;
+  caption_de: string;
+  caption_vi: string;
+  audio_de: string;
+  audio_vi: string;
+  likes: string;
+  comments: string;
+  shares: string;
+};
+
+export type ChannelProfile = {
+  name: string;
+  handle: string;
+  following: string;
+  followers: string;
+  likes: string;
+  bio_de: string;
+  bio_vi: string;
+  videos: { views: string; label_de: string; label_vi: string; tone: "teal" | "indigo" | "amber" | "rose" | "sky" | "slate" }[];
+};
 
 /** What gets saved per reply: the customer message, the answer and how long it took. */
 export type ChatTurn = { customer: string; reply: string; seconds: number };

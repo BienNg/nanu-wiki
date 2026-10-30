@@ -43,34 +43,46 @@ const page: PageContent = {
     },
     {
       type: "paragraph",
-      de: "Unsere Social-Media-Kanäle erreichen jeden Tag Tausende Menschen. Die Leitung und Marketing verbessern laufend Videos und Anzeigen, damit wir noch mehr Menschen erreichen.",
-      vi: "Các kênh mạng xã hội của mình tiếp cận hàng nghìn người mỗi ngày. Quản lý và Marketing liên tục cải thiện video và quảng cáo để tiếp cận nhiều người hơn."
+      de: "Hier gibt es noch keine Nachricht. Die Person sieht uns nur auf unseren Social-Media-Kanälen: Videos und Beiträge auf Facebook, TikTok und YouTube. Sales ist an dieser Stufe noch nicht beteiligt. Die Leitung und Marketing verbessern laufend Inhalte und Anzeigen, damit mehr Menschen uns überhaupt erst sehen.",
+      vi: "Ở bước này chưa có tin nhắn. Người xem chỉ thấy mình trên các kênh mạng xã hội: video và bài đăng trên Facebook, TikTok và YouTube. Sales chưa tham gia. Quản lý và Marketing liên tục cải thiện nội dung và quảng cáo để nhiều người thấy mình hơn."
     },
     {
-      type: "conversation",
-      customer: "Minh Anh",
-      note_de: "Gute Inhalte bringen Nachrichten wie diese: Die Person bezieht sich auf ein konkretes Video und hat schon Vertrauen.",
-      note_vi: "Nội dung tốt mang lại những tin nhắn như thế này: khách nhắc đến một video cụ thể và đã có sẵn sự tin tưởng.",
-      messages: [
-        {
-          from: "customer",
-          stamp_de: "Kam über ein Facebook-Video · 20:14",
-          stamp_vi: "Đến từ một video Facebook · 20:14",
-          text: "Chào ad, mình xem video bên mình về du học nghề Đức, thấy dễ hiểu quá 😍",
-          translation_de: "„Hallo Admin, ich habe euer Video zur Ausbildung in Deutschland gesehen – total verständlich 😍“"
-        },
-        {
-          from: "customer",
-          text: "Bên mình có lớp tiếng Đức online không ạ?",
-          translation_de: "„Habt ihr Online-Deutschkurse?“"
-        }
-      ]
+      type: "channels",
+      note_de: "So sieht diese Stufe aus: jemand schaut einen Reel oder das Profil an. Es gibt noch keine Nachricht an Sales.",
+      note_vi: "Bước này trông như thế này: người xem đang xem một Reel hoặc trang cá nhân. Chưa có tin nhắn cho Sales.",
+      reel: {
+        page: "NaNu NaNa",
+        caption_de: "Ausbildung in Deutschland – in 60 Sekunden",
+        caption_vi: "Du học nghề Đức trong 60 giây",
+        audio_de: "Originalton · NaNu NaNa",
+        audio_vi: "Âm thanh gốc · NaNu NaNa",
+        likes: "12,4K",
+        comments: "86",
+        shares: "210"
+      },
+      profile: {
+        name: "NaNu NaNa",
+        handle: "nanunana",
+        following: "18",
+        followers: "86,4K",
+        likes: "1,2M",
+        bio_de: "Deutsch lernen · Hà Nội & Sài Gòn · Online",
+        bio_vi: "Học tiếng Đức · Hà Nội & Sài Gòn · Online",
+        videos: [
+          { views: "128K", label_de: "Ausbildung", label_vi: "Du học nghề", tone: "teal" },
+          { views: "86K", label_de: "A1 online", label_vi: "A1 online", tone: "indigo" },
+          { views: "54K", label_de: "Preis", label_vi: "Học phí", tone: "amber" },
+          { views: "41K", label_de: "Hà Nội", label_vi: "Hà Nội", tone: "rose" },
+          { views: "33K", label_de: "Sài Gòn", label_vi: "Sài Gòn", tone: "sky" },
+          { views: "22K", label_de: "Bis B1", label_vi: "Lên B1", tone: "slate" }
+        ]
+      }
     },
     {
       type: "callout",
       tone: "warning",
-      de: "Mögliche Ursache für Verluste: Wir posten nicht oft genug, oder die Inhalte sind noch nicht gut genug.",
-      vi: "Lý do có thể mất khách: đăng bài chưa đủ thường xuyên, hoặc chất lượng nội dung chưa tốt."
+      de: "Mögliche Ursache für Verluste: Wir posten nicht oft genug, oder die Inhalte sind noch nicht gut genug – dann schreibt niemand im nächsten Schritt.",
+      vi: "Lý do có thể mất khách: đăng bài chưa đủ thường xuyên, hoặc chất lượng nội dung chưa tốt – thì ở bước sau không ai nhắn tin."
     },
     {
       type: "heading",
