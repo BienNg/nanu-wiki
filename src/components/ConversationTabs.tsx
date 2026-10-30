@@ -30,7 +30,7 @@ export function ConversationTabs({ block }: { block: ConversationTabsBlock }) {
         ))}
       </div>
       <div role="tabpanel">
-        <MessengerMockup block={tab} />
+        <MessengerMockup key={active} block={tab} />
       </div>
     </div>
   );

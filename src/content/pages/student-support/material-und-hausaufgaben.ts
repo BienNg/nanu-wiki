@@ -83,12 +83,12 @@ const page: PageContent = {
           from: "customer",
           stamp_de: "14:05",
           stamp_vi: "14:05",
-          text: "Em mở file rồi mà không thấy bài 9 đâu ạ 😥",
+          text: "{Toi} mở file rồi mà không thấy bài 9 đâu ạ 😥",
           translation_de: "„Ich habe die Datei offen, finde aber Übung 9 nicht 😥“"
         },
         {
           from: "me",
-          text: "Dạ bạn đang mở quyển nào ạ? Bạn chụp giúp trung tâm trang đầu tiên của file nhé.",
+          text: "{da}{ban} đang mở quyển nào ạ? {Ban} chụp giúp {minh} trang đầu tiên của file nhé.",
           translation_de: "„Welches Buch hast du gerade offen? Schick mir bitte ein Foto der ersten Seite.“"
         },
         {
@@ -98,14 +98,14 @@ const page: PageContent = {
         },
         {
           from: "me",
-          text: "À, đây là quyển A1.2 rồi bạn ơi 😊 Hôm nay mình làm quyển A1.1 nha: bạn mở link này, từ trang 93 là sách bài tập, bài 9–12 ở trang 21 ạ.",
+          text: "{da}đây là quyển A1.2 rồi {ban} ơi 😊 Hôm nay mình làm quyển A1.1 nha: {ban} mở link này, từ trang 93 là sách bài tập, bài 9–12 ở trang 21 ạ.",
           translation_de: "„Ah, das ist A1.2 😊 Heute arbeiten wir mit A1.1: Öffne diesen Link, ab Seite 93 kommt das Arbeitsbuch, Übung 9–12 stehen auf Seite 21.“"
         },
         {
           from: "customer",
           stamp_de: "14:07",
           stamp_vi: "14:07",
-          text: "Thấy rồi ạ, em cảm ơn!",
+          text: "Thấy rồi ạ, {toi} cảm ơn!",
           translation_de: "„Gefunden, danke!“"
         }
       ]

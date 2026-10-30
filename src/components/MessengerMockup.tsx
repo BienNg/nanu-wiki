@@ -1,8 +1,20 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { initials } from "@/lib/format";
 import type { Conversation } from "@/lib/types";
+import {
+  LEVELS,
+  PLACES,
+  PLACE_LABEL,
+  PRONOUNS,
+  PRONOUN_LABEL,
+  defaultSelection,
+  placeholders,
+  resolveConversation,
+  selectorsFor,
+  type Selection,
+} from "@/lib/dialogue";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { ImageModal } from "./ImageModal";
@@ -20,8 +32,34 @@ const MAX_W = 250;
  *  Explanations are handwritten notes in the empty space just left of their message (running out of the chat box
  *  if needed), with a short curved arrow pointing at it. They never move the messages.
  *  Where there is no room (phones), the bubbles get small numbers and the notes are listed under the chat.
- *  The goal of the last message sits in a green box under the chat. */
+ *  The goal of the last message sits in a green box under the chat.
+ *  Selectors above the messages switch how we address the customer (bạn, em, chị …), and – where the text
+ *  depends on them – the course level and where the customer lives. Our messages have a copy button. */
 export function MessengerMockup({ block }: { block: Conversation }) {
+  const [sel, setSel] = useState<Selection>(() => defaultSelection(block));
+  const shown = useMemo(() => selectorsFor(block), [block]);
+  const resolved = useMemo(() => resolveConversation(block, sel), [block, sel]);
+  return (
+    <ChatView
+      block={resolved}
+      sel={sel}
+      shown={shown}
+      toolbar={<Selectors sel={sel} shown={shown} onChange={(next) => setSel({ ...sel, ...next })} />}
+    />
+  );
+}
+
+function ChatView({
+  block,
+  sel,
+  shown,
+  toolbar,
+}: {
+  block: Conversation;
+  sel: Selection;
+  shown: { level: boolean; place: boolean };
+  toolbar: React.ReactNode;
+}) {
   const messages = block.messages.filter((m) => m.text.trim() || m.image);
   const notes = collectNotes(block, messages);
 
@@ -148,6 +186,7 @@ export function MessengerMockup({ block }: { block: Conversation }) {
               <Label de={block.label_de ?? "Beispiel"} vi={block.label_vi ?? "Ví dụ"} />
             </span>
           </div>
+          {toolbar}
 
           <div ref={logRef} role="log" aria-label="Beispielchat" className="flex flex-col gap-1.5 bg-white px-3.5 py-4">
             {messages.map((m, i) => {
@@ -187,6 +226,7 @@ export function MessengerMockup({ block }: { block: Conversation }) {
                           {m.text}
                         </span>
                       )}
+                      {mine && !m.image && <CopyMessage text={m.text} sel={sel} shown={shown} />}
                       {num && (
                         <span
                           className={`font-hand absolute -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#c2410c] text-[12px] text-white ${
@@ -323,4 +363,155 @@ function scrollBounds(el: HTMLElement) {
 
 function intersects(a: Box, b: Box, pad: number) {
   return a.x < b.x + b.w + pad && a.x + a.w + pad > b.x && a.y < b.y + b.h + pad && a.y + a.h + pad > b.y;
+}
+
+type Shown = { level: boolean; place: boolean };
+
+/** The row of selectors between the chat header and the messages. */
+function Selectors({ sel, shown, onChange }: { sel: Selection; shown: Shown; onChange: (next: Partial<Selection>) => void }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-side px-3.5 py-2 text-[12px]">
+      <Choice label={<Label de="Anrede" vi="Xưng hô" />} options={PRONOUNS.map((p) => ({ value: p, label: PRONOUN_LABEL[p] }))} value={sel.pronoun} onChange={(pronoun) => onChange({ pronoun })} />
+      {shown.level && (
+        <Choice label={<Label de="Niveau" vi="Trình độ" />} options={LEVELS.map((l) => ({ value: l, label: l }))} value={sel.level} onChange={(level) => onChange({ level })} />
+      )}
+      {shown.place && (
+        <Choice
+          label={<Label de="Wohnort" vi="Nơi ở" />}
+          options={PLACES.map((p) => ({ value: p, label: <Label de={PLACE_LABEL[p].de} vi={PLACE_LABEL[p].vi} /> }))}
+          value={sel.place}
+          onChange={(place) => onChange({ place })}
+        />
+      )}
+    </div>
+  );
+}
+
+function Choice<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: React.ReactNode;
+  options: { value: T; label: React.ReactNode }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div role="radiogroup" className="flex flex-wrap items-center gap-1">
+      <span className="mr-1 font-semibold text-muted">{label}</span>
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          role="radio"
+          aria-checked={o.value === value}
+          onClick={() => onChange(o.value)}
+          className={`rounded-full border px-2 py-0.5 font-medium transition-colors ${
+            o.value === value ? "border-accent bg-accent text-white" : "border-line bg-white text-body hover:bg-chip"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Copy button on one of our messages. It first shows the current selections (and placeholders still to fill in)
+ *  so staff can check them, then copies the Vietnamese text. */
+function CopyMessage({ text, sel, shown }: { text: string; sel: Selection; shown: Shown }) {
+  const btn = useRef<HTMLButtonElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
+  const [at, setAt] = useState<{ top: number; right: number } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const todo = placeholders(text);
+
+  useEffect(() => {
+    if (!at) return;
+    const close = () => setAt(null);
+    const outside = (e: MouseEvent) => {
+      if (!pop.current?.contains(e.target as Node) && !btn.current?.contains(e.target as Node)) close();
+    };
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("mousedown", outside);
+    document.addEventListener("keydown", esc);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      document.removeEventListener("mousedown", outside);
+      document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [at]);
+
+  function open() {
+    if (at) return setAt(null);
+    const r = btn.current!.getBoundingClientRect();
+    setCopied(false);
+    setAt({ top: r.bottom + 6, right: Math.max(8, window.innerWidth - r.right) });
+  }
+
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setAt(null), 900);
+  }
+
+  const rows: [React.ReactNode, React.ReactNode][] = [[<Label key="a" de="Anrede" vi="Xưng hô" />, PRONOUN_LABEL[sel.pronoun]]];
+  if (shown.level) rows.push([<Label key="n" de="Niveau" vi="Trình độ" />, sel.level]);
+  if (shown.place) rows.push([<Label key="w" de="Wohnort" vi="Nơi ở" />, <Label key="p" de={PLACE_LABEL[sel.place].de} vi={PLACE_LABEL[sel.place].vi} />]);
+
+  return (
+    <>
+      <button
+        ref={btn}
+        type="button"
+        onClick={open}
+        aria-label="Nachricht kopieren"
+        aria-expanded={!!at}
+        className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-white text-muted shadow-sm hover:text-accent"
+      >
+        <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+          <path d="M5 15V5a2 2 0 0 1 2-2h8" />
+        </svg>
+      </button>
+      {at && (
+        <div
+          ref={pop}
+          role="dialog"
+          aria-label="Auswahl prüfen und kopieren"
+          className="fixed z-50 w-64 rounded-lg border border-line bg-white p-3 text-[13px] text-ink shadow-[0_12px_32px_rgba(16,24,40,.18)]"
+          style={{ top: at.top, right: at.right }}
+        >
+          <strong className="cap mb-1.5 block text-muted">
+            <Label de="Bitte prüfen" vi="Kiểm tra lại" />
+          </strong>
+          <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            {rows.map(([k, v], i) => (
+              <div key={i} className="contents">
+                <dt className="text-muted">{k}</dt>
+                <dd className="m-0 font-semibold">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          {todo.length > 0 && (
+            <p className="m-0 mt-2 rounded bg-warn-soft px-2 py-1 text-[12px] text-warn">
+              <Label de="Noch ausfüllen:" vi="Cần điền:" /> {todo.join(", ")}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={copy}
+            className="mt-2.5 w-full rounded-full bg-accent px-3 py-1.5 text-[13px] font-semibold text-white hover:bg-accent-dark"
+          >
+            {copied ? <Label de="Kopiert ✓" vi="Đã sao chép ✓" /> : <Label de="Text kopieren" vi="Sao chép tin nhắn" />}
+          </button>
+        </div>
+      )}
+    </>
+  );
 }

@@ -70,13 +70,26 @@ export type ConversationMessage = {
   note_de?: string;
   note_vi?: string;
   image?: { src: string; alt_de: string; alt_vi: string };
+  /** Replacements for a chosen level or place (see `src/lib/dialogue.ts`); "city" covers Sài Gòn and Hà Nội. */
+  levels?: Partial<Record<Level, MessageOverride>>;
+  places?: Partial<Record<Place | "city", MessageOverride>>;
 };
 
+type MessageOverride = Partial<Omit<ConversationMessage, "from" | "levels" | "places">>;
+
+/** Course level and customer location a Messenger example can be switched between. */
+export type Level = "A1" | "A2" | "B1" | "B2";
+export type Place = "saigon" | "hanoi" | "vietnam" | "germany";
+
 /** A static Messenger example. `goal_de`/`goal_vi` say what our last message should get from the customer's next one.
- *  Both show as handwritten notes in the chat: `note_de` next to our first reply (unless messages carry their own notes),
- *  `goal_de` under the last message. */
+ *  `note_de` is a handwritten note at our first reply (unless messages carry their own notes); the goal sits in a box under the chat.
+ *  Texts may contain tokens like `{Ban}`, `{level}` or `{city}` that follow the pronoun, level and place selectors (`src/lib/dialogue.ts`). */
 export type Conversation = {
   customer: string;
+  /** Start values of the level and place selectors (shown only where the text uses them). */
+  level?: Level;
+  place?: Place;
+  places?: Partial<Record<Place | "city", { note_de?: string; note_vi?: string; goal_de?: string; goal_vi?: string }>>;
   label_de?: string;
   label_vi?: string;
   note_de?: string;

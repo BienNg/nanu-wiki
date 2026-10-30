@@ -1,4 +1,5 @@
 import type { Block, PageWithMeta } from "@/lib/types";
+import { defaultSelection, resolveConversation } from "@/lib/dialogue";
 
 /** Flattens German + Vietnamese text of all blocks (for snippets). */
 function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
@@ -18,10 +19,13 @@ function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
         return [{ de: b.caption_de ?? "", vi: b.caption_vi ?? "" }];
       case "chat":
         return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, { de: b.message.translation_de ?? b.message.text, vi: b.message.text }];
-      case "conversation":
-        return [...b.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })), { de: b.note_de ?? "", vi: b.note_vi ?? "" }];
+      case "conversation": {
+        // Search the text as shown by default (bạn, default level and place), not the raw {tokens}.
+        const c = resolveConversation(b, defaultSelection(b));
+        return [...c.messages.map((m) => ({ de: m.translation_de ?? m.text, vi: m.text })), { de: c.note_de ?? "", vi: c.note_vi ?? "" }];
+      }
       case "conversation_tabs":
-        return b.tabs.flatMap((t) => [
+        return b.tabs.map((t) => ({ ...t, ...resolveConversation(t, defaultSelection(t)) })).flatMap((t) => [
           ...t.messages.flatMap((m) => [{ de: m.translation_de ?? m.text, vi: m.text }, { de: m.note_de ?? "", vi: m.note_vi ?? "" }]),
           { de: t.note_de ?? "", vi: t.note_vi ?? "" },
           { de: t.goal_de ?? "", vi: t.goal_vi ?? "" },

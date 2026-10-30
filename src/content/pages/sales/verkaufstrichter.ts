@@ -106,18 +106,19 @@ const page: PageContent = {
           tab_de: "Niveau",
           tab_vi: "Trình độ",
           customer: "Thu Hà",
+          level: "B2",
           note_de: "Die Frage ist mit „Ja“ beantwortet. Das Niveau kennen wir schon, also fragen wir nur noch nach dem Wohnort.",
           note_vi: "Câu hỏi đã được trả lời là „có“. Mình đã biết trình độ, nên chỉ hỏi thêm nơi ở.",
-          goal_de: "Erfahren, ob Thu Hà in Vietnam oder Deutschland lebt – dann schicken wir den nächsten B2-Kurs in ihrer Zeitzone.",
-          goal_vi: "Biết Thu Hà đang ở Việt Nam hay ở Đức – rồi gửi lớp B2 gần nhất theo giờ nơi bạn ở.",
+          goal_de: "Erfahren, ob Thu Hà in Vietnam oder Deutschland lebt – dann schicken wir den nächsten {level}-Kurs in ihrer Zeitzone.",
+          goal_vi: "Biết Thu Hà đang ở Việt Nam hay ở Đức – rồi gửi lớp {level} gần nhất theo giờ nơi khách ở.",
           messages: [
-            { from: "customer", stamp_de: "20:14", stamp_vi: "20:14", text: "Có khoá b2 ko ai", translation_de: "„Habt ihr einen B2-Kurs?“" },
+            { from: "customer", stamp_de: "20:14", stamp_vi: "20:14", text: "Có khoá {lv} ko {goi}", translation_de: "„Habt ihr einen {level}-Kurs?“" },
             {
               from: "me",
               stamp_de: "20:15",
               stamp_vi: "20:15",
-              text: "Chào Thu Hà ạ! Có nha bạn, bên mình có lớp B2 online và tại Hà Nội, TP.HCM.\nBạn đang sống ở Việt Nam hay ở Đức ạ? Mình gửi lớp B2 gần nhất hợp giờ với bạn nha.",
-              translation_de: "„Hallo Thu Hà! Ja, wir haben B2-Kurse online und in Hà Nội und HCM. Lebst du in Vietnam oder in Deutschland? Dann schicke ich dir den nächsten B2-Kurs, der zeitlich zu dir passt.“"
+              text: "{chao} Có nha {ban}, {benminh} có lớp {level} online và tại Hà Nội, TP.HCM.\n{Ban} đang sống ở Việt Nam hay ở Đức ạ? {Minh} gửi lớp {level} gần nhất hợp giờ với {ban} nha.",
+              translation_de: "„Hallo Thu Hà! Ja, wir haben {level}-Kurse online und in Hà Nội und HCM. Lebst du in Vietnam oder in Deutschland? Dann schicke ich dir den nächsten {level}-Kurs, der zeitlich zu dir passt.“"
             }
           ]
         },
@@ -125,18 +126,19 @@ const page: PageContent = {
           tab_de: "Online",
           tab_vi: "Online",
           customer: "Quang Huy",
-          note_de: "Konkret statt nur „Ja“: wie online unterrichtet wird, wie groß die Klasse ist, wie oft. Niveau (A1) ist bekannt, es fehlt nur die Zeitzone.",
-          note_vi: "Cụ thể thay vì chỉ „có“: học online thế nào, lớp bao nhiêu người, mấy buổi. Đã biết trình độ (A1), chỉ còn thiếu múi giờ.",
+          level: "A1",
+          note_de: "Konkret statt nur „Ja“: wie online unterrichtet wird, wie groß die Klasse ist, wie oft. Das Niveau ist bekannt, es fehlt nur die Zeitzone.",
+          note_vi: "Cụ thể thay vì chỉ „có“: học online thế nào, lớp bao nhiêu người, mấy buổi. Đã biết trình độ, chỉ còn thiếu múi giờ.",
           goal_de: "Erfahren, ob Quang Huy in Vietnam oder Deutschland lebt – dann schicken wir alle Zeitfenster dieser Zeitzone auf einmal.",
           goal_vi: "Biết Quang Huy ở Việt Nam hay ở Đức – rồi gửi tất cả khung giờ của múi giờ đó trong một tin nhắn.",
           messages: [
-            { from: "customer", stamp_de: "21:02", stamp_vi: "21:02", text: "Mình có lớp online a1 ko ạ", translation_de: "„Habt ihr einen A1-Online-Kurs?“" },
+            { from: "customer", stamp_de: "21:02", stamp_vi: "21:02", text: "Bên {goi} có lớp online {lv} ko ạ", translation_de: "„Habt ihr einen {level}-Online-Kurs?“" },
             {
               from: "me",
               stamp_de: "21:03",
               stamp_vi: "21:03",
-              text: "Chào Quang Huy ạ! Có nha bạn! Lớp A1 online học qua Zoom, 5–9 bạn một lớp, 3–4 buổi/tuần, mỗi buổi 1,5 tiếng.\nBạn đang ở Việt Nam hay ở Đức ạ? Mình gửi khung giờ theo giờ nơi bạn ở nha.",
-              translation_de: "„Hallo Quang Huy! Ja! Der A1-Online-Kurs läuft über Zoom, 5–9 Personen pro Klasse, 3–4 Termine pro Woche à 1,5 Stunden. Bist du in Vietnam oder in Deutschland? Dann schicke ich dir die Uhrzeiten in deiner Zeit.“"
+              text: "{chao} Có nha {ban}! Lớp {level} online học qua Zoom, 5–10 học viên một lớp, 3–4 buổi/tuần, mỗi buổi 1,5 tiếng.\n{Ban} đang ở Việt Nam hay ở Đức ạ? {Minh} gửi khung giờ theo giờ nơi {ban} ở nha.",
+              translation_de: "„Hallo Quang Huy! Ja! Der {level}-Online-Kurs läuft über Zoom, 5–10 Personen pro Klasse, 3–4 Termine pro Woche à 1,5 Stunden. Bist du in Vietnam oder in Deutschland? Dann schicke ich dir die Uhrzeiten in deiner Zeit.“"
             }
           ]
         },
@@ -144,20 +146,22 @@ const page: PageContent = {
           tab_de: "Preis",
           tab_vi: "Học phí",
           customer: "Ngọc Lan",
-          goal_de: "Erfahren, ob Ngọc Lan A1 abgeschlossen hat – dann schicken wir einen A2-Online-Kurs mit Datum und Uhrzeit.",
-          goal_vi: "Biết Ngọc Lan đã học xong A1 chưa – rồi gửi một lớp A2 online có ngày khai giảng và giờ học.",
+          level: "A2",
+          place: "vietnam",
+          goal_de: "Erfahren, ob Ngọc Lan das Niveau davor schon hat – dann schicken wir einen {level}-Kurs mit Datum und Uhrzeit.",
+          goal_vi: "Biết Ngọc Lan đã học xong trình độ trước chưa – rồi gửi một lớp {level} có ngày khai giảng và giờ học.",
           messages: [
-            { from: "customer", stamp_de: "12:40", stamp_vi: "12:40", text: "Em xin phí học khoá a2 ạ", translation_de: "„Ich hätte gern den Preis für den A2-Kurs.“" },
+            { from: "customer", stamp_de: "12:40", stamp_vi: "12:40", text: "{Toi} xin phí học khoá {lv} ạ", translation_de: "„Ich hätte gern den Preis für den {level}-Kurs.“" },
             {
               from: "me",
               stamp_de: "12:41",
               stamp_vi: "12:41",
-              text: "Chào Ngọc Lan ạ! Mình gửi bạn học phí và quyền lợi khoá A2 ngay nha.\nBạn đang ở Hà Nội, TP.HCM, tỉnh khác hay ở Đức ạ? Học phí như nhau, nhưng quyền lợi và lịch học mỗi nơi khác nhau.",
-              translation_de: "„Hallo Ngọc Lan! Ich schicke dir gleich Preis und Leistungen für den A2-Kurs. Bist du in Hà Nội, in HCM, in einer anderen Provinz oder in Deutschland? Der Preis ist überall gleich, aber Leistungen und Kurszeiten sind je nach Ort anders.“",
+              text: "{chao} {Minh} gửi {ban} học phí và quyền lợi khoá {level} ngay nha.\n{Ban} đang ở Hà Nội, TP.HCM, tỉnh khác hay ở Đức ạ? Học phí như nhau, nhưng quyền lợi và lịch học mỗi nơi khác nhau.",
+              translation_de: "„Hallo Ngọc Lan! Ich schicke dir gleich Preis und Leistungen für den {level}-Kurs. Bist du in Hà Nội, in HCM, in einer anderen Provinz oder in Deutschland? Der Preis ist überall gleich, aber Leistungen und Kurszeiten sind je nach Ort anders.“",
               note_de: "Erst den Ort klären: Der Preis ist überall gleich, die Vorteile nicht. Den Preis versprechen, damit die Rückfrage nicht wie Ausweichen wirkt.",
               note_vi: "Hỏi nơi ở trước: học phí như nhau, quyền lợi thì khác. Hứa gửi học phí để câu hỏi lại không giống né tránh."
             },
-            { from: "customer", stamp_de: "12:43", stamp_vi: "12:43", text: "Em ở Đà Nẵng ạ", translation_de: "„Ich bin in Đà Nẵng.“" },
+            { from: "customer", stamp_de: "12:43", stamp_vi: "12:43", text: "{Toi} ở {city} ạ", translation_de: "„Ich bin in {city_de}.“" },
             {
               from: "me",
               stamp_de: "12:43",
@@ -168,22 +172,52 @@ const page: PageContent = {
                 alt_de: "Vorteilsbild Online-Kurs: kleine Klasse, 100 % Rückerstattung, App NaNu Go, Zoom, Google Classroom, PDF, Zusammenfassung nach jedem Termin",
                 alt_vi: "Ảnh quyền lợi lớp online: lớp nhỏ, hoàn 100% học phí, app NaNu Go, Zoom, Google Classroom, PDF, tổng kết sau mỗi buổi"
               },
-              note_de: "Đà Nẵng heißt: nur online. Also das Online-Bild – der Wert kommt vor dem Preis.",
-              note_vi: "Đà Nẵng nghĩa là chỉ học online. Gửi ảnh online – giá trị trước, học phí sau."
+              note_de: "{city_de} heißt: nur online. Also das Online-Bild – der Wert kommt vor dem Preis.",
+              note_vi: "Ở {city} nghĩa là chỉ học online. Gửi ảnh online – giá trị trước, học phí sau.",
+              places: {
+                city: {
+                  image: {
+                    src: "/sales/vorteile-offline.png",
+                    alt_de: "Vorteilsbild Kurs vor Ort: Klasse mit 8–15 Personen, gedrucktes Buch, Tote Bag, App NaNu Go, Google Classroom",
+                    alt_vi: "Ảnh quyền lợi lớp tại trung tâm: lớp 8–15 học viên, sách in, túi tote, app NaNu Go, Google Classroom"
+                  },
+                  note_de: "{city_de} heißt: Kurs vor Ort möglich. Also das Offline-Bild – der Wert kommt vor dem Preis.",
+                  note_vi: "Ở {city} thì học được tại lớp. Gửi ảnh offline – giá trị trước, học phí sau."
+                }
+              }
             },
             {
               from: "me",
-              text: "Ở Đà Nẵng thì bạn học online qua Zoom nha. Khoá A2 gồm 42 buổi học trực tiếp với giáo viên, lớp nhỏ, app NaNu Go, Google Classroom và tài liệu PDF.\nHọc phí [HỌC PHÍ], đăng ký giữ chỗ sớm chỉ còn [GIÁ ƯU ĐÃI]. Sau 2 buổi đầu không hài lòng thì bên mình hoàn 100% học phí.",
-              translation_de: "„In Đà Nẵng lernst du online über Zoom. Der A2-Kurs hat 42 Live-Termine mit einer Lehrkraft, eine kleine Klasse, die App NaNu Go, Google Classroom und PDF-Materialien. Er kostet [PREIS], wer früh einen Platz reserviert, zahlt nur [FRÜHBUCHERPREIS]. Wer nach den ersten 2 Terminen nicht zufrieden ist, bekommt 100 % zurück.“",
+              text: "Ở {city} thì {ban} học online qua Zoom nha. Khoá {level} gồm {sessions} buổi học trực tiếp với giáo viên, lớp nhỏ 5–10 học viên, app NaNu Go, Google Classroom và tài liệu PDF.\nHọc phí {fee}, đăng ký giữ chỗ sớm chỉ còn {fee_early}. Sau 2 buổi đầu không hài lòng thì {benminh} hoàn 100% học phí.",
+              translation_de: "„In {city_de} lernst du online über Zoom. Der {level}-Kurs hat {sessions} Live-Termine mit einer Lehrkraft, eine kleine Klasse mit 5–10 Personen, die App NaNu Go, Google Classroom und PDF-Materialien. Er kostet {fee}, wer früh einen Platz reserviert, zahlt nur {fee_early}. Wer nach den ersten 2 Terminen nicht zufrieden ist, bekommt 100 % zurück.“",
               note_de: "Erst die Leistungen, dann der Preis – in einer Nachricht.",
-              note_vi: "Quyền lợi trước, học phí sau – trong cùng một tin."
+              note_vi: "Quyền lợi trước, học phí sau – trong cùng một tin.",
+              places: {
+                city: {
+                  text: "Ở {city} thì {ban} học trực tiếp tại lớp được nha. Khoá {level} gồm {sessions} buổi với giáo viên, lớp 8–15 học viên, sách in và túi tote NaNu NaNa, app NaNu Go và Google Classroom.\nHọc phí {fee}, đăng ký giữ chỗ sớm chỉ còn {fee_early}.",
+                  translation_de: "„In {city_de} kannst du vor Ort lernen. Der {level}-Kurs hat {sessions} Termine mit einer Lehrkraft, eine Klasse mit 8–15 Personen, gedrucktes Buch und Tote Bag von NaNu NaNa, die App NaNu Go und Google Classroom. Er kostet {fee}, wer früh einen Platz reserviert, zahlt nur {fee_early}.“",
+                  note_de: "Erst die Leistungen, dann der Preis – in einer Nachricht. Vor Ort gibt es keine Rückerstattung, also auch keine erwähnen."
+                },
+                germany: {
+                  text: "Ở Đức thì {ban} học online qua Zoom theo giờ Đức nha. Khoá {level} gồm {sessions} buổi học trực tiếp với giáo viên, lớp nhỏ 5–10 học viên, app NaNu Go, Google Classroom và tài liệu PDF.\nHọc phí {fee_eur} ({fee}), đăng ký giữ chỗ sớm chỉ còn {fee_early}. Sau 2 buổi đầu không hài lòng thì {benminh} hoàn 100% học phí.",
+                  translation_de: "„In Deutschland lernst du online über Zoom nach deutscher Zeit. Der {level}-Kurs hat {sessions} Live-Termine mit einer Lehrkraft, eine kleine Klasse mit 5–10 Personen, die App NaNu Go, Google Classroom und PDF-Materialien. Er kostet {fee_eur} ({fee}), wer früh einen Platz reserviert, zahlt nur {fee_early}. Wer nach den ersten 2 Terminen nicht zufrieden ist, bekommt 100 % zurück.“",
+                  note_de: "Erst die Leistungen, dann der Preis – in einer Nachricht. In Deutschland den Preis in Euro und in VND nennen.",
+                  note_vi: "Quyền lợi trước, học phí sau – trong cùng một tin. Ở Đức thì báo giá bằng euro và cả VND."
+                }
+              }
             },
             {
               from: "me",
-              text: "Bạn học xong A1 chưa ạ? Mình gửi lớp A2 gần nhất hợp với bạn nha.",
-              translation_de: "„Hast du A1 schon abgeschlossen? Dann schicke ich dir den nächsten passenden A2-Kurs.“",
+              text: "{da}{ban} học xong {prev} chưa ạ? {Minh} gửi lớp {level} gần nhất hợp với {ban} nha.",
+              translation_de: "„Hast du {prev} schon abgeschlossen? Dann schicke ich dir den nächsten passenden {level}-Kurs.“",
               note_de: "Die Frage als eigene, letzte Nachricht: Die Benachrichtigung zeigt dann die Frage, nicht „hat ein Foto gesendet“.",
-              note_vi: "Câu hỏi là tin riêng, cuối cùng: thông báo sẽ hiện câu hỏi, không phải „đã gửi một ảnh“."
+              note_vi: "Câu hỏi là tin riêng, cuối cùng: thông báo sẽ hiện câu hỏi, không phải „đã gửi một ảnh“.",
+              levels: {
+                A1: {
+                  text: "{da}{ban} đã học tiếng Đức bao giờ chưa ạ? {Minh} gửi lớp A1 gần nhất hợp với {ban} nha.",
+                  translation_de: "„Hast du schon mal Deutsch gelernt? Dann schicke ich dir den nächsten passenden A1-Kurs.“"
+                }
+              }
             }
           ]
         },
@@ -191,18 +225,19 @@ const page: PageContent = {
           tab_de: "Kursstart",
           tab_vi: "Khai giảng",
           customer: "Đức Anh",
+          level: "A2",
           note_de: "Immer ein konkretes Datum und eine Uhrzeit nennen, nie nur „bald“. Danach eine geschlossene Frage zum Ort.",
           note_vi: "Luôn đưa ngày và giờ cụ thể, không bao giờ chỉ nói „sắp“. Sau đó hỏi một câu đóng về nơi học.",
           goal_de: "Erfahren, ob der genannte Kurs passt oder Đức Anh vor Ort in Hà Nội oder HCM lernen möchte.",
           goal_vi: "Biết lớp vừa gửi có hợp không, hay Đức Anh muốn học tại Hà Nội hoặc TP.HCM.",
           messages: [
-            { from: "customer", stamp_de: "18:05", stamp_vi: "18:05", text: "Bên mình chuẩn bị có lớp nào từ A2 sắp khai giảng không ạ", translation_de: "„Startet bei euch bald ein Kurs ab A2?“" },
+            { from: "customer", stamp_de: "18:05", stamp_vi: "18:05", text: "Bên {goi} chuẩn bị có lớp nào từ {level} sắp khai giảng không ạ", translation_de: "„Startet bei euch bald ein Kurs ab {level}?“" },
             {
               from: "me",
               stamp_de: "18:06",
               stamp_vi: "18:06",
-              text: "Chào Đức Anh ạ! Lớp A2 online gần nhất khai giảng [NGÀY], học tối [THỨ], 18:30–20:00 giờ Việt Nam.\nBạn học online được không, hay muốn học tại Hà Nội / TP.HCM ạ?",
-              translation_de: "„Hallo Đức Anh! Der nächste A2-Online-Kurs startet am [DATUM], abends [TAGE], 18:30–20:00 vietnamesischer Zeit. Passt dir online, oder möchtest du lieber in Hà Nội oder HCM lernen?“"
+              text: "{chao} Lớp {level} online gần nhất khai giảng [NGÀY], học tối [THỨ], 18:30–20:00 giờ Việt Nam.\n{Ban} học online được không, hay muốn học tại Hà Nội / TP.HCM ạ?",
+              translation_de: "„Hallo Đức Anh! Der nächste {level}-Online-Kurs startet am [DATUM], abends [TAGE], 18:30–20:00 vietnamesischer Zeit. Passt dir online, oder möchtest du lieber in Hà Nội oder HCM lernen?“"
             }
           ]
         },
@@ -215,32 +250,44 @@ const page: PageContent = {
           goal_de: "Erfahren, welches Zeitfenster passt und welches Niveau Hải Yến hat – dann schicken wir genau einen Kurs.",
           goal_vi: "Biết khung giờ nào hợp và Hải Yến đang ở trình độ nào – rồi gửi đúng một lớp.",
           messages: [
-            { from: "customer", stamp_de: "22:31", stamp_vi: "22:31", text: "Bên m có lớp học vào khung giờ 19h30 - 21h30 ko ad", translation_de: "„Habt ihr einen Kurs von 19:30 bis 21:30?“" },
+            { from: "customer", stamp_de: "22:31", stamp_vi: "22:31", text: "Bên {goi} có lớp học vào khung giờ 19h30 - 21h30 ko ạ", translation_de: "„Habt ihr einen Kurs von 19:30 bis 21:30?“" },
             {
               from: "me",
               stamp_de: "22:32",
               stamp_vi: "22:32",
-              text: "Chào Hải Yến ạ! Đúng 19:30–21:30 thì chưa có, nhưng có các khung gần nhất (giờ Việt Nam):\n• Online: 18:30–20:00 hoặc 20:30–22:00\n• Tại Hà Nội, TP.HCM: 18:00–20:30\nKhung nào hợp với bạn, và bạn đang học đến trình độ nào rồi ạ?",
+              text: "{chao} Đúng 19:30–21:30 thì chưa có, nhưng có các khung gần nhất (giờ Việt Nam):\n• Online: 18:30–20:00 hoặc 20:30–22:00\n• Tại Hà Nội, TP.HCM: 18:00–20:30\nKhung nào hợp với {ban}, và {ban} đang học đến trình độ nào rồi ạ?",
               translation_de: "„Hallo Hải Yến! Genau 19:30–21:30 haben wir nicht, aber diese Zeiten liegen nah dran (vietnamesische Zeit): online 18:30–20:00 oder 20:30–22:00, vor Ort in Hà Nội und HCM 18:00–20:30. Welche passt dir, und bis zu welchem Niveau hast du schon gelernt?“"
             }
           ]
         },
         {
-          tab_de: "Lebt in Deutschland",
-          tab_vi: "Đang ở Đức",
+          tab_de: "Wohnort genannt",
+          tab_vi: "Đã nói nơi ở",
           customer: "Bảo Trâm",
-          note_de: "Wohnort und Niveau stehen schon in der Nachricht. Also gleich alle Zeitfenster nach deutscher Zeit schicken und nur noch eine Wahl lassen.",
-          note_vi: "Nơi ở và trình độ đã có trong tin nhắn. Vì vậy gửi ngay tất cả khung giờ theo giờ Đức và chỉ để khách chọn một.",
-          goal_de: "Bảo Trâm wählt ein Zeitfenster – dann schicken wir den B1-Kurs mit Startdatum.",
-          goal_vi: "Bảo Trâm chọn một khung giờ – rồi gửi lớp B1 kèm ngày khai giảng.",
+          level: "B1",
+          place: "germany",
+          note_de: "Wohnort und Niveau stehen schon in der Nachricht. Also gleich alle Zeitfenster für {city_de} schicken und nur noch eine Wahl lassen.",
+          note_vi: "Nơi ở và trình độ đã có trong tin nhắn. Vì vậy gửi ngay tất cả khung giờ cho {city} và chỉ để khách chọn một.",
+          goal_de: "Bảo Trâm wählt ein Zeitfenster – dann schicken wir den {level}-Kurs mit Startdatum.",
+          goal_vi: "Bảo Trâm chọn một khung giờ – rồi gửi lớp {level} kèm ngày khai giảng.",
           messages: [
-            { from: "customer", stamp_de: "9:12", stamp_vi: "9:12", text: "Mình ở Đức muốn đăng ký một khóa học tiếng Đức b1", translation_de: "„Ich bin in Deutschland und möchte mich für einen B1-Kurs anmelden.“" },
+            { from: "customer", stamp_de: "9:12", stamp_vi: "9:12", text: "{Toi} ở {city} muốn đăng ký một khóa học tiếng Đức {lv}", translation_de: "„Ich bin in {city_de} und möchte mich für einen {level}-Kurs anmelden.“" },
             {
               from: "me",
               stamp_de: "9:13",
               stamp_vi: "9:13",
-              text: "Chào Bảo Trâm ạ! Ở Đức thì bạn học online theo giờ Đức nha, có 3 khung:\n• Sáng 7:00–8:30\n• Chiều 14:30–16:00\n• Tối 21:00–22:30\nKhung nào hợp với bạn ạ?",
-              translation_de: "„Hallo Bảo Trâm! In Deutschland lernst du online nach deutscher Zeit, es gibt drei Zeitfenster: morgens 7:00–8:30, nachmittags 14:30–16:00, abends 21:00–22:30. Welches passt dir?“"
+              text: "{chao} Ở {city} thì {ban} học online qua Zoom nha, có 2 khung tối (giờ Việt Nam):\n• 18:30–20:00\n• 20:30–22:00\nKhung nào hợp với {ban} ạ?",
+              translation_de: "„Hallo Bảo Trâm! In {city_de} lernst du online über Zoom, es gibt zwei Abendzeiten (vietnamesische Zeit): 18:30–20:00 und 20:30–22:00. Welche passt dir?“",
+              places: {
+                city: {
+                  text: "{chao} Ở {city} thì {ban} học được tại lớp hoặc online nha (giờ Việt Nam):\n• Tại lớp: 18:00–20:30\n• Online: 18:30–20:00 hoặc 20:30–22:00\nKhung nào hợp với {ban} ạ?",
+                  translation_de: "„Hallo Bảo Trâm! In {city_de} kannst du vor Ort oder online lernen (vietnamesische Zeit): vor Ort 18:00–20:30, online 18:30–20:00 oder 20:30–22:00. Welche Zeit passt dir?“"
+                },
+                germany: {
+                  text: "{chao} Ở Đức thì {ban} học online theo giờ Đức nha, có 3 khung:\n• Sáng 7:00–8:30\n• Chiều 14:30–16:00\n• Tối 21:00–22:30\nKhung nào hợp với {ban} ạ?",
+                  translation_de: "„Hallo Bảo Trâm! In Deutschland lernst du online nach deutscher Zeit, es gibt drei Zeitfenster: morgens 7:00–8:30, nachmittags 14:30–16:00, abends 21:00–22:30. Welches passt dir?“"
+                }
+              }
             }
           ]
         },
@@ -253,12 +300,12 @@ const page: PageContent = {
           goal_de: "Erfahren, wo Tuấn Kiệt wohnt – dann schicken wir einen A1-Kurs online oder in Hà Nội / HCM.",
           goal_vi: "Biết Tuấn Kiệt sống ở đâu – rồi gửi lớp A1 online hoặc tại Hà Nội / TP.HCM.",
           messages: [
-            { from: "customer", stamp_de: "19:48", stamp_vi: "19:48", text: "Hi. Mình cần tư vấn học tiếng Đức cho người mới bắt đầu", translation_de: "„Hi. Ich brauche eine Beratung zu Deutschkursen für Anfänger.“" },
+            { from: "customer", stamp_de: "19:48", stamp_vi: "19:48", text: "Hi. {Toi} cần tư vấn học tiếng Đức cho người mới bắt đầu", translation_de: "„Hi. Ich brauche eine Beratung zu Deutschkursen für Anfänger.“" },
             {
               from: "me",
               stamp_de: "19:49",
               stamp_vi: "19:49",
-              text: "Chào Tuấn Kiệt ạ! Người mới bắt đầu thì học từ A1 nha bạn: online 40 buổi, mỗi buổi 1,5 tiếng, khoảng 2,5–3 tháng. Giáo trình do NaNu NaNa tự biên soạn.\nBạn đang sống ở đâu ạ? Mình gửi lớp A1 online hoặc tại Hà Nội / TP.HCM phù hợp nha.",
+              text: "{chao} Người mới bắt đầu thì học từ A1 nha {ban}: online 40 buổi, mỗi buổi 1,5 tiếng, khoảng 2,5–3 tháng. Giáo trình do NaNu NaNa tự biên soạn.\n{Ban} đang sống ở đâu ạ? {Minh} gửi lớp A1 online hoặc tại Hà Nội / TP.HCM phù hợp nha.",
               translation_de: "„Hallo Tuấn Kiệt! Als Anfänger startest du mit A1: online 40 Termine à 1,5 Stunden, etwa 2,5–3 Monate. Das Lehrmaterial hat NaNu NaNa selbst geschrieben. Wo wohnst du? Dann schicke ich dir einen passenden A1-Kurs online oder in Hà Nội / HCM.“"
             }
           ]
@@ -267,18 +314,19 @@ const page: PageContent = {
           tab_de: "Prüfung",
           tab_vi: "Luyện thi",
           customer: "Khánh Linh",
+          level: "B1",
           note_de: "Bei Prüfungsvorbereitung entscheidet der Prüfungstermin, nicht nur der Wohnort. Deshalb fragen wir hier nach Niveau und Prüfungsmonat.",
           note_vi: "Với luyện thi, ngày thi mới là điều quyết định, không chỉ nơi ở. Vì vậy ở đây mình hỏi trình độ và tháng thi.",
-          goal_de: "Erfahren, ob Khánh Linh B1 schon abgeschlossen hat und wann sie die Prüfung schreibt – dann bieten wir den B1-Kurs oder die 1:1-Vorbereitung an.",
-          goal_vi: "Biết Khánh Linh đã học xong B1 chưa và khi nào thi – rồi giới thiệu lớp B1 hoặc ôn thi 1 kèm 1.",
+          goal_de: "Erfahren, ob Khánh Linh {level} schon abgeschlossen hat und wann sie die Prüfung schreibt – dann bieten wir den {level}-Kurs oder die 1:1-Vorbereitung an.",
+          goal_vi: "Biết Khánh Linh đã học xong {level} chưa và khi nào thi – rồi giới thiệu lớp {level} hoặc ôn thi 1 kèm 1.",
           messages: [
-            { from: "customer", stamp_de: "16:20", stamp_vi: "16:20", text: "Mình muốn học đề thi lấy bằng B1 bạn ạ", translation_de: "„Ich möchte mich auf die B1-Prüfung vorbereiten.“" },
+            { from: "customer", stamp_de: "16:20", stamp_vi: "16:20", text: "{Toi} muốn học đề thi lấy bằng {level} {goi} ạ", translation_de: "„Ich möchte mich auf die {level}-Prüfung vorbereiten.“" },
             {
               from: "me",
               stamp_de: "16:21",
               stamp_vi: "16:21",
-              text: "Chào Khánh Linh ạ! Bên mình có ôn thi B1 (telc) nha bạn, học 1 kèm 1 với giáo viên, 2–3 buổi/tuần.\nBạn đã học xong B1 chưa, và dự định thi tháng mấy ạ?",
-              translation_de: "„Hallo Khánh Linh! Wir haben B1-Prüfungsvorbereitung (telc), 1:1 mit einer Lehrkraft, 2–3 Termine pro Woche. Hast du B1 schon abgeschlossen, und in welchem Monat möchtest du die Prüfung schreiben?“"
+              text: "{chao} {Benminh} có ôn thi {level} (telc) nha {ban}, học 1 kèm 1 với giáo viên, 2–3 buổi/tuần.\n{Ban} đã học xong {level} chưa, và dự định thi tháng mấy ạ?",
+              translation_de: "„Hallo Khánh Linh! Wir haben {level}-Prüfungsvorbereitung (telc), 1:1 mit einer Lehrkraft, 2–3 Termine pro Woche. Hast du {level} schon abgeschlossen, und in welchem Monat möchtest du die Prüfung schreiben?“"
             }
           ]
         },
@@ -291,13 +339,13 @@ const page: PageContent = {
           goal_de: "Wohnort und Niveau erfahren – dann zeigen wir einen Gruppenkurs zu ihrer Uhrzeit und 1:1 nur als Ausweichlösung.",
           goal_vi: "Biết nơi ở và trình độ – rồi giới thiệu lớp nhóm hợp giờ, còn 1 kèm 1 chỉ là phương án dự phòng.",
           messages: [
-            { from: "customer", stamp_de: "10:05", stamp_vi: "10:05", text: "Chị muốn học tiếng Đức 1/1", translation_de: "„Ich möchte Deutsch im Einzelunterricht lernen.“" },
+            { from: "customer", stamp_de: "10:05", stamp_vi: "10:05", text: "{Toi} muốn học tiếng Đức 1/1", translation_de: "„Ich möchte Deutsch im Einzelunterricht lernen.“" },
             {
               from: "me",
               stamp_de: "10:06",
               stamp_vi: "10:06",
-              text: "Dạ chào chị Mai Hương ạ! Bên em có học 1 kèm 1 khi lớp nhóm không hợp giờ chị. Nhưng thật lòng em khuyên chị học nhóm nhỏ online (5–9 người): có bạn học cùng thì dễ giữ động lực hơn.\nChị đang ở Việt Nam hay ở Đức, và đã học tiếng Đức chưa ạ?",
-              translation_de: "„Hallo Mai Hương! Einzelunterricht bieten wir an, wenn kein Gruppenkurs zu deiner Zeit passt. Ehrlich gesagt empfehle ich dir aber eine kleine Online-Gruppe (5–9 Personen): Mit anderen zusammen bleibt man leichter motiviert. Bist du in Vietnam oder in Deutschland, und hast du schon Deutsch gelernt?“"
+              text: "{chao} {Benminh} có học 1 kèm 1 khi lớp nhóm không hợp giờ {ban}. Nhưng thật lòng {minh} khuyên {ban} học nhóm nhỏ online (5–10 người): có bạn học cùng thì dễ giữ động lực hơn.\n{Ban} đang ở Việt Nam hay ở Đức, và đã học tiếng Đức chưa ạ?",
+              translation_de: "„Hallo Mai Hương! Einzelunterricht bieten wir an, wenn kein Gruppenkurs zu deiner Zeit passt. Ehrlich gesagt empfehle ich dir aber eine kleine Online-Gruppe (5–10 Personen): Mit anderen zusammen bleibt man leichter motiviert. Bist du in Vietnam oder in Deutschland, und hast du schon Deutsch gelernt?“"
             }
           ]
         },
@@ -310,12 +358,12 @@ const page: PageContent = {
           goal_de: "Erfahren, welches Niveau Gia Bảo hat – dann schicken wir den passenden normalen Kurs.",
           goal_vi: "Biết Gia Bảo đang ở trình độ nào – rồi gửi lớp thường phù hợp.",
           messages: [
-            { from: "customer", stamp_de: "14:37", stamp_vi: "14:37", text: "bên mk có khóa dạy về giao tiếp trong nhà hàng khách sạn ko ạ", translation_de: "„Habt ihr einen Kurs für Kommunikation im Restaurant und Hotel?“" },
+            { from: "customer", stamp_de: "14:37", stamp_vi: "14:37", text: "bên {goi} có khóa dạy về giao tiếp trong nhà hàng khách sạn ko ạ", translation_de: "„Habt ihr einen Kurs für Kommunikation im Restaurant und Hotel?“" },
             {
               from: "me",
               stamp_de: "14:38",
               stamp_vi: "14:38",
-              text: "Chào Gia Bảo ạ! Hiện bên mình chưa có khóa riêng cho nhà hàng – khách sạn. Lớp A1–B1 luyện đủ 4 kỹ năng và buổi nào cũng luyện nói, nên giao tiếp hằng ngày ở nơi làm việc bạn sẽ dùng được.\nBạn đã học tiếng Đức đến trình độ nào rồi ạ?",
+              text: "{chao} Hiện {benminh} chưa có khóa riêng cho nhà hàng – khách sạn. Lớp A1–B1 luyện đủ 4 kỹ năng và buổi nào cũng luyện nói, nên giao tiếp hằng ngày ở nơi làm việc {ban} sẽ dùng được.\n{Ban} đã học tiếng Đức đến trình độ nào rồi ạ?",
               translation_de: "„Hallo Gia Bảo! Einen eigenen Kurs für Restaurant und Hotel haben wir zurzeit nicht. Die Kurse A1–B1 trainieren alle vier Fertigkeiten, und in jeder Einheit wird gesprochen – das hilft dir auch bei der Arbeit. Bis zu welchem Niveau hast du schon Deutsch gelernt?“"
             }
           ]
@@ -334,8 +382,8 @@ const page: PageContent = {
               from: "me",
               stamp_de: "20:51",
               stamp_vi: "20:51",
-              text: "Chào Thảo Vy ạ! Lớp online có 5–9 bạn, lớp tại Hà Nội và TP.HCM có 8–15 bạn. Mỗi lớp có 1–2 giáo viên cố định từ đầu đến cuối khoá.\nBạn định học online hay tại lớp, và đang ở trình độ nào ạ?",
-              translation_de: "„Hallo Thảo Vy! Online sind 5–9 Personen in einer Klasse, vor Ort in Hà Nội und HCM 8–15. Jede Klasse hat 1–2 feste Lehrkräfte vom Anfang bis zum Ende. Möchtest du online oder vor Ort lernen, und welches Niveau hast du?“"
+              text: "{chao} Lớp online có 5–10 học viên, lớp tại Hà Nội và TP.HCM có 8–15 học viên. Mỗi lớp có 1–2 giáo viên cố định từ đầu đến cuối khoá.\n{Ban} định học online hay tại lớp, và đang ở trình độ nào ạ?",
+              translation_de: "„Hallo Thảo Vy! Online sind 5–10 Personen in einer Klasse, vor Ort in Hà Nội und HCM 8–15. Jede Klasse hat 1–2 feste Lehrkräfte vom Anfang bis zum Ende. Möchtest du online oder vor Ort lernen, und welches Niveau hast du?“"
             }
           ]
         },
@@ -348,12 +396,12 @@ const page: PageContent = {
           goal_de: "Erfahren, ob Hoàng Nam einen Sprachkurs oder Ausbildung in Deutschland sucht – dann geht es mit Wohnort und Niveau weiter.",
           goal_vi: "Biết Hoàng Nam cần lớp tiếng hay du học nghề – rồi hỏi tiếp nơi ở và trình độ.",
           messages: [
-            { from: "customer", stamp_de: "23:10", stamp_vi: "23:10", text: "cô ơii tư vấn cho e với ạ", translation_de: "„Können Sie mich bitte beraten?“" },
+            { from: "customer", stamp_de: "23:10", stamp_vi: "23:10", text: "{goi} ơii tư vấn cho {toi} với ạ", translation_de: "„Kannst du mich bitte beraten?“" },
             {
               from: "me",
               stamp_de: "23:11",
               stamp_vi: "23:11",
-              text: "Chào Hoàng Nam ạ! Mình tư vấn cho bạn ngay nha.\nBạn đang quan tâm học tiếng Đức hay chương trình du học nghề Đức ạ?",
+              text: "{chao} {Minh} tư vấn cho {ban} ngay nha.\n{Ban} đang quan tâm học tiếng Đức hay chương trình du học nghề Đức ạ?",
               translation_de: "„Hallo Hoàng Nam! Ich berate dich gern. Interessierst du dich für einen Deutschkurs oder für die Ausbildung in Deutschland?“"
             }
           ]
@@ -437,6 +485,8 @@ const page: PageContent = {
     {
       type: "conversation",
       customer: "Minh Anh",
+      level: "A2",
+      place: "hanoi",
       note_de: "Nur Wohnort und Niveau. Als Minh Anh nicht antwortet, schreiben wir am nächsten Tag einmal freundlich nach.",
       note_vi: "Chỉ hỏi nơi ở và trình độ. Khi Minh Anh chưa trả lời, hôm sau mình nhắn lại một lần thật nhẹ nhàng.",
       messages: [
@@ -444,22 +494,25 @@ const page: PageContent = {
           from: "me",
           stamp_de: "20:15",
           stamp_vi: "20:15",
-          text: "Để mình gửi lớp phù hợp, bạn cho mình hỏi 2 điều nha:\n1. Bạn đang sống ở đâu?\n2. Bạn học tiếng Đức đến trình độ nào rồi?",
+          text: "{da}để {minh} gửi lớp phù hợp, {ban} cho {minh} hỏi 2 điều nha:\n1. {Ban} đang sống ở đâu?\n2. {Ban} học tiếng Đức đến trình độ nào rồi?",
           translation_de: "„Damit ich dir passende Kurse schicken kann, zwei kurze Fragen: 1. Wo wohnst du? 2. Bis zu welchem Niveau hast du schon Deutsch gelernt?“"
         },
         {
           from: "me",
           stamp_de: "Am nächsten Tag · 19:30",
           stamp_vi: "Hôm sau · 19:30",
-          text: "Minh Anh ơi, bạn cho mình biết nơi ở và trình độ để mình gửi lịch lớp phù hợp nha 😊",
+          text: "{da}{ten} ơi, {ban} cho {minh} biết nơi ở và trình độ để {minh} gửi lịch lớp phù hợp nha 😊",
           translation_de: "„Minh Anh, sag mir kurz Wohnort und Niveau, dann schicke ich dir die passenden Kurse 😊“"
         },
         {
           from: "customer",
           stamp_de: "19:42",
           stamp_vi: "19:42",
-          text: "Dạ mình ở Hà Nội, mới học xong A1 ạ",
-          translation_de: "„Ich wohne in Hà Nội und habe gerade A1 abgeschlossen.“"
+          text: "{Toi} ở {city}, mới học xong {prev} ạ",
+          translation_de: "„Ich wohne in {city_de} und habe gerade {prev} abgeschlossen.“",
+          levels: {
+            A1: { text: "{Toi} ở {city}, chưa học tiếng Đức bao giờ ạ", translation_de: "„Ich wohne in {city_de} und habe noch nie Deutsch gelernt.“" }
+          }
         }
       ]
     },
@@ -482,6 +535,8 @@ const page: PageContent = {
     {
       type: "conversation",
       customer: "Minh Anh",
+      level: "A2",
+      place: "hanoi",
       note_de: "Nur Kurse, die zu Wohnort und Niveau passen – zwei Optionen, die beide ein „Ja“ sein können.",
       note_vi: "Chỉ gửi lớp phù hợp với nơi ở và trình độ – hai lựa chọn, cả hai đều có thể là „có“.",
       messages: [
@@ -489,12 +544,28 @@ const page: PageContent = {
           from: "me",
           stamp_de: "19:43",
           stamp_vi: "19:43",
-          text: "Cảm ơn bạn! Học xong A1 thì bạn học tiếp A2 nha. Ở Hà Nội đang có 2 lớp A2 phù hợp:\n• Lớp tối 2-4-6, 18:30–20:30, khai giảng 10/11\n• Lớp cuối tuần T7–CN, 9:00–11:30, khai giảng 15/11",
-          translation_de: "„Danke! Nach A1 geht es mit A2 weiter. In Hà Nội gibt es zwei passende A2-Kurse: Abendkurs Mo-Mi-Fr, 18:30–20:30, Start 10.11. · Wochenendkurs Sa–So, 9:00–11:30, Start 15.11.“"
+          text: "{da}{minh} cảm ơn {ban}! Học xong {prev} thì {ban} học tiếp {level} nha. Ở {city} {ban} học online, đang có 2 lớp {level} phù hợp (giờ Việt Nam):\n• Lớp tối 2-4-6, 18:30–20:00, khai giảng 10/11\n• Lớp tối 3-5-7, 20:30–22:00, khai giảng 15/11",
+          translation_de: "„Danke! Nach {prev} geht es mit {level} weiter. In {city_de} lernst du online, es gibt zwei passende {level}-Kurse (vietnamesische Zeit): Abendkurs Mo-Mi-Fr, 18:30–20:00, Start 10.11. · Abendkurs Di-Do-Sa, 20:30–22:00, Start 15.11.“",
+          levels: {
+            A1: {
+              text: "{da}{minh} cảm ơn {ban}! Mới bắt đầu thì {ban} học từ A1 nha. Ở {city} {ban} học online, đang có 2 lớp A1 phù hợp (giờ Việt Nam):\n• Lớp tối 2-4-6, 18:30–20:00, khai giảng 10/11\n• Lớp tối 3-5-7, 20:30–22:00, khai giảng 15/11",
+              translation_de: "„Danke! Als Anfänger startest du mit A1. In {city_de} lernst du online, es gibt zwei passende A1-Kurse (vietnamesische Zeit): Abendkurs Mo-Mi-Fr, 18:30–20:00, Start 10.11. · Abendkurs Di-Do-Sa, 20:30–22:00, Start 15.11.“"
+            }
+          },
+          places: {
+            city: {
+              text: "{da}{minh} cảm ơn {ban}! Học xong {prev} thì {ban} học tiếp {level} nha. Ở {city} đang có 2 lớp {level} phù hợp:\n• Lớp tối 2-4-6, 18:30–20:30, khai giảng 10/11\n• Lớp cuối tuần T7–CN, 9:00–11:30, khai giảng 15/11",
+              translation_de: "„Danke! Nach {prev} geht es mit {level} weiter. In {city_de} gibt es zwei passende {level}-Kurse: Abendkurs Mo-Mi-Fr, 18:30–20:30, Start 10.11. · Wochenendkurs Sa–So, 9:00–11:30, Start 15.11.“"
+            },
+            germany: {
+              text: "{da}{minh} cảm ơn {ban}! Học xong {prev} thì {ban} học tiếp {level} nha. Ở Đức {ban} học online, đang có 2 lớp {level} phù hợp (giờ Đức):\n• Lớp tối 2-4-6, 21:00–22:30, khai giảng 10/11\n• Lớp chiều 3-5-7, 14:30–16:00, khai giảng 15/11",
+              translation_de: "„Danke! Nach {prev} geht es mit {level} weiter. In Deutschland lernst du online, es gibt zwei passende {level}-Kurse (deutsche Zeit): Abendkurs Mo-Mi-Fr, 21:00–22:30, Start 10.11. · Nachmittagskurs Di-Do-Sa, 14:30–16:00, Start 15.11.“"
+            }
+          }
         },
         {
           from: "customer",
-          text: "Lớp tối 2-4-6 hợp với mình á. Học phí bao nhiêu vậy ad?",
+          text: "Lớp tối 2-4-6 hợp với {toi} á. Học phí bao nhiêu vậy {goi}?",
           translation_de: "„Der Abendkurs Mo-Mi-Fr passt mir. Wie viel kostet er?“"
         }
       ]
@@ -559,6 +630,8 @@ const page: PageContent = {
     {
       type: "conversation",
       customer: "Minh Anh",
+      level: "A2",
+      place: "hanoi",
       note_de: "Leistungen vor dem Preis, die Abschlussfrage direkt im Angebot, Reservierung und Zahlung gleich miterklärt – und am nächsten Tag ein Nachfassen mit etwas Neuem (freie Plätze).",
       note_vi: "Quyền lợi trước giá, hỏi chốt ngay trong tin báo giá, nói luôn cách giữ chỗ và thanh toán – và hôm sau nhắn lại với điều mới (số chỗ còn trống).",
       messages: [
@@ -566,31 +639,37 @@ const page: PageContent = {
           from: "me",
           stamp_de: "19:44",
           stamp_vi: "19:44",
-          text: "Lớp A2 tối 2-4-6 học cùng một giáo viên từ A2 lên B1, có app NaNu Go học miễn phí đi kèm. Học phí: [HỌC PHÍ] cho 42 buổi.",
-          translation_de: "„Im A2-Abendkurs Mo-Mi-Fr lernst du mit derselben Lehrkraft von A2 bis B1, inklusive kostenloser App NaNu Go. Preis: [PREIS] für 42 Einheiten.“"
+          text: "{da}lớp {level} tối 2-4-6 học cùng một giáo viên từ {level} lên {next}, có app NaNu Go học miễn phí đi kèm. Học phí: {fee} cho {sessions} buổi.",
+          translation_de: "„Im {level}-Abendkurs Mo-Mi-Fr lernst du mit derselben Lehrkraft von {level} bis {next}, inklusive kostenloser App NaNu Go. Preis: {fee} für {sessions} Einheiten.“",
+          places: {
+            germany: {
+              text: "{da}lớp {level} tối 2-4-6 học cùng một giáo viên từ {level} lên {next}, có app NaNu Go học miễn phí đi kèm. Học phí: {fee_eur} ({fee}) cho {sessions} buổi.",
+              translation_de: "„Im {level}-Abendkurs Mo-Mi-Fr lernst du mit derselben Lehrkraft von {level} bis {next}, inklusive kostenloser App NaNu Go. Preis: {fee_eur} ({fee}) für {sessions} Einheiten.“"
+            }
+          }
         },
         {
           from: "me",
-          text: "Mình giữ chỗ cho bạn lớp tối 2-4-6 khai giảng 10/11 nha? Bạn chỉ cần chuyển khoản theo thông tin dưới đây, mình giữ chỗ ngay và gửi xác nhận trong chat này:\n[THÔNG TIN CHUYỂN KHOẢN]",
+          text: "{da}{minh} giữ chỗ cho {ban} lớp tối 2-4-6 khai giảng 10/11 nha? {Ban} chỉ cần chuyển khoản theo thông tin dưới đây, {minh} giữ chỗ ngay và gửi xác nhận trong chat này:\n[THÔNG TIN CHUYỂN KHOẢN]",
           translation_de: "„Soll ich dir einen Platz im Abendkurs Mo-Mi-Fr ab 10.11. reservieren? Du überweist einfach an die Daten unten, ich reserviere sofort und bestätige hier im Chat.“"
         },
         {
           from: "me",
           stamp_de: "Am nächsten Tag · 18:00",
           stamp_vi: "Hôm sau · 18:00",
-          text: "Minh Anh ơi, lớp tối 2-4-6 chỉ còn 3 chỗ thôi nè. Mình giữ 1 chỗ cho bạn nha?",
+          text: "{da}{ten} ơi, lớp tối 2-4-6 chỉ còn 3 chỗ thôi nè. {Minh} giữ 1 chỗ cho {ban} nha?",
           translation_de: "„Minh Anh, im Abendkurs Mo-Mi-Fr sind nur noch 3 Plätze frei. Soll ich dir einen reservieren?“"
         },
         {
           from: "customer",
           stamp_de: "18:20",
           stamp_vi: "18:20",
-          text: "Dạ ok ad, mình chuyển khoản liền nha",
+          text: "Ok {goi}, {toi} chuyển khoản liền nha",
           translation_de: "„Okay, ich überweise gleich.“"
         },
         {
           from: "me",
-          text: "Cảm ơn Minh Anh! Mình đã giữ chỗ cho bạn rồi. Chút nữa bạn sẽ nhận email để bắt đầu học nha 🎉",
+          text: "{da}{minh} cảm ơn {ten}! {Minh} đã giữ chỗ cho {ban} rồi. Chút nữa {ban} sẽ nhận email để bắt đầu học nha 🎉",
           translation_de: "„Danke, Minh Anh! Dein Platz ist reserviert. Gleich bekommst du eine E-Mail, damit du sofort loslegen kannst 🎉“"
         }
       ]
