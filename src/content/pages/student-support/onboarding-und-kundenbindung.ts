@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Bắt đầu học & giữ chân học viên",
   kind: "process",
   section: "handbook",
-  verified_until: "2027-01-25",
+  verified_until: null,
   updated_at: "2026-10-27",
   body: [
     {

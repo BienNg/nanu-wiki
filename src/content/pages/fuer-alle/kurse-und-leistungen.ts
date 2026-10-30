@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Khóa học & dịch vụ",
   kind: "reference",
   section: "general",
-  verified_until: "2027-01-25",
+  verified_until: null,
   updated_at: "2026-10-27",
   body: [
     {

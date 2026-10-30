@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Câu chuyện & giá trị của chúng ta",
   kind: "decision",
   section: "general",
-  verified_until: "2027-02-24",
+  verified_until: null,
   updated_at: "2026-10-27",
   body: [
     {

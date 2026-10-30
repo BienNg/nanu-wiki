@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Học phí & định vị",
   kind: "decision",
   section: "general",
-  verified_until: "2026-12-26",
+  verified_until: null,
   updated_at: "2026-10-27",
   body: [
     {

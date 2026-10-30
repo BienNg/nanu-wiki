@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Phễu bán hàng: từ liên hệ đầu tiên đến khi đóng tiền",
   kind: "process",
   section: "handbook",
-  verified_until: "2027-01-25",
+  verified_until: null,
   updated_at: "2026-10-28",
   body: [
     {

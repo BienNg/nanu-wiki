@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Ưu đãi tháng 10/2026",
   kind: "living",
   section: "handbook",
-  verified_until: "2026-10-31",
+  verified_until: null,
   updated_at: "2026-10-27",
   body: [
     {

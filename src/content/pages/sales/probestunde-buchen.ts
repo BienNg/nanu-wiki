@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Đặt lịch học thử",
   kind: "process",
   section: "handbook",
-  verified_until: "2026-12-06",
+  verified_until: null,
   updated_at: "2026-10-27",
   body: [
     {

@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Trả lời tin nhắn đầu tiên qua Messenger",
   kind: "process",
   section: "handbook",
-  verified_until: "2027-01-15",
+  verified_until: null,
   updated_at: "2026-10-28",
   body: [
     {
