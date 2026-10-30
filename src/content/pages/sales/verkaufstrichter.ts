@@ -266,27 +266,21 @@ const page: PageContent = {
           customer: "Bảo Trâm",
           level: "B1",
           place: "germany",
-          note_de: "Wohnort und Niveau stehen schon in der Nachricht. Also gleich alle Zeitfenster für {city_de} schicken und nur noch eine Wahl lassen.",
-          note_vi: "Nơi ở và trình độ đã có trong tin nhắn. Vì vậy gửi ngay tất cả khung giờ cho {city} và chỉ để khách chọn một.",
-          goal_de: "Bảo Trâm wählt ein Zeitfenster – dann schicken wir den {level}-Kurs mit Startdatum.",
-          goal_vi: "Bảo Trâm chọn một khung giờ – rồi gửi lớp {level} kèm ngày khai giảng.",
+          note_de: "Wohnort und Niveau stehen schon in der Nachricht. Also gleich die passenden Kurse für {city_de} mit Startdatum und Bild schicken und nur noch eine Wahl lassen.",
+          note_vi: "Nơi ở và trình độ đã có trong tin nhắn. Vì vậy gửi ngay các lớp phù hợp ở {city} kèm ngày khai giảng và hình, chỉ để khách chọn một.",
+          goal_de: "Bảo Trâm wählt einen Kurs – dann reservieren wir den Platz und schicken die Anmeldung.",
+          goal_vi: "Bảo Trâm chọn một lớp – rồi giữ chỗ và gửi thông tin đăng ký.",
           messages: [
             { from: "customer", stamp_de: "9:12", stamp_vi: "9:12", text: "{Toi} ở {city} muốn đăng ký một khóa học tiếng Đức {lv}", translation_de: "„Ich bin in {city_de} und möchte mich für einen {level}-Kurs anmelden.“" },
             {
               from: "me",
               stamp_de: "9:13",
               stamp_vi: "9:13",
-              text: "{chao} Ở {city} thì {ban} học online qua Zoom nha, có 2 khung tối (giờ Việt Nam):\n• 18:30–20:00\n• 20:30–22:00\nKhung nào hợp với {ban} ạ?",
-              translation_de: "„Hallo! In {city_de} lernst du online über Zoom, es gibt zwei Abendzeiten (vietnamesische Zeit): 18:30–20:00 und 20:30–22:00. Welche passt dir?“",
-              places: {
-                city: {
-                  text: "{chao} Ở {city} thì {ban} học được tại lớp hoặc online nha (giờ Việt Nam):\n• Tại lớp: 18:00–20:30\n• Online: 18:30–20:00 hoặc 20:30–22:00\nKhung nào hợp với {ban} ạ?",
-                  translation_de: "„Hallo! In {city_de} kannst du vor Ort oder online lernen (vietnamesische Zeit): vor Ort 18:00–20:30, online 18:30–20:00 oder 20:30–22:00. Welche Zeit passt dir?“"
-                },
-                germany: {
-                  text: "{chao} Ở Đức thì {ban} học online theo giờ Đức nha, có 3 khung:\n• Sáng 7:00–8:30\n• Chiều 14:30–16:00\n• Tối 21:00–22:30\nKhung nào hợp với {ban} ạ?",
-                  translation_de: "„Hallo! In Deutschland lernst du online nach deutscher Zeit, es gibt drei Zeitfenster: morgens 7:00–8:30, nachmittags 14:30–16:00, abends 21:00–22:30. Welches passt dir?“"
-                }
+              text: "{chao} Ở {city} thì {benminh} có các lớp {level} sắp khai giảng:\n{classes}\n{Minh} gửi kèm hình từng lớp nha. Lớp nào hợp với {ban} ạ?",
+              translation_de: "„Hallo! Für dich in {city_de} starten bald diese {level}-Kurse: {classes}. Ich schicke dir zu jedem Kurs das Bild mit. Welcher passt dir?“",
+              classes: {
+                line: "• {kurs} {art}, {zeit}, khai giảng {start}",
+                line_de: "{kurs} {art} um {zeit}, Start am {start}"
               }
             }
           ]

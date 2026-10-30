@@ -18,6 +18,8 @@ import {
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { ImageModal, copyImageToClipboard } from "./ImageModal";
+import { ClassPicker, useUpcomingClasses } from "./ClassPicker";
+import { fits, withClasses } from "@/lib/classes";
 
 type Note = { at: number; de: string; vi?: string | null };
 type Box = { x: number; y: number; w: number; h: number };
@@ -36,6 +38,10 @@ const MAX_W = 250;
  *  Selectors above the messages switch how we address the customer (bạn, em, chị …), and – where the text
  *  depends on them – the course level and where the customer lives. Our messages have a copy button. */
 export function MessengerMockup({ block }: { block: Conversation }) {
+  return block.messages.some((m) => m.classes) ? <ClassesMockup block={block} /> : <PlainMockup block={block} />;
+}
+
+function PlainMockup({ block }: { block: Conversation }) {
   const [sel, setSel] = useState<Selection>(() => defaultSelection(block));
   const shown = useMemo(() => selectorsFor(block), [block]);
   const resolved = useMemo(() => resolveConversation(block, sel), [block, sel]);
@@ -45,6 +51,36 @@ export function MessengerMockup({ block }: { block: Conversation }) {
       sel={sel}
       shown={shown}
       toolbar={<Selectors sel={sel} shown={shown} onChange={(next) => setSel({ ...sel, ...next })} />}
+    />
+  );
+}
+
+/** A Messenger example whose reply is built from upcoming classes in Notion: the classes that fit the chosen level and
+ *  place are ticked whenever those change, and staff can tick or untick any class. */
+function ClassesMockup({ block }: { block: Conversation }) {
+  const [sel, setSel] = useState<Selection>(() => defaultSelection(block));
+  const shown = useMemo(() => selectorsFor(block), [block]);
+  const state = useUpcomingClasses();
+  const classes = useMemo(() => (state && "classes" in state ? state.classes : []), [state]);
+  const [picked, setPicked] = useState<string[]>([]);
+  useEffect(() => {
+    setPicked(classes.filter((c) => fits(c, sel.level, sel.place)).map((c) => c.id));
+  }, [classes, sel.level, sel.place]);
+  const resolved = useMemo(
+    () => resolveConversation(withClasses(block, classes.filter((c) => picked.includes(c.id))), sel),
+    [block, classes, picked, sel],
+  );
+  return (
+    <ChatView
+      block={resolved}
+      sel={sel}
+      shown={shown}
+      toolbar={
+        <>
+          <Selectors sel={sel} shown={shown} onChange={(next) => setSel({ ...sel, ...next })} />
+          <ClassPicker state={state} sel={sel} picked={picked} onChange={setPicked} />
+        </>
+      }
     />
   );
 }

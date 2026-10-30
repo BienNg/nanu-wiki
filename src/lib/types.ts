@@ -1,3 +1,5 @@
+import type { ClassList } from "@/lib/classes";
+
 export type AppRole = "pending" | "candidate" | "staff" | "editor" | "admin";
 export type KnowledgeKind = "reference" | "process" | "decision" | "living";
 export type PageSection = "general" | "interview" | "onboarding" | "handbook";
@@ -70,6 +72,9 @@ export type ConversationMessage = {
   note_de?: string;
   note_vi?: string;
   image?: { src: string; alt_de: string; alt_vi: string };
+  /** Builds the message from upcoming classes in Notion that staff tick: `{classes}` in `text`/`translation_de` becomes one
+   *  `line` per class, and each class's marketing image follows as its own bubble (see `src/lib/classes.ts`). */
+  classes?: ClassList;
   /** Replacements for a chosen level or place (see `src/lib/dialogue.ts`); "city" covers Sài Gòn and Hà Nội. */
   levels?: Partial<Record<Level, MessageOverride>>;
   places?: Partial<Record<Place | "city", MessageOverride>>;
