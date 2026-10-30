@@ -169,6 +169,7 @@ export type CommentAnchor = {
   prefix?: string;  // up to 32 characters before them …
   suffix?: string;  // … and after them, to find the right spot again
   context?: string; // the block's text when the comment was written (shown in the inbox)
+  tab?: string;     // the tab it was written on, in a block with tabs (its `tab_de`)
 } | null;
 
 /** One row of page_comments. */

@@ -9,7 +9,7 @@ import type { PageComment } from "@/lib/types";
 import { Label } from "./Bi";
 import { Icon } from "./Icon";
 import { CommentActions } from "./admin/CommentActions";
-import { caretAt, rangeForAnchor } from "./commentDom";
+import { caretAt, rangeForAnchor, revealAnchor } from "./commentDom";
 
 /** `anchor.block` is already the block's key on the current page (see resolveAnchor); `detached` = its spot is gone. */
 export type PanelComment = Pick<PageComment, "id" | "anchor" | "tag" | "body" | "status" | "resolution_note" | "created_at"> & {
@@ -129,8 +129,10 @@ export function CommentView({
     place();
     const ro = new ResizeObserver(place);
     ro.observe(el);
+    el.addEventListener("comment-content", place);
     return () => {
       ro.disconnect();
+      el.removeEventListener("comment-content", place);
       highlights()?.delete("comments");
       highlights()?.delete("comments-done");
       setPlaced(EMPTY);
@@ -213,7 +215,13 @@ export function CommentView({
     if (!c.anchor || placed.detached.has(c.id)) return;
     const block = root.current?.querySelector<HTMLElement>(`[data-block="${CSS.escape(c.anchor.block)}"]`);
     if (!block) return;
-    const range = placed.ranges.get(c.id);
+    // On another tab: switch to it first, and look for the words once it has rendered.
+    if (revealAnchor(block, c.anchor)) return void setTimeout(() => scrollToSpot(c, block), 80);
+    scrollToSpot(c, block);
+  }
+
+  function scrollToSpot(c: PanelComment, block: HTMLElement) {
+    const range = c.anchor?.exact ? (rangeForAnchor(block, c.anchor) ?? undefined) : undefined;
     const target = range ?? block;
 
     const r = target.getBoundingClientRect();
@@ -260,6 +268,9 @@ export function CommentView({
           data-comment-ui
           onClick={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
+            const first = list.find((c) => c.id === g.ids[0]);
+            const block = root.current?.querySelector<HTMLElement>(`[data-block="${CSS.escape(g.block)}"]`);
+            if (first?.anchor && block) revealAnchor(block, first.anchor);
             showTip(g.ids, { top: r.top, left: r.left - 320 + r.width, width: r.width, height: r.height });
             focusCard(g.ids[0]);
           }}

@@ -5,7 +5,7 @@ import { addComment } from "@/app/actions";
 import { COMMENT_TAGS } from "@/lib/comments";
 import type { CommentAnchor, CommentTag } from "@/lib/types";
 import { Label } from "./Bi";
-import { anchorFromRange, rangeForAnchor } from "./commentDom";
+import { anchorFromRange, rangeForAnchor, revealAnchor } from "./commentDom";
 import { CommentView, type PanelComment } from "./CommentView";
 
 export type { PanelComment };
@@ -80,11 +80,16 @@ export function CommentLayer({
     if (!block) return;
     block.scrollIntoView({ block: "center" });
     block.classList.add("comment-flash");
-    const range = rangeForAnchor(block, focus);
     const highlights = typeof CSS !== "undefined" && "highlights" in CSS ? CSS.highlights : null;
-    if (range && highlights) highlights.set("comment-focus", new Highlight(range));
+    // On another tab: switch to it, and mark the words once it has rendered.
+    const mark = () => {
+      const range = rangeForAnchor(block, focus);
+      if (range && highlights) highlights.set("comment-focus", new Highlight(range));
+    };
+    const shown = revealAnchor(block, focus) ? setTimeout(mark, 80) : (mark(), undefined);
     const t = setTimeout(() => block.classList.remove("comment-flash"), 2400);
     return () => {
+      clearTimeout(shown);
       clearTimeout(t);
       highlights?.delete("comment-focus");
     };

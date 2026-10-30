@@ -42,7 +42,19 @@ export function anchorFromRange(range: Range, root: HTMLElement): CommentAnchor 
     prefix: squash(textOf(before)).slice(-32),
     suffix: squash(textOf(after)).slice(0, 32),
     context: squash(scope.textContent ?? "").trim().slice(0, 600),
+    tab: start?.closest<HTMLElement>("[data-tab]")?.dataset.tab,
   };
+}
+
+/** Asks the block to show the part a comment is on (e.g. switch to its tab, see ConversationTabs).
+ *  True if it changed what is shown; the new content is there after the next render. */
+export function revealAnchor(block: HTMLElement, a: NonNullable<CommentAnchor>) {
+  return !block.dispatchEvent(new CustomEvent("comment-reveal", { detail: a, cancelable: true }));
+}
+
+/** Content inside a block changed without a resize (another tab): comments find their words again. */
+export function contentChanged(el: HTMLElement) {
+  el.dispatchEvent(new Event("comment-content", { bubbles: true }));
 }
 
 /** Finds the quoted words again inside a block. Whitespace is ignored (see anchorMatch), and a quote in

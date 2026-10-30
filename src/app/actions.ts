@@ -173,6 +173,7 @@ export async function addComment(input: { pageId: string; anchor: CommentAnchor;
       suffix: clip(a.suffix, 32),
       // Comments on a whole block keep its text (from the content), so they can be found again after edits.
       context: a.exact ? clip(a.context, 600) : blockText(block).slice(0, 600),
+      tab: clip(a.tab, 80) || undefined,
     };
   }
 
