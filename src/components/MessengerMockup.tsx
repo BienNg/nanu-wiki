@@ -17,7 +17,7 @@ import {
 } from "@/lib/dialogue";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
-import { ImageModal } from "./ImageModal";
+import { ImageModal, copyImageToClipboard } from "./ImageModal";
 
 type Note = { at: number; de: string; vi?: string | null };
 type Box = { x: number; y: number; w: number; h: number };
@@ -226,6 +226,7 @@ function ChatView({
                           {m.text}
                         </span>
                       )}
+                      {mine && m.image && <CopyImage src={m.image.src} />}
                       {mine && !m.image && <CopyMessage text={m.text} sel={sel} shown={shown} />}
                       {num && (
                         <span
@@ -416,6 +417,35 @@ function Choice<T extends string>({
         </button>
       ))}
     </div>
+  );
+}
+
+/** One click copies the photo so it can be pasted into a real chat. */
+function CopyImage({ src }: { src: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    await copyImageToClipboard(src);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-label="Bild kopieren"
+      className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-white text-muted shadow-sm hover:text-accent"
+    >
+      {copied ? (
+        <span className="text-[11px] font-semibold text-accent">✓</span>
+      ) : (
+        <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+          <path d="M5 15V5a2 2 0 0 1 2-2h8" />
+        </svg>
+      )}
+    </button>
   );
 }
 

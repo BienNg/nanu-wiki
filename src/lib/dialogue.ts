@@ -16,24 +16,24 @@ export const PRONOUN_LABEL: Record<Pronoun, string> = { ban: "bạn", em: "em", 
 export const PLACE_LABEL: Record<Place, { de: string; vi: string }> = {
   saigon: { de: "Sài Gòn", vi: "Sài Gòn" },
   hanoi: { de: "Hà Nội", vi: "Hà Nội" },
-  vietnam: { de: "Vietnam (Đà Nẵng)", vi: "Việt Nam (Đà Nẵng)" },
+  vietnam: { de: "Vietnam", vi: "Việt Nam" },
   germany: { de: "Deutschland", vi: "Đức" },
 };
 
 /** Words that change with the pronoun.
  *  ban: how we call the customer · minh: how we call ourselves · benminh: "our school" ·
  *  toi: how the customer calls themself · goi: how the customer calls us · elder: we start with „Dạ“ (`{da}`)
- *  and put the pronoun before their name (`{ten}`) · chao: our greeting (uses the customer's name). */
+ *  and put the pronoun before their name (`{ten}`) · chao: our greeting, without the sample name so the text can be pasted to a real customer. */
 const WORDS: Record<
   Pronoun,
-  { ban: string; minh: string; benminh: string; toi: string; goi: string; elder: boolean; chao: (name: string) => string }
+  { ban: string; minh: string; benminh: string; toi: string; goi: string; elder: boolean; chao: string }
 > = {
-  ban: { ban: "bạn", minh: "mình", benminh: "bên mình", toi: "mình", goi: "bạn", elder: false, chao: (n) => `Chào ${n} ạ!` },
-  em: { ban: "em", minh: "bên trung tâm", benminh: "trung tâm", toi: "em", goi: "ad", elder: false, chao: (n) => `Chào em ${n} nha!` },
-  chi: { ban: "chị", minh: "em", benminh: "bên em", toi: "chị", goi: "em", elder: true, chao: (n) => `Dạ em chào chị ${n} ạ!` },
-  anh: { ban: "anh", minh: "em", benminh: "bên em", toi: "anh", goi: "em", elder: true, chao: (n) => `Dạ em chào anh ${n} ạ!` },
-  co: { ban: "cô", minh: "em", benminh: "bên em", toi: "cô", goi: "em", elder: true, chao: (n) => `Dạ em chào cô ${n} ạ!` },
-  chu: { ban: "chú", minh: "em", benminh: "bên em", toi: "chú", goi: "em", elder: true, chao: (n) => `Dạ em chào chú ${n} ạ!` },
+  ban: { ban: "bạn", minh: "mình", benminh: "bên mình", toi: "mình", goi: "bạn", elder: false, chao: "Chào bạn ạ!" },
+  em: { ban: "em", minh: "bên trung tâm", benminh: "trung tâm", toi: "em", goi: "ad", elder: false, chao: "Chào em nha!" },
+  chi: { ban: "chị", minh: "em", benminh: "bên em", toi: "chị", goi: "em", elder: true, chao: "Dạ em chào chị ạ!" },
+  anh: { ban: "anh", minh: "em", benminh: "bên em", toi: "anh", goi: "em", elder: true, chao: "Dạ em chào anh ạ!" },
+  co: { ban: "cô", minh: "em", benminh: "bên em", toi: "cô", goi: "em", elder: true, chao: "Dạ em chào cô ạ!" },
+  chu: { ban: "chú", minh: "em", benminh: "bên em", toi: "chú", goi: "em", elder: true, chao: "Dạ em chào chú ạ!" },
 };
 
 const CITY: Record<Place, { vi: string; de: string }> = {
@@ -62,7 +62,7 @@ export function fill(text: string, sel: Selection, name: string): string {
     toi: w.toi,
     goi: w.goi,
     ten: w.elder ? `${w.ban} ${name}` : name,
-    chao: w.chao(name),
+    chao: w.chao,
     name,
     level: sel.level,
     lv: sel.level.toLowerCase(),

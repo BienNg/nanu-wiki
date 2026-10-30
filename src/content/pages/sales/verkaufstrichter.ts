@@ -118,7 +118,7 @@ const page: PageContent = {
               stamp_de: "20:15",
               stamp_vi: "20:15",
               text: "{chao} Có nha {ban}, {benminh} có lớp {level} online và tại Hà Nội, TP.HCM.\n{Ban} đang sống ở Việt Nam hay ở Đức ạ? {Minh} gửi lớp {level} gần nhất hợp giờ với {ban} nha.",
-              translation_de: "„Hallo Thu Hà! Ja, wir haben {level}-Kurse online und in Hà Nội und HCM. Lebst du in Vietnam oder in Deutschland? Dann schicke ich dir den nächsten {level}-Kurs, der zeitlich zu dir passt.“"
+              translation_de: "„Hallo! Ja, wir haben {level}-Kurse online und in Hà Nội und HCM. Lebst du in Vietnam oder in Deutschland? Dann schicke ich dir den nächsten {level}-Kurs, der zeitlich zu dir passt.“"
             }
           ]
         },
@@ -138,7 +138,7 @@ const page: PageContent = {
               stamp_de: "21:03",
               stamp_vi: "21:03",
               text: "{chao} Có nha {ban}! Lớp {level} online học qua Zoom, 5–10 học viên một lớp, 3–4 buổi/tuần, mỗi buổi 1,5 tiếng.\n{Ban} đang ở Việt Nam hay ở Đức ạ? {Minh} gửi khung giờ theo giờ nơi {ban} ở nha.",
-              translation_de: "„Hallo Quang Huy! Ja! Der {level}-Online-Kurs läuft über Zoom, 5–10 Personen pro Klasse, 3–4 Termine pro Woche à 1,5 Stunden. Bist du in Vietnam oder in Deutschland? Dann schicke ich dir die Uhrzeiten in deiner Zeit.“"
+              translation_de: "„Hallo! Ja! Der {level}-Online-Kurs läuft über Zoom, 5–10 Personen pro Klasse, 3–4 Termine pro Woche à 1,5 Stunden. Bist du in Vietnam oder in Deutschland? Dann schicke ich dir die Uhrzeiten in deiner Zeit.“"
             }
           ]
         },
@@ -157,7 +157,7 @@ const page: PageContent = {
               stamp_de: "12:41",
               stamp_vi: "12:41",
               text: "{chao} {Minh} gửi {ban} học phí và quyền lợi khoá {level} ngay nha.\n{Ban} đang ở Hà Nội, TP.HCM, tỉnh khác hay ở Đức ạ? Học phí như nhau, nhưng quyền lợi và lịch học mỗi nơi khác nhau.",
-              translation_de: "„Hallo Ngọc Lan! Ich schicke dir gleich Preis und Leistungen für den {level}-Kurs. Bist du in Hà Nội, in HCM, in einer anderen Provinz oder in Deutschland? Der Preis ist überall gleich, aber Leistungen und Kurszeiten sind je nach Ort anders.“",
+              translation_de: "„Hallo! Ich schicke dir gleich Preis und Leistungen für den {level}-Kurs. Bist du in Hà Nội, in HCM, in einer anderen Provinz oder in Deutschland? Der Preis ist überall gleich, aber Leistungen und Kurszeiten sind je nach Ort anders.“",
               note_de: "Erst den Ort klären: Der Preis ist überall gleich, die Vorteile nicht. Den Preis versprechen, damit die Rückfrage nicht wie Ausweichen wirkt.",
               note_vi: "Hỏi nơi ở trước: học phí như nhau, quyền lợi thì khác. Hứa gửi học phí để câu hỏi lại không giống né tránh."
             },
@@ -237,7 +237,7 @@ const page: PageContent = {
               stamp_de: "18:06",
               stamp_vi: "18:06",
               text: "{chao} Lớp {level} online gần nhất khai giảng [NGÀY], học tối [THỨ], 18:30–20:00 giờ Việt Nam.\n{Ban} học online được không, hay muốn học tại Hà Nội / TP.HCM ạ?",
-              translation_de: "„Hallo Đức Anh! Der nächste {level}-Online-Kurs startet am [DATUM], abends [TAGE], 18:30–20:00 vietnamesischer Zeit. Passt dir online, oder möchtest du lieber in Hà Nội oder HCM lernen?“"
+              translation_de: "„Hallo! Der nächste {level}-Online-Kurs startet am [DATUM], abends [TAGE], 18:30–20:00 vietnamesischer Zeit. Passt dir online, oder möchtest du lieber in Hà Nội oder HCM lernen?“"
             }
           ]
         },
@@ -256,7 +256,7 @@ const page: PageContent = {
               stamp_de: "22:32",
               stamp_vi: "22:32",
               text: "{chao} Đúng 19:30–21:30 thì chưa có, nhưng có các khung gần nhất (giờ Việt Nam):\n• Online: 18:30–20:00 hoặc 20:30–22:00\n• Tại Hà Nội, TP.HCM: 18:00–20:30\nKhung nào hợp với {ban}, và {ban} đang học đến trình độ nào rồi ạ?",
-              translation_de: "„Hallo Hải Yến! Genau 19:30–21:30 haben wir nicht, aber diese Zeiten liegen nah dran (vietnamesische Zeit): online 18:30–20:00 oder 20:30–22:00, vor Ort in Hà Nội und HCM 18:00–20:30. Welche passt dir, und bis zu welchem Niveau hast du schon gelernt?“"
+              translation_de: "„Hallo! Genau 19:30–21:30 haben wir nicht, aber diese Zeiten liegen nah dran (vietnamesische Zeit): online 18:30–20:00 oder 20:30–22:00, vor Ort in Hà Nội und HCM 18:00–20:30. Welche passt dir, und bis zu welchem Niveau hast du schon gelernt?“"
             }
           ]
         },
@@ -277,15 +277,15 @@ const page: PageContent = {
               stamp_de: "9:13",
               stamp_vi: "9:13",
               text: "{chao} Ở {city} thì {ban} học online qua Zoom nha, có 2 khung tối (giờ Việt Nam):\n• 18:30–20:00\n• 20:30–22:00\nKhung nào hợp với {ban} ạ?",
-              translation_de: "„Hallo Bảo Trâm! In {city_de} lernst du online über Zoom, es gibt zwei Abendzeiten (vietnamesische Zeit): 18:30–20:00 und 20:30–22:00. Welche passt dir?“",
+              translation_de: "„Hallo! In {city_de} lernst du online über Zoom, es gibt zwei Abendzeiten (vietnamesische Zeit): 18:30–20:00 und 20:30–22:00. Welche passt dir?“",
               places: {
                 city: {
                   text: "{chao} Ở {city} thì {ban} học được tại lớp hoặc online nha (giờ Việt Nam):\n• Tại lớp: 18:00–20:30\n• Online: 18:30–20:00 hoặc 20:30–22:00\nKhung nào hợp với {ban} ạ?",
-                  translation_de: "„Hallo Bảo Trâm! In {city_de} kannst du vor Ort oder online lernen (vietnamesische Zeit): vor Ort 18:00–20:30, online 18:30–20:00 oder 20:30–22:00. Welche Zeit passt dir?“"
+                  translation_de: "„Hallo! In {city_de} kannst du vor Ort oder online lernen (vietnamesische Zeit): vor Ort 18:00–20:30, online 18:30–20:00 oder 20:30–22:00. Welche Zeit passt dir?“"
                 },
                 germany: {
                   text: "{chao} Ở Đức thì {ban} học online theo giờ Đức nha, có 3 khung:\n• Sáng 7:00–8:30\n• Chiều 14:30–16:00\n• Tối 21:00–22:30\nKhung nào hợp với {ban} ạ?",
-                  translation_de: "„Hallo Bảo Trâm! In Deutschland lernst du online nach deutscher Zeit, es gibt drei Zeitfenster: morgens 7:00–8:30, nachmittags 14:30–16:00, abends 21:00–22:30. Welches passt dir?“"
+                  translation_de: "„Hallo! In Deutschland lernst du online nach deutscher Zeit, es gibt drei Zeitfenster: morgens 7:00–8:30, nachmittags 14:30–16:00, abends 21:00–22:30. Welches passt dir?“"
                 }
               }
             }
@@ -306,7 +306,7 @@ const page: PageContent = {
               stamp_de: "19:49",
               stamp_vi: "19:49",
               text: "{chao} Người mới bắt đầu thì học từ A1 nha {ban}: online 40 buổi, mỗi buổi 1,5 tiếng, khoảng 2,5–3 tháng. Giáo trình do NaNu NaNa tự biên soạn.\n{Ban} đang sống ở đâu ạ? {Minh} gửi lớp A1 online hoặc tại Hà Nội / TP.HCM phù hợp nha.",
-              translation_de: "„Hallo Tuấn Kiệt! Als Anfänger startest du mit A1: online 40 Termine à 1,5 Stunden, etwa 2,5–3 Monate. Das Lehrmaterial hat NaNu NaNa selbst geschrieben. Wo wohnst du? Dann schicke ich dir einen passenden A1-Kurs online oder in Hà Nội / HCM.“"
+              translation_de: "„Hallo! Als Anfänger startest du mit A1: online 40 Termine à 1,5 Stunden, etwa 2,5–3 Monate. Das Lehrmaterial hat NaNu NaNa selbst geschrieben. Wo wohnst du? Dann schicke ich dir einen passenden A1-Kurs online oder in Hà Nội / HCM.“"
             }
           ]
         },
@@ -326,7 +326,7 @@ const page: PageContent = {
               stamp_de: "16:21",
               stamp_vi: "16:21",
               text: "{chao} {Benminh} có ôn thi {level} (telc) nha {ban}, học 1 kèm 1 với giáo viên, 2–3 buổi/tuần.\n{Ban} đã học xong {level} chưa, và dự định thi tháng mấy ạ?",
-              translation_de: "„Hallo Khánh Linh! Wir haben {level}-Prüfungsvorbereitung (telc), 1:1 mit einer Lehrkraft, 2–3 Termine pro Woche. Hast du {level} schon abgeschlossen, und in welchem Monat möchtest du die Prüfung schreiben?“"
+              translation_de: "„Hallo! Wir haben {level}-Prüfungsvorbereitung (telc), 1:1 mit einer Lehrkraft, 2–3 Termine pro Woche. Hast du {level} schon abgeschlossen, und in welchem Monat möchtest du die Prüfung schreiben?“"
             }
           ]
         },
@@ -345,7 +345,7 @@ const page: PageContent = {
               stamp_de: "10:06",
               stamp_vi: "10:06",
               text: "{chao} {Benminh} có học 1 kèm 1 khi lớp nhóm không hợp giờ {ban}. Nhưng thật lòng {minh} khuyên {ban} học nhóm nhỏ online (5–10 người): có bạn học cùng thì dễ giữ động lực hơn.\n{Ban} đang ở Việt Nam hay ở Đức, và đã học tiếng Đức chưa ạ?",
-              translation_de: "„Hallo Mai Hương! Einzelunterricht bieten wir an, wenn kein Gruppenkurs zu deiner Zeit passt. Ehrlich gesagt empfehle ich dir aber eine kleine Online-Gruppe (5–10 Personen): Mit anderen zusammen bleibt man leichter motiviert. Bist du in Vietnam oder in Deutschland, und hast du schon Deutsch gelernt?“"
+              translation_de: "„Hallo! Einzelunterricht bieten wir an, wenn kein Gruppenkurs zu deiner Zeit passt. Ehrlich gesagt empfehle ich dir aber eine kleine Online-Gruppe (5–10 Personen): Mit anderen zusammen bleibt man leichter motiviert. Bist du in Vietnam oder in Deutschland, und hast du schon Deutsch gelernt?“"
             }
           ]
         },
@@ -364,7 +364,7 @@ const page: PageContent = {
               stamp_de: "14:38",
               stamp_vi: "14:38",
               text: "{chao} Hiện {benminh} chưa có khóa riêng cho nhà hàng – khách sạn. Lớp A1–B1 luyện đủ 4 kỹ năng và buổi nào cũng luyện nói, nên giao tiếp hằng ngày ở nơi làm việc {ban} sẽ dùng được.\n{Ban} đã học tiếng Đức đến trình độ nào rồi ạ?",
-              translation_de: "„Hallo Gia Bảo! Einen eigenen Kurs für Restaurant und Hotel haben wir zurzeit nicht. Die Kurse A1–B1 trainieren alle vier Fertigkeiten, und in jeder Einheit wird gesprochen – das hilft dir auch bei der Arbeit. Bis zu welchem Niveau hast du schon Deutsch gelernt?“"
+              translation_de: "„Hallo! Einen eigenen Kurs für Restaurant und Hotel haben wir zurzeit nicht. Die Kurse A1–B1 trainieren alle vier Fertigkeiten, und in jeder Einheit wird gesprochen – das hilft dir auch bei der Arbeit. Bis zu welchem Niveau hast du schon Deutsch gelernt?“"
             }
           ]
         },
@@ -383,7 +383,7 @@ const page: PageContent = {
               stamp_de: "20:51",
               stamp_vi: "20:51",
               text: "{chao} Lớp online có 5–10 học viên, lớp tại Hà Nội và TP.HCM có 8–15 học viên. Mỗi lớp có 1–2 giáo viên cố định từ đầu đến cuối khoá.\n{Ban} định học online hay tại lớp, và đang ở trình độ nào ạ?",
-              translation_de: "„Hallo Thảo Vy! Online sind 5–10 Personen in einer Klasse, vor Ort in Hà Nội und HCM 8–15. Jede Klasse hat 1–2 feste Lehrkräfte vom Anfang bis zum Ende. Möchtest du online oder vor Ort lernen, und welches Niveau hast du?“"
+              translation_de: "„Hallo! Online sind 5–10 Personen in einer Klasse, vor Ort in Hà Nội und HCM 8–15. Jede Klasse hat 1–2 feste Lehrkräfte vom Anfang bis zum Ende. Möchtest du online oder vor Ort lernen, und welches Niveau hast du?“"
             }
           ]
         },
@@ -402,7 +402,7 @@ const page: PageContent = {
               stamp_de: "23:11",
               stamp_vi: "23:11",
               text: "{chao} {Minh} tư vấn cho {ban} ngay nha.\n{Ban} đang quan tâm học tiếng Đức hay chương trình du học nghề Đức ạ?",
-              translation_de: "„Hallo Hoàng Nam! Ich berate dich gern. Interessierst du dich für einen Deutschkurs oder für die Ausbildung in Deutschland?“"
+              translation_de: "„Hallo! Ich berate dich gern. Interessierst du dich für einen Deutschkurs oder für die Ausbildung in Deutschland?“"
             }
           ]
         }
