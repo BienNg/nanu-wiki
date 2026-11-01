@@ -20,7 +20,7 @@ const page: PageContent = {
       de: "So läuft die Übergabe von Sales: Nach der Anmeldung schreibt Sales der Person nicht mehr. Stattdessen meldet Sales die Person in Slack an Customer Success und schreibt dazu, was ihr versprochen wurde, zum Beispiel ein Sonderpreis, Ratenzahlung oder ein späterer Kursstart. Ab dann ist Customer Success zuständig. Das gilt auch abends und am Wochenende: Wer gerade Customer-Success-Schicht hat, schickt der Person Material und Zugänge.",
       vi: "Bàn giao từ Sales: sau khi học viên đăng ký, Sales không gửi gì thêm cho học viên mà báo lên Slack cho đội Chăm sóc học viên – kèm mọi điều đã hứa (giá ưu đãi riêng, chia đợt đóng, vào học trễ). Từ đó đội Chăm sóc học viên phụ trách. Buổi tối và cuối tuần cũng vậy: ai đang trực ca Chăm sóc học viên thì gửi tài liệu và quyền truy cập."
     },
-    { type: "heading", de: "Die sechs Aufgaben – und wann sie dran sind", vi: "Sáu nhóm công việc và lịch làm" },
+    { type: "heading", de: "Die vier Aufgaben – und wann sie dran sind", vi: "Bốn nhóm công việc và lịch làm" },
     {
       type: "steps",
       items: [
@@ -49,34 +49,25 @@ const page: PageContent = {
           ]
         },
         {
-          de: "Lehrkräfte erinnern und begleiten",
-          vi: "Nhắc nhở và theo dõi giáo viên",
-          body_de: "Die Lehrkräfte sollen pünktlich anfangen und die volle Zeit unterrichten. Sie tragen Anwesenheit und Fortschritt ein und schicken Unterrichtsdatei und Hausaufgabe in die Gruppe. Sie füllen das Feedback zu den Schülern rechtzeitig aus und machen in den ersten zwei Stunden ein Klassenfoto. Mehr dazu auf der Seite „[Lehrkräfte begleiten](student-support/lehrkraefte-begleiten)“.",
-          body_vi: "Đúng giờ, dạy đủ thời lượng, cập nhật điểm danh và tiến độ, gửi bài giảng và bài tập vào nhóm, điền nhận xét học viên đúng hạn, chụp ảnh lớp trong hai buổi đầu. Xem trang „[Theo dõi giáo viên](student-support/lehrkraefte-begleiten)“.",
-          parts: [
-            { de: "Jeden Tag", vi: "Mỗi ngày", body_de: "Die Lehrkräfte an diese Punkte erinnern.", body_vi: "Nhắc giáo viên những việc này." },
-            { de: "Montags", vi: "Thứ Hai", body_de: "Den Lehrkräften sagen, was in der neuen Woche ansteht.", body_vi: "Nhắc giáo viên về tuần mới." },
-            { de: "Mittwochs", vi: "Thứ Tư", body_de: "Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.", body_vi: "Kiểm tra giáo viên đã điền nhận xét chưa." }
-          ]
-        },
-        {
           de: "Klassen im Blick behalten",
           vi: "Kiểm soát chất lượng lớp học",
-          body_de: "Schau, ob jede Klasse nach Plan läuft. Wer fehlt oft? Wer hat aufgehört? In welcher Klasse könnten Schüler abspringen? Solche Klassen meldest du der Leitung, bevor es zu spät ist.",
-          body_vi: "Lớp có học đúng lịch không? Ai hay vắng, ai bỏ học? Lớp nào có nguy cơ mất học viên? Báo cáo các lớp này cho quản lý trước khi quá muộn.",
+          body_de: "Schau, ob jede Klasse nach Plan läuft. Wer fehlt oft? Wer hat aufgehört? In welcher Klasse könnten Schüler abspringen? Solche Klassen meldest du der Leitung, bevor es zu spät ist.\nDazu gehört, die Lehrkräfte zu begleiten: Sie sollen pünktlich anfangen und die volle Zeit unterrichten. Sie tragen Anwesenheit und Fortschritt ein und schicken Unterrichtsdatei und Hausaufgabe in die Gruppe. Sie füllen das Feedback zu den Schülern rechtzeitig aus und machen in den ersten zwei Stunden ein Klassenfoto. Mehr dazu auf der Seite „[Lehrkräfte begleiten](student-support/lehrkraefte-begleiten)“.",
+          body_vi: "Lớp có học đúng lịch không? Ai hay vắng, ai bỏ học? Lớp nào có nguy cơ mất học viên? Báo cáo các lớp này cho quản lý trước khi quá muộn.\nViệc này gồm cả theo dõi giáo viên: đúng giờ, dạy đủ thời lượng, cập nhật điểm danh và tiến độ, gửi bài giảng và bài tập vào nhóm, điền nhận xét học viên đúng hạn, chụp ảnh lớp trong hai buổi đầu. Xem trang „[Theo dõi giáo viên](student-support/lehrkraefte-begleiten)“.",
           parts: [
-            { de: "Jeden Tag", vi: "Mỗi ngày", body_de: "Am Ende der Schicht die Beobachtungsliste aktualisieren – das ist die Liste der Schüler und Klassen, die wir gerade besonders im Blick haben.", body_vi: "Cuối ca cập nhật danh sách cần theo dõi – danh sách học viên và lớp đang cần để ý đặc biệt." },
-            { de: "Montags", vi: "Thứ Hai", body_de: "Die Klassen heraussuchen, in denen viele fehlen. Bis 15 Uhr die Betreuungsliste an die Leitung schicken. Wenn nötig, vor 16 Uhr ein Meeting machen.", body_vi: "Lọc các lớp có học viên vắng nhiều, gửi danh sách cần chăm sóc cho quản lý trước 15h, cần thì họp trước 16h." }
-          ]
-        },
-        {
-          de: "Probleme und Beschwerden lösen",
-          vi: "Thu thập và xử lý phản hồi",
-          body_de: "Frag die Schüler selbst, wie es ihnen geht – warte nicht, bis sie sich beschweren. Ordne jedes Problem ein: Geht es um die Lehrkraft, das Programm, den Stundenplan oder die Räume? Leite es nicht nur weiter: Kläre es mit der Lehrkraft und sag der Person, was dabei herausgekommen ist. Ernste Beschwerden gibst du an die Leitung.",
-          body_vi: "Chủ động hỏi thay vì chờ. Phân loại: giáo viên, chương trình, lịch học, cơ sở vật chất. Không chỉ chuyển tiếp tin nhắn mà trao đổi với giáo viên, xác nhận kết quả lại với học viên và chuyển quản lý các khiếu nại nghiêm trọng.",
-          parts: [
-            { de: "Jeden Tag", vi: "Mỗi ngày", body_de: "Neue Probleme am selben Tag angehen.", body_vi: "Xử lý vấn đề phát sinh ngay trong ngày." },
-            { de: "Mittwochs", vi: "Thứ Tư", body_de: "Alle offenen Fälle durchgehen und mit der Leitung besprechen. Den Termin für dieses Meeting schickst du selbst.", body_vi: "Kiểm tra các vấn đề chưa xử lý xong và họp với quản lý – tự gửi lịch hẹn." }
+            {
+              de: "Jeden Tag",
+              vi: "Mỗi ngày",
+              body_de: "Prüf die Klassen, die am Vortag Unterricht hatten:",
+              body_vi: "Kiểm tra các lớp có buổi học hôm trước:",
+              steps: [
+                { de: "Klassen von gestern finden", vi: "Tìm các lớp học hôm qua", body_de: "Im Google Kalender siehst du, welche Klassen gestern Unterricht hatten.", body_vi: "Xem Google Calendar để biết hôm qua lớp nào có buổi học." },
+                { de: "Excel-Listen prüfen", vi: "Kiểm tra file Excel", body_de: "Öffne die Excel-Liste jeder dieser Klassen. Prüf, ob die Lehrkraft die Stunde ausgefüllt hat: Anwesenheit und Feedback zu jedem Schüler. Fehlt etwas, erinnere die Lehrkraft daran – auch an Unterrichtsdatei und Hausaufgabe in der Gruppe.", body_vi: "Mở file Excel của từng lớp đó. Kiểm tra giáo viên đã điền buổi học chưa: điểm danh và nhận xét cho từng học viên. Thiếu gì thì nhắc giáo viên – cả việc gửi bài giảng và bài tập vào nhóm." },
+                { de: "Wer gefehlt hat, persönlich anschreiben", vi: "Nhắn riêng cho học viên vắng", body_de: "Schreib jedem Schüler, der gefehlt hat, eine persönliche Nachricht.", body_vi: "Nhắn tin riêng cho từng học viên đã vắng buổi học." },
+                { de: "In NaNu Go nachsehen", vi: "Kiểm tra trên NaNu Go", body_de: "Prüf in der App NaNu Go, ob der Schüler die Aufgaben gemacht hat. Wenn nicht: Sag ihm, dass er die verpasste Lektion in NaNu Go nachholen soll. Sonst kann er dem Unterricht nicht mehr folgen.", body_vi: "Kiểm tra trên app NaNu Go xem học viên đã làm bài chưa. Nếu chưa: nhắn học viên học bù bài đã nghỉ trên NaNu Go. Nếu không, học viên sẽ không theo kịp lớp." }
+              ]
+            },
+            { de: "Montags", vi: "Thứ Hai", body_de: "Den Lehrkräften sagen, was in der neuen Woche ansteht.", body_vi: "Nhắc giáo viên về tuần mới." },
+            { de: "Mittwochs", vi: "Thứ Tư", body_de: "Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.", body_vi: "Kiểm tra giáo viên đã điền nhận xét chưa." }
           ]
         },
         {
@@ -84,7 +75,19 @@ const page: PageContent = {
           vi: "Theo dõi chuyển khoá",
           body_de: "Schau, wer bald mit A1, A2, B1 oder B2 fertig ist. Frag, ob die Person weiterlernen möchte und welche Uhrzeit ihr passt. Stimm das Angebot mit Sales ab. Erinnere die Person vor Kursende daran, sich anzumelden. Wenn jemand nicht weitermacht, notiere den Grund.",
           body_vi: "Ai sắp xong A1, A2, B1, B2? Hỏi nguyện vọng và giờ học phù hợp, phối hợp với Sales tư vấn khoá tiếp theo, nhắc đăng ký trước khi hết khoá và ghi lại lý do học viên không học tiếp.",
-          when: [{ de: "Vor Kursende", vi: "Trước khi hết khoá" }]
+          parts: [
+            {
+              de: "Vor Kursende",
+              vi: "Trước khi hết khoá",
+              body_de: "Bei jedem Kurs: Online-Klassen 6 Lektionen vor Kursende, Klassen vor Ort 2 Wochen vor Kursende.",
+              body_vi: "Với mọi khoá: lớp online trước khi hết khoá 6 buổi, lớp offline trước khi hết khoá 2 tuần.",
+              steps: [
+                { de: "Wer noch nicht gezahlt hat, anschreiben", vi: "Nhắn học viên chưa đóng tiền", body_de: "Schreib jeden Schüler an, der für den nächsten Kurs noch nicht gezahlt hat.", body_vi: "Nhắn cho từng học viên chưa đóng tiền khoá tiếp theo." },
+                { de: "Dranbleiben, bis eine klare Antwort kommt", vi: "Nhắn đến khi có câu trả lời rõ ràng", body_de: "Schreib so lange nach, bis die Person klar antwortet: „Ja, ich mache weiter“ oder „Nein, ich mache nicht weiter“.", body_vi: "Nhắn lại cho đến khi học viên trả lời rõ: „Có, mình học tiếp“ hoặc „Không, mình không học tiếp“." },
+                { de: "Bei Nein: den Grund genau erfragen", vi: "Nếu không học tiếp: hỏi rõ lý do", body_de: "Frag genau nach, warum. „Keine Zeit“ reicht nicht: Liegt es am Preis, an der Uhrzeit, an der Lehrkraft, am Lernfortschritt oder an etwas anderem? Notiere den Grund.", body_vi: "Hỏi kỹ vì sao. „Không có thời gian“ là chưa đủ: do học phí, giờ học, giáo viên, tiến độ học hay lý do khác? Ghi lại lý do." }
+              ]
+            }
+          ]
         },
         {
           de: "Berichten und verbessern",

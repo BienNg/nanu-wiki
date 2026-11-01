@@ -21,28 +21,21 @@ const tasks: DailyTask[] = [
     page: "student-support/onboarding-und-kundenbindung"
   },
   {
-    id: "cs.beschwerden",
-    label_de: "Jede Beschwerde am selben Tag notiert – mit jemandem, der sie löst",
-    label_vi: "Mọi phản ánh đã được ghi nhận trong ngày – và có người xử lý",
-    page: "student-support/aufgaben-und-rhythmus"
-  },
-  {
     id: "cs.zalo-aufgaben",
     label_de: "Aufgaben aus Zalo erledigt – oder abends mit Screenshot in Slack eingetragen",
     label_vi: "Việc nhận trong Zalo đã xong – hoặc cuối ngày đã ghi vào Slack kèm ảnh chụp",
     page: "student-support/aufgaben-und-rhythmus"
   },
   {
-    id: "cs.abend-bericht",
-    label_de: "Abends: Beobachtungsliste aktualisiert, Backoffice ausgefüllt, Bericht am Ende der Schicht geschickt",
-    label_vi: "Cuối ngày: đã cập nhật danh sách cần theo dõi, điền Backoffice và gửi báo cáo cuối ca",
+    id: "cs.klassen-vortag",
+    label_de: "Excel-Listen der Klassen von gestern geprüft, Schüler, die gefehlt haben, angeschrieben und NaNu Go geprüft",
+    label_vi: "Đã kiểm tra file Excel các lớp học hôm qua, nhắn học viên vắng và kiểm tra NaNu Go",
     page: "student-support/aufgaben-und-rhythmus"
   },
   {
-    id: "cs.mo-betreuungsliste",
-    label_de: "Klassen mit vielen Fehlzeiten herausgesucht, Betreuungsliste bis 15 Uhr an die Leitung geschickt",
-    label_vi: "Đã lọc các lớp có học viên vắng nhiều, gửi danh sách cần chăm sóc cho quản lý trước 15h",
-    days: [1],
+    id: "cs.abend-bericht",
+    label_de: "Abends: Backoffice ausgefüllt, Bericht am Ende der Schicht geschickt",
+    label_vi: "Cuối ngày: đã điền Backoffice và gửi báo cáo cuối ca",
     page: "student-support/aufgaben-und-rhythmus"
   },
   {
@@ -54,8 +47,8 @@ const tasks: DailyTask[] = [
   },
   {
     id: "cs.mi-feedback-meeting",
-    label_de: "Feedback der Lehrkräfte und offene Fälle geprüft, Meeting mit der Leitung vereinbart",
-    label_vi: "Đã kiểm tra nhận xét của giáo viên và các vấn đề còn tồn đọng, đã gửi lịch họp với quản lý",
+    label_de: "Geprüft, ob alle Lehrkräfte das Feedback ausgefüllt haben",
+    label_vi: "Đã kiểm tra giáo viên đã điền nhận xét chưa",
     days: [3],
     page: "student-support/aufgaben-und-rhythmus"
   },
