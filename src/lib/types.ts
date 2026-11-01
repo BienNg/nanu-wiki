@@ -30,6 +30,17 @@ export type Area = {
   is_shared: boolean;
 };
 
+/** A step done at several times: one sub-section per time („Jeden Tag“, „Montags“ …), its title shown as a label.
+ *  `steps`: how to do it, in order. `done`: when it counts as done (shown as a tip). */
+export type StepPart = {
+  de: string;
+  vi: string;
+  body_de: string;
+  body_vi: string;
+  steps?: { de: string; vi: string; body_de: string; body_vi: string }[];
+  done?: { de: string; vi: string };
+};
+
 /** Content of a page is a list of blocks, each with German + Vietnamese text.
  *  `id` is optional: give a block one to keep its comments attached when its text is rewritten
  *  (otherwise the comment key is a hash of the block's content, see `blockKey`). */
@@ -39,7 +50,7 @@ export type Block = (
   | { type: "heading"; de: string; vi: string; anchor?: string } // anchor: fixed id for links, see headingId
   | { type: "paragraph"; de: string; vi: string }
   | { type: "list"; ordered?: boolean; items: { de: string; vi: string }[] }
-  | { type: "steps"; items: { de: string; vi: string; body_de?: string; body_vi?: string; when?: { de: string; vi: string }[]; template?: { label_de: string; label_vi: string; text: string; translation_de?: string } }[] }
+  | { type: "steps"; items: { de: string; vi: string; body_de?: string; body_vi?: string; when?: { de: string; vi: string }[]; parts?: StepPart[]; template?: { label_de: string; label_vi: string; text: string; translation_de?: string } }[] }
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }

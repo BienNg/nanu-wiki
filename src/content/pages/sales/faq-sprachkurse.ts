@@ -68,7 +68,7 @@ const page: PageContent = {
     {
       type: "list",
       items: [
-        { de: "Online: 5–9 Teilnehmende", vi: "Online: 5–9 học viên" },
+        { de: "Online: 5–9 Schüler", vi: "Online: 5–9 học viên" },
         { de: "Vor Ort: mindestens 8, höchstens 15", vi: "Offline: tối thiểu 8, tối đa 15 học viên" },
         { de: "Jede Klasse hat 1–2 feste Lehrkräfte vom Anfang bis zum Ende.", vi: "Mỗi lớp có 1–2 giáo viên cố định từ đầu đến cuối khóa." }
       ]
@@ -112,7 +112,7 @@ const page: PageContent = {
         { de: "Nach der Zahlung kommen PDF-Lehrbuch, Folien und Übungen per E-Mail, dazu Google Classroom und die App.", vi: "Sau khi đóng học phí, học viên nhận giáo trình PDF, slide và bài tập qua email, cùng Google Classroom và app." },
         { de: "Den Lehrplan hat NaNu NaNa selbst geschrieben; alle Lehrkräfte werden intern nach unserer Methode geschult.", vi: "Giáo trình do NaNu NaNa tự biên soạn; tất cả giáo viên đều được trung tâm đào tạo theo phương pháp riêng." },
         { de: "Das Arbeitsbuch lohnt sich gedruckt: in Vietnam ausdrucken, in Deutschland bei Thalia oder Amazon kaufen.", vi: "Nên in sách bài tập ra giấy: ở Việt Nam thì in, ở Đức thì mua ở Thalia hoặc Amazon." },
-        { de: "Bücher verkaufen wir nicht an Nicht-Teilnehmende.", vi: "Trung tâm không bán sách cho người không học tại trung tâm." }
+        { de: "Bücher verkaufen wir nicht an Leute, die keinen Kurs bei uns machen.", vi: "Trung tâm không bán sách cho người không học tại trung tâm." }
       ]
     },
     { type: "heading", de: "9. Wer unterrichtet?", vi: "9. Ai dạy?" },
@@ -152,7 +152,7 @@ const page: PageContent = {
         { de: "Frühbucher: A1/A2 mindestens 1 Woche vor Start, B1 mindestens 2 Wochen (15 %).", vi: "Đăng ký sớm: A1/A2 trước ít nhất 1 tuần, B1 trước ít nhất 2 tuần (giảm 15%)." },
         { de: "Kombi-Pakete: A1+A2, A2–B1 (24.500.000 VND) und A1–B1 sind deutlich günstiger als einzeln.", vi: "Combo: A1+A2, A2–B1 (24.500.000 VND) và A1–B1 rẻ hơn nhiều so với đăng ký từng khóa." },
         { de: "Im Oktober 2026 gilt zusätzlich die Aktion – siehe „[Aktion Oktober 2026](sales/aktion-oktober-2026)“.", vi: "Trong tháng 10/2026 có thêm ưu đãi – xem „[Ưu đãi tháng 10/2026](sales/aktion-oktober-2026)“." },
-        { de: "Ehemalige Teilnehmende: −500.000 VND. Zweite Person aus derselben Familie: −500.000 VND.", vi: "Học viên cũ: giảm 500.000 VND. Người thứ hai trong cùng gia đình: giảm 500.000 VND." },
+        { de: "Ehemalige Schüler: −500.000 VND. Zweite Person aus derselben Familie: −500.000 VND.", vi: "Học viên cũ: giảm 500.000 VND. Người thứ hai trong cùng gia đình: giảm 500.000 VND." },
         { de: "Saisonaktionen (z. B. Tết) gelten nur in ihrem Zeitraum – ehrlich sagen, wenn sie vorbei sind.", vi: "Ưu đãi theo dịp (ví dụ Tết) chỉ áp dụng trong thời gian đó – nói thật nếu đã hết." },
         { de: "Kann jemand erst ein paar Tage nach der Frist zahlen und meldet sich vorher: Frühbucherpreis nach Rücksprache halten.", vi: "Khách báo trước là chỉ đóng được trễ vài ngày: hỏi quản lý để giữ ưu đãi đăng ký sớm." }
       ]
@@ -179,7 +179,7 @@ const page: PageContent = {
         { de: "Frag nach Prüfung (Goethe, telc, ÖSD) und Termin – das bestimmt den passenden Kurs.", vi: "Hỏi kỳ thi (Goethe, telc, ÖSD) và ngày thi – điều đó quyết định lớp phù hợp." },
         { de: "Unsere Gruppen bereiten nach Goethe-Format vor; für telc bieten wir 1:1-Vorbereitung an.", vi: "Lớp nhóm ôn theo form Goethe; với telc thì trung tâm có lớp ôn kèm 1-1." },
         { de: "Typische Ziele: B1 zur Verlängerung des Aufenthalts, A1/A2 für Familiennachzug, B1 für Ausbildung oder Studium.", vi: "Mục tiêu thường gặp: B1 để gia hạn cư trú, A1/A2 để đoàn tụ gia đình, B1 để du học nghề hoặc đại học." },
-        { de: "Zur Prüfung melden sich Teilnehmende selbst an (persönliche Daten); wir erklären genau, wie.", vi: "Học viên tự đăng ký thi (vì cần thông tin cá nhân); trung tâm hướng dẫn cụ thể cách đăng ký." },
+        { de: "Zur Prüfung melden sich Schüler selbst an (persönliche Daten); wir erklären genau, wie.", vi: "Học viên tự đăng ký thi (vì cần thông tin cá nhân); trung tâm hướng dẫn cụ thể cách đăng ký." },
         { de: "Nie ein Bestehen versprechen. Wer alle Termine besucht und die Hausaufgaben macht, hat sehr gute Chancen.", vi: "Không bao giờ hứa chắc đậu. Ai đi học đủ và làm bài tập đầy đủ thì tỉ lệ đậu rất cao." }
       ]
     },

@@ -219,7 +219,7 @@ const weeks: OnboardingWeek[] = [
       },
       {
         id: "sales.w3.bestandskunden-und-keine-kunden",
-        label_de: "Teilnehmende und Nicht-Kunden im Messenger",
+        label_de: "Schüler und Nicht-Kunden im Messenger",
         label_vi: "Học viên đang học và tin nhắn không phải khách",
         page: "sales/bestandskunden-im-messenger"
       },
@@ -251,12 +251,12 @@ const weeks: OnboardingWeek[] = [
           question_vi: "Khách bấm nút hỏi: „App này giá bao nhiêu?“ Câu nào đúng?",
           options: [
             { de: "Sie kostet 49 Euro im Monat.", vi: "App có giá 49 Euro/tháng." },
-            { de: "Für Kursteilnehmende ist sie kostenlos, einzeln verkaufen wir sie nicht.", vi: "App miễn phí cho học viên của trung tâm, không bán riêng." },
+            { de: "Für unsere Schüler ist sie kostenlos, einzeln verkaufen wir sie nicht.", vi: "App miễn phí cho học viên của trung tâm, không bán riêng." },
             { de: "Jeder kann sie kostenlos herunterladen.", vi: "Ai cũng tải miễn phí được." },
             { de: "Sie gibt es nur ab B1.", vi: "App chỉ dành cho trình độ B1 trở lên." }
           ],
           correct: 1,
-          explanation_de: "Die App folgt genau dem Unterricht – deshalb nur für Teilnehmende, dort aber kostenlos (Wert 49 €).",
+          explanation_de: "Die App folgt genau dem Unterricht – deshalb nur für Schüler, dort aber kostenlos (Wert 49 €).",
           explanation_vi: "App bám sát bài học trên lớp – nên chỉ dành cho học viên, và miễn phí (giá trị 49 €)."
         },
         {
@@ -273,7 +273,7 @@ const weeks: OnboardingWeek[] = [
           explanation_vi: "Online 5–9, offline 8–15."
         },
         {
-          question_de: "Was gilt bei der Probestunde für neue Online-Teilnehmende?",
+          question_de: "Was gilt bei der Probestunde für neue Online-Schüler?",
           question_vi: "Quy định học thử với học viên online mới là gì?",
           options: [
             { de: "Eine kostenlose Probestunde ohne Zahlung", vi: "Một buổi học thử miễn phí, chưa cần đóng tiền" },

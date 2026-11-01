@@ -41,7 +41,7 @@ const page: PageContent = {
         { de: "Posts spätestens um 18:30 Uhr veröffentlichen. Ein Post um 22 Uhr wird kaum noch gelesen.", vi: "Bài đăng phải lên muộn nhất 18:30. Đăng lúc 22 giờ thì gần như không ai đọc." },
         { de: "Nach dem Posten prüfen: Ist der Post richtig erschienen, nicht doppelt, mit Bild?", vi: "Đăng xong phải kiểm tra lại: bài đã lên đúng chưa, có bị đăng 2 lần không, có hình không?" },
         { de: "Klassen-Posts für Saigon und Hanoi: Klassenname und Ort aufs Bild, danach auch in Zalo posten – mit Kontaktinfos des Zentrums und „Wer sich anmelden möchte …“.", vi: "Bài tuyển sinh lớp ở SG, HN: để tên lớp và địa điểm trên ảnh, sau đó đăng cả Zalo – kèm thông tin trung tâm và „Nếu các bạn muốn đăng ký học thì …“." },
-        { de: "Visum-Erfolge und Geschichten von Teilnehmenden posten wir in das Album „Visa“. Persönlich und ehrlich schreiben.", vi: "Bài chúc mừng visa và hành trình học viên đăng vào album „Visa“. Viết chân thật, có nét riêng của từng bạn." },
+        { de: "Visum-Erfolge und Geschichten von Schülern posten wir in das Album „Visa“. Persönlich und ehrlich schreiben.", vi: "Bài chúc mừng visa và hành trình học viên đăng vào album „Visa“. Viết chân thật, có nét riêng của từng bạn." },
         { de: "Kommentare unter Posts immer beantworten. Kommentare auf Deutsch als Text in Slack kopieren, damit eine Antwort geschrieben werden kann.", vi: "Bình luận dưới bài đăng bắt buộc phải trả lời. Bình luận bằng tiếng Đức thì copy nguyên văn vào Slack để có người viết câu trả lời." }
       ]
     },

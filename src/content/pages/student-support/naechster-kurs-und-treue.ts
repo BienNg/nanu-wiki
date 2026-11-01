@@ -11,7 +11,7 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Die beste Anmeldung ist die zweite: Die Person kennt uns schon. Im Oktober haben Teilnehmende selbst nach dem nächsten Kurs gefragt – wir sollten ihnen zuvorkommen.",
+      de: "Die beste Anmeldung ist die zweite: Die Person kennt uns schon. Im Oktober haben Schüler selbst nach dem nächsten Kurs gefragt – wir sollten ihnen zuvorkommen.",
       vi: "Lần đăng ký tốt nhất là lần thứ hai: học viên đã biết mình rồi. Tháng 10, chính học viên phải tự hỏi về khoá tiếp theo – lẽ ra mình nên chủ động trước."
     },
     { type: "heading", de: "Den nächsten Kurs planen", vi: "Lên kế hoạch khoá tiếp theo" },
@@ -19,7 +19,7 @@ const page: PageContent = {
       type: "list",
       items: [
         {
-          de: "Fristen notieren: Viele brauchen ein Zertifikat bis zu einem festen Datum, etwa für die Verlängerung des Aufenthalts, und wollen wissen, ob die nächste Stufe direkt anschließt. Solche Fristen in die Teilnehmendenliste schreiben und den Weg bis zum Ziel mit Daten planen.",
+          de: "Fristen notieren: Viele brauchen ein Zertifikat bis zu einem festen Datum, etwa für die Verlängerung des Aufenthalts, und wollen wissen, ob die nächste Stufe direkt anschließt. Solche Fristen in die Schülerliste schreiben und den Weg bis zum Ziel mit Daten planen.",
           vi: "Ghi lại hạn chót: nhiều học viên cần chứng chỉ trước một ngày cố định, ví dụ để gia hạn cư trú, và muốn biết học xong có lên lớp tiếp ngay không. Ghi các mốc này vào danh sách học viên và lên lộ trình có ngày cụ thể."
         },
         {
@@ -60,7 +60,7 @@ const page: PageContent = {
           vi: "Chọn đúng lúc: sau khi vừa giải quyết xong vướng mắc, sau một bài kiểm tra tốt hoặc khi kết thúc một trình độ – không phải giữa tuần học viên đang vật lộn với đăng nhập."
         },
         {
-          de: "Auf den Empfehlungsrabatt hinweisen. Manche Teilnehmende haben selbst eine Community, etwa auf Social Media, und empfehlen uns gern weiter, wenn sie zufrieden sind.",
+          de: "Auf den Empfehlungsrabatt hinweisen. Manche Schüler haben selbst eine Community, etwa auf Social Media, und empfehlen uns gern weiter, wenn sie zufrieden sind.",
           vi: "Nhắc về ưu đãi khi giới thiệu bạn bè. Có học viên có cộng đồng riêng, ví dụ trên mạng xã hội, và sẵn lòng giới thiệu khi hài lòng."
         }
       ]

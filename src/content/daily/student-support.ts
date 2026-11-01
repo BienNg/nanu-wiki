@@ -4,7 +4,7 @@ import type { DailyTask } from "@/lib/types";
 const tasks: DailyTask[] = [
   {
     id: "cs.teilnehmende-beantwortet",
-    label_de: "Allen Teilnehmenden geantwortet und offene Probleme gelöst",
+    label_de: "Allen Schülern geantwortet und offene Probleme gelöst",
     label_vi: "Đã trả lời mọi học viên và xử lý các vấn đề phát sinh",
     page: "student-support/aufgaben-und-rhythmus"
   },
@@ -16,7 +16,7 @@ const tasks: DailyTask[] = [
   },
   {
     id: "cs.neue-eingewiesen",
-    label_de: "Neue Teilnehmende vollständig eingewiesen und nach der ersten und zweiten Stunde gefragt, wie es läuft",
+    label_de: "Neue Schüler vollständig eingewiesen und nach der ersten und zweiten Stunde gefragt, wie es läuft",
     label_vi: "Học viên mới đã được hướng dẫn đầy đủ và được hỏi thăm sau buổi 1 và buổi 2",
     page: "student-support/onboarding-und-kundenbindung"
   },

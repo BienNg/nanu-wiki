@@ -17,7 +17,10 @@ function rawTexts(blocks: Block[]): { de: string; vi: string }[] {
         return [{ de: b.de, vi: b.vi }];
       case "list":
       case "steps":
-        return b.items.map((i) => ({ de: `${i.de} ${"body_de" in i ? (i.body_de ?? "") : ""}`, vi: i.vi }));
+        return b.items.map((i) => ({
+          de: [i.de, "body_de" in i ? i.body_de : "", ...("parts" in i ? (i.parts ?? []).flatMap((p) => [p.body_de, ...(p.steps ?? []).map((st) => `${st.de} ${st.body_de}`), p.done?.de ?? ""]) : [])].filter(Boolean).join(" "),
+          vi: i.vi,
+        }));
       case "template":
         return [{ de: b.translation_de ?? b.text, vi: b.text }];
       case "video":

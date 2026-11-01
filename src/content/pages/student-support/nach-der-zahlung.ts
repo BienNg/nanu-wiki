@@ -11,7 +11,7 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Im Oktober mussten neue Teilnehmende oft drei- oder viermal nachfragen, bis Material, Klassengruppe und App funktionierten. Typisch: Erst klappt der App-Login nicht, dann Classroom, dann ist unklar, welche PDF gedruckt werden soll – jede Frage an einem anderen Tag. Und jede fällt in die zwei Probestunden – genau dann, wenn sie entscheidet, ob sie bleibt.",
+      de: "Im Oktober mussten neue Schüler oft drei- oder viermal nachfragen, bis Material, Klassengruppe und App funktionierten. Typisch: Erst klappt der App-Login nicht, dann Classroom, dann ist unklar, welche PDF gedruckt werden soll – jede Frage an einem anderen Tag. Und jede fällt in die zwei Probestunden – genau dann, wenn sie entscheidet, ob sie bleibt.",
       vi: "Tháng 10, học viên mới thường phải hỏi ba, bốn lần mới nhận đủ tài liệu, vào được nhóm lớp và app. Thường gặp: đầu tiên không đăng nhập được app, rồi đến Classroom, rồi không biết in file nào – mỗi câu hỏi một ngày khác nhau. Và tất cả đều rơi vào hai buổi học thử – đúng lúc học viên quyết định có học tiếp hay không."
     },
     {
@@ -44,7 +44,7 @@ const page: PageContent = {
         {
           de: "Kanal festlegen",
           vi: "Chốt kênh liên lạc",
-          body_de: "Fragen, wo die Person erreichbar ist: Zalo, WhatsApp oder Messenger. Nicht alle nutzen Zalo – siehe „[Ein Kanal pro Teilnehmende](student-support/kanaele)“.",
+          body_de: "Fragen, wo die Person erreichbar ist: Zalo, WhatsApp oder Messenger. Nicht alle nutzen Zalo – siehe „[Ein Kanal pro Schüler](student-support/kanaele)“.",
           body_vi: "Hỏi học viên liên lạc qua đâu tiện nhất: Zalo, WhatsApp hay Messenger. Không phải ai cũng dùng Zalo – xem trang „[Mỗi học viên một kênh](student-support/kanaele)“."
         },
         {

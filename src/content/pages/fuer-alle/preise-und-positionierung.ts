@@ -39,7 +39,7 @@ const page: PageContent = {
     {
       type: "list",
       items: [
-        { de: "Ehemalige Teilnehmende: −500.000 VND (von dir aus nennen)", vi: "Học viên cũ: giảm 500.000 VND (chủ động báo)" },
+        { de: "Ehemalige Schüler: −500.000 VND (von dir aus nennen)", vi: "Học viên cũ: giảm 500.000 VND (chủ động báo)" },
         { de: "Zweite Person derselben Familie: −500.000 VND", vi: "Người thứ hai cùng gia đình: giảm 500.000 VND" },
         { de: "Saisonaktionen (z. B. Tết: −1.000.000, nur in der Tết-Woche, nur vor Ort) gelten nur im Aktionszeitraum.", vi: "Ưu đãi theo dịp (ví dụ Tết: giảm 1.000.000, chỉ trong tuần Tết, chỉ lớp offline) chỉ áp dụng trong thời gian khuyến mãi." }
       ]

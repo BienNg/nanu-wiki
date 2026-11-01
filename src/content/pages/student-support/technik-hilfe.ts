@@ -86,7 +86,7 @@ const page: PageContent = {
       label_de: "Vorlage · NaNu Go freischalten",
       label_vi: "Mẫu · Gửi app NaNu Go",
       text: "Trung tâm có ứng dụng NaNu Go được thiết kế riêng cho học viên NaNu NaNa. Trong app [chị/anh/bạn] có thể học từ vựng, luyện nghe và xem các bài giảng quay sẵn (hiện đã có 8 bài đầu của A1.1, các bài tiếp theo trung tâm đang cập nhật).\n[Chị/Anh/Bạn] tạo tài khoản bằng Gmail tại đây: [link]\nSau khi đăng ký, trung tâm sẽ mở quyền truy cập khóa A1.1 cho [chị/anh/bạn].\nLưu ý: mở link bằng Chrome hoặc Safari (không mở trực tiếp trong Zalo) để đăng nhập được nha.\nApp dùng song song với lớp học và bài tập về nhà. Có gì cần hỏi [chị/anh/bạn] cứ nhắn trung tâm nhé!",
-      translation_de: "„Wir haben eine eigene App für NaNu-NaNa-Teilnehmende: NaNu Go. Darin kannst du Wortschatz lernen, Hören üben und aufgezeichnete Lektionen ansehen (bisher die ersten 8 Lektionen von A1.1, weitere folgen). Registriere dich hier mit deinem Gmail-Konto: [Link]. Danach schalten wir A1.1 für dich frei. Wichtig: Öffne den Link in Chrome oder Safari, nicht direkt in Zalo. Die App ergänzt Unterricht und Hausaufgaben. Bei Fragen einfach schreiben!“"
+      translation_de: "„Wir haben eine eigene App für NaNu-NaNa-Schüler: NaNu Go. Darin kannst du Wortschatz lernen, Hören üben und aufgezeichnete Lektionen ansehen (bisher die ersten 8 Lektionen von A1.1, weitere folgen). Registriere dich hier mit deinem Gmail-Konto: [Link]. Danach schalten wir A1.1 für dich frei. Wichtig: Öffne den Link in Chrome oder Safari, nicht direkt in Zalo. Die App ergänzt Unterricht und Hausaufgaben. Bei Fragen einfach schreiben!“"
     },
     {
       type: "template",
@@ -98,7 +98,7 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "tip",
-      de: "Ist dieselbe Fehlermeldung bei zwei Teilnehmenden aufgetaucht, ist es kein Einzelfall: intern an die Technik geben, damit es für alle gelöst wird.",
+      de: "Ist dieselbe Fehlermeldung bei zwei Schülern aufgetaucht, ist es kein Einzelfall: intern an die Technik geben, damit es für alle gelöst wird.",
       vi: "Cùng một lỗi xuất hiện ở hai học viên thì không còn là trường hợp riêng: báo cho đội kỹ thuật để sửa cho tất cả."
     }
   ]

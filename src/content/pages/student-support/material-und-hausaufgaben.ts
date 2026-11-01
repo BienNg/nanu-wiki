@@ -58,7 +58,7 @@ const page: PageContent = {
           vi: "Thiếu file bài giảng: báo giáo viên, hẹn học viên giờ cụ thể và kiểm tra file đã thật sự có trong nhóm. Nếu không, hôm sau học viên lại phải nhắc lần nữa."
         },
         {
-          de: "Online-Teilnehmende bekommen das Kursbuch als PDF. Das gedruckte Handbuch wird verschickt, wenn es zum Angebot gehört – Versandstatus nennen.",
+          de: "Online-Schüler bekommen das Kursbuch als PDF. Das gedruckte Handbuch wird verschickt, wenn es zum Angebot gehört – Versandstatus nennen.",
           vi: "Học viên online nhận sách giáo khoa dạng PDF. Sách Handbuch in thì gửi về nhà nếu thuộc ưu đãi – báo tình trạng gửi hàng."
         },
         {

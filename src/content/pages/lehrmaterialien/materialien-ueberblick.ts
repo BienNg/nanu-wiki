@@ -45,7 +45,7 @@ const page: PageContent = {
         {
           de: "App NaNu Go",
           vi: "App NaNu Go",
-          body_de: "Läuft im Browser. Pro Lektion: Erklärvideo von Chị Phương, Wortschatz, Hörübungen. Dazu Lernfortschritt, Klassen-Rangliste und Spiele. Für Kursteilnehmende kostenlos, sonst 49 €.",
+          body_de: "Läuft im Browser. Pro Lektion: Erklärvideo von Chị Phương, Wortschatz, Hörübungen. Dazu Lernfortschritt, Klassen-Rangliste und Spiele. Für unsere Schüler kostenlos, sonst 49 €.",
           body_vi: "Chạy trên trình duyệt. Mỗi bài: video chị Phương giảng lại, từ vựng, luyện nghe. Có tiến độ học, bảng xếp hạng cả lớp và trò chơi. Miễn phí cho học viên, giá ngoài 49 €."
         },
         {

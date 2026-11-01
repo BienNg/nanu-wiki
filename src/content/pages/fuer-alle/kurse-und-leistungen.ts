@@ -47,15 +47,15 @@ const page: PageContent = {
       type: "list",
       items: [
         {
-          de: "Online nach deutscher Zeit – 5–9 Teilnehmende, 3–4 Termine/Woche à 1,5 Std., über Zoom",
+          de: "Online nach deutscher Zeit – 5–9 Schüler, 3–4 Termine/Woche à 1,5 Std., über Zoom",
           vi: "Online giờ Đức – 5–9 học viên, 3–4 buổi/tuần, mỗi buổi 1,5 tiếng, học qua Zoom"
         },
         {
-          de: "Online nach vietnamesischer Zeit – 5–9 Teilnehmende, 3–4 Termine/Woche à 1,5 Std.",
+          de: "Online nach vietnamesischer Zeit – 5–9 Schüler, 3–4 Termine/Woche à 1,5 Std.",
           vi: "Online giờ Việt Nam – 5–9 học viên, 3–4 buổi/tuần, mỗi buổi 1,5 tiếng"
         },
         {
-          de: "Vor Ort in Hanoi und Saigon – 8–15 Teilnehmende, 4 Termine/Woche à 2,5 Std. (Intensiv)",
+          de: "Vor Ort in Hanoi und Saigon – 8–15 Schüler, 4 Termine/Woche à 2,5 Std. (Intensiv)",
           vi: "Offline tại Hà Nội và Sài Gòn – 8–15 học viên, 4 buổi/tuần, mỗi buổi 2,5 tiếng (cấp tốc)"
         },
         {

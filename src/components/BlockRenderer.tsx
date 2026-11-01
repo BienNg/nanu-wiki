@@ -80,6 +80,47 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
                   <Bi de={it.body_de} vi={it.body_vi} />
                 </p>
               ) : null}
+              {it.parts?.length ? (
+                <div className="mt-2 flex flex-col gap-2.5">
+                  {it.parts.map((p) => (
+                    <div key={p.de} className="border-l-2 border-line pl-3">
+                      <h4 className="m-0">
+                        <span className="rounded-full bg-chip px-2 py-0.5 text-xs font-medium text-ink">
+                          <Label de={p.de} vi={p.vi} />
+                        </span>
+                      </h4>
+                      <p className="m-0 mt-1 whitespace-pre-line text-body">
+                        <Bi de={p.body_de} vi={p.body_vi} />
+                      </p>
+                      {p.steps?.length ? (
+                        <ol className="m-0 mt-2 flex list-decimal flex-col gap-2 pl-5 marker:text-muted">
+                          {p.steps.map((st) => (
+                            <li key={st.de}>
+                              <span className="font-medium text-ink">
+                                <Bi de={st.de} vi={st.vi} />
+                              </span>
+                              <span className="block text-body">
+                                <Bi de={st.body_de} vi={st.body_vi} />
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : null}
+                      {p.done ? (
+                        <aside className={`mt-2.5 flex gap-3 rounded-lg px-4 py-3 text-sm leading-relaxed ${CALLOUT.tip.box}`}>
+                          <Icon name="check" size={16} color={CALLOUT.tip.icon} strokeWidth={2} className="mt-[3px] flex-none" />
+                          <div>
+                            <strong data-ui-text className="font-semibold">
+                              <Label de="Erledigt, wenn" vi="Xong khi" />:
+                            </strong>{" "}
+                            <Bi de={p.done.de} vi={p.done.vi} />
+                          </div>
+                        </aside>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               {it.template ? (
                 <div className="mt-2 overflow-hidden rounded-lg border border-line">
                   <div className="flex items-center justify-between gap-2.5 border-b border-line bg-side py-1.5 pl-3 pr-2">

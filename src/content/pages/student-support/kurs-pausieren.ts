@@ -77,7 +77,7 @@ const page: PageContent = {
         {
           de: "Schriftlich bestätigen",
           vi: "Xác nhận bằng văn bản",
-          body_de: "Pause bis wann, ab welcher Stelle es weitergeht und was schon bezahlt ist. In der Teilnehmendenliste notieren.",
+          body_de: "Pause bis wann, ab welcher Stelle es weitergeht und was schon bezahlt ist. In der Schülerliste notieren.",
           body_vi: "Bảo lưu đến khi nào, học tiếp từ phần nào và đã đóng những gì. Ghi vào danh sách học viên."
         }
       ]

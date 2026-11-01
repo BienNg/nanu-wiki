@@ -2,7 +2,7 @@ import type { PageContent } from "@/lib/types";
 
 const page: PageContent = {
   slug: "bestandskunden-im-messenger",
-  title_de: "Wenn Teilnehmende im Messenger schreiben",
+  title_de: "Wenn Schüler im Messenger schreiben",
   title_vi: "Khi học viên đang học nhắn qua Messenger",
   kind: "process",
   section: "handbook",
@@ -11,7 +11,7 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Nicht jede Nachricht ist ein neuer Lead. Teilnehmende schreiben auf die Seite, wenn sie woanders keine Antwort bekommen. Für sie ist jede Minute Warten ein Zeichen, dass wir sie vergessen haben.",
+      de: "Nicht jede Nachricht ist ein neuer Lead. Schüler schreiben auf die Seite, wenn sie woanders keine Antwort bekommen. Für sie ist jede Minute Warten ein Zeichen, dass wir sie vergessen haben.",
       vi: "Không phải tin nhắn nào cũng là khách mới. Học viên nhắn lên trang khi họ không nhận được trả lời ở kênh khác. Với họ, mỗi phút chờ là dấu hiệu trung tâm đã quên họ."
     },
     { type: "heading", de: "Typische Anliegen", vi: "Các yêu cầu thường gặp" },

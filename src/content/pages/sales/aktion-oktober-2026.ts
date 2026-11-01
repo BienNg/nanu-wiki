@@ -21,7 +21,7 @@ const page: PageContent = {
       ordered: true,
       items: [
         { de: "−2.000.000 VND sofort – wer schon bei NaNu gelernt hat: −2.500.000 VND.", vi: "Giảm ngay 2.000.000 VNĐ – học viên đã học ở NaNu giảm 2.500.000." },
-        { de: "Stofftasche NaNu NaNa für Teilnehmende in Vietnam.", vi: "Tặng túi tote NaNu NaNa cho các bạn ở Việt Nam." },
+        { de: "Stofftasche NaNu NaNa für Schüler in Vietnam.", vi: "Tặng túi tote NaNu NaNa cho các bạn ở Việt Nam." },
         { de: "Gedrucktes Handbuch nach Hause geschickt.", vi: "Tặng sách Handbuch gửi về tận nhà." },
         { de: "App NaNu Go: Wortschatz, Hören, Schreiben, interaktive Übungen, Wiederholung und Vorbereitung der Stunden.", vi: "Tặng quyền sử dụng app NaNu Go: học và ôn từ vựng, luyện nghe, luyện viết, bài tập tương tác, ôn bài cũ và chuẩn bị bài mới." },
         { de: "Google Classroom: Hausaufgaben nach jeder Stunde, abgeben und Feedback der Lehrkraft bekommen.", vi: "Tặng quyền truy cập Google Classroom: nhận bài tập sau mỗi buổi, nộp bài và nhận nhận xét từ giáo viên." },

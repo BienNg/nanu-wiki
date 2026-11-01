@@ -74,7 +74,7 @@ const page: PageContent = {
       type: "chat",
       id: "fall-app-button",
       customer: "Bảo",
-      intro_de: "Bảo kam über die App-Anzeige und hat nur den Button gedrückt. Die App ist für Kursteilnehmende kostenlos und wird nicht einzeln verkauft.",
+      intro_de: "Bảo kam über die App-Anzeige und hat nur den Button gedrückt. Die App ist für unsere Schüler kostenlos und wird nicht einzeln verkauft.",
       intro_vi: "Bảo đến từ quảng cáo app và chỉ bấm nút câu hỏi mẫu. App miễn phí cho học viên của trung tâm và không bán riêng.",
       message: {
         text: "App này giá bao nhiêu?\n\nEm mới học tiếng Đức thôi, ở Sài Gòn",

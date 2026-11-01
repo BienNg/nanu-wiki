@@ -375,7 +375,7 @@ const page: PageContent = {
           goal_de: "Erfahren, ob Thảo Vy online oder vor Ort lernen möchte und welches Niveau sie hat.",
           goal_vi: "Biết Thảo Vy muốn học online hay tại lớp và đang ở trình độ nào.",
           messages: [
-            { from: "customer", stamp_de: "20:50", stamp_vi: "20:50", text: "1 lớp khoảng bn học viên ạ", translation_de: "„Wie viele Teilnehmende sind ungefähr in einer Klasse?“" },
+            { from: "customer", stamp_de: "20:50", stamp_vi: "20:50", text: "1 lớp khoảng bn học viên ạ", translation_de: "„Wie viele Schüler sind ungefähr in einer Klasse?“" },
             {
               from: "me",
               stamp_de: "20:51",

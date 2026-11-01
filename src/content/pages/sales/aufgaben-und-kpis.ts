@@ -67,12 +67,12 @@ const page: PageContent = {
       type: "list",
       items: [
         { de: "Morgens: alle unbeantworteten Kontakte, fällige Rückrufe und Fristen der Unterlagen prüfen.", vi: "Đầu ngày: kiểm tra toàn bộ khách chưa phản hồi, cần liên hệ lại và các deadline hồ sơ." },
-        { de: "Tagsüber: neue Kontakte beraten, Vertragskunden betreuen (Teilnehmende im Kurs betreut Customer Success), abschließen, Unterlagen bearbeiten.", vi: "Trong ngày: tư vấn khách mới, chăm sóc khách đã ký hợp đồng (học viên đang học do đội Chăm sóc học viên phụ trách), chốt đăng ký, xử lý hồ sơ." },
+        { de: "Tagsüber: neue Kontakte beraten, Vertragskunden betreuen (Schüler im Kurs betreut Customer Success), abschließen, Unterlagen bearbeiten.", vi: "Trong ngày: tư vấn khách mới, chăm sóc khách đã ký hợp đồng (học viên đang học do đội Chăm sóc học viên phụ trách), chốt đăng ký, xử lý hồ sơ." },
         { de: "Abends: Backoffice ausfüllen, in den letzten 15 Minuten alles noch einmal prüfen.", vi: "Cuối ngày: điền Backoffice, 15 phút cuối kiểm tra lại trước khi về." },
         { de: "Dienstag: Bedarf für die nächsten Klassen sammeln – einen Monat und zwei Wochen vor dem Start.", vi: "Thứ Ba: tổng hợp nhu cầu mở lớp sắp tới, trước 1 tháng và trước 2 tuần." },
         { de: "Mittwoch: unentschlossene Kontakte, Visumsunterlagen und Anmeldestand je Klasse prüfen. Die Leitung kontrolliert stichprobenartig.", vi: "Thứ Tư: kiểm tra khách chưa chốt, hồ sơ visa và tiến độ tuyển sinh. Quản lý sẽ kiểm tra bất kỳ." },
         { de: "Alle zwei Wochen: Bericht an die Leitung – neue, beratene, offene und angemeldete Kontakte, wer bald abschließen könnte. Termin selbst vereinbaren.", vi: "2 tuần 1 lần: báo cáo quản lý số khách mới, đã tư vấn, đang theo dõi và đã đăng ký, khách có khả năng chốt sắp tới. Tự đặt lịch họp." },
-        { de: "Monatsende: Statistik mit drei Zahlen – neue Anmeldungen im Monat, Teilnehmende je Stufe, Teilnehmende mit Vertrag.", vi: "Cuối tháng: bảng thống kê 3 nội dung – số học viên đăng ký mới trong tháng, số học viên đang học theo từng trình độ, số học viên theo hợp đồng." }
+        { de: "Monatsende: Statistik mit drei Zahlen – neue Anmeldungen im Monat, Schüler je Stufe, Schüler mit Vertrag.", vi: "Cuối tháng: bảng thống kê 3 nội dung – số học viên đăng ký mới trong tháng, số học viên đang học theo từng trình độ, số học viên theo hợp đồng." }
       ]
     },
     {

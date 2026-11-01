@@ -11,7 +11,7 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Ob jemand weiterlernt, entscheidet sich im Unterricht. Customer Success sieht, was die Teilnehmenden sagen, und was die Lehrkräfte eintragen – und bringt beides zusammen, bevor aus einer kleinen Unzufriedenheit eine Kündigung wird.",
+      de: "Ob jemand weiterlernt, entscheidet sich im Unterricht. Customer Success sieht, was die Schüler sagen, und was die Lehrkräfte eintragen – und bringt beides zusammen, bevor aus einer kleinen Unzufriedenheit eine Kündigung wird.",
       vi: "Học viên có học tiếp hay không được quyết định trong lớp học. Đội Chăm sóc học viên nắm được học viên nói gì và giáo viên ghi nhận gì – và kết nối hai bên trước khi một chút không hài lòng trở thành bỏ học."
     },
     { type: "heading", de: "Feedback der Lehrkräfte", vi: "Nhận xét hằng ngày của giáo viên" },
@@ -19,7 +19,7 @@ const page: PageContent = {
       type: "list",
       items: [
         {
-          de: "Nach jeder Stunde trägt die Lehrkraft Anwesenheit, Fortschritt und eine kurze Bemerkung zu den Teilnehmenden in die Excel-Liste der Klasse ein. Nach der ersten und zweiten Stunde kommt eine Gesamtbemerkung dazu.",
+          de: "Nach jeder Stunde trägt die Lehrkraft Anwesenheit, Fortschritt und eine kurze Bemerkung zu den Schülern in die Excel-Liste der Klasse ein. Nach der ersten und zweiten Stunde kommt eine Gesamtbemerkung dazu.",
           vi: "Sau mỗi buổi, giáo viên điền điểm danh, tiến độ và nhận xét ngắn cho học viên vào file Excel của lớp. Sau buổi 1 và 2 có thêm dòng nhận xét chung."
         },
         {
@@ -27,11 +27,11 @@ const page: PageContent = {
           vi: "Thiếu nhận xét: ghi vào báo cáo cuối ngày trên Backoffice – lớp, ngày thiếu, số tiền, ảnh chụp màn hình. Cứ 48 tiếng kiểm tra một lần. Ngày thiếu sẽ bị trừ phí vào cuối tháng."
         },
         {
-          de: "Lob gehört auch dazu: Wird eine Lehrkraft von Teilnehmenden gelobt, notieren und weitergeben. Ohne Notizen weiß am Monatsende niemand, wer gut war.",
+          de: "Lob gehört auch dazu: Wird eine Lehrkraft von Schülern gelobt, notieren und weitergeben. Ohne Notizen weiß am Monatsende niemand, wer gut war.",
           vi: "Lời khen cũng cần ghi lại: giáo viên được học viên khen thì note và chuyển lại. Không ghi lại thì cuối tháng không ai biết ai dạy tốt."
         },
         {
-          de: "Nach dem Mini-Test in der Mitte der Stufe bekommen die Teilnehmenden eine Rückmeldung zu ihrem Stand – aus den Bemerkungen der Lehrkraft und dem Testergebnis.",
+          de: "Nach dem Mini-Test in der Mitte der Stufe bekommen die Schüler eine Rückmeldung zu ihrem Stand – aus den Bemerkungen der Lehrkraft und dem Testergebnis.",
           vi: "Sau bài Mini Test giữa khoá, học viên nhận nhận xét về tình hình học – dựa trên nhận xét của giáo viên và điểm bài test."
         }
       ]
@@ -55,7 +55,7 @@ const page: PageContent = {
         {
           de: "Der Klasse erklären",
           vi: "Giải thích với lớp",
-          body_de: "Wechselt die Lehrkraft, sagen wir warum: „In der ersten Stunde unterrichtet … , weil …“. Ohne Erklärung denken die Teilnehmenden, wir hätten etwas versprochen und nicht gehalten.",
+          body_de: "Wechselt die Lehrkraft, sagen wir warum: „In der ersten Stunde unterrichtet … , weil …“. Ohne Erklärung denken die Schüler, wir hätten etwas versprochen und nicht gehalten.",
           body_vi: "Đổi giáo viên thì nói rõ lý do: „Buổi 1 thầy/cô … dạy, vì …“. Không giải thích, học viên sẽ nghĩ trung tâm hứa một đằng làm một nẻo."
         },
         {
@@ -85,7 +85,7 @@ const page: PageContent = {
           vi: "„Lớp đông, giáo viên gọi không hết“ hay „có bạn trình độ chưa tới“: ghi nhận phản hồi và trao đổi với giáo viên – không chỉ chuyển tiếp."
         },
         {
-          de: "„Ich passe nicht zu dieser Lehrkraft“ oder Zweifel an ihrer Qualifikation: Ernst nehmen, Grund erfragen, an die Leitung geben. Alle Lehrkräfte haben in Deutschland studiert; die Zeugnisse liegen im Drive. Sie werden nicht einfach an Teilnehmende verschickt – vorher die Leitung fragen.",
+          de: "„Ich passe nicht zu dieser Lehrkraft“ oder Zweifel an ihrer Qualifikation: Ernst nehmen, Grund erfragen, an die Leitung geben. Alle Lehrkräfte haben in Deutschland studiert; die Zeugnisse liegen im Drive. Sie werden nicht einfach an Schüler verschickt – vorher die Leitung fragen.",
           vi: "„Em không hợp giáo viên này“ hay nghi ngờ bằng cấp giáo viên: xem trọng, hỏi lý do, báo quản lý. Tất cả giáo viên đều học tại Đức; bằng đã scan lưu trên Drive. Không tự gửi bằng cho học viên – hỏi quản lý trước."
         },
         {

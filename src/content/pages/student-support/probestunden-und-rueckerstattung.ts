@@ -27,7 +27,7 @@ const page: PageContent = {
           vi: "Cam kết chỉ áp dụng khi có cả hai điều kiện: lớp online và là khoá đầu tiên tại trung tâm. Lớp offline và khoá học tiếp (ví dụ A2 sau khi đã học A1 ở trung tâm) không áp dụng."
         },
         {
-          de: "Kursausfall: Online braucht eine Klasse mindestens 5 Teilnehmende, vor Ort mindestens 8. Kommen sie nicht zusammen, bieten wir eine Alternative an. Wer sie nicht will, bekommt sofort 100 % zurück.",
+          de: "Kursausfall: Online braucht eine Klasse mindestens 5 Schüler, vor Ort mindestens 8. Kommen sie nicht zusammen, bieten wir eine Alternative an. Wer sie nicht will, bekommt sofort 100 % zurück.",
           vi: "Lớp không mở: lớp online cần tối thiểu 5 học viên, lớp offline tối thiểu 8. Nếu không đủ, trung tâm đưa ra phương án thay thế. Ai không đồng ý thì được hoàn 100% ngay."
         },
         {

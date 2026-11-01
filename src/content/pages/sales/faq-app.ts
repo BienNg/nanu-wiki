@@ -27,7 +27,7 @@ const page: PageContent = {
     {
       type: "list",
       items: [
-        { de: "Die App ist für unsere Kursteilnehmenden zu 100 % kostenlos. Einzeln verkaufen wir sie nicht – ihr Inhalt folgt genau dem Unterricht.", vi: "App miễn phí 100% cho học viên đang học tại trung tâm. App không bán riêng – nội dung bám sát bài học trên lớp." },
+        { de: "Die App ist für unsere Schüler zu 100 % kostenlos. Einzeln verkaufen wir sie nicht – ihr Inhalt folgt genau dem Unterricht.", vi: "App miễn phí 100% cho học viên đang học tại trung tâm. App không bán riêng – nội dung bám sát bài học trên lớp." },
         { de: "Wer neu einen A1-Kurs bucht, bekommt die App als Erstes. Ihr Wert außerhalb: 49 Euro (ca. 1.300.000 VND).", vi: "Học viên mới đăng ký khóa A1 được dùng app đầu tiên. Giá trị nếu mua ngoài: 49 Euro (khoảng 1.300.000 VND)." },
         { de: "Was sie kann: vorab aufgenommene Lektionen, Wortschatz und Hörübungen, Lernfortschritt, Rangliste und Duelle mit der Klasse.", vi: "App có: bài giảng quay sẵn, từ vựng và bài luyện nghe, theo dõi tiến độ, bảng xếp hạng và thách đấu với cả lớp." },
         { de: "Die App ist noch im Aufbau: Stand 27.10.2026 gibt es nur die ersten 8 Lektionen von A1.1. Wer A2 oder höher lernt, findet dort noch nichts zu seiner Stufe.", vi: "App vẫn đang hoàn thiện: tính đến 27/10/2026 mới có 8 bài đầu của A1.1. Học viên A2 trở lên hiện chưa có nội dung cho trình độ của mình." },
@@ -45,7 +45,7 @@ const page: PageContent = {
       label_de: "Vorlage · App-Anfrage",
       label_vi: "Mẫu · Hỏi về app",
       text: "Chào bạn ạ! App NaNu Go là miễn phí 100% cho học viên đang theo học tại trung tâm, vì nội dung app bám sát bài trên lớp nên app không bán riêng ạ. Bạn đang ở Việt Nam hay ở Đức, và đã học tiếng Đức chưa ạ? Trung tâm gửi bạn lớp phù hợp để bạn dùng app luôn nha.",
-      translation_de: "„Hallo! Die App NaNu Go ist für unsere Kursteilnehmenden 100 % kostenlos. Weil sie genau dem Unterricht folgt, verkaufen wir sie nicht einzeln. Bist du in Vietnam oder in Deutschland, und hast du schon Deutsch gelernt? Wir schicken dir den passenden Kurs, dann kannst du die App gleich nutzen.“"
+      translation_de: "„Hallo! Die App NaNu Go ist für unsere Schüler 100 % kostenlos. Weil sie genau dem Unterricht folgt, verkaufen wir sie nicht einzeln. Bist du in Vietnam oder in Deutschland, und hast du schon Deutsch gelernt? Wir schicken dir den passenden Kurs, dann kannst du die App gleich nutzen.“"
     },
     {
       type: "callout",
@@ -53,7 +53,7 @@ const page: PageContent = {
       de: "Viele klicken den Button mehrmals oder schreiben danach nichts mehr. Eine Antwort reicht – keine Wiederholungen. Kommt nach 24 Stunden nichts, einmal nachfassen.",
       vi: "Nhiều khách bấm nút nhiều lần hoặc sau đó không nhắn gì thêm. Trả lời một lần là đủ – không lặp lại. Sau 24 giờ không thấy trả lời thì nhắn lại một lần."
     },
-    { type: "heading", de: "Probleme von Teilnehmenden mit der App", vi: "Học viên gặp sự cố với app" },
+    { type: "heading", de: "Probleme von Schülern mit der App", vi: "Học viên gặp sự cố với app" },
     {
       type: "list",
       items: [
