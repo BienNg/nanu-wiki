@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-01",
   body: [
     {
       type: "paragraph",
@@ -81,8 +81,8 @@ const page: PageContent = {
           vi: "„Giáo viên dạy nhanh“: hỏi học viên đang vướng phần nào, đã hỏi lại giáo viên trong giờ chưa. Sau đó nhắn giáo viên chú ý hơn đến bạn này."
         },
         {
-          de: "„Die Klasse ist zu groß, ich komme selten dran“ oder „Andere sind noch nicht so weit“: Als Feedback notieren und mit der Lehrkraft besprechen – nicht nur weiterleiten.",
-          vi: "„Lớp đông, giáo viên gọi không hết“ hay „có bạn trình độ chưa tới“: ghi nhận phản hồi và trao đổi với giáo viên – không chỉ chuyển tiếp."
+          de: "„Die Klasse ist zu groß, ich komme selten dran“ oder „Andere sind noch nicht so weit“: Das kann nur die Lehrkraft im Unterricht ändern. Leite die Nachricht also nicht einfach weiter, sondern schreib der Lehrkraft, was genau gesagt wurde, und bitte um etwas Konkretes. Zum Beispiel: alle der Reihe nach drannehmen, in Zoom Breakout-Räume zum Sprechen nutzen oder Schnelleren eine Zusatzaufgabe geben. Notiere das Feedback in der Excel-Liste der Klasse. Nach der nächsten Stunde fragst du die Person, ob es besser war. Wenn nicht, gibst du es an die Leitung.",
+          vi: "„Lớp đông, giáo viên gọi không hết“ hay „có bạn trình độ chưa tới“: chỉ giáo viên mới thay đổi được điều này trong giờ học. Vì vậy đừng chỉ chuyển tiếp tin nhắn, mà hãy nhắn giáo viên học viên đã nói gì và đề nghị một việc cụ thể. Ví dụ: gọi lần lượt từng bạn, dùng phòng nhỏ (Breakout Room) trên Zoom để luyện nói, hoặc giao thêm bài cho bạn học nhanh hơn. Ghi phản hồi vào file Excel của lớp. Sau buổi học tiếp theo, hỏi lại học viên xem đã đỡ hơn chưa. Nếu chưa thì báo quản lý."
         },
         {
           de: "„Ich passe nicht zu dieser Lehrkraft“ oder Zweifel an ihrer Qualifikation: Ernst nehmen, Grund erfragen, an die Leitung geben. Alle Lehrkräfte haben in Deutschland studiert; die Zeugnisse liegen im Drive. Sie werden nicht einfach an Schüler verschickt – vorher die Leitung fragen.",
