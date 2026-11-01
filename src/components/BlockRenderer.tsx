@@ -74,8 +74,17 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
               <h3 className="m-0 text-base font-semibold leading-snug">
                 <Bi de={it.de} vi={it.vi} />
               </h3>
+              {it.when?.length ? (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {it.when.map((w) => (
+                    <span key={w.de} className="rounded-full bg-chip px-2 py-0.5 text-xs font-medium text-ink">
+                      <Label de={w.de} vi={w.vi} />
+                    </span>
+                  ))}
+                </div>
+              ) : null}
               {it.body_de ? (
-                <p className="m-0 mt-0.5 text-body">
+                <p className="m-0 mt-0.5 whitespace-pre-line text-body">
                   <Bi de={it.body_de} vi={it.body_vi} />
                 </p>
               ) : null}
