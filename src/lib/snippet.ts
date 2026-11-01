@@ -25,6 +25,8 @@ function rawTexts(blocks: Block[]): { de: string; vi: string }[] {
         return [{ de: b.translation_de ?? b.text, vi: b.text }];
       case "video":
         return [{ de: b.caption_de ?? "", vi: b.caption_vi ?? "" }];
+      case "image":
+        return [{ de: b.caption_de ?? b.alt_de, vi: b.caption_vi ?? b.alt_vi }];
       case "chat":
         return [{ de: b.intro_de ?? "", vi: b.intro_vi ?? "" }, { de: b.message.translation_de ?? b.message.text, vi: b.message.text }];
       case "conversation": {

@@ -198,6 +198,21 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
           <VideoEmbed url={b.url} captionDe={b.caption_de} captionVi={b.caption_vi} />
         </div>
       );
+    case "image":
+      // Click opens the full image in a modal, like image links below.
+      return (
+        <figure key={i} data-reveal className="m-0">
+          <ImageModal src={b.src} alt={b.alt_de} title={b.caption_de ? <Bi de={b.caption_de} vi={b.caption_vi ?? ""} inline /> : undefined} className="block w-full cursor-zoom-in">
+            <img src={b.src} alt={b.alt_de} className="block w-full rounded-lg border border-line" />
+          </ImageModal>
+          {(b.caption_de || b.caption_vi) && (
+            <figcaption className="mt-2 text-[13px] text-muted">
+              <span className="de">{b.caption_de}</span>
+              {b.caption_vi ? <span className="vi">{b.caption_vi}</span> : null}
+            </figcaption>
+          )}
+        </figure>
+      );
     case "link":
       // Links to an image open it in a modal with a download button instead of a new tab.
       if (/\.(png|jpe?g|webp|gif)$/i.test(b.url)) {

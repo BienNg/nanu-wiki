@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Theo dõi giáo viên & chất lượng lớp học",
   kind: "process",
   section: "handbook",
-  verified_until: null,
+  verified_until: "2027-05-01",
   updated_at: "2026-11-01",
   body: [
     {
@@ -16,25 +16,64 @@ const page: PageContent = {
     },
     { type: "heading", de: "Feedback der Lehrkräfte", vi: "Nhận xét hằng ngày của giáo viên" },
     {
+      type: "paragraph",
+      de: "Jede Klasse hat eine eigene Excel-Liste. Nach jeder Stunde trägt die Lehrkraft dort zu jedem Schüler ein:",
+      vi: "Mỗi lớp có một file Excel riêng. Sau mỗi buổi học, giáo viên ghi vào đó cho từng học viên:"
+    },
+    {
+      type: "list",
+      items: [
+        { de: "ob der Schüler im Unterricht aktiv mitgemacht hat,", vi: "học viên có tích cực tham gia buổi học không," },
+        { de: "ob er die Hausaufgabe von der letzten Stunde gemacht hat,", vi: "học viên đã làm bài tập về nhà của buổi trước chưa," },
+        { de: "ob er zu spät gekommen ist und wenn ja, wie viele Minuten,", vi: "học viên có vào lớp trễ không, nếu có thì trễ bao nhiêu phút," },
+        { de: "bei Online-Unterricht: ob seine Kamera an oder aus war,", vi: "với lớp online: học viên bật hay tắt camera," },
+        { de: "und ein kurzes Feedback, wie es mit dem Schüler insgesamt läuft.", vi: "và một nhận xét ngắn về tình hình chung của học viên." }
+      ]
+    },
+    {
+      type: "paragraph",
+      de: "Jeden Tag prüfst du, ob die Lehrkräfte alles eingetragen haben. Fehlt etwas, schreibst du es im Backoffice in den Tagesbericht:",
+      vi: "Mỗi ngày bạn kiểm tra xem giáo viên đã điền đủ chưa. Nếu thiếu, bạn ghi vào báo cáo cuối ngày trên Backoffice:"
+    },
+    {
+      type: "list",
+      items: [
+        { de: "welche Klasse es ist,", vi: "lớp nào," },
+        { de: "an welchen Tagen etwas fehlt,", vi: "thiếu những ngày nào," },
+        { de: "wie viel Geld der Lehrkraft dafür abgezogen wird,", vi: "giáo viên bị trừ bao nhiêu tiền," },
+        { de: "und einen Screenshot als Nachweis.", vi: "và một ảnh chụp màn hình làm bằng chứng." }
+      ]
+    },
+    {
+      type: "paragraph",
+      de: "Das Geld wird am Monatsende abgezogen. Außerdem:",
+      vi: "Tiền sẽ bị trừ vào cuối tháng. Ngoài ra:"
+    },
+    {
       type: "list",
       items: [
         {
-          de: "Nach jeder Stunde trägt die Lehrkraft Anwesenheit, Fortschritt und eine kurze Bemerkung zu den Schülern in die Excel-Liste der Klasse ein. Nach der ersten und zweiten Stunde kommt eine Gesamtbemerkung dazu.",
-          vi: "Sau mỗi buổi, giáo viên điền điểm danh, tiến độ và nhận xét ngắn cho học viên vào file Excel của lớp. Sau buổi 1 và 2 có thêm dòng nhận xét chung."
+          de: "Loben Schüler eine Lehrkraft, schreibst du das auf und gibst es weiter. Sonst weiß am Monatsende niemand mehr, wer gut unterrichtet hat.",
+          vi: "Học viên khen giáo viên nào thì bạn ghi lại và chuyển tiếp. Nếu không, đến cuối tháng không ai còn nhớ ai dạy tốt."
         },
         {
-          de: "Fehlt etwas: im Backoffice im Tagesbericht eintragen – Klasse, fehlende Tage, Betrag, Screenshot. Alle 48 Stunden prüfen. Fehlende Tage werden am Monatsende abgezogen.",
-          vi: "Thiếu nhận xét: ghi vào báo cáo cuối ngày trên Backoffice – lớp, ngày thiếu, số tiền, ảnh chụp màn hình. Cứ 48 tiếng kiểm tra một lần. Ngày thiếu sẽ bị trừ phí vào cuối tháng."
-        },
-        {
-          de: "Lob gehört auch dazu: Wird eine Lehrkraft von Schülern gelobt, notieren und weitergeben. Ohne Notizen weiß am Monatsende niemand, wer gut war.",
-          vi: "Lời khen cũng cần ghi lại: giáo viên được học viên khen thì note và chuyển lại. Không ghi lại thì cuối tháng không ai biết ai dạy tốt."
-        },
-        {
-          de: "Nach dem Mini-Test in der Mitte der Stufe bekommen die Schüler eine Rückmeldung zu ihrem Stand – aus den Bemerkungen der Lehrkraft und dem Testergebnis.",
-          vi: "Sau bài Mini Test giữa khoá, học viên nhận nhận xét về tình hình học – dựa trên nhận xét của giáo viên và điểm bài test."
+          de: "In der Mitte jeder Stufe gibt es einen kurzen Test, den Mini-Test. Danach sagen wir jedem Schüler, wo er gerade steht. Dafür nehmen wir sein Testergebnis und die Einträge der Lehrkraft.",
+          vi: "Giữa mỗi khoá có một bài kiểm tra ngắn, gọi là Mini Test. Sau đó chúng ta cho từng học viên biết trình độ hiện tại, dựa trên điểm bài test và những gì giáo viên đã ghi."
         }
       ]
+    },
+    {
+      type: "paragraph",
+      de: "Die Excel-Liste einer Klasse findest du im Google Kalender der Lehrkraft: Öffne einen Termin der Klasse. In der Beschreibung steht unter „Google Drive“ der Link zum Ordner der Klasse, darin liegt die Excel-Liste. Geh beim Prüfen alle Lehrkräfte durch – jeden Kalender, jede Klasse. Wer ausgelassen wird, fällt am Monatsende niemandem auf.",
+      vi: "File Excel của từng lớp nằm trong Google Calendar của giáo viên: mở một buổi học của lớp. Trong phần mô tả, mục „Google Drive“ có link đến thư mục của lớp, file Excel nằm trong đó. Khi kiểm tra phải đi qua tất cả giáo viên – từng lịch, từng lớp. Bỏ sót ai thì đến cuối tháng cũng không ai phát hiện."
+    },
+    {
+      type: "image",
+      src: "/student-support/kalender-excel-liste.webp",
+      alt_de: "Termin einer Klasse im Google Kalender der Lehrkraft: in der Beschreibung Zoom-Link und darunter der Google-Drive-Link zum Ordner der Klasse",
+      alt_vi: "Buổi học trong Google Calendar của giáo viên: phần mô tả có link Zoom và bên dưới là link Google Drive đến thư mục của lớp",
+      caption_de: "Der Link unter „Google Drive“ führt zum Ordner der Klasse mit der Excel-Liste.",
+      caption_vi: "Link dưới mục „Google Drive“ dẫn đến thư mục của lớp có file Excel."
     },
     { type: "heading", de: "Wenn eine Lehrkraft ausfällt", vi: "Khi giáo viên xin nghỉ" },
     {
@@ -91,24 +130,6 @@ const page: PageContent = {
         {
           de: "Probleme mit Lehrplan oder Programm („Der Unterricht wirkt wie reine Prüfungsvorbereitung“) und Bitten außerhalb der Regeln: in der Gruppe melden, dort wird entschieden.",
           vi: "Vấn đề về giáo án, chương trình („lớp học giống ôn đề thi“) và các yêu cầu ngoài quy định: báo vào nhóm để được đưa hướng giải quyết."
-        }
-      ]
-    },
-    { type: "heading", de: "Unterricht besuchen (Hospitation)", vi: "Dự giờ lớp online" },
-    {
-      type: "list",
-      items: [
-        {
-          de: "Ohne Ankündigung reingehen, Kamera und Mikro aus, mit einem neutralen Namen. Nicht stören – wird man angesprochen, bleibt man still oder verlässt die Stunde leise.",
-          vi: "Vào lớp không báo trước, tắt cam và mic, đặt tên khác. Không làm gián đoạn – nếu giáo viên hỏi thì im lặng hoặc lặng lẽ rời lớp."
-        },
-        {
-          de: "Bewerten: Ton, Bild, Licht, Folien, wie verständlich erklärt wird, wie die Lehrkraft mit der Klasse arbeitet.",
-          vi: "Đánh giá: âm thanh, hình ảnh, ánh sáng, slide trình chiếu, cách truyền đạt, cách giáo viên tương tác với lớp."
-        },
-        {
-          de: "Pro Klasse kurz in Slack berichten – dann kann die Leitung vergleichen.",
-          vi: "Báo cáo ngắn từng lớp trên Slack – để quản lý so sánh được."
         }
       ]
     }

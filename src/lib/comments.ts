@@ -35,7 +35,7 @@ export function tagInfo(tag: CommentTag | null) {
 }
 
 // ------------------------------------------------------------------ finding a comment's spot after edits
-const NOT_TEXT = new Set(["type", "id", "anchor", "tone", "url", "from", "ordered"]);
+const NOT_TEXT = new Set(["type", "id", "anchor", "tone", "url", "src", "from", "ordered"]);
 
 /** All readable text of a block, in reading order (DE and VI of each part, templates, messages …). */
 export function blockText(b: Block): string {

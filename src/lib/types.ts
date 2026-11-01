@@ -55,6 +55,7 @@ export type Block = (
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
+  | { type: "image"; src: string; alt_de: string; alt_vi: string; caption_de?: string; caption_vi?: string } // src: a file in `public/`
   | { type: "link"; url: string; de: string; vi: string }
   | { type: "chat"; id: string; customer: string; intro_de?: string; intro_vi?: string; message: ChatMessage }
   | ({ type: "conversation" } & Conversation)
