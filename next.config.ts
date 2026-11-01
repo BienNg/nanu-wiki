@@ -12,7 +12,7 @@ const LEGACY_PAGE_IDS: Record<string, string> = {
   "00000000-0000-0000-0000-0000000b0001": "/bereich/sales/erstkontakt-messenger",
   "00000000-0000-0000-0000-0000000b0004": "/bereich/sales/kampagne-probestunde",
   "00000000-0000-0000-0000-0000000b0005": "/bereich/sales/interview",
-  "00000000-0000-0000-0000-0000000e0001": "/bereich/student-support/onboarding-und-kundenbindung",
+  "00000000-0000-0000-0000-0000000e0001": "/bereich/student-support/nach-der-zahlung",
   "00000000-0000-0000-0000-0000000b0006": "/bereich/sales/verkaufstrichter",
 };
 
@@ -27,6 +27,14 @@ const nextConfig: NextConfig = {
     return [
       ...Object.entries(LEGACY_PAGE_IDS).map(([id, destination]) => ({ source: `/seite/${id}`, destination, permanent: true })),
       { source: "/seite/:id", destination: "/suche", permanent: false },
+      // „Vormerken, Zahlung & Rechnung“ moved from Student Support to Sales.
+      { source: "/bereich/student-support/anmeldung-und-zahlung", destination: "/bereich/sales/anmeldung-und-zahlung", permanent: true },
+      {
+        source: "/bereich/student-support",
+        has: [{ type: "query", key: "seite", value: "anmeldung-und-zahlung" }],
+        destination: "/bereich/sales?seite=anmeldung-und-zahlung",
+        permanent: true,
+      },
     ];
   },
 };

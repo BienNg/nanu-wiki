@@ -18,7 +18,7 @@ const tasks: DailyTask[] = [
     id: "cs.neue-eingewiesen",
     label_de: "Alle neuen Schüler in Slack \"student-support\" vollständig eingewiesen",
     label_vi: "Đã hướng dẫn đầy đủ tất cả học viên mới trong Slack \"student-support\"",
-    page: "student-support/onboarding-und-kundenbindung"
+    page: "student-support/nach-der-zahlung"
   },
   {
     id: "cs.zalo-aufgaben",

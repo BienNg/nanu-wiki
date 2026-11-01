@@ -54,8 +54,8 @@ const page: PageContent = {
           de: "An Customer Success übergeben",
           anchor: "uebergabe",
           vi: "Bàn giao cho đội Chăm sóc học viên",
-          body_de: "Nach der Zahlung schickt Sales nichts mehr an die Person. Die Anmeldung in Slack an Customer Success melden – mit allem, was zugesagt wurde. Siehe „[Vormerken, Zahlung & Rechnung](student-support/anmeldung-und-zahlung)“ im Bereich Student Support.",
-          body_vi: "Sau khi khách đóng tiền, Sales không gửi gì thêm cho học viên. Báo lên Slack cho đội Chăm sóc học viên – kèm mọi điều đã cam kết. Xem trang „[Ghi danh trước, đóng học phí & hoá đơn](student-support/anmeldung-und-zahlung)“ ở mục Student Support."
+          body_de: "Nach der Zahlung schickt Sales nichts mehr an die Person. Die Anmeldung in Slack an Customer Success melden – mit allem, was zugesagt wurde. Siehe „[Vormerken, Zahlung & Rechnung](sales/anmeldung-und-zahlung)“.",
+          body_vi: "Sau khi khách đóng tiền, Sales không gửi gì thêm cho học viên. Báo lên Slack cho đội Chăm sóc học viên – kèm mọi điều đã cam kết. Xem trang „[Ghi danh trước, đóng học phí & hoá đơn](sales/anmeldung-und-zahlung)“."
         }
       ]
     },

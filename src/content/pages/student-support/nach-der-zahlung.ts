@@ -38,8 +38,8 @@ const page: PageContent = {
         {
           de: "Daten zurückbestätigen",
           vi: "Xác nhận lại thông tin",
-          body_de: "Name, E-Mail, Telefonnummer, Klasse (Code, Niveau, Uhrzeit), gezahlter Betrag (ganzer oder halber Kurs). So fallen Tippfehler in der E-Mail sofort auf – sonst klappt später der App-Login nicht. Für die Rechnung zusätzlich Adresse und die Nummer des Personalausweises (CCCD) erfragen – siehe „[Vormerken, Zahlung & Rechnung](student-support/anmeldung-und-zahlung)“.",
-          body_vi: "Tên, email, số điện thoại, lớp (mã lớp, trình độ, giờ học), số tiền đã đóng (cả khoá hay nửa khoá). Như vậy sai sót trong email lộ ra ngay – nếu không, sau này sẽ không đăng nhập được app. Để xuất hoá đơn, xin thêm địa chỉ và số CCCD – xem trang „[Ghi danh trước, đóng học phí & hoá đơn](student-support/anmeldung-und-zahlung)“."
+          body_de: "Name, E-Mail, Telefonnummer, Klasse (Code, Niveau, Uhrzeit), gezahlter Betrag (ganzer oder halber Kurs). So fallen Tippfehler in der E-Mail sofort auf – sonst klappt später der App-Login nicht. Für die Rechnung zusätzlich die Adresse erfragen – siehe „[Vormerken, Zahlung & Rechnung](sales/anmeldung-und-zahlung)“.",
+          body_vi: "Tên, email, số điện thoại, lớp (mã lớp, trình độ, giờ học), số tiền đã đóng (cả khoá hay nửa khoá). Như vậy sai sót trong email lộ ra ngay – nếu không, sau này sẽ không đăng nhập được app. Để xuất hoá đơn, xin thêm địa chỉ – xem trang „[Ghi danh trước, đóng học phí & hoá đơn](sales/anmeldung-und-zahlung)“."
         },
         {
           de: "Kanal festlegen",

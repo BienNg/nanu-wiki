@@ -615,8 +615,8 @@ const page: PageContent = {
         {
           de: "Beim Ja gleich sagen, wie reserviert und bezahlt wird",
           vi: "Khi khách đồng ý, nói ngay cách giữ chỗ và thanh toán",
-          body_de: "Sag klar, was passiert, wenn der Kunde zusagt: wie der Platz reserviert wird und wie er bezahlt – damit er nicht nachfragen muss. Alles passiert im Chat.",
-          body_vi: "Nói rõ chuyện gì xảy ra khi khách đồng ý: giữ chỗ thế nào, thanh toán ra sao – để khách không phải hỏi. Mọi thứ ở trong chat."
+          body_de: "Sag klar, was passiert, wenn der Kunde zusagt: wie der Platz reserviert wird und wie er bezahlt – damit er nicht nachfragen muss. Alles passiert im Chat. Details: „[Vormerken, Zahlung & Rechnung](sales/anmeldung-und-zahlung)“.",
+          body_vi: "Nói rõ chuyện gì xảy ra khi khách đồng ý: giữ chỗ thế nào, thanh toán ra sao – để khách không phải hỏi. Mọi thứ ở trong chat. Chi tiết: „[Ghi danh trước, đóng học phí & hoá đơn](sales/anmeldung-und-zahlung)“."
         },
         {
           de: "Das Angebot nicht kalt werden lassen",

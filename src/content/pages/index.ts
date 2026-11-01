@@ -29,13 +29,12 @@ import salesKampagneProbestunde from "./sales/kampagne-probestunde";
 import salesProbestundeBuchen from "./sales/probestunde-buchen";
 import salesVerkaufstrichter from "./sales/verkaufstrichter";
 import salesWebsitePostsUndWerbung from "./sales/website-posts-und-werbung";
-import studentSupportAnmeldungUndZahlung from "./student-support/anmeldung-und-zahlung";
+import salesAnmeldungUndZahlung from "./sales/anmeldung-und-zahlung";
 import studentSupportAufgabenUndRhythmus from "./student-support/aufgaben-und-rhythmus";
 import studentSupportKursPausieren from "./student-support/kurs-pausieren";
 import studentSupportLehrkraefteBegleiten from "./student-support/lehrkraefte-begleiten";
 import studentSupportMaterialUndHausaufgaben from "./student-support/material-und-hausaufgaben";
 import studentSupportNachDerZahlung from "./student-support/nach-der-zahlung";
-import studentSupportOnboardingUndKundenbindung from "./student-support/onboarding-und-kundenbindung";
 import studentSupportProbestundenUndRueckerstattung from "./student-support/probestunden-und-rueckerstattung";
 import studentSupportTechnikHilfe from "./student-support/technik-hilfe";
 import visaKundenfragen from "./visa/kundenfragen";
@@ -47,8 +46,8 @@ import visaVisumStudium from "./visa/visum-studium";
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
   "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools, fuerAlleUmHilfeBitten],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
-  sales: [salesAktionOktober2026, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
-  "student-support": [studentSupportAnmeldungUndZahlung, studentSupportAufgabenUndRhythmus, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],
+  sales: [salesAktionOktober2026, salesAnmeldungUndZahlung, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
+  "student-support": [studentSupportAufgabenUndRhythmus, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
 
@@ -59,7 +58,7 @@ export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
     {
       de: "Messenger-Gespräche",
       vi: "Trò chuyện qua Messenger",
-      pages: [salesErstkontaktMessenger, salesBeratungUndTermine, salesProbestundeBuchen, salesBestandskundenImMessenger, salesKeineKunden],
+      pages: [salesErstkontaktMessenger, salesBeratungUndTermine, salesProbestundeBuchen, salesAnmeldungUndZahlung, salesBestandskundenImMessenger, salesKeineKunden],
     },
     { de: "FAQs", vi: "Câu hỏi thường gặp", pages: [salesFaqSprachkurse, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqStudium] },
     { de: "Kampagnen", vi: "Chiến dịch", pages: [salesAktionOktober2026, salesKampagneProbestunde] },
@@ -71,11 +70,11 @@ export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
     { de: "Fragen von Studierenden", vi: "Câu hỏi của học viên", pages: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial] },
   ],
   "student-support": [
-    { de: "Grundlagen", vi: "Nền tảng", pages: [studentSupportOnboardingUndKundenbindung, studentSupportAufgabenUndRhythmus] },
+    { de: "Grundlagen", vi: "Nền tảng", pages: [studentSupportAufgabenUndRhythmus] },
     {
       de: "Die ersten zwei Wochen",
       vi: "Hai tuần đầu tiên",
-      pages: [studentSupportAnmeldungUndZahlung, studentSupportNachDerZahlung, studentSupportTechnikHilfe, studentSupportProbestundenUndRueckerstattung],
+      pages: [studentSupportNachDerZahlung, studentSupportTechnikHilfe, studentSupportProbestundenUndRueckerstattung],
     },
     { de: "Während des Kurses", vi: "Trong khoá học", pages: [studentSupportMaterialUndHausaufgaben, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten] },
   ],
