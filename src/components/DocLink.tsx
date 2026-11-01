@@ -33,7 +33,7 @@ function read(key: string) {
 }
 
 /** The page being read: from the side pane (`?seite=`) or the full page path. */
-function currentDoc(inPane: boolean) {
+export function currentDoc(inPane: boolean) {
   const [, , area, page] = location.pathname.split("/");
   if (inPane) return { area, page: new URLSearchParams(location.search).get("seite") ?? undefined };
   return location.pathname.startsWith("/bereich/") ? { area, page } : {};
@@ -105,13 +105,18 @@ export function DocLink({ area, page, anchor, children }: { area?: string; page?
   );
 }
 
-/** On a page a link just opened: go to the linked section and flash it (or start at the top). */
+let firstLoad = true; // the first page of a browser visit, e.g. a copied section link pasted into the address bar
+
+/** On a page a link just opened: go to the linked section and flash it (or start at the top).
+ *  Also when the site is opened straight at a section (`…#abschnitt`). */
 export function SectionArrival() {
   useEffect(() => {
-    if (read(ARRIVE) !== urlKey()) return;
+    if (location.hash.length <= 1) firstLoad = false;
+    if (!firstLoad && read(ARRIVE) !== urlKey()) return;
     // After PaneFrame has reset the pane to the top on mount. Cleared only once shown: a remount
     // in between (React may mount effects twice) must still find it.
     const frame = requestAnimationFrame(() => {
+      firstLoad = false;
       store(ARRIVE, null);
       const id = decodeURIComponent(location.hash.slice(1));
       if (id) showSection(id, false);

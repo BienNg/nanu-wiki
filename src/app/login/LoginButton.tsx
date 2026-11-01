@@ -9,7 +9,8 @@ export function LoginButton({ next }: { next: string }) {
   async function signIn() {
     setLoading(true);
     const supabase = createClient();
-    const safeNext = next.startsWith("/") ? next : "/";
+    // The section of a shared link (`#…`) never reaches the server, so it is taken from this page's address.
+    const safeNext = (next.startsWith("/") ? next : "/") + window.location.hash;
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

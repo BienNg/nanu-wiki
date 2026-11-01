@@ -5,6 +5,7 @@ import fuerAlleKurseUndLeistungen from "./fuer-alle/kurse-und-leistungen";
 import fuerAllePreiseUndPositionierung from "./fuer-alle/preise-und-positionierung";
 import fuerAlleStandorteUndTeam from "./fuer-alle/standorte-und-team";
 import fuerAlleTools from "./fuer-alle/tools";
+import fuerAlleUmHilfeBitten from "./fuer-alle/um-hilfe-bitten";
 import lehrmaterialienBuchFinden from "./lehrmaterialien/buch-finden";
 import lehrmaterialienFaqMaterial from "./lehrmaterialien/faq-material";
 import lehrmaterialienLehrbuchUndMethode from "./lehrmaterialien/lehrbuch-und-methode";
@@ -44,7 +45,7 @@ import visaVisumStudium from "./visa/visum-studium";
 
 /** Pages per area slug. To add a page: create a file in the area's folder and list it here. */
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
-  "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools],
+  "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools, fuerAlleUmHilfeBitten],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
   sales: [salesAktionOktober2026, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
   "student-support": [studentSupportAnmeldungUndZahlung, studentSupportAufgabenUndRhythmus, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportOnboardingUndKundenbindung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],

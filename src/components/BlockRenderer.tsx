@@ -4,6 +4,7 @@ import { Icon } from "./Icon";
 import { VideoEmbed } from "./VideoEmbed";
 import { ImageModal } from "./ImageModal";
 import { CopyButton } from "./CopyButton";
+import { SectionLinkButton } from "./SectionLinkButton";
 import { MessengerSim } from "./MessengerSim";
 import { MessengerMockup } from "./MessengerMockup";
 import { ConversationTabs } from "./ConversationTabs";
@@ -36,8 +37,11 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
   switch (b.type) {
     case "heading":
       return (
-        <h2 key={i} id={headingId(b)} data-reveal className="font-display mt-3 scroll-mt-6 text-2xl font-bold leading-tight tracking-tight text-heading">
-          <Bi de={b.de} vi={b.vi} />
+        <h2 key={i} id={headingId(b)} data-reveal className="font-display mt-3 flex scroll-mt-6 items-start gap-1.5 text-2xl font-bold leading-tight tracking-tight text-heading">
+          <span className="min-w-0">
+            <Bi de={b.de} vi={b.vi} />
+          </span>
+          <SectionLinkButton id={headingId(b)} />
         </h2>
       );
     case "paragraph":
