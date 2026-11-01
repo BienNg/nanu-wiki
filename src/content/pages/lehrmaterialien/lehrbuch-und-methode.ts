@@ -48,7 +48,48 @@ const page: PageContent = {
       de: "Der Satz, der überzeugt: Deutsch lernen heißt nicht, ein Buch fertig zu machen, sondern jede Fertigkeit wirklich aufzubauen.",
       vi: "Câu nói thuyết phục: Học tiếng Đức không phải là hoàn thành từng trang sách, mà là thực sự hình thành từng kỹ năng."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Welches Lehrbuch ist die Grundlage unserer Kurse?",
+        question_vi: "Giáo trình nền tảng của các khóa học là gì?",
+        section: "welches-lehrbuch",
+        options: [
+          { de: "Schritte Plus, mit einem eigenen Unterrichtsplan von Chị Phương darauf", vi: "Schritte Plus, cùng lộ trình riêng do chị Phương soạn" },
+          { de: "Menschen", vi: "Menschen" },
+          { de: "Nur unser eigenes Buch, kein Lehrwerk", vi: "Chỉ sách riêng, không dùng giáo trình nào" },
+          { de: "Netzwerk neu", vi: "Netzwerk neu" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie arbeiten wir mit dem Buch im Unterricht?",
+        question_vi: "Chúng ta dùng sách trong lớp như thế nào?",
+        section: "nicht-seite-fur-seite",
+        options: [
+          { de: "Das Buch ist nur der Rahmen – jede Stunde hat ein klares Ziel, das erreicht werden muss", vi: "Sách chỉ là khung – mỗi buổi có mục tiêu rõ ràng và phải đạt được" },
+          { de: "Wir gehen es Seite für Seite durch", vi: "Học lần lượt từng trang" },
+          { de: "Wir benutzen es gar nicht", vi: "Hoàn toàn không dùng sách" },
+          { de: "Die Studierenden lesen es allein, die Stunde ist nur für Fragen", vi: "Học viên tự đọc, buổi học chỉ để hỏi" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was passiert in der Sprech-Stunde?",
+        question_vi: "Trong buổi luyện nói diễn ra gì?",
+        section: "nicht-seite-fur-seite",
+        options: [
+          { de: "Grammatikübungen im Buch schriftlich lösen", vi: "Làm bài tập ngữ pháp trong sách" },
+          { de: "Nur sprechen, ohne Buch", vi: "Chỉ nói, không dùng sách" },
+          { de: "Mehrmals hören und den Text analysieren", vi: "Nghe nhiều lần và phân tích bài" },
+          { de: "Einen Test schreiben", vi: "Làm bài kiểm tra" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

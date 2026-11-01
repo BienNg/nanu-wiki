@@ -47,7 +47,48 @@ const page: PageContent = {
         { de: "[ERGÄNZEN: Ansprechperson Visa, Vertretung]", vi: "[ERGÄNZEN: người phụ trách visa, người thay thế]" }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Welche Visa begleiten wir?",
+        question_vi: "Chúng ta hỗ trợ những loại visa nào?",
+        section: "was-wir-begleiten",
+        options: [
+          { de: "Arbeitsvisa und Saisonarbeit", vi: "Visa lao động và lao động thời vụ" },
+          { de: "Familiennachzug", vi: "Đoàn tụ gia đình" },
+          { de: "Alle Visaarten", vi: "Mọi loại visa" },
+          { de: "Visum zur Ausbildung und Visum zum Studium", vi: "Visa du học nghề và visa du học đại học" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand fragt nach einem Programm „8 Monate arbeiten in Deutschland“. Begleiten wir das?",
+        question_vi: "Có người hỏi chương trình „làm việc 8 tháng ở Đức“. Chúng ta có hỗ trợ không?",
+        section: "was-wir-nicht-begleiten",
+        options: [
+          { de: "Ja, im Paket der Ausbildungsvermittlung", vi: "Có, trong gói du học nghề" },
+          { de: "Nein, Arbeitsvisa und Arbeitsprogramme begleiten wir nicht", vi: "Không, không hỗ trợ visa và chương trình lao động" },
+          { de: "Ja, gegen Aufpreis", vi: "Có, trả thêm phí" },
+          { de: "Nur, wenn die Person B2 hat", vi: "Chỉ khi có B2" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wer kümmert sich um Unterlagen und Botschaftstermin?",
+        question_vi: "Ai lo hồ sơ và lịch hẹn Đại sứ quán?",
+        section: "wer-macht-was",
+        options: [
+          { de: "Sales", vi: "Sales" },
+          { de: "Student Support", vi: "Student Support" },
+          { de: "Die Lehrkraft", vi: "Giáo viên" },
+          { de: "Die Familie allein, wir nicht", vi: "Gia đình tự lo, trung tâm không" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

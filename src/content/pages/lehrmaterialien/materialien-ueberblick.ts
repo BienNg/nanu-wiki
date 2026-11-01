@@ -70,7 +70,59 @@ const page: PageContent = {
         { de: "App-Zugang ohne Kurs verkaufen.", vi: "Bán quyền dùng app khi không học tại trung tâm." }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was machst du mit Stellen, die mit [ERGÄNZEN] markiert sind?",
+        question_vi: "Bạn làm gì với những chỗ đánh dấu [ERGÄNZEN]?",
+        options: [
+          { de: "Nicht an Kunden weitergeben", vi: "Không chuyển cho khách" },
+          { de: "Den Kunden genau so vorlesen", vi: "Đọc nguyên văn cho khách" },
+          { de: "Selbst eine Antwort ausdenken und weitergeben", vi: "Tự nghĩ câu trả lời rồi gửi" },
+          { de: "Löschen", vi: "Xóa đi" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wofür ist Google Classroom da?",
+        question_vi: "Google Classroom dùng để làm gì?",
+        section: "was-alle-studierenden-bekommen",
+        options: [
+          { de: "Für die Bezahlung", vi: "Để thanh toán" },
+          { de: "Für Videoanrufe mit der Lehrkraft", vi: "Để gọi video với giáo viên" },
+          { de: "Hausaufgaben nach jeder Stunde, Abgabe, Rückmeldung der Lehrkraft und alle Unterlagen", vi: "Bài tập sau mỗi buổi, nộp bài, nhận xét của giáo viên và toàn bộ tài liệu" },
+          { de: "Für die Klassen-Rangliste und Spiele", vi: "Cho bảng xếp hạng lớp và trò chơi" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was stimmt über die App NaNu Go?",
+        question_vi: "Điều nào đúng về app NaNu Go?",
+        section: "was-alle-studierenden-bekommen",
+        options: [
+          { de: "Läuft im Browser, mit Erklärvideos, Wortschatz und Hörübungen; für unsere Schüler kostenlos, sonst 49 €", vi: "Chạy trên trình duyệt, có video giảng, từ vựng, bài nghe; miễn phí cho học viên, bình thường 49 €" },
+          { de: "Man lädt sie im App Store herunter", vi: "Tải trên App Store" },
+          { de: "Sie kostet für unsere Schüler 49 €", vi: "Học viên phải trả 49 €" },
+          { de: "Sie enthält nur die Hausaufgaben", vi: "Chỉ có bài tập về nhà" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was machen wir NICHT?",
+        question_vi: "Điều nào chúng ta KHÔNG làm?",
+        section: "was-wir-nicht-machen",
+        options: [
+          { de: "Folien nach der Stunde teilen", vi: "Chia sẻ slide sau buổi học" },
+          { de: "Das PDF-Paket per E-Mail schicken", vi: "Gửi gói PDF qua email" },
+          { de: "Hausaufgaben in Classroom stellen", vi: "Giao bài tập trên Classroom" },
+          { de: "App-Zugang ohne Kurs verkaufen", vi: "Bán quyền dùng app mà không có khóa học" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

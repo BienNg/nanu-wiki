@@ -87,6 +87,14 @@ export function Sidebar({
           </NavLink>
         )}
         {hasRole(profile.role, "admin") && (
+          <NavLink href="/admin/quiz" title="Quiz-Übersicht">
+            <Icon name="cap" size={15} />
+            <span className="side-text min-w-0 truncate">
+              <Label de="Quiz-Übersicht" vi="Tổng quan quiz" />
+            </span>
+          </NavLink>
+        )}
+        {hasRole(profile.role, "admin") && (
           <NavLink href="/admin/benutzer" title="Benutzer & Rollen">
             <Icon name="shield" size={15} />
             <span className="side-text min-w-0 truncate">

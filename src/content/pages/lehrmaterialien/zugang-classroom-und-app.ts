@@ -47,7 +47,60 @@ const page: PageContent = {
       de: "[ERGÄNZEN: Wer ist für Zugangsprobleme zuständig – Sales, Student Support oder die Lehrkraft? Und wer schaltet neue E-Mails frei?]",
       vi: "[ERGÄNZEN: Ai phụ trách lỗi đăng nhập – Sales, Hỗ trợ học viên hay giáo viên? Ai duyệt email mới?]"
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Ein Student sucht die App im App Store und findet sie nicht. Was erklärst du?",
+        question_vi: "Học viên tìm app trên App Store mà không thấy. Bạn giải thích gì?",
+        section: "was-studierende-wissen-mussen",
+        options: [
+          { de: "Sie gibt es nur für Android", vi: "Chỉ có cho Android" },
+          { de: "Er muss sie bei Google Play kaufen", vi: "Phải mua trên Google Play" },
+          { de: "Die App läuft im Browser auf Handy oder Computer, ohne Installation", vi: "App chạy trên trình duyệt điện thoại hoặc máy tính, không cần cài" },
+          { de: "Die App gibt es erst ab A2", vi: "App chỉ có từ A2" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Mit welcher E-Mail meldet man sich an?",
+        question_vi: "Đăng nhập bằng email nào?",
+        section: "was-studierende-wissen-mussen",
+        options: [
+          { de: "Mit irgendeiner Gmail-Adresse", vi: "Bất kỳ địa chỉ Gmail nào" },
+          { de: "Mit der E-Mail der Lehrkraft", vi: "Email của giáo viên" },
+          { de: "Mit der E-Mail, die die Person uns gegeben hat", vi: "Email mà học viên đã đưa cho trung tâm" },
+          { de: "Ohne E-Mail, nur mit Telefonnummer", vi: "Không cần email, chỉ số điện thoại" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was ist dein erster Schritt, wenn die Anmeldung nicht klappt?",
+        question_vi: "Bước đầu tiên khi đăng nhập không được là gì?",
+        section: "wenn-es-nicht-klappt",
+        options: [
+          { de: "Sagen, dass es morgen wieder geht", vi: "Nói ngày mai sẽ được" },
+          { de: "Um einen Screenshot vom Fehler bitten und fragen, welche E-Mail benutzt wird", vi: "Xin ảnh chụp lỗi và hỏi đang dùng email nào" },
+          { de: "Ein neues Konto für die Person anlegen", vi: "Tạo tài khoản mới cho học viên" },
+          { de: "Die Person an Google verweisen", vi: "Bảo học viên hỏi Google" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Der Zugang klappt noch nicht, aber heute ist Hausaufgabe. Was sagst du?",
+        question_vi: "Chưa vào được, nhưng hôm nay có bài tập. Bạn nói gì?",
+        section: "wenn-es-nicht-klappt",
+        options: [
+          { de: "Dann fällt die Hausaufgabe aus", vi: "Vậy không cần làm bài" },
+          { de: "Keine Sorge – die Hausaufgabe steht in der Zalo-Gruppe, auf Papier machen ist völlig in Ordnung", vi: "Đừng lo – bài tập có trong nhóm Zalo, làm ra giấy hoàn toàn được" },
+          { de: "Ohne Classroom kann sie nicht am Kurs teilnehmen", vi: "Không có Classroom thì không học được" },
+          { de: "Sie soll warten, bis die Lehrkraft sich meldet", vi: "Chờ giáo viên liên hệ" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

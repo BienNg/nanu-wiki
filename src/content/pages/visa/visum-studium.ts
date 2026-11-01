@@ -112,7 +112,96 @@ const page: PageContent = {
         { de: "„Kann mein Kind früher einreisen, um sich einzugewöhnen?“ – Ja, das Visum kann meist bis zu eine Woche vor Semesterbeginn gelten. Das Datum muss schon im Antrag stehen.", vi: "„Con có sang sớm để làm quen được không?“ – Được, visa thường có hiệu lực sớm nhất 1 tuần trước khi học kỳ bắt đầu. Ngày này phải ghi ngay trong đơn." }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was kommt auf dem Weg zum Studienvisum zuerst, nach Deutsch B1?",
+        question_vi: "Trên đường đến visa du học, sau khi có B1 thì bước đầu là gì?",
+        section: "der-weg-zum-visum",
+        options: [
+          { de: "Die APS-Prüfung der Unterlagen – für September beginnen wir Anfang des Jahres", vi: "Thẩm định APS – nhập học tháng 9 thì bắt đầu từ đầu năm" },
+          { de: "Den Flug buchen", vi: "Đặt vé máy bay" },
+          { de: "Das Sperrkonto eröffnen", vi: "Mở tài khoản phong tỏa" },
+          { de: "Den VFS-Termin buchen", vi: "Đặt lịch VFS" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Es gibt noch keine Zulassung, weil erst die Aufnahmeprüfung des Studienkollegs kommt. Welches Visum?",
+        question_vi: "Chưa có thư nhập học vì còn phải thi đầu vào dự bị. Xin visa nào?",
+        section: "fall-2-ohne-zulassung-studienbewerber-visum",
+        options: [
+          { de: "Studienbewerber-Visum – bis zu neun Monate in Deutschland, um einen Studienplatz zu finden", vi: "Visa dự tuyển – ở Đức tối đa chín tháng để tìm chỗ học" },
+          { de: "Visum zum Studium mit Zulassungsbescheid", vi: "Visa du học kèm thư nhập học" },
+          { de: "Touristenvisum", vi: "Visa du lịch" },
+          { de: "Gar keins, erst nach der Prüfung", vi: "Chưa xin, đợi thi xong" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Welche Unterlage braucht man in beiden Fällen?",
+        question_vi: "Hồ sơ nào cần cho cả hai trường hợp?",
+        section: "unterlagen-fur-beide-falle",
+        options: [
+          { de: "APS-Zertifikat und Nachweis der Krankenversicherung", vi: "Chứng chỉ APS và giấy bảo hiểm y tế" },
+          { de: "Arbeitsvertrag", vi: "Hợp đồng lao động" },
+          { de: "Ein Mietvertrag in Deutschland", vi: "Hợp đồng thuê nhà ở Đức" },
+          { de: "Ein Führerschein", vi: "Bằng lái xe" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Welches Einreisedatum gibst du im VIDEX-Formular an?",
+        question_vi: "Ngày nhập cảnh nào ghi trong mẫu VIDEX?",
+        section: "antrag-und-vfs",
+        options: [
+          { de: "Irgendeins, man ändert es nach dem Visum", vi: "Ngày nào cũng được, đổi sau khi có visa" },
+          { de: "Drei Monate vor Semesterbeginn", vi: "Ba tháng trước khi vào học" },
+          { de: "Das Datum des VFS-Termins", vi: "Ngày hẹn VFS" },
+          { de: "Gleich das gewünschte – höchstens eine Woche vor Semesterbeginn; später lässt es sich nicht ändern", vi: "Ghi luôn ngày mong muốn – tối đa một tuần trước khi vào học; sau này không đổi được" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie lange dauert die Bearbeitung meistens?",
+        question_vi: "Thời gian xét duyệt thường là bao lâu?",
+        section: "gebuhren-und-bearbeitungszeit",
+        options: [
+          { de: "Eine Woche", vi: "Một tuần" },
+          { de: "Ca. zwölf Wochen, kurz vor Semesterbeginn oft länger", vi: "Khoảng mười hai tuần, gần kỳ nhập học thường lâu hơn" },
+          { de: "Sechs Monate, immer", vi: "Luôn sáu tháng" },
+          { de: "Zwei Tage nach dem VFS-Termin", vi: "Hai ngày sau hẹn VFS" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Eine Familie will nach einem Monat bei der Visastelle nach dem Stand fragen. Was rätst du?",
+        question_vi: "Gia đình muốn hỏi Đại sứ quán về tiến độ sau một tháng. Bạn khuyên gì?",
+        section: "gebuhren-und-bearbeitungszeit",
+        options: [
+          { de: "Nicht nachfragen – in den ersten drei Monaten werden Nachfragen nicht beantwortet", vi: "Không nên hỏi – trong ba tháng đầu sẽ không được trả lời" },
+          { de: "Jeden Tag anrufen, dann geht es schneller", vi: "Gọi mỗi ngày cho nhanh" },
+          { de: "Eine E-Mail schicken, die Antwort kommt am nächsten Tag", vi: "Gửi email, hôm sau có trả lời" },
+          { de: "Einen neuen Antrag stellen", vi: "Nộp hồ sơ mới" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wann sollte jemand beantragen, der im September beginnt?",
+        question_vi: "Người nhập học tháng 9 nên nộp hồ sơ khi nào?",
+        section: "haufige-fragen-der-familien",
+        options: [
+          { de: "Im August", vi: "Tháng 8" },
+          { de: "Eine Woche vor Semesterbeginn", vi: "Một tuần trước khi vào học" },
+          { de: "Nach der Ankunft in Deutschland", vi: "Sau khi đến Đức" },
+          { de: "Spätestens im Frühsommer", vi: "Muộn nhất là đầu hè" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

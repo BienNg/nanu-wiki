@@ -51,7 +51,60 @@ const page: PageContent = {
       de: "Nie ein Visum versprechen. Die Entscheidung trifft die Botschaft, nicht wir.",
       vi: "Không bao giờ hứa chắc có visa. Quyết định là của Đại sứ quán, không phải của trung tâm."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Welches Deutschniveau braucht man für das Ausbildungsvisum (außer Pflege und Zahnmedizin)?",
+        question_vi: "Cần trình độ tiếng Đức nào cho visa du học nghề (trừ điều dưỡng và nha khoa)?",
+        section: "voraussetzungen",
+        options: [
+          { de: "Mindestens B1 in allen vier Fertigkeiten", vi: "Tối thiểu B1 cả bốn kỹ năng" },
+          { de: "A2 reicht", vi: "A2 là đủ" },
+          { de: "B1 nur im Sprechen", vi: "B1 chỉ phần nói" },
+          { de: "C1", vi: "C1" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wann wird Rate 3 (99 Mio.) fällig?",
+        question_vi: "Khi nào đóng đợt 3 (99 triệu)?",
+        section: "ablauf",
+        options: [
+          { de: "Wenn das Visum erteilt ist – danach wird der Flug gebucht", vi: "Khi visa được cấp – sau đó đặt vé máy bay" },
+          { de: "Wenn der Vertrag unterschrieben ist", vi: "Khi ký hợp đồng" },
+          { de: "Beim Termin bei der Botschaft", vi: "Khi đến hẹn Đại sứ quán" },
+          { de: "Am ersten Tag der Ausbildung", vi: "Vào ngày đầu học nghề" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie lange gilt ein B1-Zertifikat für den Visumantrag?",
+        question_vi: "Chứng chỉ B1 có giá trị bao lâu khi nộp visa?",
+        section: "fristen-die-alles-entscheiden",
+        options: [
+          { de: "6 Monate", vi: "6 tháng" },
+          { de: "24 Monate", vi: "24 tháng" },
+          { de: "Unbegrenzt", vi: "Vô thời hạn" },
+          { de: "12 Monate", vi: "12 tháng" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Eine Kundin fragt: „Bekomme ich sicher das Visum?“ Was sagst du?",
+        question_vi: "Khách hỏi: „Tôi chắc chắn có visa chứ?“ Bạn nói gì?",
+        section: "fristen-die-alles-entscheiden",
+        options: [
+          { de: "Ich verspreche kein Visum – die Botschaft entscheidet, nicht wir", vi: "Không hứa visa – Đại sứ quán quyết định, không phải trung tâm" },
+          { de: "Ja, mit unserer Vermittlung zu 100 %", vi: "Có, qua trung tâm thì chắc chắn 100 %" },
+          { de: "Ja, wenn du die Rate 3 sofort bezahlst", vi: "Có, nếu đóng đợt 3 ngay" },
+          { de: "Ja, wenn du auf deine Wunschstadt wartest", vi: "Có, nếu chờ được thành phố mình muốn" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

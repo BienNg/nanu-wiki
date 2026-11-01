@@ -122,7 +122,96 @@ const page: PageContent = {
       text: "Hallo em, chị giải thích 1 xíu về phương pháp của NaNu NaNa nha.\nThông thường, các lớp sẽ bám từng trang sách: hôm nay học bài trang này, buổi sau sang bài trang tiếp theo. Cảm giác của học viên sẽ là mình học hết sách.\nCòn ở NaNu NaNa, giáo trình vẫn là khung kiến thức chung nhưng không dạy theo kiểu đi từng trang, mà chia theo mục tiêu của từng buổi. Ví dụ:\nBuổi 1 – Ngữ pháp: tập trung hoàn toàn vào ngữ pháp trọng tâm, phải hiểu bản chất và luyện nói thật chắc.\nBuổi 2 – Nghe: nghe nhiều lần, phân tích nội dung và cách sử dụng ngôn ngữ, kết hợp đọc.\nBuổi 3 – Nói: chỉ luyện nói.\nLý do: học tiếng Đức không phải là hoàn thành từng trang sách, mà là thực sự hình thành từng kỹ năng. Mỗi buổi có một mục tiêu rõ ràng và học viên phải thật sự nắm được mục tiêu đó.",
       translation_de: "„Kurz zu unserer Methode: Viele Schulen gehen Seite für Seite durchs Buch – man hat das Gefühl, das Buch geschafft zu haben. Bei NaNu NaNa ist das Lehrbuch der Rahmen, aber jede Stunde hat ein Ziel: Stunde 1 Grammatik (verstehen und sicher sprechen), Stunde 2 Hören (mehrmals hören, analysieren, mit Lesen), Stunde 3 nur Sprechen. Deutsch lernen heißt, Fertigkeiten aufzubauen – nicht Seiten abzuhaken.“"
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Wann schickst du den Preis?",
+        question_vi: "Khi nào bạn gửi giá?",
+        section: "reihenfolge-in-der-beratung",
+        options: [
+          { de: "Gleich in der ersten Nachricht", vi: "Ngay tin nhắn đầu tiên" },
+          { de: "Erst nach der Zahlung", vi: "Chỉ sau khi đóng tiền" },
+          { de: "Erst wenn klar ist, ob die Person online oder vor Ort lernen will", vi: "Chỉ khi đã rõ khách học online hay trực tiếp" },
+          { de: "Nur wenn die Person dreimal fragt", vi: "Chỉ khi khách hỏi ba lần" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Du stellst einen Kurs vor. Was gehört immer dazu?",
+        question_vi: "Khi giới thiệu khóa học, luôn phải có gì?",
+        section: "reihenfolge-in-der-beratung",
+        options: [
+          { de: "Nur der Preis", vi: "Chỉ giá" },
+          { de: "Die Kontonummer", vi: "Số tài khoản" },
+          { de: "Stundenplan, Start und das Bild der Klasse", vi: "Lịch học, ngày khai giảng và hình ảnh lớp" },
+          { de: "Ein Video der Lehrkraft", vi: "Video của giáo viên" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand hat schon woanders Deutsch gelernt. Was schickst du gleich?",
+        question_vi: "Khách đã học tiếng Đức ở nơi khác. Bạn gửi gì ngay?",
+        section: "einstufung",
+        options: [
+          { de: "Den A1-Kurs", vi: "Khóa A1" },
+          { de: "Den Einstufungstest der Stufe, damit sie ihn macht, während sie auf den Rückruf wartet", vi: "Bài kiểm tra xếp lớp của trình độ đó, để làm trong lúc chờ gọi lại" },
+          { de: "Nichts, erst muss sie zahlen", vi: "Không gì, phải đóng tiền trước" },
+          { de: "Ein Prüfungszertifikat zum Ausfüllen", vi: "Mẫu chứng chỉ để điền" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was gehört in jede Terminerinnerung?",
+        question_vi: "Nhắc lịch hẹn luôn phải ghi gì?",
+        section: "termine-anruf-oder-buro",
+        options: [
+          { de: "Nur das Datum", vi: "Chỉ ngày" },
+          { de: "Nur der Name", vi: "Chỉ tên" },
+          { de: "Der Preis des Kurses", vi: "Giá khóa học" },
+          { de: "Wie: Anruf über Zalo/WhatsApp oder Büro Saigon/Hanoi – mit Datum, Uhrzeit (bei Deutschland beide Zeitzonen) und Nummer", vi: "Hình thức: gọi Zalo/WhatsApp hay đến văn phòng Sài Gòn/Hà Nội – kèm ngày, giờ (khách ở Đức ghi cả hai múi giờ) và số điện thoại" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Was versprechen wir NIE?",
+        question_vi: "Điều gì chúng ta KHÔNG BAO GIỜ hứa?",
+        section: "was-wir-nicht-versprechen",
+        options: [
+          { de: "Dass die Lehrkräfte in Deutschland studiert haben", vi: "Giáo viên đã học tại Đức" },
+          { de: "Den Preis aus der Preisliste", vi: "Giá trong bảng giá" },
+          { de: "Dass es eine Probestunden-Regel gibt", vi: "Có quy định học thử" },
+          { de: "Aufzeichnungen der Stunden, eine bestimmte Lehrkraft, ein Visum oder das Bestehen der Prüfung", vi: "Video ghi buổi học, giáo viên cụ thể, visa hay đậu kỳ thi" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "„Ich habe Hepatitis B – kann ich eine Ausbildung machen?“ Was machst du?",
+        question_vi: "„Tôi bị viêm gan B – có đi du học nghề được không?“ Bạn làm gì?",
+        section: "was-wir-nicht-versprechen",
+        options: [
+          { de: "Nie raten – an die Leitung geben und sagen, bis wann die Antwort kommt", vi: "Không đoán – chuyển quản lý và báo khi nào có trả lời" },
+          { de: "„Ja, kein Problem“", vi: "„Được, không sao“" },
+          { de: "„Nein, das geht nicht“", vi: "„Không, không được“" },
+          { de: "Im Internet nachsehen und antworten", vi: "Tra trên mạng rồi trả lời" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Jemand fragt nach unserer Methode. Welche Schnellantwort nimmst du?",
+        question_vi: "Khách hỏi về phương pháp. Bạn dùng trả lời nhanh nào?",
+        section: "unsere-methode-erklaren",
+        options: [
+          { de: "„phương pháp“ – jede Stunde hat ein Ziel: Grammatik, Hören oder Sprechen", vi: "„phương pháp“ – mỗi buổi có một mục tiêu: ngữ pháp, nghe hoặc nói" },
+          { de: "„giá“ – mit der Preisliste", vi: "„giá“ – kèm bảng giá" },
+          { de: "„lịch“ – mit dem Stundenplan", vi: "„lịch“ – kèm lịch học" },
+          { de: "Keine, ich erkläre es frei", vi: "Không dùng, tự giải thích" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

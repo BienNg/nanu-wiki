@@ -7,7 +7,7 @@ import { LangToggle } from "./LangToggle";
 import { Reveal } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
-import { KindBadge, VerifiedPill } from "./Badges";
+import { KindBadge, QuizChip, VerifiedPill } from "./Badges";
 import { BlockRenderer } from "./BlockRenderer";
 import { SectionArrival } from "./DocLink";
 import { DocToc } from "./DocToc";
@@ -19,6 +19,8 @@ import { PaneClose } from "./DocPane";
 import type { CommentAnchor, PageWithMeta, Profile } from "@/lib/types";
 import { resolveAnchor } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
+import { myQuizStatuses } from "@/lib/quizProgress";
+import type { QuizStatus } from "@/lib/pageQuiz";
 import { headingId, toPlain } from "@/lib/links";
 
 /**
@@ -48,6 +50,8 @@ export async function DocView({
     : { data: [] as { quiz_id: string }[] };
   const done = [...(mine ?? []).map((r) => r.sim_id), ...(mineMcq ?? []).map((r) => r.quiz_id.slice(page.id.length + 1))];
   const canComment = hasRole(profile.role, "staff");
+  // The quiz at the end of the page: staff and up only, like the onboarding quizzes.
+  const quiz = page.quiz && canComment && page.section !== "interview" ? (await myQuizStatuses(profile.id, [page]))[page.id] : undefined;
   // `?c=<comment id>` (links from the inbox and Slack) → scroll to that comment's spot.
   let focus: CommentAnchor | "missing" | undefined;
   if (canComment && c && /^[0-9a-f-]{36}$/.test(c)) {
@@ -91,6 +95,11 @@ export async function DocView({
         <VerifiedPill until={page.verified_until} showDate />
         <KindBadge kind={page.kind} />
         {!page.published && <span className="rounded bg-chip px-1.5 py-0.5">Entwurf · Bản nháp</span>}
+        {quiz && (
+          <a href="#quiz" className="hover:opacity-80">
+            <QuizChip status={quiz} />
+          </a>
+        )}
       </div>
 
       <header className="-mt-1 flex flex-col gap-2.5">
@@ -109,6 +118,7 @@ export async function DocView({
       ) : (
         <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done }} />
       )}
+      {quiz && page.quiz && <QuizCard href={`${page.href}/quiz`} status={quiz} questions={page.quiz.questions} />}
       <SectionArrival />
       {canEdit && hasMcq && <McqResponses pageId={page.id} blocks={page.body} />}
       {canEdit && hasChat && <ChatResponses pageId={page.id} blocks={page.body} />}
@@ -179,5 +189,38 @@ export async function DocView({
         </div>
       )}
     </div>
+  );
+}
+
+/** End of the page: what the quiz is and where this person stands with it. */
+function QuizCard({ href, status, questions }: { href: string; status: QuizStatus; questions: number }) {
+  const text = {
+    passed: { de: "Du hast das Quiz zu dieser Seite bestanden.", vi: "Bạn đã qua quiz của trang này." },
+    outdated: {
+      de: "Auf dieser Seite ist seit deinem Quiz etwas Neues dazugekommen. Lies sie noch einmal und mach das Quiz neu.",
+      vi: "Trang này có nội dung mới kể từ lần bạn làm quiz. Hãy đọc lại và làm lại quiz.",
+    },
+    failed: { de: "Noch nicht bestanden. Lies die Seite noch einmal und versuch es wieder.", vi: "Chưa đạt. Hãy đọc lại trang rồi thử lại." },
+    open: { de: "Hast du alles gelesen? Zeig es im Quiz. Alle Antworten müssen richtig sein.", vi: "Bạn đã đọc hết chưa? Hãy làm quiz. Phải đúng tất cả các câu." },
+  }[status.state];
+  return (
+    <section id="quiz" className="mt-6 flex flex-wrap items-center gap-4 rounded-xl border border-line bg-side px-5 py-4">
+      <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-1.5">
+        <span className="flex flex-wrap items-center gap-2">
+          <strong className="text-[15px] text-ink">
+            <Label de="Quiz zu dieser Seite" vi="Quiz của trang này" />
+          </strong>
+          <QuizChip status={status} />
+        </span>
+        <span className="text-[13px] text-[#4A4F57]">
+          <Bi de={text.de} vi={text.vi} /> <Label de={`${questions} Fragen`} vi={`${questions} câu hỏi`} />
+        </span>
+      </div>
+      {status.state !== "passed" && (
+        <Link href={href} className="inline-flex h-10 items-center rounded-[7px] bg-accent px-[18px] text-sm font-medium text-white hover:bg-[#1F5DB5] hover:text-white">
+          {status.state === "open" ? <Label de="Quiz starten" vi="Bắt đầu quiz" /> : <Label de="Quiz wiederholen" vi="Làm lại quiz" />} →
+        </Link>
+      )}
+    </section>
   );
 }

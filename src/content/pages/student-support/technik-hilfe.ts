@@ -101,7 +101,84 @@ const page: PageContent = {
       de: "Ist dieselbe Fehlermeldung bei zwei Schülern aufgetaucht, ist es kein Einzelfall: intern an die Technik geben, damit es für alle gelöst wird.",
       vi: "Cùng một lỗi xuất hiện ở hai học viên thì không còn là trường hợp riêng: báo cho đội kỹ thuật để sửa cho tất cả."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was ist dein erster Schritt bei einem Technikproblem?",
+        question_vi: "Bước đầu tiên khi có lỗi kỹ thuật là gì?",
+        section: "grundregel",
+        options: [
+          { de: "Antworten, dass bei uns kein Fehler ist", vi: "Trả lời là bên mình không lỗi" },
+          { de: "Die Lehrkraft fragen", vi: "Hỏi giáo viên" },
+          { de: "Neu installieren lassen", vi: "Bảo cài lại" },
+          { de: "Um einen Screenshot vom Bildschirm bitten", vi: "Xin ảnh chụp màn hình" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Nach zwei Versuchen klappt es per Text immer noch nicht. Was dann?",
+        question_vi: "Thử hai lần qua tin nhắn vẫn chưa được. Tiếp theo làm gì?",
+        section: "grundregel",
+        options: [
+          { de: "Weiter Textnachrichten schicken", vi: "Tiếp tục nhắn tin" },
+          { de: "Bis zur nächsten Woche warten", vi: "Chờ tuần sau" },
+          { de: "Per Zalo- oder WhatsApp-Videoanruf gemeinsam durchklicken", vi: "Gọi video Zalo hoặc WhatsApp để làm cùng" },
+          { de: "Die Person bitten, ein neues Handy zu kaufen", vi: "Bảo khách mua điện thoại mới" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Die App fragt nach einem Klassencode. Welche App ist das meistens?",
+        question_vi: "App đòi mã lớp. Thường đó là app nào?",
+        section: "die-haufigsten-falle",
+        options: [
+          { de: "NaNu Go", vi: "NaNu Go" },
+          { de: "Zoom", vi: "Zoom" },
+          { de: "Zalo", vi: "Zalo" },
+          { de: "Google Classroom, nicht NaNu Go – Code oder Einladungslink direkt schicken", vi: "Google Classroom, không phải NaNu Go – gửi ngay mã hoặc link mời" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Der Login im Zalo-Browser klappt nicht. Was rätst du?",
+        question_vi: "Đăng nhập trong trình duyệt của Zalo không được. Bạn khuyên gì?",
+        section: "die-haufigsten-falle",
+        options: [
+          { de: "Zalo neu installieren", vi: "Cài lại Zalo" },
+          { de: "Ein neues Passwort erfinden", vi: "Đặt mật khẩu mới" },
+          { de: "Es morgen noch einmal versuchen", vi: "Mai thử lại" },
+          { de: "Den Link in Chrome oder Safari öffnen", vi: "Mở link bằng Chrome hoặc Safari" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Welche aufgezeichneten Lektionen gibt es in NaNu Go bisher?",
+        question_vi: "Hiện NaNu Go có những bài giảng quay sẵn nào?",
+        section: "nanu-go-stand",
+        options: [
+          { de: "Nur die ersten 8 Lektionen von A1.1", vi: "Chỉ 8 bài đầu của A1.1" },
+          { de: "Alle Lektionen von A1 bis B1", vi: "Tất cả bài từ A1 đến B1" },
+          { de: "Alle Live-Stunden als Aufzeichnung", vi: "Tất cả buổi học trực tiếp được ghi lại" },
+          { de: "Keine", vi: "Không có" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Zwei Schüler haben dieselbe Fehlermeldung. Was machst du?",
+        question_vi: "Hai học viên gặp cùng một lỗi. Bạn làm gì?",
+        section: "nanu-go-stand",
+        options: [
+          { de: "Jedem einzeln helfen und nichts weitergeben", vi: "Giúp từng người, không báo ai" },
+          { de: "Sagen, dass es an ihrem Handy liegt", vi: "Nói là do điện thoại của họ" },
+          { de: "Intern an die Technik geben, damit es für alle gelöst wird", vi: "Báo nội bộ cho bộ phận kỹ thuật để xử lý cho tất cả" },
+          { de: "Warten, ob noch mehr Leute schreiben", vi: "Chờ xem có thêm ai nhắn không" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;

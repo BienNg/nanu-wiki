@@ -1,6 +1,6 @@
 import "server-only";
 import { hasRole } from "@/lib/auth";
-import type { Area, DailyTask, HandbookGroup, OnboardingWeek, PageWithMeta, Profile, QuizContent } from "@/lib/types";
+import type { Area, DailyTask, HandbookGroup, OnboardingWeek, PageQuiz, PageWithMeta, Profile, QuizContent } from "@/lib/types";
 import { AREAS } from "./areas";
 import { HANDBOOK_GROUPS_BY_AREA, PAGES_BY_AREA } from "./pages";
 import { ONBOARDING_BY_AREA } from "./onboarding";
@@ -14,10 +14,17 @@ import { pageAnchors, parseLinks, parseTarget } from "@/lib/links";
 
 export { AREAS };
 
+// A page's quiz (with its answers) is kept out of PAGES: page objects reach the browser (search),
+// so the questions are only handed out by getPageQuiz.
+const PAGE_QUIZZES = new Map<string, PageQuiz>(
+  AREAS.flatMap((area) => (PAGES_BY_AREA[area.slug] ?? []).flatMap((p) => (p.quiz?.questions.length ? [[`${area.slug}/${p.slug}`, p.quiz] as const] : []))),
+);
+
 export const PAGES: PageWithMeta[] = AREAS.flatMap((area) =>
-  (PAGES_BY_AREA[area.slug] ?? []).map((p) => ({
+  (PAGES_BY_AREA[area.slug] ?? []).map(({ quiz, ...p }) => ({
     ...p,
     id: `${area.slug}/${p.slug}`,
+    quiz: quiz?.questions.length ? { version: quiz.version, questions: quiz.questions.length } : null,
     href: `/bereich/${area.slug}/${p.slug}`,
     published: p.published ?? true,
     area: { slug: area.slug, name_de: area.name_de, name_vi: area.name_vi, color: area.color, icon: area.icon },
@@ -48,6 +55,12 @@ export function brokenLinks(): string[] {
     else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(where, x, k);
   };
   for (const p of PAGES) walk(p.id, p.body);
+  for (const [id, quiz] of PAGE_QUIZZES) {
+    quiz.questions.forEach((q, i) => {
+      if (q.section && !ids.get(id)?.includes(q.section)) problems.push(`${id}: Quizfrage ${i + 1} zeigt auf Abschnitt „${q.section}“, den es nicht gibt`);
+      if (!q.options[q.correct]) problems.push(`${id}: Quizfrage ${i + 1} hat keine richtige Antwort`);
+    });
+  }
   for (const [area, tasks] of Object.entries(DAILY_TASKS_BY_AREA)) {
     for (const t of tasks) {
       if (!t.page) continue;
@@ -81,6 +94,16 @@ export function getPage(areaSlug: string, pageSlug: string): PageWithMeta | unde
 
 export function getPageById(id: string): PageWithMeta | undefined {
   return PAGES.find((p) => p.id === id);
+}
+
+/** The quiz of a page, answers included. Server only – never pass it to a client component as is. */
+export function getPageQuiz(pageId: string): PageQuiz | undefined {
+  return PAGE_QUIZZES.get(pageId);
+}
+
+/** Pages whose quiz someone must pass: all of „Für alle“ plus the Handbuch of their own role. Drafts and Interview never count. */
+export function requiredQuizPages(primaryArea: string | null): PageWithMeta[] {
+  return PAGES.filter((p) => p.quiz && p.published && p.section !== "interview" && (p.area.slug === "fuer-alle" || p.area.slug === primaryArea));
 }
 
 export function getHandbookGroups(areaSlug: string): HandbookGroup[] {

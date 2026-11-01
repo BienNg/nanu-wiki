@@ -114,7 +114,72 @@ const page: PageContent = {
         }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Wann beantworten wir eine neue Anfrage auf Messenger?",
+        question_vi: "Khi nào chúng ta trả lời tin nhắn mới trên Messenger?",
+        section: "ziel",
+        options: [
+          { de: "Innerhalb von drei Tagen", vi: "Trong vòng ba ngày" },
+          { de: "Am nächsten Morgen", vi: "Sáng hôm sau" },
+          { de: "Sofort – bevor die Person das Interesse verliert oder eine andere Schule fragt", vi: "Ngay lập tức – trước khi khách mất hứng hoặc hỏi trường khác" },
+          { de: "Wenn wir Zeit haben", vi: "Khi rảnh" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Welche zwei Fragen stellst du, um den Bedarf zu klären?",
+        question_vi: "Bạn hỏi hai câu nào để làm rõ nhu cầu?",
+        section: "schritt-fur-schritt",
+        options: [
+          { de: "Wo wohnst du? Welches Niveau hast du?", vi: "Bạn sống ở đâu? Bạn ở trình độ nào?" },
+          { de: "Wie alt bist du? Was arbeitest du?", vi: "Bạn bao nhiêu tuổi? Bạn làm nghề gì?" },
+          { de: "Warum willst du Deutsch lernen? Was ist dein Budget?", vi: "Vì sao học tiếng Đức? Ngân sách bao nhiêu?" },
+          { de: "Wann hast du Zeit? Wie hast du von uns gehört?", vi: "Khi nào bạn rảnh? Bạn biết trung tâm qua đâu?" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Der Kunde fragt nach dem Preis. Was machst du zuerst?",
+        question_vi: "Khách hỏi giá. Bạn làm gì trước?",
+        section: "schritt-fur-schritt",
+        options: [
+          { de: "Erst meine Fragen stellen, dann den Preis nennen", vi: "Hỏi câu của mình trước rồi mới báo giá" },
+          { de: "Zuerst seine Frage beantworten, dann meine zwei Fragen stellen", vi: "Trả lời câu hỏi của khách trước, rồi mới hỏi hai câu của mình" },
+          { de: "Den Preis nicht nennen", vi: "Không báo giá" },
+          { de: "Einen Rabatt versprechen", vi: "Hứa giảm giá" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Die Person antwortet 24 Stunden lang nicht. Was tust du?",
+        question_vi: "Khách không trả lời trong 24 giờ. Bạn làm gì?",
+        section: "schritt-fur-schritt",
+        options: [
+          { de: "Den Kontakt löschen", vi: "Xóa liên hệ" },
+          { de: "Noch einmal nachschreiben", vi: "Nhắn lại thêm một lần" },
+          { de: "Nichts mehr", vi: "Không làm gì nữa" },
+          { de: "Jede Stunde schreiben", vi: "Nhắn mỗi giờ" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was ist ein häufiger Fehler im Erstkontakt?",
+        question_vi: "Lỗi thường gặp khi liên hệ lần đầu là gì?",
+        section: "haufige-fehler",
+        options: [
+          { de: "Die Person mit Namen ansprechen", vi: "Gọi khách bằng tên" },
+          { de: "Kurz und herzlich antworten", vi: "Trả lời ngắn gọn và thân thiện" },
+          { de: "Den Preis offen nennen", vi: "Báo giá rõ ràng" },
+          { de: "Das Gespräch ohne nächsten Schritt beenden und den Kontakt nicht im CRM eintragen", vi: "Kết thúc cuộc trò chuyện mà không có bước tiếp theo và không ghi vào CRM" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

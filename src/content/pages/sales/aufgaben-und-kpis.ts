@@ -108,7 +108,84 @@ const page: PageContent = {
       de: "Ruhiger Tag mit wenig neuen Nachrichten? Die Kontakte der letzten Wochen durchgehen, die noch nicht geantwortet haben, und freundlich fragen, was sie noch brauchen.",
       vi: "Hôm nào ít tin nhắn mới? Xem lại các khách mấy tuần gần đây chưa trả lời, nhắn hỏi thăm vì sao chưa đăng ký, có cần tư vấn thêm gì không."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was muss bei jedem Kontakt immer feststehen?",
+        question_vi: "Mỗi liên hệ luôn phải có gì?",
+        section: "die-aufgaben",
+        options: [
+          { de: "Nur der Name", vi: "Chỉ tên" },
+          { de: "Ein Status, eine verantwortliche Person und ein Datum für den nächsten Kontakt", vi: "Trạng thái, người phụ trách và ngày liên hệ tiếp theo" },
+          { de: "Ein Foto der Person", vi: "Ảnh của khách" },
+          { de: "Die Kontonummer", vi: "Số tài khoản" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wie schätzt du Interessierte für Ausbildung und Studium ein?",
+        question_vi: "Bạn đánh giá khách quan tâm du học nghề và đại học thế nào?",
+        section: "die-aufgaben",
+        options: [
+          { de: "Mit 1–5 Sternen, direkt im Kontaktnamen (5 = am vielversprechendsten)", vi: "Bằng 1–5 sao, ghi ngay trong tên liên hệ (5 = triển vọng nhất)" },
+          { de: "Mit Schulnoten von 1 bis 6 im Backoffice", vi: "Bằng điểm 1 đến 6 trong Backoffice" },
+          { de: "Gar nicht", vi: "Không đánh giá" },
+          { de: "Nach dem Alter", vi: "Theo độ tuổi" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was machst du jeden Morgen zuerst?",
+        question_vi: "Mỗi sáng bạn làm gì trước tiên?",
+        section: "der-rhythmus",
+        options: [
+          { de: "Den Monatsbericht schreiben", vi: "Viết báo cáo tháng" },
+          { de: "Neue Klassen planen", vi: "Lên kế hoạch lớp mới" },
+          { de: "Unbeantwortete Kontakte, fällige Rückrufe und Fristen der Unterlagen prüfen", vi: "Kiểm tra liên hệ chưa trả lời, cuộc gọi lại đến hạn và hạn nộp hồ sơ" },
+          { de: "Backoffice ausfüllen", vi: "Điền Backoffice" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was steht in der Statistik am Monatsende?",
+        question_vi: "Thống kê cuối tháng gồm gì?",
+        section: "der-rhythmus",
+        options: [
+          { de: "Nur der Umsatz", vi: "Chỉ doanh thu" },
+          { de: "Neue Anmeldungen im Monat, Schüler je Stufe und Schüler mit Vertrag", vi: "Số đăng ký mới trong tháng, học viên theo trình độ và học viên có hợp đồng" },
+          { de: "Wie viele Nachrichten geschickt wurden", vi: "Số tin nhắn đã gửi" },
+          { de: "Die Stunden jeder Lehrkraft", vi: "Số giờ dạy của mỗi giáo viên" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wie viele neue Anmeldungen pro Monat sind das Ziel?",
+        question_vi: "Mục tiêu bao nhiêu đăng ký mới mỗi tháng?",
+        section: "kpis",
+        options: [
+          { de: "Mindestens 10", vi: "Ít nhất 10" },
+          { de: "Mindestens 50", vi: "Ít nhất 50" },
+          { de: "Mindestens 100", vi: "Ít nhất 100" },
+          { de: "Es gibt kein Ziel", vi: "Không có mục tiêu" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Ein Ziel wurde nicht erreicht. Was erwartet die Leitung?",
+        question_vi: "Không đạt mục tiêu. Quản lý mong đợi gì?",
+        section: "kpis",
+        options: [
+          { de: "„Die Kunden haben nicht geantwortet“ reicht", vi: "Nói „khách không trả lời“ là đủ" },
+          { de: "Nichts, nächster Monat wird besser", vi: "Không gì, tháng sau sẽ tốt hơn" },
+          { de: "Eine Analyse, warum, und einen Vorschlag, was du änderst – dazu der Grund jeder Absage", vi: "Phân tích lý do và đề xuất thay đổi – kèm lý do của mỗi lần khách từ chối" },
+          { de: "Eine Entschuldigung", vi: "Một lời xin lỗi" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;

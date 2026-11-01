@@ -41,7 +41,60 @@ const page: PageContent = {
       de: "Möchte jemand nur die zwei Termine bezahlen statt des ganzen Kurses: Verständnis zeigen und die Rückerstattungsregel erklären. Bleibt die Person dabei, an die Leitung geben – nicht selbst zusagen.",
       vi: "Khách chỉ muốn đóng tiền 2 buổi học thử thay vì cả khóa: thể hiện sự thấu hiểu và giải thích quy định hoàn tiền. Nếu khách vẫn muốn vậy, chuyển cho quản lý – không tự đồng ý."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Wie funktioniert die Probestunde?",
+        question_vi: "Học thử hoạt động thế nào?",
+        section: "die-regel",
+        options: [
+          { de: "Die Person zahlt den Kurs, testet die ersten zwei Termine – passt es nicht, 100 % zurück", vi: "Khách đóng học phí, học thử hai buổi đầu – không hợp thì hoàn 100 %" },
+          { de: "Die Person kommt zwei Termine gratis und zahlt danach", vi: "Khách học miễn phí hai buổi rồi mới đóng tiền" },
+          { de: "Die Person zahlt nur die zwei Termine", vi: "Khách chỉ trả tiền hai buổi" },
+          { de: "Es gibt einen Gutschein statt Geld zurück", vi: "Có phiếu học thay vì hoàn tiền" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Gilt der Frühbucherpreis auch, wenn jemand die Probestunden-Regel nutzt?",
+        question_vi: "Giá đăng ký sớm có áp dụng khi dùng quy định học thử không?",
+        section: "die-regel",
+        options: [
+          { de: "Nein", vi: "Không" },
+          { de: "Nur vor Ort", vi: "Chỉ khi học trực tiếp" },
+          { de: "Ja, trotzdem", vi: "Có, vẫn áp dụng" },
+          { de: "Nur bei der Kombi", vi: "Chỉ với combo" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was schreibst du nach der Zahlung in die Slack-Meldung?",
+        question_vi: "Sau khi khách đóng tiền, bạn ghi gì trong tin báo Slack?",
+        section: "schritt-fur-schritt",
+        options: [
+          { de: "Nur den Betrag", vi: "Chỉ số tiền" },
+          { de: "Nichts, Customer Success sieht es selbst", vi: "Không gì, Customer Success tự thấy" },
+          { de: "Beleg, Name, Klasse, Betrag und alles Zugesagte, z. B. „Erster Online-Kurs – Probestunden-Regel gilt“", vi: "Biên lai, tên, lớp, số tiền và mọi điều đã hứa, ví dụ „Khóa online đầu tiên – áp dụng học thử“" },
+          { de: "Den Chatverlauf als Screenshot, sonst nichts", vi: "Chỉ ảnh chụp đoạn chat" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand möchte nur die zwei Termine bezahlen statt des ganzen Kurses. Was machst du?",
+        question_vi: "Khách chỉ muốn trả hai buổi thay vì cả khóa. Bạn làm gì?",
+        section: "schritt-fur-schritt",
+        options: [
+          { de: "Sofort zusagen", vi: "Đồng ý ngay" },
+          { de: "Ablehnen und das Gespräch beenden", vi: "Từ chối và kết thúc" },
+          { de: "Verständnis zeigen, die Rückerstattungsregel erklären – bleibt die Person dabei, an die Leitung geben", vi: "Thông cảm, giải thích quy định hoàn tiền – nếu khách vẫn muốn thì chuyển quản lý" },
+          { de: "Einen Rabatt anbieten", vi: "Đề nghị giảm giá" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;

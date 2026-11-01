@@ -42,7 +42,59 @@ const page: PageContent = {
       de: "Bei Studienfragen nie raten. Lieber „Ich frage Student Support und melde mich heute bis [Uhrzeit]“ – und das dann einhalten.",
       vi: "Với câu hỏi về du học đại học, không bao giờ đoán. Thà nói „Mình hỏi bộ phận Hỗ trợ học viên và báo lại bạn trước [giờ] hôm nay“ – và giữ đúng hẹn."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was schickst du zuerst bei einer Studienanfrage?",
+        question_vi: "Khi khách hỏi du học đại học, bạn gửi gì trước?",
+        options: [
+          { de: "Den Preis für A1", vi: "Giá khóa A1" },
+          { de: "Unsere Übersicht „Voraussetzungen und Schritte“ – dann den Einzelfall klären", vi: "Bảng tổng quan „Điều kiện và các bước“ – rồi xem từng trường hợp" },
+          { de: "Eine Liste von Universitäten", vi: "Danh sách trường đại học" },
+          { de: "Nichts, das macht Student Support", vi: "Không gì, Student Support lo" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Welches Deutschniveau braucht man mindestens für den Weg über das Studienkolleg?",
+        question_vi: "Cần tối thiểu trình độ tiếng Đức nào để vào dự bị đại học?",
+        section: "antworten-aus-den-chats",
+        options: [
+          { de: "B1", vi: "B1" },
+          { de: "A1", vi: "A1" },
+          { de: "C1", vi: "C1" },
+          { de: "Keins", vi: "Không cần" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was ist der TestAS?",
+        question_vi: "TestAS là gì?",
+        section: "antworten-aus-den-chats",
+        options: [
+          { de: "Eine Deutschprüfung", vi: "Kỳ thi tiếng Đức" },
+          { de: "Die Visumprüfung der Botschaft", vi: "Phỏng vấn visa của Đại sứ quán" },
+          { de: "Eine Prüfung, die man bestehen muss", vi: "Kỳ thi bắt buộc phải đậu" },
+          { de: "Ein Eignungstest ohne Bestehen oder Durchfallen, ca. 4 Stunden, auch auf Englisch", vi: "Bài kiểm tra năng lực, không có đậu hay trượt, khoảng 4 tiếng, có thể thi bằng tiếng Anh" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand will von Sozialwissenschaften zu Wirtschaft wechseln. Was machst du?",
+        question_vi: "Khách muốn đổi từ khoa học xã hội sang kinh tế. Bạn làm gì?",
+        section: "antworten-aus-den-chats",
+        options: [
+          { de: "Sagen, dass es geht", vi: "Nói là được" },
+          { de: "An Student Support geben statt selbst zu raten", vi: "Chuyển Student Support thay vì tự đoán" },
+          { de: "Sagen, dass es nicht geht", vi: "Nói là không được" },
+          { de: "Im Internet nachsehen", vi: "Tra trên mạng" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

@@ -60,7 +60,72 @@ const page: PageContent = {
       de: "Gute Werbung zeigt den Unterricht: Ein kurzer Ausschnitt aus einem Sprechkurs zeigt Interessierten, wie wir unterrichten – besser als jede Beschreibung.",
       vi: "Quảng cáo tốt là cho thấy lớp học: một video ngắn từ lớp luyện nói giúp khách thấy phương pháp dạy của trung tâm – tốt hơn mọi lời mô tả."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Eine Klasse wurde abgesagt. Was machst du in Notion?",
+        question_vi: "Một lớp bị hủy. Bạn làm gì trên Notion?",
+        section: "notion-klassen-pflegen",
+        options: [
+          { de: "Nichts", vi: "Không làm gì" },
+          { de: "Den Namen ändern", vi: "Đổi tên lớp" },
+          { de: "Das Bild löschen", vi: "Xóa hình" },
+          { de: "Ins Archiv verschieben – sonst steht sie weiter auf der Website", vi: "Chuyển vào lưu trữ – nếu không lớp vẫn hiện trên website" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wo landen die Formulare der Website?",
+        question_vi: "Các form trên website được gửi về đâu?",
+        section: "website-formular",
+        options: [
+          { de: "Per E-Mail an die Leitung", vi: "Email cho quản lý" },
+          { de: "Im Messenger", vi: "Messenger" },
+          { de: "In Notion", vi: "Notion" },
+          { de: "Im Slack-Kanal #website-form – jeden Tag prüfen", vi: "Kênh Slack #website-form – kiểm tra mỗi ngày" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Bis wann veröffentlichst du einen Post spätestens?",
+        question_vi: "Đăng bài muộn nhất lúc mấy giờ?",
+        section: "posts-und-storys",
+        options: [
+          { de: "22:00 Uhr", vi: "22:00" },
+          { de: "Mitternacht", vi: "Nửa đêm" },
+          { de: "18:30 Uhr", vi: "18:30" },
+          { de: "Egal", vi: "Lúc nào cũng được" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was prüfst du, bevor du eine Klasse bewirbst?",
+        question_vi: "Bạn kiểm tra gì trước khi quảng cáo một lớp?",
+        section: "werbung-und-rekrutierung",
+        options: [
+          { de: "Ob die Lehrkraft Zeit hat", vi: "Giáo viên có rảnh không" },
+          { de: "Wie viele Likes der letzte Post hatte", vi: "Bài trước được bao nhiêu like" },
+          { de: "Nichts", vi: "Không gì" },
+          { de: "Im Slack-Kanal nach „khoan tuyển“ (Pause) suchen", vi: "Tìm „khoan tuyển“ (tạm dừng) trong kênh Slack" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Du möchtest eine Anzeige für einen Post. Was schickst du an Marketing?",
+        question_vi: "Bạn muốn chạy quảng cáo cho một bài đăng. Bạn gửi gì cho Marketing?",
+        section: "werbung-und-rekrutierung",
+        options: [
+          { de: "Einen Screenshot per Zalo", vi: "Ảnh chụp qua Zalo" },
+          { de: "Nur den Klassennamen", vi: "Chỉ tên lớp" },
+          { de: "Das Budget", vi: "Ngân sách" },
+          { de: "Den Link zum Post in Slack, mit Klasse und Ort („Lớp A1 – HN“)", vi: "Link bài đăng trên Slack, kèm lớp và nơi học („Lớp A1 – HN“)" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

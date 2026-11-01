@@ -72,7 +72,72 @@ const page: PageContent = {
       de: "Eine schnelle, freundliche Rückzahlung kostet uns eine Kursgebühr. Eine verschleppte kostet uns den Ruf – die Leute erzählen es weiter.",
       vi: "Hoàn tiền nhanh và vui vẻ thì mình mất một khoản học phí. Hoàn tiền chậm trễ thì mình mất uy tín – khách sẽ kể cho người khác."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Für wen gilt die Geld-zurück-Zusage nach zwei Probestunden?",
+        question_vi: "Cam kết hoàn tiền sau hai buổi học thử áp dụng cho ai?",
+        section: "was-wir-zusagen",
+        options: [
+          { de: "Für alle Kurse, auch vor Ort", vi: "Mọi khóa, kể cả trực tiếp" },
+          { de: "Für Folgekurse wie A2 nach unserem A1", vi: "Khóa tiếp theo như A2 sau A1 của trung tâm" },
+          { de: "Nur für Kurse vor Ort", vi: "Chỉ khóa trực tiếp" },
+          { de: "Für den ersten Kurs bei uns, wenn er online ist", vi: "Khóa đầu tiên tại trung tâm, nếu học online" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie viel bekommt jemand zurück, der nach den zwei Probestunden nicht zufrieden ist?",
+        question_vi: "Học viên không hài lòng sau hai buổi học thử được hoàn bao nhiêu?",
+        section: "was-wir-zusagen",
+        options: [
+          { de: "50 %", vi: "50 %" },
+          { de: "Alles außer den zwei Stunden", vi: "Toàn bộ trừ hai buổi" },
+          { de: "Nichts, er bekommt einen Gutschein", vi: "Không, chỉ nhận phiếu học" },
+          { de: "100 % – auch für die zwei besuchten Stunden", vi: "100 % – kể cả hai buổi đã học" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie viele Schüler braucht eine Online-Klasse mindestens?",
+        question_vi: "Lớp online cần tối thiểu bao nhiêu học viên?",
+        section: "was-wir-zusagen",
+        options: [
+          { de: "8", vi: "8" },
+          { de: "3", vi: "3" },
+          { de: "5", vi: "5" },
+          { de: "10", vi: "10" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand will nach den Probestunden aufhören. Was machst du zuerst?",
+        question_vi: "Có người muốn dừng sau buổi học thử. Bạn làm gì trước?",
+        section: "wenn-jemand-nach-den-probestunden-aufhoren-will",
+        options: [
+          { de: "So lange überreden, bis die Person bleibt", vi: "Thuyết phục đến khi khách ở lại" },
+          { de: "Danken und fragen, was nicht gepasst hat – nicht überreden", vi: "Cảm ơn và hỏi điều gì chưa phù hợp – không thuyết phục ép" },
+          { de: "Sofort ohne Frage überweisen", vi: "Chuyển tiền ngay không hỏi gì" },
+          { de: "Sagen, dass die Zusage nicht gilt", vi: "Nói cam kết không áp dụng" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wann ist eine Rückzahlung erledigt?",
+        question_vi: "Khi nào việc hoàn tiền được coi là xong?",
+        section: "wenn-jemand-nach-den-probestunden-aufhoren-will",
+        options: [
+          { de: "Wenn die Person bestätigt hat, dass das Geld da ist", vi: "Khi khách xác nhận đã nhận tiền" },
+          { de: "Wenn ich es der Leitung gemeldet habe", vi: "Khi đã báo quản lý" },
+          { de: "Wenn die Leitung überwiesen hat", vi: "Khi quản lý đã chuyển khoản" },
+          { de: "Nach einer Woche", vi: "Sau một tuần" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

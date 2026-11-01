@@ -111,7 +111,83 @@ const page: PageContent = {
       de: "Zeitumstellung: Ende Oktober und Ende März verschiebt sich die Uhrzeit im anderen Land um eine Stunde. Sag es der Klasse eine Woche vorher, mit beiden Uhrzeiten.",
       vi: "Đổi giờ: cuối tháng 10 và cuối tháng 3, giờ học ở nước còn lại sẽ lệch đi một tiếng. Báo cho lớp trước một tuần, ghi cả hai múi giờ."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was ist das Ziel der ersten 48 Stunden nach der Zahlung?",
+        question_vi: "Mục tiêu của 48 giờ đầu sau khi đóng tiền là gì?",
+        options: [
+          { de: "Die Person hat alles, ohne selbst nachfragen zu müssen, und weiß, wo sie was findet", vi: "Học viên có đủ mọi thứ mà không cần hỏi và biết tìm gì ở đâu" },
+          { de: "Die Person hat die Rechnung bekommen", vi: "Học viên nhận được hóa đơn" },
+          { de: "Die Person hat den nächsten Kurs gebucht", vi: "Học viên đã đăng ký khóa tiếp" },
+          { de: "Die Person hat die erste Hausaufgabe abgegeben", vi: "Học viên đã nộp bài tập đầu tiên" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie schnell bestätigst du den Zahlungsbeleg?",
+        question_vi: "Bạn xác nhận biên lai chuyển khoản nhanh thế nào?",
+        section: "die-schritte",
+        options: [
+          { de: "Am nächsten Tag", vi: "Ngày hôm sau" },
+          { de: "Wenn die Buchhaltung es geprüft hat, nach einer Woche", vi: "Sau một tuần khi kế toán kiểm tra" },
+          { de: "Gar nicht, das sieht die Person selbst", vi: "Không cần, khách tự biết" },
+          { de: "Innerhalb einer Stunde (in der Arbeitszeit)", vi: "Trong vòng một giờ (giờ làm việc)" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Warum bestätigst du Name, E-Mail und Telefonnummer noch einmal zurück?",
+        question_vi: "Vì sao bạn xác nhận lại tên, email và số điện thoại?",
+        section: "die-schritte",
+        options: [
+          { de: "Weil es das Gesetz verlangt", vi: "Vì luật yêu cầu" },
+          { de: "Damit Tippfehler in der E-Mail sofort auffallen – sonst klappt später der App-Login nicht", vi: "Để phát hiện ngay lỗi gõ email – nếu không sau này không đăng nhập app được" },
+          { de: "Damit die Person sich nicht langweilt", vi: "Để khách không chán" },
+          { de: "Für die Werbung", vi: "Để làm quảng cáo" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was schreibst du in die Onboarding-E-Mail?",
+        question_vi: "Bạn ghi gì trong email onboarding?",
+        section: "die-schritte",
+        options: [
+          { de: "Welche Datei das Kursbuch zum Ausdrucken ist und welcher Teil (A1.1 oder A1.2) jetzt dran ist", vi: "File nào là sách để in và đang học phần nào (A1.1 hay A1.2)" },
+          { de: "Nur „Willkommen“", vi: "Chỉ „Chào mừng“" },
+          { de: "Die Preise der nächsten Kurse", vi: "Giá các khóa tiếp theo" },
+          { de: "Die Kontonummer", vi: "Số tài khoản" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie schickst du die Infos zum Start (Mail, Gruppe, App, Classroom, Zoom)?",
+        question_vi: "Bạn gửi thông tin bắt đầu học (mail, nhóm, app, Classroom, Zoom) thế nào?",
+        section: "die-schritte",
+        options: [
+          { de: "Über mehrere Tage verteilt", vi: "Chia ra nhiều ngày" },
+          { de: "Als eine Zusammenfassung in einer Nachricht", vi: "Gom thành một tin nhắn tóm tắt" },
+          { de: "Jede Info in einem anderen Kanal", vi: "Mỗi thông tin một kênh" },
+          { de: "Nur auf Nachfrage", vi: "Chỉ khi khách hỏi" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Ende Oktober ist Zeitumstellung. Was machst du?",
+        question_vi: "Cuối tháng 10 đổi giờ. Bạn làm gì?",
+        section: "die-schritte",
+        options: [
+          { de: "Nichts, das merken alle selbst", vi: "Không làm gì, ai cũng tự biết" },
+          { de: "Am Tag selbst Bescheid geben", vi: "Báo ngay trong ngày" },
+          { de: "Der Klasse eine Woche vorher Bescheid geben, mit beiden Uhrzeiten", vi: "Báo lớp trước một tuần, ghi cả hai múi giờ" },
+          { de: "Den Unterricht eine Woche ausfallen lassen", vi: "Cho lớp nghỉ một tuần" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;

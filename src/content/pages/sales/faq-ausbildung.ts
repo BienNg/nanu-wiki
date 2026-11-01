@@ -105,7 +105,120 @@ const page: PageContent = {
         { de: "§18b, Finanzierungsnachweis (Sperrkonto) oder „Ist dieses Programm gut?“ (Link zu fremden Videos): erst nachfragen, was die Person genau meint und welches Zertifikat sie hat, dann ehrlich einordnen oder an Student Support übergeben.", vi: "Diện 18b, chứng minh tài chính (Sperrkonto) hoặc „Chương trình này có nên đi không?“ (gửi link video bên khác): hỏi rõ khách muốn gì và đang có bằng gì, rồi phân tích trung thực hoặc chuyển cho Hỗ trợ học viên." }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Welche Angaben erfragst du zuerst bei einer Ausbildungsanfrage?",
+        question_vi: "Bạn hỏi những thông tin gì trước khi khách hỏi du học nghề?",
+        section: "erste-antwort-funf-angaben-erfragen",
+        options: [
+          { de: "Geburtsjahr, Wohnort, Jahr des Schulabschlusses, mindestens drei Wunschberufe und ob B1/B2 da ist", vi: "Năm sinh, nơi sống, năm tốt nghiệp cấp 3, ít nhất ba ngành mong muốn và đã có B1/B2 chưa" },
+          { de: "Nur den Namen und die Telefonnummer", vi: "Chỉ tên và số điện thoại" },
+          { de: "Das Einkommen der Eltern", vi: "Thu nhập của bố mẹ" },
+          { de: "Die Wunschstadt in Deutschland", vi: "Thành phố mong muốn ở Đức" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Jemand hat B1 in drei von vier Fertigkeiten bestanden. Reicht das?",
+        question_vi: "Khách đậu B1 ba trên bốn kỹ năng. Như vậy có đủ không?",
+        section: "voraussetzungen",
+        options: [
+          { de: "Ja, drei reichen", vi: "Có, ba kỹ năng là đủ" },
+          { de: "Ja, wenn Sprechen dabei ist", vi: "Có, nếu có kỹ năng nói" },
+          { de: "Ja, für Pflege", vi: "Có, với ngành điều dưỡng" },
+          { de: "Nein – es braucht B1 in allen vier Fertigkeiten; erst nach dem vierten Ergebnis weiter", vi: "Không – cần B1 cả bốn kỹ năng; chỉ tiếp tục khi có kết quả kỹ năng thứ tư" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Welches Niveau braucht man für Pflege?",
+        question_vi: "Ngành điều dưỡng cần trình độ nào?",
+        section: "voraussetzungen",
+        options: [
+          { de: "A2", vi: "A2" },
+          { de: "Mindestens B2", vi: "Tối thiểu B2" },
+          { de: "B1 in einer Fertigkeit", vi: "B1 một kỹ năng" },
+          { de: "C1", vi: "C1" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was ist im Paket mit B1/B2 für 199.000.000 VND enthalten?",
+        question_vi: "Gói 199.000.000 VND cho người có B1/B2 gồm gì?",
+        section: "kosten-stand-oktober-2026",
+        options: [
+          { de: "Nur der Vertrag", vi: "Chỉ hợp đồng" },
+          { de: "Visumantrag, Ausbildungsvertrag, Versicherung, Flug und ein kostenloser Kurs zur Interviewvorbereitung", vi: "Hồ sơ visa, hợp đồng học nghề, bảo hiểm, vé máy bay và khóa luyện phỏng vấn miễn phí" },
+          { de: "Sprachkurs A1–B1", vi: "Khóa tiếng A1–B1" },
+          { de: "Die Miete im ersten Jahr", vi: "Tiền nhà năm đầu" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Der Flug kostet beim Kauf 15 Mio. statt 12 Mio. Wer zahlt die Differenz?",
+        question_vi: "Vé máy bay lúc mua là 15 triệu thay vì 12 triệu. Ai trả phần chênh lệch?",
+        section: "kosten-stand-oktober-2026",
+        options: [
+          { de: "Die Familie zahlt den Rest", vi: "Gia đình trả phần còn lại" },
+          { de: "NaNu NaNa", vi: "NaNu NaNa" },
+          { de: "Der Betrieb in Deutschland", vi: "Công ty ở Đức" },
+          { de: "Niemand, der Flug wird gestrichen", vi: "Không ai, hủy vé" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Jemand will nach dem ersten nicht bestandenen Vorstellungsgespräch aufhören. Was bekommt er zurück?",
+        question_vi: "Sau khi trượt phỏng vấn đầu, khách muốn dừng. Được hoàn bao nhiêu?",
+        section: "was-wenn-es-nicht-klappt",
+        options: [
+          { de: "Alles", vi: "Toàn bộ" },
+          { de: "Nichts", vi: "Không gì" },
+          { de: "Die Hälfte aller Raten", vi: "Một nửa mọi đợt" },
+          { de: "40 der 50 Mio. aus Rate 1 – und das sagst du von dir aus, bevor jemand zahlt", vi: "40 trong 50 triệu của đợt 1 – và bạn chủ động nói trước khi khách đóng tiền" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand will nur in einer bestimmten Stadt eine Ausbildung. Was erklärst du?",
+        question_vi: "Khách chỉ muốn học nghề ở một thành phố nhất định. Bạn giải thích gì?",
+        section: "wunschberuf-und-wunschort",
+        options: [
+          { de: "Kein Problem, wir finden immer etwas in der Wunschstadt", vi: "Không sao, luôn tìm được ở thành phố đó" },
+          { de: "Das kostet einen Aufpreis", vi: "Phải trả thêm phí" },
+          { de: "Wer nur auf eine Stadt wartet, riskiert den Termin – es gibt nur zwei Starts im Jahr und das Visum dauert oft 3–5 Monate", vi: "Chỉ chờ một thành phố dễ lỡ kỳ – mỗi năm chỉ hai kỳ nhập học và visa thường mất 3–5 tháng" },
+          { de: "Das geht nicht, wir bestimmen die Stadt", vi: "Không được, trung tâm chọn thành phố" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Im Sprachtest reicht das Niveau nicht. Was machst du?",
+        question_vi: "Kiểm tra tiếng không đạt trình độ. Bạn làm gì?",
+        section: "ablauf",
+        options: [
+          { de: "Trotzdem weitermachen", vi: "Vẫn tiếp tục" },
+          { de: "Es klar sagen und den nächsten Schritt nennen, z. B. erst B2", vi: "Nói rõ và nêu bước tiếp theo, ví dụ học B2 trước" },
+          { de: "Nichts sagen", vi: "Không nói gì" },
+          { de: "Den Test wiederholen, bis er klappt", vi: "Thi lại đến khi đạt" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Jemand kam über eine andere Agentur und will den Betrieb wechseln. Helfen wir?",
+        question_vi: "Có người sang qua công ty khác và muốn đổi nơi học nghề. Chúng ta có giúp không?",
+        section: "nach-der-ankunft",
+        options: [
+          { de: "Nein – freundlich absagen", vi: "Không – từ chối nhẹ nhàng" },
+          { de: "Ja, über die Support-Gruppe", vi: "Có, qua nhóm hỗ trợ" },
+          { de: "Ja, gegen 199 Mio.", vi: "Có, với 199 triệu" },
+          { de: "Ja, die Leitung übernimmt", vi: "Có, quản lý lo" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

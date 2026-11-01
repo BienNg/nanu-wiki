@@ -43,7 +43,56 @@ const page: PageContent = {
       de: "Material geht nur an zahlende Studierende. Links zu unseren Dateien nie öffentlich posten.",
       vi: "Tài liệu chỉ gửi cho học viên đã đóng học phí. Không bao giờ đăng công khai link tài liệu của trung tâm."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Wann bekommt eine neue Studentin ihr Material?",
+        question_vi: "Khi nào học viên mới nhận tài liệu?",
+        options: [
+          { de: "Sobald die Zahlung da ist – auch wenn der Kurs erst in ein paar Wochen startet", vi: "Ngay khi đã thanh toán – kể cả khi vài tuần nữa mới khai giảng" },
+          { de: "Am ersten Kurstag", vi: "Vào buổi học đầu tiên" },
+          { de: "Nach der ersten Woche, wenn sie geblieben ist", vi: "Sau tuần đầu, nếu bạn ấy vẫn học" },
+          { de: "Wenn sie danach fragt", vi: "Khi bạn ấy hỏi" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie schickst du das PDF-Paket?",
+        question_vi: "Bạn gửi gói PDF bằng cách nào?",
+        options: [
+          { de: "Per E-Mail, danach im Chat Bescheid geben und um Bestätigung bitten", vi: "Qua email, sau đó báo trong chat và nhờ xác nhận đã nhận" },
+          { de: "Als öffentlicher Link auf Facebook", vi: "Đăng link công khai trên Facebook" },
+          { de: "Gar nicht, die Lehrkraft verteilt es im Unterricht", vi: "Không gửi, giáo viên phát trong lớp" },
+          { de: "Nur per Post", vi: "Chỉ gửi qua bưu điện" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was bekommt die Person über die Zalo-Klassengruppe?",
+        question_vi: "Học viên nhận được gì qua nhóm Zalo của lớp?",
+        options: [
+          { de: "Nur die Rechnung", vi: "Chỉ hóa đơn" },
+          { de: "Nichts, die Gruppe ist nur zum Plaudern", vi: "Không gì, nhóm chỉ để trò chuyện" },
+          { de: "Nur die Prüfungstermine", vi: "Chỉ lịch thi" },
+          { de: "Zoom-Link, Classroom-Link, Hausaufgaben und alle Neuigkeiten", vi: "Link Zoom, link Classroom, bài tập về nhà và mọi thông báo" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Die Datei ist zu groß für Messenger. Was machst du?",
+        question_vi: "File quá nặng để gửi qua Messenger. Bạn làm gì?",
+        options: [
+          { de: "Einen Link in Messenger schicken oder die Datei über Zalo senden", vi: "Gửi link qua Messenger hoặc gửi file qua Zalo" },
+          { de: "Die Datei in viele kleine Teile schneiden", vi: "Cắt file thành nhiều phần nhỏ" },
+          { de: "Den Link öffentlich auf der Facebook-Seite posten", vi: "Đăng link công khai trên trang Facebook" },
+          { de: "Nicht schicken, die Person soll warten", vi: "Không gửi, bảo học viên chờ" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

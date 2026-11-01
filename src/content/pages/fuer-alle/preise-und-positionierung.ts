@@ -60,7 +60,95 @@ const page: PageContent = {
         { de: "Paket mit Sprachkurs A1–B1 vor Ort: 220.000.000 VND", vi: "Trọn gói kèm học tiếng A1–B1 offline: 220.000.000 VND" }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was bedeutet „radikale Preistransparenz“?",
+        question_vi: "„Minh bạch giá tuyệt đối“ nghĩa là gì?",
+        options: [
+          { de: "Jeder Kunde bekommt einen eigenen Preis", vi: "Mỗi khách có một giá riêng" },
+          { de: "Preise stehen nur in Verträgen", vi: "Giá chỉ ghi trong hợp đồng" },
+          { de: "Keine versteckten Gebühren, gleicher Preis für alle", vi: "Không phí ẩn, cùng một giá cho mọi người" },
+          { de: "Online-Kurse sind immer billiger als Kurse vor Ort", vi: "Khóa online luôn rẻ hơn khóa trực tiếp" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Wie viel kostet der A1-Kurs (A1.1 + A1.2) mit Frühbucherpreis?",
+        question_vi: "Khóa A1 (A1.1 + A1.2) giá đăng ký sớm là bao nhiêu?",
+        section: "sprachkurse-gruppe-online-vor-ort",
+        options: [
+          { de: "11.800.000 VND", vi: "11.800.000 VND" },
+          { de: "13.800.000 VND", vi: "13.800.000 VND" },
+          { de: "12.300.000 VND", vi: "12.300.000 VND" },
+          { de: "9.900.000 VND", vi: "9.900.000 VND" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Kostet ein Online-Kurs etwas anderes als derselbe Kurs vor Ort?",
+        question_vi: "Khóa online có giá khác với cùng khóa học trực tiếp không?",
+        section: "sprachkurse-gruppe-online-vor-ort",
+        options: [
+          { de: "Ja, online ist 20 % billiger", vi: "Có, online rẻ hơn 20 %" },
+          { de: "Nein, online und vor Ort kosten gleich viel", vi: "Không, online và trực tiếp cùng giá" },
+          { de: "Ja, vor Ort ist billiger", vi: "Có, trực tiếp rẻ hơn" },
+          { de: "Das hängt von der Lehrkraft ab", vi: "Tùy giáo viên" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Ein ehemaliger Schüler meldet sich wieder an. Was gilt?",
+        question_vi: "Một học viên cũ đăng ký lại. Áp dụng gì?",
+        section: "feste-rabatte",
+        options: [
+          { de: "−500.000 VND, und du nennst den Rabatt von dir aus", vi: "Giảm 500.000 VND, và bạn chủ động nói ra" },
+          { de: "−500.000 VND, aber nur, wenn er danach fragt", vi: "Giảm 500.000 VND, nhưng chỉ khi khách hỏi" },
+          { de: "−1.000.000 VND das ganze Jahr", vi: "Giảm 1.000.000 VND cả năm" },
+          { de: "Kein Rabatt", vi: "Không giảm" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wann gilt ein Saisonrabatt wie der Tết-Rabatt?",
+        question_vi: "Ưu đãi theo mùa như ưu đãi Tết áp dụng khi nào?",
+        section: "feste-rabatte",
+        options: [
+          { de: "Nur im Aktionszeitraum", vi: "Chỉ trong thời gian khuyến mãi" },
+          { de: "Das ganze Jahr, wenn der Kunde danach fragt", vi: "Cả năm nếu khách hỏi" },
+          { de: "Immer zusätzlich zu jedem anderen Rabatt", vi: "Luôn cộng thêm với mọi ưu đãi khác" },
+          { de: "Nur für Online-Kurse", vi: "Chỉ cho khóa online" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was ist bei jedem Sprachkurs immer dabei?",
+        question_vi: "Mỗi khóa tiếng luôn bao gồm gì?",
+        section: "immer-enthalten",
+        options: [
+          { de: "Ein gedrucktes Buch für jede Stufe", vi: "Sách in cho mọi trình độ" },
+          { de: "Die App NaNu Go, Google Classroom, das PDF-Lehrbuch und Übungen", vi: "App NaNu Go, Google Classroom, giáo trình PDF và bài tập" },
+          { de: "Die Prüfungsgebühr für Goethe", vi: "Lệ phí thi Goethe" },
+          { de: "Ein Flugticket nach Deutschland", vi: "Vé máy bay sang Đức" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was kostet die Ausbildungsvermittlung für jemanden, der schon B1/B2 hat?",
+        question_vi: "Dịch vụ du học nghề cho người đã có B1/B2 giá bao nhiêu?",
+        section: "ausbildungsvermittlung",
+        options: [
+          { de: "220.000.000 VND auf einmal, ohne Flug", vi: "220.000.000 VND trả một lần, không gồm vé máy bay" },
+          { de: "199.000.000 VND auf einmal, nur der Vertrag", vi: "199.000.000 VND trả một lần, chỉ gồm hợp đồng" },
+          { de: "199.000.000 VND in 3 Raten, mit Visum, Vertrag, Versicherung, Flug und Interviewtraining", vi: "199.000.000 VND chia 3 đợt, gồm visa, hợp đồng, bảo hiểm, vé máy bay và luyện phỏng vấn" },
+          { de: "Kostenlos, die Firma in Deutschland zahlt", vi: "Miễn phí, công ty ở Đức trả" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;
