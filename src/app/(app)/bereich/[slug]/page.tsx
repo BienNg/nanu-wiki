@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditorAreas, hasRole, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, readablePages, visibleAreas, type AreaTab } from "@/content";
+import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, onboardingQuizPage, readablePages, visibleAreas, type AreaTab } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -15,8 +15,8 @@ import { DocView } from "@/components/DocView";
 import { PaneCrumb, PaneLayout } from "@/components/DocPane";
 import { DailyTasksPanel } from "@/components/DailyTasksPanel";
 import { vnToday, weekday, WEEKDAYS } from "@/lib/days";
-import { myQuizStatuses } from "@/lib/quizProgress";
-import type { QuizStatus } from "@/lib/pageQuiz";
+import { myQuizAttempts, myQuizStatuses, onboardingDone } from "@/lib/quizProgress";
+import { quizStatus, type QuizStatus } from "@/lib/pageQuiz";
 import type { PageWithMeta } from "@/lib/types";
 
 const TABS: { key: AreaTab; de: string; vi: string }[] = [
@@ -172,13 +172,14 @@ const dailyLog = cache(async (profileId: string, day: string) => {
 const onboardingProgress = cache(async (profileId: string, areaSlug: string) => {
   const supabase = await createClient();
   const quizIds = getOnboarding(areaSlug).flatMap((w) => w.quiz?.id ?? []);
-  const [{ data: progress }, { data: attempts }] = await Promise.all([
-    supabase.from("checklist_progress").select("item_id").eq("profile_id", profileId),
+  const [done, { data: attempts }, pageQuiz] = await Promise.all([
+    onboardingDone(profileId, areaSlug),
     quizIds.length
       ? supabase.from("quiz_attempts").select("quiz_id, score, total, passed").eq("profile_id", profileId).in("quiz_id", quizIds)
       : Promise.resolve({ data: [] as { quiz_id: string; score: number; total: number; passed: boolean }[] }),
+    myQuizAttempts(profileId),
   ]);
-  return [progress, attempts] as const;
+  return [done, attempts, pageQuiz] as const;
 });
 
 async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: string; profileId: string; paneBase: string; narrow: boolean }) {
@@ -219,7 +220,7 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
   const weeks = getOnboarding(areaSlug);
   if (!weeks.length) return <p className="text-muted">Für diese Rolle gibt es noch keinen Lernpfad · Chưa có lộ trình cho vai trò này</p>;
 
-  const [progress, attempts] = await onboardingProgress(profileId, areaSlug);
+  const [done, attempts, pageQuiz] = await onboardingProgress(profileId, areaSlug);
 
   const data: WeekData[] = weeks.map((w) => {
     const mine = (attempts ?? []).filter((a) => a.quiz_id === w.quiz?.id);
@@ -236,12 +237,14 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
         // Pages of this area open in the side pane; others go to the full page.
         const [pageArea, pageSlug] = i.page?.split("/") ?? [];
         const full = i.page ? `/bereich/${i.page}` : null;
+        const quizPage = onboardingQuizPage(i);
         return {
           id: i.id,
           label_de: i.label_de,
           label_vi: i.label_vi,
           href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}` : full,
           fullHref: pageArea === areaSlug ? full : null,
+          quiz: quizPage ? { href: `${quizPage.href}/quiz`, state: quizStatus(pageQuiz, quizPage.id, quizPage.quiz!.version).state } : null,
         };
       }),
     };
@@ -249,7 +252,7 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
 
   return (
     <div role="tabpanel">
-      <OnboardingPanel weeks={data} initialDone={(progress ?? []).map((p) => p.item_id)} areaSlug={areaSlug} />
+      <OnboardingPanel weeks={data} initialDone={[...done]} areaSlug={areaSlug} />
     </div>
   );
 }

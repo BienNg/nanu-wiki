@@ -4,12 +4,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
-import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getPageQuiz, getQuiz, readablePages, requiredQuizPages, searchPages } from "@/content";
+import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getPageQuiz, getQuiz, onboardingQuizPage, readablePages, requiredQuizPages, searchPages } from "@/content";
 import { PAGE_QUIZ_PREFIX, pageQuizId, quizStatus, type QuizAttemptRow } from "@/lib/pageQuiz";
+import { onboardingDone } from "@/lib/quizProgress";
 import { dmByEmail, siteUrl } from "@/lib/slack";
 import { vnToday } from "@/lib/days";
 import { blockKey, blockText, COMMENT_STATUSES, tagInfo } from "@/lib/comments";
-import type { AppRole, ChatTurn, CommentAnchor, CommentStatus, CommentTag, PageWithMeta } from "@/lib/types";
+import type { AppRole, ChatTurn, CommentAnchor, CommentStatus, CommentTag, OnboardingWeek, PageWithMeta } from "@/lib/types";
 
 // ------------------------------------------------------------------ helpers
 async function notifyBuddy(text: string) {
@@ -31,6 +32,7 @@ export async function toggleChecklistItem(itemId: string, done: boolean, areaSlu
   const weeks = getOnboarding(areaSlug);
   const week = weeks.find((w) => w.items.some((i) => i.id === itemId));
   if (!week) throw new Error("unknown checklist item");
+  if (onboardingQuizPage(week.items.find((i) => i.id === itemId)!)) throw new Error("ticked by passing the page quiz");
   const supabase = await createClient();
 
   if (done) {
@@ -39,23 +41,17 @@ export async function toggleChecklistItem(itemId: string, done: boolean, areaSlu
     await supabase.from("checklist_progress").delete().eq("profile_id", session.profile.id).eq("item_id", itemId);
   }
 
-  // Week finished? → tell the buddy on Slack
-  if (done) {
-    const ids = week.items.map((i) => i.id);
-    const { count } = await supabase
-      .from("checklist_progress")
-      .select("item_id", { count: "exact", head: true })
-      .eq("profile_id", session.profile.id)
-      .in("item_id", ids);
-    if (count === ids.length) {
-      await notifyBuddy(
-        `✅ ${who(session)} hat Woche ${week.week} („${week.title_de}“) abgeschlossen. ${siteUrl(`/bereich/${areaSlug}?tab=onboarding`)}`,
-      );
-    }
-  }
-
+  if (done) await notifyWeekFinished(session, areaSlug, week);
   revalidatePath(`/bereich/${areaSlug}`);
   revalidatePath("/", "layout");
+}
+
+/** Week finished (manual ticks and passed page quizzes together)? → tell the buddy on Slack. Call right after the step that may have finished it. */
+async function notifyWeekFinished(session: NonNullable<Awaited<ReturnType<typeof getSession>>>, areaSlug: string, week: OnboardingWeek) {
+  const done = await onboardingDone(session.profile.id, areaSlug);
+  if (week.items.every((i) => done.has(i.id))) {
+    await notifyBuddy(`✅ ${who(session)} hat Woche ${week.week} („${week.title_de}“) abgeschlossen. ${siteUrl(`/bereich/${areaSlug}?tab=onboarding`)}`);
+  }
 }
 
 // ------------------------------------------------------------------ daily tasks
@@ -169,6 +165,19 @@ export async function submitPageQuiz(pageId: string, version: number, answers: n
     if (done === required.length && firstPass) {
       await notifyBuddy(`🎓 ${who(session)} hat alle ${required.length} Handbuch-Quizze bestanden. ${siteUrl("/admin/quiz")}`);
     }
+  }
+
+  // The pass ticks the onboarding items linking to this page and may finish their week.
+  const area = session.profile.primary_area;
+  const weeks = area ? getOnboarding(area).filter((w) => w.items.some((i) => onboardingQuizPage(i)?.id === pageId)) : [];
+  if (passed && weeks.length) {
+    const { count } = await admin
+      .from("quiz_attempts")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", session.profile.id)
+      .eq("quiz_id", pageQuizId(pageId, quiz.version))
+      .eq("passed", true);
+    if (count === 1) for (const w of weeks) await notifyWeekFinished(session, area!, w);
   }
   revalidatePath("/", "layout");
   return { ok: true as const, score, total, passed, wrong };

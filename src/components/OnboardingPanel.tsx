@@ -7,6 +7,7 @@ import { AnimatedBar } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { PaneLink } from "./PaneLink";
+import type { QuizState } from "@/lib/pageQuiz";
 
 export type WeekData = {
   id: string;
@@ -16,7 +17,8 @@ export type WeekData = {
   quizId: string | null;
   quizPassed: boolean;
   bestScore: string | null;
-  items: { id: string; label_de: string; label_vi: string; href: string | null; fullHref: string | null }[]; // fullHref set → href opens the side pane
+  // fullHref set → href opens the side pane. quiz set → ticked by passing that page's quiz, not by hand.
+  items: { id: string; label_de: string; label_vi: string; href: string | null; fullHref: string | null; quiz: { href: string; state: QuizState } | null }[];
 };
 
 /** Ticks changed in this tab (item → done): the list next to the side pane and the full list are two
@@ -99,16 +101,34 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
               <div className="rounded-md bg-white px-1.5 py-1 shadow-[0_1px_2px_rgba(16,24,40,.06)]">
                 {w.items.map((it) => {
                   const checked = done.has(it.id);
+                  const Row = it.quiz ? "div" : "label";
                   return (
-                    <label key={it.id} className="flex cursor-pointer items-start gap-2.5 border-b border-[#F0F1F3] px-1.5 py-2.5 text-[13px] last:border-b-0">
+                    <Row key={it.id} className={`flex items-start gap-2.5 border-b border-[#F0F1F3] px-1.5 py-2.5 text-[13px] last:border-b-0 ${it.quiz ? "" : "cursor-pointer"}`}>
                       <input
                         type="checkbox"
                         checked={checked}
+                        disabled={!!it.quiz}
+                        title={it.quiz ? "Wird abgehakt, sobald das Quiz bestanden ist · Tự đánh dấu khi qua quiz" : undefined}
                         onChange={(e) => toggle(it.id, e.target.checked)}
                         className="mt-0.5 h-[15px] w-[15px] flex-none accent-accent"
                       />
-                      <span className={checked ? "text-faint line-through" : "text-ink"}>
-                        <Bi de={it.label_de} vi={it.label_vi} />
+                      <span className="flex min-w-0 flex-col items-start gap-1">
+                        <span className={checked ? "text-faint line-through" : "text-ink"}>
+                          <Bi de={it.label_de} vi={it.label_vi} />
+                        </span>
+                        {it.quiz && !checked && (
+                          <span className="flex flex-wrap items-center gap-2 text-xs text-muted">
+                            <Icon name="spark" size={12} />
+                            {it.quiz.state === "outdated" ? (
+                              <Label de="Neue Inhalte – Quiz wiederholen, um abzuhaken" vi="Có nội dung mới – làm lại quiz để hoàn thành" />
+                            ) : (
+                              <Label de="Erledigt, sobald das Quiz bestanden ist" vi="Hoàn thành khi qua quiz" />
+                            )}
+                            <Link href={it.quiz.href} className="font-medium text-accent">
+                              {it.quiz.state === "open" ? <Label de="Quiz starten" vi="Làm quiz" /> : <Label de="Quiz wiederholen" vi="Làm lại quiz" />} →
+                            </Link>
+                          </span>
+                        )}
                       </span>
                       {it.href && it.fullHref ? (
                         <PaneLink href={it.href} fullHref={it.fullHref} className="ml-auto flex-none text-xs" onClick={(e) => e.stopPropagation()}>
@@ -121,7 +141,7 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
                           </Link>
                         )
                       )}
-                    </label>
+                    </Row>
                   );
                 })}
                 {w.quizId && (

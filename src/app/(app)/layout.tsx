@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { NavigationLoader } from "@/components/NavigationLoader";
 import { Toaster } from "@/components/Toaster";
 import { AREAS, getOnboarding, visibleAreas } from "@/content";
+import { onboardingDone } from "@/lib/quizProgress";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -18,13 +19,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   let onboardingPct: number | null = null;
   const itemIds = getOnboarding(session.profile.primary_area ?? "").flatMap((w) => w.items.map((i) => i.id));
   if (itemIds.length && session.profile.role !== "candidate") {
-    const supabase = await createClient();
-    const { count: done } = await supabase
-      .from("checklist_progress")
-      .select("item_id", { count: "exact", head: true })
-      .eq("profile_id", session.profile.id)
-      .in("item_id", itemIds);
-    onboardingPct = Math.round(((done ?? 0) / itemIds.length) * 100);
+    const done = await onboardingDone(session.profile.id, session.profile.primary_area!);
+    onboardingPct = Math.round((done.size / itemIds.length) * 100);
   }
 
   // Editors and admins: open comments waiting in their areas (sidebar badge).

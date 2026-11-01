@@ -114,6 +114,12 @@ export function getOnboarding(areaSlug: string): OnboardingWeek[] {
   return ONBOARDING_BY_AREA[areaSlug] ?? [];
 }
 
+/** The page whose quiz ticks this onboarding item (instead of a manual tick), if its link points to one. */
+export function onboardingQuizPage(item: OnboardingWeek["items"][number]): PageWithMeta | undefined {
+  const page = item.page ? getPageById(item.page.split("#")[0]) : undefined;
+  return page?.quiz && page.published ? page : undefined;
+}
+
 /** Every task of an area's daily checklist, whatever the weekday. */
 export function getDailyTasks(areaSlug: string): DailyTask[] {
   return DAILY_TASKS_BY_AREA[areaSlug] ?? [];
