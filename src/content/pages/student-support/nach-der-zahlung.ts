@@ -44,8 +44,8 @@ const page: PageContent = {
         {
           de: "Kanal festlegen",
           vi: "Chốt kênh liên lạc",
-          body_de: "Fragen, wo die Person erreichbar ist: Zalo, WhatsApp oder Messenger. Nicht alle nutzen Zalo – siehe „[Ein Kanal pro Schüler](student-support/kanaele)“.",
-          body_vi: "Hỏi học viên liên lạc qua đâu tiện nhất: Zalo, WhatsApp hay Messenger. Không phải ai cũng dùng Zalo – xem trang „[Mỗi học viên một kênh](student-support/kanaele)“."
+          body_de: "Fragen, wo die Person erreichbar ist: Zalo, WhatsApp oder Messenger. Nicht alle nutzen Zalo.",
+          body_vi: "Hỏi học viên liên lạc qua đâu tiện nhất: Zalo, WhatsApp hay Messenger. Không phải ai cũng dùng Zalo."
         },
         {
           de: "Onboarding-E-Mail mit Material",

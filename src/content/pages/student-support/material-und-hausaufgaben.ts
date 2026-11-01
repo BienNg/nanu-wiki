@@ -62,8 +62,8 @@ const page: PageContent = {
           vi: "Học viên online nhận sách giáo khoa dạng PDF. Sách Handbuch in thì gửi về nhà nếu thuộc ưu đãi – báo tình trạng gửi hàng."
         },
         {
-          de: "Material der nächsten Stufe erst kurz vor Kursende schicken – zusammen mit der Info zum Folgekurs (siehe „[Nächster Kurs & Treue](student-support/naechster-kurs-und-treue)“).",
-          vi: "Tài liệu trình độ tiếp theo chỉ gửi khi gần hết khoá – kèm thông tin về khoá tiếp theo (xem „[Khoá tiếp theo & giữ chân học viên](student-support/naechster-kurs-und-treue)“)."
+          de: "Material der nächsten Stufe erst kurz vor Kursende schicken – zusammen mit der Info zum Folgekurs.",
+          vi: "Tài liệu trình độ tiếp theo chỉ gửi khi gần hết khoá – kèm thông tin về khoá tiếp theo."
         },
         {
           de: "Verpasste Stunde: Unterrichtsdatei schicken und auf die Trợ-giảng-Stunde hinweisen. Wer später in eine laufende Klasse einsteigt, bekommt 1-zu-1-Nachholstunden, bis er aufgeholt hat.",
