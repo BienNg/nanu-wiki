@@ -16,6 +16,7 @@ const RAIL_WIDTH = 56;
 type ShellContextValue = {
   collapsed: boolean;
   toggleCollapsed: () => void;
+  registerPane: () => () => void;
   openSearch: () => void;
   closeDrawer: () => void;
 };
@@ -45,6 +46,13 @@ export function SearchTrigger({ className }: { className?: string }) {
 export function pinTopEdge(pane: HTMLElement | null) {
   const bar = document.querySelector<HTMLElement>("[data-mobile-bar]");
   return Math.max(pane?.getBoundingClientRect().top ?? 0, bar?.getBoundingClientRect().bottom ?? 0);
+}
+
+/** While the calling component is on screen (the side pane), the sidebar folds to its icon rail.
+ *  It comes back as it was once the pane closes; the user's own setting is not changed. */
+export function useCollapseSidebarWhileOpen() {
+  const { registerPane } = useShell();
+  useEffect(registerPane, [registerPane]);
 }
 
 export function CollapseSidebarButton() {
@@ -85,7 +93,9 @@ export function AppShell({
   showSearch: boolean;
 }) {
   const [width, setWidth] = useState(DEFAULT_WIDTH);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // the user's setting, stored
+  const [panes, setPanes] = useState(0); // side panes on screen
+  const [paneExpanded, setPaneExpanded] = useState(false); // user unfolded it while a pane is open
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -156,7 +166,27 @@ export function AppShell({
     };
   }, [drawerOpen]);
 
-  const toggleCollapsed = useCallback(() => setCollapsed((value) => !value), []);
+  // Switching pages inside the pane unmounts one and mounts the next in the same commit, so `panes`
+  // only reaches 0 when the pane really closes – that is when a manual unfold stops counting.
+  useEffect(() => {
+    if (panes === 0) setPaneExpanded(false);
+  }, [panes]);
+  const registerPane = useCallback(() => {
+    setPanes((n) => n + 1);
+    return () => setPanes((n) => n - 1);
+  }, []);
+  const shown = collapsed || (panes > 0 && !paneExpanded);
+
+  const toggleCollapsed = useCallback(() => {
+    if (shown) {
+      setCollapsed(false);
+      setPaneExpanded(true);
+    } else if (panes > 0) {
+      setPaneExpanded(false);
+    } else {
+      setCollapsed(true);
+    }
+  }, [shown, panes]);
   const openSearch = useCallback(() => {
     if (showSearch) setSearchOpen(true);
   }, [showSearch]);
@@ -164,11 +194,11 @@ export function AppShell({
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   const shell = useMemo(
-    () => ({ collapsed, toggleCollapsed, openSearch, closeDrawer }),
-    [collapsed, toggleCollapsed, openSearch, closeDrawer],
+    () => ({ collapsed: shown, toggleCollapsed, registerPane, openSearch, closeDrawer }),
+    [shown, toggleCollapsed, registerPane, openSearch, closeDrawer],
   );
 
-  const offset = collapsed ? RAIL_WIDTH : width;
+  const offset = shown ? RAIL_WIDTH : width;
 
   function onResizeDown(e: React.PointerEvent<HTMLDivElement>) {
     if (e.button !== 0) return;
@@ -208,14 +238,14 @@ export function AppShell({
             drawerOpen ? "max-md:translate-x-0 max-md:shadow-[8px_0_24px_rgba(0,0,0,0.12)]" : "max-md:invisible max-md:-translate-x-full"
           } ${dragging ? "" : "md:transition-[width] md:duration-200 md:ease-out"}`}
           style={{ width: offset }}
-          data-collapsed={collapsed ? "true" : "false"}
+          data-collapsed={shown ? "true" : "false"}
         >
           {/* A link to the page already open (another tab of it) does not change the path: close here too. */}
           <div className="h-full min-w-0" onClick={(e) => (e.target as HTMLElement).closest("a") && closeDrawer()}>
             {sidebar}
           </div>
 
-          {!collapsed && (
+          {!shown && (
             <div
               role="separator"
               aria-orientation="vertical"

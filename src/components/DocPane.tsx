@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useCollapseSidebarWhileOpen } from "./AppShell";
 
 const LEAVE_MS = 240;
 const CloseContext = createContext<() => void>(() => {});
@@ -28,6 +29,7 @@ export function PaneFrame({ closeHref, label, children }: { closeHref: string; l
   const router = useRouter();
   const ref = useRef<HTMLElement>(null);
   const leaving = useRef(false);
+  useCollapseSidebarWhileOpen();
 
   useLayoutEffect(() => {
     const el = ref.current!;
