@@ -17,8 +17,8 @@ import { vnToday, weekday, WEEKDAYS } from "@/lib/days";
 import type { PageWithMeta } from "@/lib/types";
 
 const TABS: { key: AreaTab; de: string; vi: string }[] = [
-  { key: "handbook", de: "Handbuch", vi: "Sổ tay" },
   { key: "daily", de: "Tägliche Aufgaben", vi: "Việc hằng ngày" },
+  { key: "handbook", de: "Handbuch", vi: "Sổ tay" },
   { key: "onboarding", de: "Onboarding", vi: "Hội nhập" },
   { key: "interview", de: "Interview", vi: "Phỏng vấn" },
 ];

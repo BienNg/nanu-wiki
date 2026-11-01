@@ -77,8 +77,8 @@ export function visibleAreas(profile: Profile): Area[] {
 export function areaTabs(profile: Profile, areaSlug: string): AreaTab[] {
   if (profile.role === "candidate") return ["handbook", "interview"];
   const daily: AreaTab[] = getDailyTasks(areaSlug).length ? ["daily"] : [];
-  if (profile.role === "admin") return ["handbook", ...daily, "onboarding", "interview"];
-  return ["handbook", ...daily, "onboarding"];
+  if (profile.role === "admin") return [...daily, "handbook", "onboarding", "interview"];
+  return [...daily, "handbook", "onboarding"];
 }
 
 /** Admins everywhere; editors in the areas an admin assigned them (area_editors). */
