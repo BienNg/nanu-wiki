@@ -2,15 +2,16 @@
 //   [weiter unten](#jeden-tag)                              a section on the same page
 //   [„Lehrkräfte begleiten“](student-support/lehrkraefte-begleiten)            another page
 //   [„Kurs pausieren“](student-support/kurs-pausieren#regeln)                 a section on another page
+//   [nanugo.app/admin/class-league](https://nanugo.app/admin/class-league)    a website (opens in a new tab)
 // A section is a heading's id: its `anchor`, or else the slug of its German text (see headingId).
 // Steps and their time sections („Jeden Tag“ …) can have a fixed `anchor` too (see pageAnchors).
 
 import type { Block } from "./types";
 
 export type DocLinkTarget = { area?: string; page?: string; anchor?: string };
-export type TextPart = string | ({ text: string } & DocLinkTarget);
+export type TextPart = string | ({ text: string } & DocLinkTarget) | { text: string; url: string };
 
-const LINK = /\[([^\]]+)\]\(((?:[a-z0-9-]+\/[a-z0-9-]+)?(?:#[a-z0-9-]+)?)\)/g;
+const LINK = /\[([^\]]+)\]\((https:\/\/[^\s)]+|(?:[a-z0-9-]+\/[a-z0-9-]+)?(?:#[a-z0-9-]+)?)\)/g;
 
 export function parseTarget(target: string): DocLinkTarget {
   const [path, anchor] = target.split("#");
@@ -26,7 +27,7 @@ export function parseLinks(text: string): TextPart[] {
   for (const m of text.matchAll(LINK)) {
     if (!m[2]) continue;
     if (m.index > last) out.push(text.slice(last, m.index));
-    out.push({ text: m[1], ...parseTarget(m[2]) });
+    out.push(m[2].startsWith("https://") ? { text: m[1], url: m[2] } : { text: m[1], ...parseTarget(m[2]) });
     last = m.index + m[0].length;
   }
   if (last < text.length) out.push(text.slice(last));

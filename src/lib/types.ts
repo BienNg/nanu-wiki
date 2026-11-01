@@ -38,7 +38,7 @@ export type StepPart = {
   body_de: string;
   body_vi: string;
   anchor?: string; // fixed id, so links and daily tasks can jump here
-  steps?: { de: string; vi: string; body_de: string; body_vi: string }[];
+  steps?: { de: string; vi: string; body_de: string; body_vi: string; image?: { src: string; alt_de: string; alt_vi: string } }[]; // image: a file in `public/`, shown under the step
   done?: { de: string; vi: string };
 };
 

@@ -40,8 +40,8 @@ const tasks: DailyTask[] = [
   },
   {
     id: "cs.mo-neue-woche",
-    label_de: "Lehrkräften die neue Woche angekündigt und in jeder Klassengruppe an Drive, Classroom, NaNu Go und Handbuch erinnert",
-    label_vi: "Đã nhắc giáo viên về tuần mới và nhắn vào từng nhóm lớp về Drive, Classroom, NaNu Go, Handbuch",
+    label_de: "Lehrkräften die neue Woche angekündigt und das Leaderboard der letzten Woche in jede Klassengruppe geschickt",
+    label_vi: "Đã nhắc giáo viên về tuần mới và gửi bảng xếp hạng tuần trước vào từng nhóm lớp",
     days: [1],
     page: "student-support/aufgaben-und-rhythmus#klassengruppen-montags"
   },

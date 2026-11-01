@@ -38,17 +38,29 @@ const page: PageContent = {
               body_vi: "Trả lời mọi học viên. Hỗ trợ đổi lịch, bảo lưu theo quy định; để ý học viên có dấu hiệu không hài lòng. Lỗi kỹ thuật (Zoom, Jotform, Drive đầy) báo nội bộ ngay. Cách trả lời:",
               steps: [
                 { de: "Alle Kanäle durchgehen", vi: "Kiểm tra hết các kênh", body_de: "Lies die Klassengruppen und die Einzelchats in Zalo, WhatsApp und Messenger. Montags beantwortest du zuerst die Nachrichten vom Wochenende.", body_vi: "Nhóm lớp và tin nhắn riêng trên Zalo, WhatsApp và Messenger. Thứ Hai thì trả lời tin nhắn cuối tuần trước tiên." },
-                { de: "Am selben Tag antworten – im selben Kanal", vi: "Hỏi ở đâu trả lời ở đó – trong cùng ngày làm việc", body_de: "Antworte dort, wo die Person geschrieben hat. Schick sie nicht in einen anderen Kanal. Prüf vorher, ob du ihren Namen richtig schreibst.", body_vi: "Không bảo học viên chuyển sang kênh khác. Kiểm tra tên học viên trước khi trả lời." },
+                { de: "Am selben Tag antworten – im selben Kanal", vi: "Hỏi ở đâu trả lời ở đó – trong cùng ngày làm việc", body_de: "Antworte dort, wo die Person geschrieben hat. Schick sie nicht in einen anderen Kanal.", body_vi: "Không bảo học viên chuyển sang kênh khác." },
                 { de: "Wenn du die Lehrkraft brauchst", vi: "Cần giáo viên: hỏi – và không để treo", body_de: "Frag die Lehrkraft. Wenn sie nicht antwortet, schickst du der Person die Datei oder die Antwort selbst und sagst der Lehrkraft Bescheid.", body_vi: "Giáo viên chưa trả lời thì mình tự gửi file hoặc câu trả lời cho học viên và báo lại giáo viên." },
                 { de: "Wenn du die Leitung brauchst", vi: "Cần quản lý: báo lên Slack", body_de: "Schreib den Fall in Slack, mit allen wichtigen Infos. Sag der Person, dass du nachfragst. Versprich nichts, was die Leitung noch nicht bestätigt hat. Ernste Beschwerden gehen immer an die Leitung.", body_vi: "Kèm đủ thông tin. Nói với học viên là mình đang hỏi lại – không hứa điều gì quản lý chưa xác nhận. Khiếu nại nghiêm trọng luôn chuyển quản lý." },
                 { de: "Wenn etwas heute nicht fertig wird", vi: "Việc chưa xong hôm nay: cuối ngày ghi vào Slack", body_de: "Schreib es am Abend in Slack, mit einem Screenshot der Nachricht. Beschreib es so, dass deine Kolleg:innen damit weitermachen können, bevor die Klasse wieder Unterricht hat. Trag es außerdem im Schichtbericht unter „Offen“ ein.", body_vi: "Kèm ảnh chụp tin nhắn và ghi đủ để đồng nghiệp xử lý tiếp trước buổi học tiếp theo của lớp. Ghi vào mục „Chưa hoàn thành“ trong báo cáo cuối ca." }
               ],
               done: {
-                de: "am Ende deiner Schicht beides stimmt: 1) Jede Nachricht von Schülern hat eine Antwort. 2) Jedes Problem ist gelöst – die Person hat also ihre Antwort oder Datei bekommen. Oder es steht in Slack, mit Screenshot und mit dem Namen der Person, die sich weiter darum kümmert. Nur „Ich habe die Lehrkraft gefragt“ reicht nicht.",
-                vi: "cuối ca đủ cả hai điều: 1) Không còn tin nhắn nào của học viên chưa được trả lời. 2) Mọi vấn đề đã được giải quyết – kết quả đã đến được học viên – hoặc đã ghi vào Slack kèm ảnh chụp và tên người xử lý tiếp. Chỉ „đã hỏi giáo viên“ thì chưa tính là xong."
+                de: "am Ende deiner Schicht beides stimmt:\n1) Jede Nachricht von Schülern hat eine Antwort.\n2) Jedes Problem ist gelöst – die Person hat also ihre Antwort oder Datei bekommen. Oder es steht in Slack, mit Screenshot und mit dem Namen der Person, die sich weiter darum kümmert.\nNur „Ich habe die Lehrkraft gefragt“ reicht nicht.",
+                vi: "cuối ca đủ cả hai điều:\n1) Không còn tin nhắn nào của học viên chưa được trả lời.\n2) Mọi vấn đề đã được giải quyết – kết quả đã đến được học viên – hoặc đã ghi vào Slack kèm ảnh chụp và tên người xử lý tiếp.\nChỉ „đã hỏi giáo viên“ thì chưa tính là xong."
               }
             },
-            { de: "Montags", anchor: "klassengruppen-montags", vi: "Thứ Hai", body_de: "In jeder Klassengruppe daran erinnern, was die Schüler bei uns haben: Drive mit Büchern A1–B2, Classroom, NaNu Go und das Handbuch.", body_vi: "Nhắn vào từng nhóm lớp nhắc học viên trung tâm có những gì: Drive sách A1–B2, Classroom, NaNu Go, Handbuch." }
+            {
+              de: "Montags",
+              anchor: "klassengruppen-montags",
+              vi: "Thứ Hai",
+              body_de: "Schick das Leaderboard der letzten Woche in jede Klassengruppe:",
+              body_vi: "Gửi bảng xếp hạng (Leaderboard) của tuần trước vào từng nhóm lớp:",
+              steps: [
+                { de: "Class League öffnen", vi: "Mở trang Class League", body_de: "Geh auf [nanugo.app/admin/class-league](https://nanugo.app/admin/class-league).", body_vi: "Vào [nanugo.app/admin/class-league](https://nanugo.app/admin/class-league)." },
+                { de: "Main Group Post in jede Klasse senden", vi: "Gửi Main Group Post vào mọi lớp", body_de: "Kopier bei „Main Group Post“ den Text und das Bild. Schick beides in jede Klassengruppe.", body_vi: "Ở mục „Main Group Post“, copy chữ và ảnh. Gửi cả hai vào từng nhóm lớp.", image: { src: "/student-support/class-league-main-group-post.webp", alt_de: "Class League: rechts der Bereich „Main group post“ mit den Knöpfen „Chép ảnh“ (Bild kopieren) und „Chép tin nhóm chung“ (Text kopieren)", alt_vi: "Class League: bên phải là mục „Main group post“ với nút „Chép ảnh“ và „Chép tin nhóm chung“" } },
+                { de: "Klassen-Post in die passende Klasse senden", vi: "Gửi bài riêng của từng lớp", body_de: "Weiter unten steht jede Klasse einzeln. Kopier dort den Text und das Bild der Klasse. Schick beides nur in diese Klassengruppe.", body_vi: "Bên dưới có từng lớp riêng. Copy chữ và ảnh của lớp đó và gửi vào đúng nhóm lớp đó.", image: { src: "/student-support/class-league-klassen-post.webp", alt_de: "Class League: Tabelle „Class champions“ mit jeder Klasse in einer Zeile und rechts den Knöpfen „Chép ảnh“ (Bild kopieren) und „Chép tin lớp“ (Text der Klasse kopieren)", alt_vi: "Class League: bảng „Class champions“, mỗi lớp một dòng, bên phải có nút „Chép ảnh“ và „Chép tin lớp“" } },
+                { de: "Vor dem Senden alles prüfen", vi: "Kiểm tra kỹ trước khi gửi", body_de: "Lies jeden Text, bevor du ihn sendest: Stimmt er? Passt das Bild, und gehört es zu dieser Klasse? Schick nie eine Nachricht, ohne vorher hinzuschauen.", body_vi: "Đọc lại từng tin trước khi gửi: nội dung có đúng không? Ảnh có đúng và đúng lớp không? Không bao giờ gửi tin mà chưa xem lại." }
+              ]
+            }
           ]
         },
         {

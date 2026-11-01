@@ -102,6 +102,11 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
                               <span className="block text-body">
                                 <Bi de={st.body_de} vi={st.body_vi} />
                               </span>
+                              {st.image ? (
+                                <ImageModal src={st.image.src} alt={st.image.alt_de} className="mt-2 block w-full cursor-zoom-in">
+                                  <img src={st.image.src} alt={st.image.alt_de} className="block w-full rounded-lg border border-line" />
+                                </ImageModal>
+                              ) : null}
                             </li>
                           ))}
                         </ol>
@@ -109,7 +114,7 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
                       {p.done ? (
                         <aside className={`mt-2.5 flex gap-3 rounded-lg px-4 py-3 text-sm leading-relaxed ${CALLOUT.tip.box}`}>
                           <Icon name="check" size={16} color={CALLOUT.tip.icon} strokeWidth={2} className="mt-[3px] flex-none" />
-                          <div>
+                          <div className="whitespace-pre-line">
                             <strong data-ui-text className="font-semibold">
                               <Label de="Erledigt, wenn" vi="Xong khi" />:
                             </strong>{" "}

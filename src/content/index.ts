@@ -34,7 +34,7 @@ export function brokenLinks(): string[] {
   }
   const check = (where: string, text: string) => {
     for (const part of parseLinks(text)) {
-      if (typeof part === "string") continue;
+      if (typeof part === "string" || "url" in part) continue;
       const target = part.page ? `${part.area}/${part.page}` : where;
       const headings = ids.get(target);
       if (!headings) problems.push(`${where}: Seite „${target}“ gibt es nicht ([${part.text}])`);
