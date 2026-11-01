@@ -62,7 +62,7 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
       return (
         <ol key={i} data-reveal className="m-0 flex list-decimal flex-col gap-4 pl-6 marker:font-semibold marker:text-muted">
           {b.items.map((it, j) => (
-            <li key={j}>
+            <li key={j} id={it.anchor} className="scroll-mt-6">
               <h3 className="m-0 text-base font-semibold leading-snug">
                 <Bi de={it.de} vi={it.vi} />
               </h3>
@@ -83,7 +83,7 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
               {it.parts?.length ? (
                 <div className="mt-2 flex flex-col gap-2.5">
                   {it.parts.map((p) => (
-                    <div key={p.de} className="border-l-2 border-line pl-3">
+                    <div key={p.de} id={p.anchor} className="scroll-mt-6 border-l-2 border-line pl-3">
                       <h4 className="m-0">
                         <span className="rounded-full bg-chip px-2 py-0.5 text-xs font-medium text-ink">
                           <Label de={p.de} vi={p.vi} />

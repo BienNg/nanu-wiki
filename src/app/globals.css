@@ -208,9 +208,11 @@ html.lang-vi .vs::before { content: none; }
 
 /* ---------- Side pane (area page with ?seite=, see PaneFrame) ---------- */
 /* Opening: the pane glides in from the right edge. Switching pages: the new page fades in place. */
-.pane-in { animation: pane-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }
+/* Pane, sidebar fold and list all move on one clock, so opening and closing read as one motion. */
+:root { --pane-ms: 220ms; --pane-ease: cubic-bezier(0.32, 0.72, 0, 1); }
+.pane-in { animation: pane-in var(--pane-ms) var(--pane-ease) both; }
 .pane-swap { animation: pane-swap 0.22s ease-out both; }
-.pane-out { animation: pane-out 0.24s cubic-bezier(0.4, 0, 1, 1) both; pointer-events: none; }
+.pane-out { animation: pane-out var(--pane-ms) var(--pane-ease) both; pointer-events: none; }
 @keyframes pane-in {
   from { transform: translateX(100%); opacity: 0.4; }
   to { transform: none; opacity: 1; }

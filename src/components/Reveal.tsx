@@ -25,6 +25,8 @@ export function Reveal({ children, className, once }: { children: React.ReactNod
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       if (once && Date.now() - (lastUnmount.get(once) ?? 0) < 600) return;
+      // In the side pane the pane itself slides or fades in; a second motion inside it reads as jank.
+      if (ref.current?.closest(".doc-pane")) return;
       gsap.from("[data-reveal]", {
         opacity: 0,
         y: 14,

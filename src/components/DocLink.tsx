@@ -10,7 +10,7 @@ import { useNavigationLoader } from "./NavigationLoader";
 // - on arrival the page scrolls to the section and it flashes briefly;
 // - Back returns to the exact spot the link was clicked from (window and side pane).
 
-const ARRIVE = "nanu:arrive"; // the URL a link just opened, so its section is shown once (not again on Back)
+export const ARRIVE = "nanu:arrive"; // the URL a link just opened, so its section is shown once (not again on Back)
 const POS = "nanu:pos:"; // + URL → where that page was scrolled to when a link left it
 
 type Pos = { win: number; pane: number | null };
@@ -18,7 +18,7 @@ type Pos = { win: number; pane: number | null };
 const urlKey = () => location.pathname + location.search + location.hash;
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function store(key: string, value: string | null) {
+export function store(key: string, value: string | null) {
   try {
     if (value === null) sessionStorage.removeItem(key);
     else sessionStorage.setItem(key, value);
@@ -39,15 +39,18 @@ function currentDoc(inPane: boolean) {
   return location.pathname.startsWith("/bereich/") ? { area, page } : {};
 }
 
-/** Scrolls to a heading and flashes its section: the heading's block and every block up to the next heading. */
-function showSection(id: string, smooth: boolean) {
-  const heading = document.getElementById(id);
-  if (!heading) return;
-  heading.scrollIntoView({ behavior: smooth && !reduceMotion() ? "smooth" : "instant", block: "start" });
+/** Scrolls to a section and flashes it. A heading flashes with every block up to the next heading;
+ *  a step or a time section („Jeden Tag“ …) flashes on its own. */
+export function showSection(id: string, smooth: boolean) {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: smooth && !reduceMotion() ? "smooth" : "instant", block: "start" });
   if (reduceMotion()) return;
-  const first = heading.closest<HTMLElement>("[data-block]") ?? heading;
-  const section = [first];
-  for (let n = first.nextElementSibling; n instanceof HTMLElement && !n.querySelector("h2"); n = n.nextElementSibling) section.push(n);
+  const section = [target];
+  if (/^H[1-6]$/.test(target.tagName)) {
+    section[0] = target.closest<HTMLElement>("[data-block]") ?? target;
+    for (let n = section[0].nextElementSibling; n instanceof HTMLElement && !n.querySelector("h2"); n = n.nextElementSibling) section.push(n);
+  }
   section.forEach((el, i) => {
     el.classList.remove("section-flash", "section-flash-first", "section-flash-last");
     void el.offsetWidth; // restart the animation when the same section is shown twice in a row
@@ -106,9 +109,10 @@ export function DocLink({ area, page, anchor, children }: { area?: string; page?
 export function SectionArrival() {
   useEffect(() => {
     if (read(ARRIVE) !== urlKey()) return;
-    store(ARRIVE, null);
-    // After PaneFrame has reset the pane to the top on mount.
+    // After PaneFrame has reset the pane to the top on mount. Cleared only once shown: a remount
+    // in between (React may mount effects twice) must still find it.
     const frame = requestAnimationFrame(() => {
+      store(ARRIVE, null);
       const id = decodeURIComponent(location.hash.slice(1));
       if (id) showSection(id, false);
       else if (!document.querySelector(".doc-pane")) window.scrollTo({ top: 0, behavior: "instant" });

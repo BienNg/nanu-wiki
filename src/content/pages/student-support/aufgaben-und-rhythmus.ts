@@ -25,12 +25,14 @@ const page: PageContent = {
       type: "steps",
       items: [
         {
-          de: "Neue Schüler betreuen",
-          vi: "Chăm sóc học viên sau khi đăng ký",
+          de: "Neue und aktuelle Schüler betreuen",
+          anchor: "schueler-betreuen",
+          vi: "Chăm sóc học viên mới và học viên đang học",
           parts: [
-            { de: "Nach jeder Zahlung", vi: "Sau mỗi lần đóng tiền", body_de: "Sobald Sales in Slack eine neue Zahlung meldet, fängt an, wer gerade Schicht hat – auch abends und am Wochenende. Begrüße die Person und hilf ihr in die Klassengruppe, in Zoom, Classroom und NaNu Go. Prüfe, ob sie Material, Stundenplan und Regeln bekommen hat. Frag nach der ersten und nach der zweiten Stunde, wie es läuft. Die genauen Schritte für die ersten 48 Stunden stehen auf der Seite „[Nach der Zahlung](student-support/nach-der-zahlung)“.", body_vi: "Ngay khi Sales báo trên Slack có học viên mới đóng tiền, ai đang trực ca thì bắt đầu – kể cả buổi tối và cuối tuần. Chào mừng, hướng dẫn vào nhóm lớp, Zoom, Classroom và NaNu Go; kiểm tra học viên đã nhận đủ tài liệu, lịch học và nội quy; hỏi thăm sau buổi 1 và buổi 2. Các bước cụ thể trong 48 giờ đầu xem trang „[Sau khi khách chuyển khoản](student-support/nach-der-zahlung)“." },
+            { de: "Nach jeder Zahlung", anchor: "nach-jeder-zahlung", vi: "Sau mỗi lần đóng tiền", body_de: "Sobald Sales in Slack eine neue Zahlung meldet, fängt an, wer gerade Schicht hat – auch abends und am Wochenende. Begrüße die Person und hilf ihr in die Klassengruppe, in Zoom, Classroom und NaNu Go. Prüfe, ob sie Material, Stundenplan und Regeln bekommen hat. Frag nach der ersten und nach der zweiten Stunde, wie es läuft. Die genauen Schritte für die ersten 48 Stunden stehen auf der Seite „[Nach der Zahlung](student-support/nach-der-zahlung)“.", body_vi: "Ngay khi Sales báo trên Slack có học viên mới đóng tiền, ai đang trực ca thì bắt đầu – kể cả buổi tối và cuối tuần. Chào mừng, hướng dẫn vào nhóm lớp, Zoom, Classroom và NaNu Go; kiểm tra học viên đã nhận đủ tài liệu, lịch học và nội quy; hỏi thăm sau buổi 1 và buổi 2. Các bước cụ thể trong 48 giờ đầu xem trang „[Sau khi khách chuyển khoản](student-support/nach-der-zahlung)“." },
             {
               de: "Jeden Tag",
+              anchor: "allen-antworten",
               vi: "Mỗi ngày",
               body_de: "Allen Schülern antworten. Wenn jemand den Termin wechseln oder pausieren will, klärst du das nach unseren Regeln. Achte darauf, ob jemand unzufrieden wirkt. Technische Probleme (Zoom, Jotform, Drive voll) meldest du sofort im Team. So gehst du beim Antworten vor:",
               body_vi: "Trả lời mọi học viên. Hỗ trợ đổi lịch, bảo lưu theo quy định; để ý học viên có dấu hiệu không hài lòng. Lỗi kỹ thuật (Zoom, Jotform, Drive đầy) báo nội bộ ngay. Cách trả lời:",
@@ -45,17 +47,20 @@ const page: PageContent = {
                 de: "am Ende deiner Schicht beides stimmt: 1) Jede Nachricht von Schülern hat eine Antwort. 2) Jedes Problem ist gelöst – die Person hat also ihre Antwort oder Datei bekommen. Oder es steht in Slack, mit Screenshot und mit dem Namen der Person, die sich weiter darum kümmert. Nur „Ich habe die Lehrkraft gefragt“ reicht nicht.",
                 vi: "cuối ca đủ cả hai điều: 1) Không còn tin nhắn nào của học viên chưa được trả lời. 2) Mọi vấn đề đã được giải quyết – kết quả đã đến được học viên – hoặc đã ghi vào Slack kèm ảnh chụp và tên người xử lý tiếp. Chỉ „đã hỏi giáo viên“ thì chưa tính là xong."
               }
-            },            { de: "Montags", vi: "Thứ Hai", body_de: "In jeder Klassengruppe daran erinnern, was die Schüler bei uns haben: Drive mit Büchern A1–B2, Classroom, NaNu Go und das Handbuch.", body_vi: "Nhắn vào từng nhóm lớp nhắc học viên trung tâm có những gì: Drive sách A1–B2, Classroom, NaNu Go, Handbuch." }
+            },
+            { de: "Montags", anchor: "klassengruppen-montags", vi: "Thứ Hai", body_de: "In jeder Klassengruppe daran erinnern, was die Schüler bei uns haben: Drive mit Büchern A1–B2, Classroom, NaNu Go und das Handbuch.", body_vi: "Nhắn vào từng nhóm lớp nhắc học viên trung tâm có những gì: Drive sách A1–B2, Classroom, NaNu Go, Handbuch." }
           ]
         },
         {
           de: "Klassen im Blick behalten",
+          anchor: "klassen-im-blick",
           vi: "Kiểm soát chất lượng lớp học",
           body_de: "Schau, ob jede Klasse nach Plan läuft. Wer fehlt oft? Wer hat aufgehört? In welcher Klasse könnten Schüler abspringen? Solche Klassen meldest du der Leitung, bevor es zu spät ist.\nDazu gehört, die Lehrkräfte zu begleiten: Sie sollen pünktlich anfangen und die volle Zeit unterrichten. Sie tragen Anwesenheit und Fortschritt ein und schicken Unterrichtsdatei und Hausaufgabe in die Gruppe. Sie füllen das Feedback zu den Schülern rechtzeitig aus und machen in den ersten zwei Stunden ein Klassenfoto. Mehr dazu auf der Seite „[Lehrkräfte begleiten](student-support/lehrkraefte-begleiten)“.",
           body_vi: "Lớp có học đúng lịch không? Ai hay vắng, ai bỏ học? Lớp nào có nguy cơ mất học viên? Báo cáo các lớp này cho quản lý trước khi quá muộn.\nViệc này gồm cả theo dõi giáo viên: đúng giờ, dạy đủ thời lượng, cập nhật điểm danh và tiến độ, gửi bài giảng và bài tập vào nhóm, điền nhận xét học viên đúng hạn, chụp ảnh lớp trong hai buổi đầu. Xem trang „[Theo dõi giáo viên](student-support/lehrkraefte-begleiten)“.",
           parts: [
             {
               de: "Jeden Tag",
+              anchor: "klassen-vortag",
               vi: "Mỗi ngày",
               body_de: "Prüf die Klassen, die am Vortag Unterricht hatten:",
               body_vi: "Kiểm tra các lớp có buổi học hôm trước:",
@@ -66,18 +71,20 @@ const page: PageContent = {
                 { de: "In NaNu Go nachsehen", vi: "Kiểm tra trên NaNu Go", body_de: "Prüf in der App NaNu Go, ob der Schüler die Aufgaben gemacht hat. Wenn nicht: Sag ihm, dass er die verpasste Lektion in NaNu Go nachholen soll. Sonst kann er dem Unterricht nicht mehr folgen.", body_vi: "Kiểm tra trên app NaNu Go xem học viên đã làm bài chưa. Nếu chưa: nhắn học viên học bù bài đã nghỉ trên NaNu Go. Nếu không, học viên sẽ không theo kịp lớp." }
               ]
             },
-            { de: "Montags", vi: "Thứ Hai", body_de: "Den Lehrkräften sagen, was in der neuen Woche ansteht.", body_vi: "Nhắc giáo viên về tuần mới." },
-            { de: "Mittwochs", vi: "Thứ Tư", body_de: "Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.", body_vi: "Kiểm tra giáo viên đã điền nhận xét chưa." }
+            { de: "Montags", anchor: "lehrkraefte-montags", vi: "Thứ Hai", body_de: "Den Lehrkräften sagen, was in der neuen Woche ansteht.", body_vi: "Nhắc giáo viên về tuần mới." },
+            { de: "Mittwochs", anchor: "feedback-mittwochs", vi: "Thứ Tư", body_de: "Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.", body_vi: "Kiểm tra giáo viên đã điền nhận xét chưa." }
           ]
         },
         {
           de: "Den nächsten Kurs vorbereiten",
+          anchor: "naechster-kurs",
           vi: "Theo dõi chuyển khoá",
           body_de: "Schau, wer bald mit A1, A2, B1 oder B2 fertig ist. Frag, ob die Person weiterlernen möchte und welche Uhrzeit ihr passt. Stimm das Angebot mit Sales ab. Erinnere die Person vor Kursende daran, sich anzumelden. Wenn jemand nicht weitermacht, notiere den Grund.",
           body_vi: "Ai sắp xong A1, A2, B1, B2? Hỏi nguyện vọng và giờ học phù hợp, phối hợp với Sales tư vấn khoá tiếp theo, nhắc đăng ký trước khi hết khoá và ghi lại lý do học viên không học tiếp.",
           parts: [
             {
               de: "Vor Kursende",
+              anchor: "vor-kursende",
               vi: "Trước khi hết khoá",
               body_de: "Bei jedem Kurs: Online-Klassen 6 Lektionen vor Kursende, Klassen vor Ort 2 Wochen vor Kursende.",
               body_vi: "Với mọi khoá: lớp online trước khi hết khoá 6 buổi, lớp offline trước khi hết khoá 2 tuần.",
@@ -91,13 +98,14 @@ const page: PageContent = {
         },
         {
           de: "Berichten und verbessern",
+          anchor: "berichten",
           vi: "Báo cáo và cải tiến",
           body_de: "Halte fest, wie viele Schüler gerade lernen, pausieren oder aufgehört haben, welche Lehrkräfte ihre Aufgaben erledigen und was noch offen ist. Mach Vorschläge, wie Betreuung und Unterricht besser werden.",
           body_vi: "Bao nhiêu học viên đang học, bảo lưu, đã nghỉ? Giáo viên nào hoàn thành nhiệm vụ? Việc gì còn tồn đọng? Đề xuất cách cải tiến chăm sóc và giảng dạy.",
           parts: [
-            { de: "Jeden Tag", vi: "Mỗi ngày", body_de: "Am Ende der Schicht prüfen, was erledigt ist, und das Backoffice ausfüllen.", body_vi: "Cuối ca kiểm tra việc đã xong và điền Backoffice." },
-            { de: "Freitags", vi: "Thứ Sáu", body_de: "Den Wochenbericht schicken – mit Vorschlägen, wie wir die Probleme lösen.", body_vi: "Gửi báo cáo tuần kèm đề xuất phương án xử lý." },
-            { de: "Am Monatsende", vi: "Cuối tháng", body_de: "Die Lehrkräfte bewerten und ausrechnen, wie viele aufgehört haben und wie viele den nächsten Kurs gebucht haben.", body_vi: "Đánh giá giáo viên, tính tỷ lệ nghỉ học và tỷ lệ học tiếp." }
+            { de: "Jeden Tag", anchor: "bericht-schicht", vi: "Mỗi ngày", body_de: "Am Ende der Schicht prüfen, was erledigt ist, und das Backoffice ausfüllen.", body_vi: "Cuối ca kiểm tra việc đã xong và điền Backoffice." },
+            { de: "Freitags", anchor: "wochenbericht", vi: "Thứ Sáu", body_de: "Den Wochenbericht schicken – mit Vorschlägen, wie wir die Probleme lösen.", body_vi: "Gửi báo cáo tuần kèm đề xuất phương án xử lý." },
+            { de: "Am Monatsende", anchor: "monatsende", vi: "Cuối tháng", body_de: "Die Lehrkräfte bewerten und ausrechnen, wie viele aufgehört haben und wie viele den nächsten Kurs gebucht haben.", body_vi: "Đánh giá giáo viên, tính tỷ lệ nghỉ học và tỷ lệ học tiếp." }
           ]
         }
       ]

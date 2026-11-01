@@ -12,7 +12,7 @@ const COLLAPSED_KEY = "nanu.sidebar.collapsed";
 const DEFAULT_WIDTH = 252;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 440;
-const RAIL_WIDTH = 56;
+export const RAIL_WIDTH = 56;
 
 type ShellContextValue = {
   collapsed: boolean;
@@ -181,7 +181,7 @@ export function AppShell({
   const toggleCollapsed = useCallback(() => {
     if (shown) {
       setCollapsed(false);
-      setPaneExpanded(true);
+      setPaneExpanded(panes > 0); // unfolding with no pane open must not stop the next pane from folding it
     } else if (panes > 0) {
       setPaneExpanded(false);
     } else {
@@ -238,7 +238,7 @@ export function AppShell({
           id="app-sidebar"
           className={`sticky top-0 z-20 h-dvh flex-none self-start border-r border-line bg-side max-md:fixed max-md:left-0 max-md:z-50 max-md:w-[min(300px,85vw)]! max-md:transition-transform max-md:duration-200 max-md:ease-out motion-reduce:transition-none ${
             drawerOpen ? "max-md:translate-x-0 max-md:shadow-[8px_0_24px_rgba(0,0,0,0.12)]" : "max-md:invisible max-md:-translate-x-full"
-          } ${dragging ? "" : "md:transition-[width] md:duration-200 md:ease-out"}`}
+          } ${dragging ? "" : "md:transition-[width] md:duration-[var(--pane-ms)] md:ease-[var(--pane-ease)]"}`}
           style={{ width: offset }}
           data-collapsed={shown ? "true" : "false"}
         >

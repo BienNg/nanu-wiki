@@ -37,6 +37,7 @@ export type StepPart = {
   vi: string;
   body_de: string;
   body_vi: string;
+  anchor?: string; // fixed id, so links and daily tasks can jump here
   steps?: { de: string; vi: string; body_de: string; body_vi: string }[];
   done?: { de: string; vi: string };
 };
@@ -50,7 +51,7 @@ export type Block = (
   | { type: "heading"; de: string; vi: string; anchor?: string } // anchor: fixed id for links, see headingId
   | { type: "paragraph"; de: string; vi: string }
   | { type: "list"; ordered?: boolean; items: { de: string; vi: string }[] }
-  | { type: "steps"; items: { de: string; vi: string; body_de?: string; body_vi?: string; when?: { de: string; vi: string }[]; parts?: StepPart[]; template?: { label_de: string; label_vi: string; text: string; translation_de?: string } }[] }
+  | { type: "steps"; items: { de: string; vi: string; anchor?: string; body_de?: string; body_vi?: string; when?: { de: string; vi: string }[]; parts?: StepPart[]; template?: { label_de: string; label_vi: string; text: string; translation_de?: string } }[] }
   | { type: "callout"; tone: "info" | "warning" | "tip"; de: string; vi: string }
   | { type: "template"; label_de: string; label_vi: string; text: string; translation_de?: string }
   | { type: "video"; url: string; caption_de?: string; caption_vi?: string }
@@ -230,7 +231,7 @@ export type DailyTask = {
   label_de: string;
   label_vi: string;
   days?: number[];
-  page?: string; // "<area>/<slug>" – the Handbuch page it comes from
+  page?: string; // "<area>/<slug>" or "<area>/<slug>#<anchor>" – the Handbuch page (and section) it comes from
 };
 
 export type IconName =

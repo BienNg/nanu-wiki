@@ -20,12 +20,14 @@ const page: PageContent = {
       items: [
         {
           de: "Neue und mögliche Kunden betreuen",
+          anchor: "kunden-betreuen",
           vi: "Chăm sóc khách mới và khách tiềm năng",
           body_de: "Alle Anfragen aus Facebook, Zalo, WhatsApp, TikTok und dem Website-Formular schnell beantworten. Wer sich noch nicht angemeldet hat, wird aktiv angeschrieben oder angerufen. Bedarf, Gesprächsverlauf und den nächsten Kontakttermin im Backoffice notieren.",
           body_vi: "Phản hồi nhanh mọi khách từ Facebook, Zalo, WhatsApp, TikTok và form website. Khách chưa đăng ký thì chủ động nhắn tin, gọi điện chăm sóc. Ghi nhu cầu, lịch sử tư vấn và ngày cần liên hệ lại vào Backoffice."
         },
         {
           de: "Beraten und abschließen",
+          anchor: "beraten-und-abschliessen",
           vi: "Tư vấn và chốt đăng ký",
           body_de: "Kurse, Preise, Aktionen, Termine und Regeln kennen. Einwände klären, ein passendes Angebot machen, nach dem Abschluss fragen und Anmeldung, Vertrag und Zahlung verfolgen.",
           body_vi: "Nắm rõ khoá học, học phí, ưu đãi, lịch học và chính sách. Giải đáp lý do khách chưa đăng ký, đề xuất lộ trình phù hợp, chủ động chốt và theo dõi đăng ký, hợp đồng, thanh toán."
@@ -50,6 +52,7 @@ const page: PageContent = {
         },
         {
           de: "An Customer Success übergeben",
+          anchor: "uebergabe",
           vi: "Bàn giao cho đội Chăm sóc học viên",
           body_de: "Nach der Zahlung schickt Sales nichts mehr an die Person. Die Anmeldung in Slack an Customer Success melden – mit allem, was zugesagt wurde. Siehe „[Vormerken, Zahlung & Rechnung](student-support/anmeldung-und-zahlung)“ im Bereich Student Support.",
           body_vi: "Sau khi khách đóng tiền, Sales không gửi gì thêm cho học viên. Báo lên Slack cho đội Chăm sóc học viên – kèm mọi điều đã cam kết. Xem trang „[Ghi danh trước, đóng học phí & hoá đơn](student-support/anmeldung-und-zahlung)“ ở mục Student Support."

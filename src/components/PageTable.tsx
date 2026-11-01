@@ -9,25 +9,25 @@ import { PaneLink } from "./PaneLink";
 const GRID = "grid grid-cols-[minmax(220px,1fr)_120px_120px_100px] items-center gap-3";
 
 /** Slite-style document table: page, type, status, last activity.
- *  With `paneHref`, a click opens the page in the area's side pane; `active` = the page open there,
- *  which also narrows the table to its "Seite" column. */
+ *  With `paneHref`, a click opens the page in the area's side pane. `narrow` = the table sits next to
+ *  that pane: it shrinks to its "Seite" column and marks the page open there. */
 export function PageTable({
   pages,
   empty,
   header = true,
   paneHref,
-  active,
+  narrow,
 }: {
   pages: PageWithMeta[];
   empty?: React.ReactNode;
   header?: boolean;
   paneHref?: (p: PageWithMeta) => string;
-  active?: string;
+  narrow?: boolean;
 }) {
   if (!pages.length) {
     return <p className="rounded-lg bg-side px-4 py-6 text-center text-[13px] text-muted">{empty ?? "Noch keine Seiten · Chưa có trang"}</p>;
   }
-  if (active !== undefined) {
+  if (narrow) {
     return (
       <div className="flex flex-col">
         {header && (
@@ -40,7 +40,7 @@ export function PageTable({
             key={p.id}
             href={paneHref!(p)}
             fullHref={p.href}
-            aria-current={p.id === active ? "page" : undefined}
+            markCurrent
             className="flex min-h-10 items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] leading-snug text-ink hover:bg-side aria-[current=page]:bg-accent-soft aria-[current=page]:text-accent-dark"
           >
             <Icon name="doc" size={15} color={p.area.color} strokeWidth={2} className="flex-none" />

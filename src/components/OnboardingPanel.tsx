@@ -19,8 +19,19 @@ export type WeekData = {
   items: { id: string; label_de: string; label_vi: string; href: string | null; fullHref: string | null }[]; // fullHref set → href opens the side pane
 };
 
+/** Ticks changed in this tab (item → done): the list next to the side pane and the full list are two
+ *  panels (see PaneLayout), and the one that shows up later starts from these. */
+const changed = new Map<string, boolean>();
+
 export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekData[]; initialDone: string[]; areaSlug: string }) {
-  const [done, setDone] = useState(() => new Set(initialDone));
+  const [done, setDone] = useState(() => {
+    const set = new Set(initialDone);
+    for (const [id, value] of changed) {
+      if (value) set.add(id);
+      else set.delete(id);
+    }
+    return set;
+  });
   const [, startTransition] = useTransition();
 
   const total = weeks.reduce((n, w) => n + w.items.length, 0);
@@ -29,6 +40,7 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
   const quizzesPassed = weeks.filter((w) => w.quizPassed).length;
 
   function toggle(itemId: string, value: boolean) {
+    changed.set(itemId, value);
     setDone((prev) => {
       const next = new Set(prev);
       if (value) next.add(itemId);

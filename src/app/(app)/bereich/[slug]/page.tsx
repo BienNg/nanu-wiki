@@ -1,9 +1,10 @@
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditorAreas, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, readablePages, visibleAreas, type AreaTab } from "@/content";
-import { Crumb, Topbar } from "@/components/Topbar";
+import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
@@ -11,7 +12,7 @@ import { BlockRenderer } from "@/components/BlockRenderer";
 import { PageTable } from "@/components/PageTable";
 import { OnboardingPanel, type WeekData } from "@/components/OnboardingPanel";
 import { DocView } from "@/components/DocView";
-import { PaneFrame } from "@/components/DocPane";
+import { PaneCrumb, PaneLayout } from "@/components/DocPane";
 import { DailyTasksPanel } from "@/components/DailyTasksPanel";
 import { vnToday, weekday, WEEKDAYS } from "@/lib/days";
 import type { PageWithMeta } from "@/lib/types";
@@ -46,10 +47,14 @@ export default async function AreaPage({
   // `?seite=<page>` = that page is open in the side pane; the list narrows to its "Seite" column.
   const base = area.is_shared ? `/bereich/${area.slug}` : `/bereich/${area.slug}?tab=${tab}`;
   const paneHref = (p: PageWithMeta) => `${base}${area.is_shared ? "?" : "&"}seite=${p.slug}`;
-  const open = tab === "interview" && !area.is_shared ? undefined : pages.find((p) => p.slug === seite && p.section !== "interview");
-  const narrow = open !== undefined;
+  // Pages the side pane may show (none on the Interview tab), and the one the URL opens now.
+  const paneable = tab === "interview" && !area.is_shared ? [] : pages.filter((p) => p.section !== "interview");
+  const open = paneable.find((p) => p.slug === seite);
+  const titles = Object.fromEntries(paneable.map((p) => [p.slug, { de: p.title_de, vi: p.title_vi }]));
 
-  const list = (
+  // Both layouts are sent: the full list, and the list next to the pane. PaneLayout switches between
+  // them on the client, so the pane opens and closes on the click – the page inside loads afterwards.
+  const list = (narrow: boolean) => (
     <Reveal once={`area-list:${area.slug}`} className={narrow ? "flex flex-col gap-5 px-3 pb-10 pt-5" : "mx-auto flex w-full max-w-[960px] flex-col gap-6 px-8 pb-20 pt-9"}>
       <header className={`flex flex-col gap-1.5 ${narrow ? "px-2.5" : ""}`}>
         <h1 data-reveal className={`title-display m-0 leading-[1.12] ${narrow ? "text-[22px]" : "text-[38px]"}`}>
@@ -63,7 +68,7 @@ export default async function AreaPage({
       </header>
 
       {area.is_shared ? (
-        <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} paneHref={paneHref} active={open?.id} />
+        <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} paneHref={paneHref} narrow={narrow} />
       ) : (
         <>
           {!narrow && (
@@ -86,52 +91,39 @@ export default async function AreaPage({
           {tab === "daily" && <DailyTab areaSlug={area.slug} profileId={profile.id} paneBase={base} narrow={narrow} />}
           {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
           {tab === "handbook" && (
-            <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} active={open?.id} />
+            <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} narrow={narrow} />
           )}
         </>
       )}
     </Reveal>
   );
 
-  const topbar = (
-    <Topbar showLang={!open}>
+  const topbar = (pane: boolean) => (
+    <Topbar showLang={!pane}>
       <Icon name={area.icon} size={14} color={area.color} strokeWidth={2} />
       <span>
         <Label de={area.name_de} vi={area.name_vi} />
       </span>
-      {open && (
-        <Crumb>
-          <span className="max-w-[320px] truncate">
-            <Label de={open.title_de} vi={open.title_vi || open.title_de} />
-          </span>
-        </Crumb>
-      )}
+      {pane && <PaneCrumb titles={titles} />}
     </Topbar>
   );
 
-  if (!open) {
-    return (
-      <>
-        {topbar}
-        {list}
-      </>
-    );
-  }
-
-  // Exactly one screen: the list and the page each scroll on their own, so a long page
-  // cannot stretch the window and leave the next, shorter page scrolled into empty space.
   return (
-    <div className="flex h-dvh min-h-0 flex-col overflow-hidden [overflow-anchor:none]">
-      {topbar}
-      <div className="flex min-h-0 flex-1">
-        <aside aria-label="Seiten" className="w-[300px] flex-none overflow-y-auto max-lg:hidden">
-          {list}
-        </aside>
-        <PaneFrame key={open.id} closeHref={base} label={open.title_de}>
-          <DocView page={open} profile={profile} pane />
-        </PaneFrame>
-      </div>
-    </div>
+    <PaneLayout
+      open={open?.slug}
+      titles={titles}
+      closeHref={base}
+      closed={
+        <>
+          {topbar(false)}
+          {list(false)}
+        </>
+      }
+      topbar={topbar(true)}
+      list={list(true)}
+    >
+      {open && <DocView page={open} profile={profile} pane />}
+    </PaneLayout>
   );
 }
 
@@ -163,11 +155,29 @@ async function InterviewTab({ pages, profileId, canEdit }: { pages: PageWithMeta
   );
 }
 
+// With the pane open, the tabs render twice (see `closed`): these load once per request.
+const dailyLog = cache(async (profileId: string, day: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("daily_task_log").select("task_id, done, note").eq("profile_id", profileId).eq("day", day);
+  return data;
+});
+
+const onboardingProgress = cache(async (profileId: string, areaSlug: string) => {
+  const supabase = await createClient();
+  const quizIds = getOnboarding(areaSlug).flatMap((w) => w.quiz?.id ?? []);
+  const [{ data: progress }, { data: attempts }] = await Promise.all([
+    supabase.from("checklist_progress").select("item_id").eq("profile_id", profileId),
+    quizIds.length
+      ? supabase.from("quiz_attempts").select("quiz_id, score, total, passed").eq("profile_id", profileId).in("quiz_id", quizIds)
+      : Promise.resolve({ data: [] as { quiz_id: string; score: number; total: number; passed: boolean }[] }),
+  ]);
+  return [progress, attempts] as const;
+});
+
 async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: string; profileId: string; paneBase: string; narrow: boolean }) {
   const day = vnToday();
   const tasks = dailyTasksFor(areaSlug, day);
-  const supabase = await createClient();
-  const { data } = await supabase.from("daily_task_log").select("task_id, done, note").eq("profile_id", profileId).eq("day", day);
+  const data = await dailyLog(profileId, day);
   const initial = Object.fromEntries((data ?? []).map((r) => [r.task_id as string, { done: r.done as boolean, note: (r.note as string | null) ?? "" }]));
   const wd = WEEKDAYS[weekday(day) - 1];
 
@@ -180,15 +190,18 @@ async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: s
       dayLabel={{ de: wd.de, vi: wd.vi }}
       initial={initial}
       items={tasks.map((t) => {
-        const [pageArea, pageSlug] = t.page?.split("/") ?? [];
-        const full = t.page ? `/bereich/${t.page}` : null;
+        const [pageId, anchor] = t.page?.split("#") ?? [];
+        const [pageArea, pageSlug] = pageId?.split("/") ?? [];
+        const hash = anchor ? `#${anchor}` : "";
+        const full = pageId ? `/bereich/${pageId}${hash}` : null;
         return {
           id: t.id,
           label_de: t.label_de,
           label_vi: t.label_vi,
           weekdayOnly: !!t.days,
-          href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}` : full,
+          href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}${hash}` : full,
           fullHref: pageArea === areaSlug ? full : null,
+          anchor: anchor ?? null,
         };
       })}
     />
@@ -199,14 +212,7 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
   const weeks = getOnboarding(areaSlug);
   if (!weeks.length) return <p className="text-muted">Für diese Rolle gibt es noch keinen Lernpfad · Chưa có lộ trình cho vai trò này</p>;
 
-  const supabase = await createClient();
-  const quizIds = weeks.flatMap((w) => w.quiz?.id ?? []);
-  const [{ data: progress }, { data: attempts }] = await Promise.all([
-    supabase.from("checklist_progress").select("item_id").eq("profile_id", profileId),
-    quizIds.length
-      ? supabase.from("quiz_attempts").select("quiz_id, score, total, passed").eq("profile_id", profileId).in("quiz_id", quizIds)
-      : Promise.resolve({ data: [] as { quiz_id: string; score: number; total: number; passed: boolean }[] }),
-  ]);
+  const [progress, attempts] = await onboardingProgress(profileId, areaSlug);
 
   const data: WeekData[] = weeks.map((w) => {
     const mine = (attempts ?? []).filter((a) => a.quiz_id === w.quiz?.id);
@@ -245,12 +251,12 @@ function HandbookTab({
   areaSlug,
   pages,
   paneHref,
-  active,
+  narrow,
 }: {
   areaSlug: string;
   pages: PageWithMeta[];
   paneHref: (p: PageWithMeta) => string;
-  active?: string;
+  narrow: boolean;
 }) {
   const newestFirst = (list: PageWithMeta[]) => [...list].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
   const groups = getHandbookGroups(areaSlug).map((g) => ({
@@ -261,7 +267,7 @@ function HandbookTab({
     return (
       <div role="tabpanel" className="flex flex-col gap-3">
         <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
-        <PageTable pages={newestFirst(pages)} paneHref={paneHref} active={active} />
+        <PageTable pages={newestFirst(pages)} paneHref={paneHref} narrow={narrow} />
       </div>
     );
   }
@@ -273,10 +279,10 @@ function HandbookTab({
     <div role="tabpanel" className="flex flex-col gap-8">
       {shown.map((g, i) => (
         <section key={g.de} className="flex flex-col gap-2">
-          <h2 data-reveal className={`font-display m-0 px-2.5 font-bold text-heading ${active ? "text-[15px]" : "text-lg"}`}>
+          <h2 data-reveal className={`font-display m-0 px-2.5 font-bold text-heading ${narrow ? "text-[15px]" : "text-lg"}`}>
             <Bi de={g.de} vi={g.vi} />
           </h2>
-          <PageTable pages={g.pages} header={i === 0} paneHref={paneHref} active={active} />
+          <PageTable pages={g.pages} header={i === 0} paneHref={paneHref} narrow={narrow} />
         </section>
       ))}
     </div>

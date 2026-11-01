@@ -7,7 +7,8 @@ import { saveDailyTask } from "@/app/actions";
 import { AnimatedBar } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
-import { PaneLink } from "./PaneLink";
+import { ARRIVE, showSection, store } from "./DocLink";
+import { PANE_QUERY, PaneLink } from "./PaneLink";
 import { toast } from "./Toaster";
 
 export type DailyItem = {
@@ -17,9 +18,30 @@ export type DailyItem = {
   weekdayOnly: boolean; // only due on this weekday
   href: string | null;
   fullHref: string | null; // set → href opens the side pane
+  anchor: string | null; // the section of the page to jump to
 };
 
 type Entry = { done: boolean; note: string };
+
+/** Ticks and notes saved in this tab ("area|day|task" → entry). The list next to the side pane and the
+ *  full list are two panels (see PaneLayout): the one that shows up later starts from these, not from
+ *  what the server sent before the change. */
+const saved = new Map<string, Entry>();
+
+/** Opening a task's page at its section: flash the section once it is on screen (see SectionArrival).
+ *  When the pane already shows that page, jump there right away. */
+function goToSection(e: React.MouseEvent<HTMLAnchorElement>, it: DailyItem) {
+  if (!it.anchor || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const inPane = !!it.fullHref && window.matchMedia(PANE_QUERY).matches;
+  const to = new URL(inPane || !it.fullHref ? it.href! : it.fullHref, location.href);
+  if (inPane && to.search === location.search && document.getElementById(it.anchor)?.closest(".doc-pane")) {
+    e.preventDefault();
+    window.history.pushState(null, "", to.hash);
+    showSection(it.anchor, true);
+    return;
+  }
+  store(ARRIVE, to.pathname + to.search + to.hash);
+}
 
 /** The small book button next to a task: opens the Handbuch page it comes from. */
 const BOOK_LINK = {
@@ -44,7 +66,14 @@ export function DailyTasksPanel({
   initial: Record<string, Entry>;
 }) {
   const router = useRouter();
-  const [state, setState] = useState<Record<string, Entry>>(initial);
+  const [state, setState] = useState<Record<string, Entry>>(() => {
+    const merged = { ...initial };
+    for (const it of items) {
+      const s = saved.get(`${areaSlug}|${day}|${it.id}`);
+      if (s) merged[it.id] = s;
+    }
+    return merged;
+  });
   const [openNote, setOpenNote] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
@@ -53,6 +82,8 @@ export function DailyTasksPanel({
 
   function save(id: string, next: Entry) {
     const before = state[id] ?? { done: false, note: "" };
+    const key = `${areaSlug}|${day}|${id}`;
+    saved.set(key, next);
     setState((prev) => ({ ...prev, [id]: next }));
     startTransition(async () => {
       try {
@@ -62,6 +93,7 @@ export function DailyTasksPanel({
           router.refresh();
         }
       } catch {
+        saved.set(key, before);
         setState((prev) => ({ ...prev, [id]: before }));
         toast("Nicht gespeichert – bitte noch einmal · Chưa lưu được – vui lòng thử lại");
       }
@@ -126,12 +158,12 @@ export function DailyTasksPanel({
                       </button>
                     )}
                     {it.href && it.fullHref ? (
-                      <PaneLink href={it.href} fullHref={it.fullHref} {...BOOK_LINK}>
+                      <PaneLink href={it.href} fullHref={it.fullHref} onClick={(e) => goToSection(e, it)} {...BOOK_LINK}>
                         <Icon name="book" size={14} />
                       </PaneLink>
                     ) : (
                       it.href && (
-                        <Link href={it.href} {...BOOK_LINK}>
+                        <Link href={it.href} onClick={(e) => goToSection(e, it)} {...BOOK_LINK}>
                           <Icon name="book" size={14} />
                         </Link>
                       )

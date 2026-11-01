@@ -6,7 +6,7 @@ import { HANDBOOK_GROUPS_BY_AREA, PAGES_BY_AREA } from "./pages";
 import { ONBOARDING_BY_AREA } from "./onboarding";
 import { DAILY_TASKS_BY_AREA } from "./daily";
 import { weekday } from "@/lib/days";
-import { headingId, parseLinks } from "@/lib/links";
+import { pageAnchors, parseLinks, parseTarget } from "@/lib/links";
 
 // Everything people read lives in this folder. The database only stores who did what
 // (checklist_progress, quiz_attempts, chat_responses) next to profiles and roles.
@@ -24,13 +24,13 @@ export const PAGES: PageWithMeta[] = AREAS.flatMap((area) =>
   })),
 );
 
-/** Content links (`[text](area/page#section)`) whose page or section doesn't exist, and headings on one page that share an id. */
+/** Content links (`[text](area/page#section)`) and daily-task pages whose page or section doesn't exist, and ids on one page that are used twice. */
 export function brokenLinks(): string[] {
-  const ids = new Map(PAGES.map((p) => [p.id, p.body.flatMap((b) => (b.type === "heading" ? [headingId(b)] : []))]));
+  const ids = new Map(PAGES.map((p) => [p.id, pageAnchors(p.body)]));
   const problems: string[] = [];
   for (const [id, headings] of ids) {
     const twice = headings.filter((h, i) => headings.indexOf(h) !== i);
-    if (twice.length) problems.push(`${id}: Überschriften mit gleicher id: ${twice.join(", ")}`);
+    if (twice.length) problems.push(`${id}: Abschnitte mit gleicher id: ${twice.join(", ")}`);
   }
   const check = (where: string, text: string) => {
     for (const part of parseLinks(text)) {
@@ -48,6 +48,15 @@ export function brokenLinks(): string[] {
     else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(where, x, k);
   };
   for (const p of PAGES) walk(p.id, p.body);
+  for (const [area, tasks] of Object.entries(DAILY_TASKS_BY_AREA)) {
+    for (const t of tasks) {
+      if (!t.page) continue;
+      const { area: a, page, anchor } = parseTarget(t.page);
+      const headings = ids.get(`${a}/${page}`);
+      if (!headings) problems.push(`Tägliche Aufgabe ${area}/${t.id}: Seite „${a}/${page}“ gibt es nicht`);
+      else if (anchor && !headings.includes(anchor)) problems.push(`Tägliche Aufgabe ${area}/${t.id}: Abschnitt „${t.page}“ gibt es nicht`);
+    }
+  }
   return problems;
 }
 

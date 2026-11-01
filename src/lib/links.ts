@@ -3,6 +3,9 @@
 //   [„Lehrkräfte begleiten“](student-support/lehrkraefte-begleiten)            another page
 //   [„Kurs pausieren“](student-support/kurs-pausieren#regeln)                 a section on another page
 // A section is a heading's id: its `anchor`, or else the slug of its German text (see headingId).
+// Steps and their time sections („Jeden Tag“ …) can have a fixed `anchor` too (see pageAnchors).
+
+import type { Block } from "./types";
 
 export type DocLinkTarget = { area?: string; page?: string; anchor?: string };
 export type TextPart = string | ({ text: string } & DocLinkTarget);
@@ -47,4 +50,13 @@ export function slugify(text: string) {
 /** The id of a heading on the page: its fixed `anchor` (stays when the heading is renamed), or a slug of the German text. */
 export function headingId(h: { de: string; anchor?: string }) {
   return h.anchor ?? slugify(toPlain(h.de));
+}
+
+/** Every id on a page a link can jump to: headings, and steps or time sections with a fixed `anchor`. */
+export function pageAnchors(body: Block[]): string[] {
+  return body.flatMap((b) => {
+    if (b.type === "heading") return [headingId(b)];
+    if (b.type !== "steps") return [];
+    return b.items.flatMap((it) => [it.anchor, ...(it.parts ?? []).map((p) => p.anchor)].filter((a): a is string => !!a));
+  });
 }
