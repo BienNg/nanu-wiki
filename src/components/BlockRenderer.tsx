@@ -129,8 +129,8 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
                     </span>
                     <CopyButton text={it.template.text} />
                   </div>
-                  <p className="m-0 px-3.5 py-3 text-sm">{it.template.text}</p>
-                  {it.template.translation_de ? <p className="de m-0 px-3.5 pb-3 text-[13px] text-muted">{it.template.translation_de}</p> : null}
+                  <p className="m-0 whitespace-pre-line px-3.5 py-3 text-sm">{it.template.text}</p>
+                  {it.template.translation_de ? <p className="de m-0 whitespace-pre-line px-3.5 pb-3 text-[13px] text-muted">{it.template.translation_de}</p> : null}
                 </div>
               ) : null}
             </li>
@@ -188,8 +188,8 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
             </span>
             <CopyButton text={b.text} />
           </div>
-          <p className="m-0 px-3.5 py-3 text-sm">{b.text}</p>
-          {b.translation_de ? <p className="de m-0 px-3.5 pb-3 text-[13px] text-muted">{b.translation_de}</p> : null}
+          <p className="m-0 whitespace-pre-line px-3.5 py-3 text-sm">{b.text}</p>
+          {b.translation_de ? <p className="de m-0 whitespace-pre-line px-3.5 pb-3 text-[13px] text-muted">{b.translation_de}</p> : null}
         </div>
       );
     case "video":

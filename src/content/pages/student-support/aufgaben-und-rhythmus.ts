@@ -6,7 +6,7 @@ const page: PageContent = {
   title_vi: "Chăm sóc học viên: công việc, lịch tuần & KPI",
   kind: "process",
   section: "handbook",
-  verified_until: null,
+  verified_until: "2027-05-01",
   updated_at: "2026-11-01",
   body: [
     {
@@ -155,7 +155,7 @@ const page: PageContent = {
       label_de: "Vorlage · Bericht am Ende der Schicht",
       label_vi: "Mẫu · Báo cáo cuối ca",
       text: "Báo cáo công việc hôm nay\n1. Thời gian làm việc: từ … đến …\n2. Tư vấn khách hàng:\n- Số khách mới: …\n- Từng khách: họ tên + link Facebook/SĐT/Zalo (HN/SG) + nhu cầu\n- Ảnh chụp tin nhắn cuối cùng trên Messenger, Zalo, WhatsApp, TikTok\n3. Đã hoàn thành: story đã đăng chưa, các việc khác đã xử lý\n4. Chưa hoàn thành: việc gì, vì sao, ai cần theo dõi tiếp",
-      translation_de: "„Bericht von heute: 1. Arbeitszeit: von … bis … 2. Beratung: Wie viele neue Kontakte? Für jeden Kontakt: Name, Facebook-Link, Telefon oder Zalo (HN/SG) und was die Person möchte. Dazu ein Screenshot der letzten Nachricht in Messenger, Zalo, WhatsApp und TikTok. 3. Erledigt: Ist die Story gepostet? Was hast du sonst erledigt? 4. Offen: Was ist offen, warum, und wer muss weitermachen?“"
+      translation_de: "„Bericht von heute\n1. Arbeitszeit: von … bis …\n2. Beratung:\n- Neue Kontakte: …\n- Für jeden Kontakt: Name + Facebook-Link/Telefon/Zalo (HN/SG) + was die Person möchte\n- Screenshot der letzten Nachricht in Messenger, Zalo, WhatsApp, TikTok\n3. Erledigt: Story gepostet? Was hast du sonst erledigt?\n4. Offen: Was, warum, und wer muss weitermachen?“"
     }
   ]
 };
