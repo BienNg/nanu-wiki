@@ -21,13 +21,22 @@ export type DailyItem = {
 
 type Entry = { done: boolean; note: string };
 
+/** The small book button next to a task: opens the Handbuch page it comes from. */
+const BOOK_LINK = {
+  title: "Im Handbuch öffnen · Mở trong Sổ tay",
+  "aria-label": "Im Handbuch öffnen · Mở trong Sổ tay",
+  className: "flex h-7 w-7 flex-none items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink",
+};
+
 export function DailyTasksPanel({
   areaSlug,
   day,
   dayLabel,
   items,
   initial,
+  narrow,
 }: {
+  narrow: boolean; // a Handbuch page is open in the side pane: ticks only, no notes
   areaSlug: string;
   day: string;
   dayLabel: { de: string; vi: string };
@@ -104,29 +113,31 @@ export function DailyTasksPanel({
                         <Bi de={it.label_de} vi={it.label_vi} />
                       </span>
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setOpenNote(editing ? null : it.id)}
-                      aria-expanded={editing}
-                      title="Notiz · Ghi chú"
-                      className={`flex h-7 flex-none items-center gap-1 rounded-md px-1.5 text-xs hover:bg-hover ${entry.note ? "text-accent-dark" : "text-muted"}`}
-                    >
-                      <Icon name="edit" size={13} />
-                      <Label de="Notiz" vi="Ghi chú" />
-                    </button>
+                    {!narrow && (
+                      <button
+                        type="button"
+                        onClick={() => setOpenNote(editing ? null : it.id)}
+                        aria-expanded={editing}
+                        title="Notiz · Ghi chú"
+                        className={`flex h-7 flex-none items-center gap-1 rounded-md px-1.5 text-xs hover:bg-hover ${entry.note ? "text-accent-dark" : "text-muted"}`}
+                      >
+                        <Icon name="edit" size={13} />
+                        <Label de="Notiz" vi="Ghi chú" />
+                      </button>
+                    )}
                     {it.href && it.fullHref ? (
-                      <PaneLink href={it.href} fullHref={it.fullHref} className="mt-1 flex-none text-xs">
-                        <Label de="Handbuch" vi="Sổ tay" /> →
+                      <PaneLink href={it.href} fullHref={it.fullHref} {...BOOK_LINK}>
+                        <Icon name="book" size={14} />
                       </PaneLink>
                     ) : (
                       it.href && (
-                        <Link href={it.href} className="mt-1 flex-none text-xs">
-                          <Label de="Handbuch" vi="Sổ tay" /> →
+                        <Link href={it.href} {...BOOK_LINK}>
+                          <Icon name="book" size={14} />
                         </Link>
                       )
                     )}
                   </div>
-                  {editing ? (
+                  {narrow ? null : editing ? (
                     <NoteEditor
                       initial={entry.note}
                       onSave={(note) => {

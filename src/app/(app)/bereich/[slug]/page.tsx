@@ -83,7 +83,7 @@ export default async function AreaPage({
           )}
 
           {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
-          {tab === "daily" && <DailyTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
+          {tab === "daily" && <DailyTab areaSlug={area.slug} profileId={profile.id} paneBase={base} narrow={narrow} />}
           {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
           {tab === "handbook" && (
             <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} active={open?.id} />
@@ -163,7 +163,7 @@ async function InterviewTab({ pages, profileId, canEdit }: { pages: PageWithMeta
   );
 }
 
-async function DailyTab({ areaSlug, profileId, paneBase }: { areaSlug: string; profileId: string; paneBase: string }) {
+async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: string; profileId: string; paneBase: string; narrow: boolean }) {
   const day = vnToday();
   const tasks = dailyTasksFor(areaSlug, day);
   const supabase = await createClient();
@@ -174,6 +174,7 @@ async function DailyTab({ areaSlug, profileId, paneBase }: { areaSlug: string; p
   return (
     <DailyTasksPanel
       key={day}
+      narrow={narrow}
       areaSlug={areaSlug}
       day={day}
       dayLabel={{ de: wd.de, vi: wd.vi }}
