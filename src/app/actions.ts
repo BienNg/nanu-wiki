@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
-import { canReadPage, getOnboarding, getPageById, getQuiz, readablePages, searchPages } from "@/content";
+import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getQuiz, readablePages, searchPages } from "@/content";
 import { dmByEmail, siteUrl } from "@/lib/slack";
+import { vnToday } from "@/lib/days";
 import { blockKey, blockText, COMMENT_STATUSES, tagInfo } from "@/lib/comments";
 import type { AppRole, ChatTurn, CommentAnchor, CommentStatus, CommentTag, PageWithMeta } from "@/lib/types";
 
@@ -54,6 +55,39 @@ export async function toggleChecklistItem(itemId: string, done: boolean, areaSlu
 
   revalidatePath(`/bereich/${areaSlug}`);
   revalidatePath("/", "layout");
+}
+
+// ------------------------------------------------------------------ daily tasks
+/** Saves one task of today's list. `day` is the day the browser shows: once it is no longer today
+ *  (page left open past midnight) nothing is saved and the page reloads with the new, empty list. */
+export async function saveDailyTask(areaSlug: string, taskId: string, day: string, done: boolean, note: string) {
+  const session = await getSession();
+  if (!session || !hasRole(session.profile.role, "staff")) throw new Error("not allowed");
+  const today = vnToday();
+  if (day !== today) return { ok: false as const, stale: true };
+  if (!dailyTasksFor(areaSlug, today).some((t) => t.id === taskId)) throw new Error("unknown task");
+
+  const supabase = await createClient();
+  const key = { profile_id: session.profile.id, task_id: taskId, day: today };
+  const clean = note.trim().slice(0, 1000);
+  if (!done && !clean) {
+    const { error } = await supabase.from("daily_task_log").delete().match(key);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data: prev } = await supabase.from("daily_task_log").select("done, done_at").match(key).maybeSingle();
+    const now = new Date().toISOString();
+    const { error } = await supabase.from("daily_task_log").upsert({
+      ...key,
+      area: areaSlug,
+      done,
+      note: clean || null,
+      done_at: done ? (prev?.done ? prev.done_at : now) : null,
+      updated_at: now,
+    });
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath("/admin/aufgaben");
+  return { ok: true as const };
 }
 
 // ------------------------------------------------------------------ quiz

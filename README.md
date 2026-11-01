@@ -21,7 +21,7 @@ German main text, Vietnamese underneath, with a DE+VI / DE / VI toggle.
 | Comment inbox for editors & admins | `src/app/(app)/admin/kommentare` |
 | Slack: buddy notifications, new comments, "Danke" on resolve | `src/lib/slack.ts`, `src/app/actions.ts` |
 | **All content**: areas, pages, onboarding weeks, quizzes | `src/content/` |
-| Database schema + RLS (people and progress only) | `supabase/migrations/` (latest: `20261028000000_page_comments.sql`) |
+| Database schema + RLS (people and progress only) | `supabase/migrations/` (latest: `20261101000000_daily_tasks.sql`) |
 
 ### Content lives in code
 Everything people read is hard-coded in `src/content` and ships with each deploy; the database only stores

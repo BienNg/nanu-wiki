@@ -1,9 +1,11 @@
 import "server-only";
 import { hasRole } from "@/lib/auth";
-import type { Area, HandbookGroup, OnboardingWeek, PageWithMeta, Profile, QuizContent } from "@/lib/types";
+import type { Area, DailyTask, HandbookGroup, OnboardingWeek, PageWithMeta, Profile, QuizContent } from "@/lib/types";
 import { AREAS } from "./areas";
 import { HANDBOOK_GROUPS_BY_AREA, PAGES_BY_AREA } from "./pages";
 import { ONBOARDING_BY_AREA } from "./onboarding";
+import { DAILY_TASKS_BY_AREA } from "./daily";
+import { weekday } from "@/lib/days";
 
 // Everything people read lives in this folder. The database only stores who did what
 // (checklist_progress, quiz_attempts, chat_responses) next to profiles and roles.
@@ -41,6 +43,17 @@ export function getOnboarding(areaSlug: string): OnboardingWeek[] {
   return ONBOARDING_BY_AREA[areaSlug] ?? [];
 }
 
+/** Every task of an area's daily checklist, whatever the weekday. */
+export function getDailyTasks(areaSlug: string): DailyTask[] {
+  return DAILY_TASKS_BY_AREA[areaSlug] ?? [];
+}
+
+/** The tasks due on `day` ("YYYY-MM-DD"): the everyday ones plus that weekday's. */
+export function dailyTasksFor(areaSlug: string, day: string): DailyTask[] {
+  const wd = weekday(day);
+  return getDailyTasks(areaSlug).filter((t) => !t.days || t.days.includes(wd));
+}
+
 export function getQuiz(id: string): { quiz: QuizContent; week: OnboardingWeek; area: Area } | undefined {
   for (const area of AREAS) {
     const week = getOnboarding(area.slug).find((w) => w.quiz?.id === id);
@@ -49,7 +62,7 @@ export function getQuiz(id: string): { quiz: QuizContent; week: OnboardingWeek; 
   return undefined;
 }
 
-export type AreaTab = "handbook" | "onboarding" | "interview";
+export type AreaTab = "handbook" | "daily" | "onboarding" | "interview";
 
 // ------------------------------------------------------------------ access rules (formerly RLS on the content tables)
 /** Staff+ see every area; candidates only the role they applied for. */
@@ -58,12 +71,14 @@ export function visibleAreas(profile: Profile): Area[] {
 }
 
 /** Tabs on a role page, in display order.
- *  Only admin sees all three. Staff and editors: Handbuch and Onboarding.
- *  Candidates: Handbuch and Interview of the role they applied for. */
-export function areaTabs(profile: Profile): AreaTab[] {
-  if (profile.role === "admin") return ["handbook", "onboarding", "interview"];
+ *  Only admin sees Interview next to Handbuch and Onboarding. Staff and editors: Handbuch and Onboarding.
+ *  Candidates: Handbuch and Interview of the role they applied for.
+ *  Areas with a daily checklist add „Tägliche Aufgaben“ for staff+ – anyone may tick it, not only the area's own people. */
+export function areaTabs(profile: Profile, areaSlug: string): AreaTab[] {
   if (profile.role === "candidate") return ["handbook", "interview"];
-  return ["handbook", "onboarding"];
+  const daily: AreaTab[] = getDailyTasks(areaSlug).length ? ["daily"] : [];
+  if (profile.role === "admin") return ["handbook", ...daily, "onboarding", "interview"];
+  return ["handbook", ...daily, "onboarding"];
 }
 
 /** Admins everywhere; editors in the areas an admin assigned them (area_editors). */

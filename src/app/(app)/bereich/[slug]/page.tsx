@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditorAreas, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { areaTabs, canEditArea, getHandbookGroups, getOnboarding, readablePages, visibleAreas, type AreaTab } from "@/content";
+import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, readablePages, visibleAreas, type AreaTab } from "@/content";
 import { Crumb, Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -12,10 +12,13 @@ import { PageTable } from "@/components/PageTable";
 import { OnboardingPanel, type WeekData } from "@/components/OnboardingPanel";
 import { DocView } from "@/components/DocView";
 import { PaneFrame } from "@/components/DocPane";
+import { DailyTasksPanel } from "@/components/DailyTasksPanel";
+import { vnToday, weekday, WEEKDAYS } from "@/lib/days";
 import type { PageWithMeta } from "@/lib/types";
 
 const TABS: { key: AreaTab; de: string; vi: string }[] = [
   { key: "handbook", de: "Handbuch", vi: "Sổ tay" },
+  { key: "daily", de: "Tägliche Aufgaben", vi: "Việc hằng ngày" },
   { key: "onboarding", de: "Onboarding", vi: "Hội nhập" },
   { key: "interview", de: "Interview", vi: "Phỏng vấn" },
 ];
@@ -35,7 +38,7 @@ export default async function AreaPage({
   if (!area) notFound();
 
   const editorAreas = await getEditorAreas();
-  const tabs = areaTabs(profile);
+  const tabs = areaTabs(profile, area.slug);
   const tab: AreaTab = tabs.includes(tabParam as AreaTab) ? (tabParam as AreaTab) : tabs[0];
   const canEdit = canEditArea(profile, editorAreas, area.slug);
   const pages = readablePages(profile, editorAreas).filter((p) => p.area.slug === area.slug);
@@ -80,6 +83,7 @@ export default async function AreaPage({
           )}
 
           {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
+          {tab === "daily" && <DailyTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
           {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
           {tab === "handbook" && (
             <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} active={open?.id} />
@@ -156,6 +160,37 @@ async function InterviewTab({ pages, profileId, canEdit }: { pages: PageWithMeta
         </article>
       ))}
     </div>
+  );
+}
+
+async function DailyTab({ areaSlug, profileId, paneBase }: { areaSlug: string; profileId: string; paneBase: string }) {
+  const day = vnToday();
+  const tasks = dailyTasksFor(areaSlug, day);
+  const supabase = await createClient();
+  const { data } = await supabase.from("daily_task_log").select("task_id, done, note").eq("profile_id", profileId).eq("day", day);
+  const initial = Object.fromEntries((data ?? []).map((r) => [r.task_id as string, { done: r.done as boolean, note: (r.note as string | null) ?? "" }]));
+  const wd = WEEKDAYS[weekday(day) - 1];
+
+  return (
+    <DailyTasksPanel
+      key={day}
+      areaSlug={areaSlug}
+      day={day}
+      dayLabel={{ de: wd.de, vi: wd.vi }}
+      initial={initial}
+      items={tasks.map((t) => {
+        const [pageArea, pageSlug] = t.page?.split("/") ?? [];
+        const full = t.page ? `/bereich/${t.page}` : null;
+        return {
+          id: t.id,
+          label_de: t.label_de,
+          label_vi: t.label_vi,
+          weekdayOnly: !!t.days,
+          href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}` : full,
+          fullHref: pageArea === areaSlug ? full : null,
+        };
+      })}
+    />
   );
 }
 

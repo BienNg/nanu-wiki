@@ -212,6 +212,16 @@ export type OnboardingWeek = {
   quiz?: QuizContent;
 };
 
+/** One item of an area's daily checklist. Ids are stored in daily_task_log, so keep them stable.
+ *  `days` limits it to weekdays (1 = Monday … 7 = Sunday); without it the task is due every day. */
+export type DailyTask = {
+  id: string;
+  label_de: string;
+  label_vi: string;
+  days?: number[];
+  page?: string; // "<area>/<slug>" – the Handbuch page it comes from
+};
+
 export type IconName =
   | "users"
   | "chat"
