@@ -8,6 +8,7 @@ import { AnimatedBar } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { PaneLink } from "./PaneLink";
+import { toast } from "./Toaster";
 
 export type DailyItem = {
   id: string;
@@ -36,21 +37,24 @@ export function DailyTasksPanel({
   const router = useRouter();
   const [state, setState] = useState<Record<string, Entry>>(initial);
   const [openNote, setOpenNote] = useState<string | null>(null);
-  const [error, setError] = useState(false);
   const [, startTransition] = useTransition();
 
   const doneCount = items.filter((i) => state[i.id]?.done).length;
   const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
 
   function save(id: string, next: Entry) {
+    const before = state[id] ?? { done: false, note: "" };
     setState((prev) => ({ ...prev, [id]: next }));
-    setError(false);
     startTransition(async () => {
       try {
         const res = await saveDailyTask(areaSlug, id, day, next.done, next.note);
-        if (!res.ok) router.refresh(); // a new day began – load its empty list
+        if (!res.ok) {
+          toast("Neuer Tag – die Liste wurde zurückgesetzt · Ngày mới – danh sách đã được làm mới");
+          router.refresh();
+        }
       } catch {
-        setError(true);
+        setState((prev) => ({ ...prev, [id]: before }));
+        toast("Nicht gespeichert – bitte noch einmal · Chưa lưu được – vui lòng thử lại");
       }
     });
   }
@@ -75,11 +79,6 @@ export function DailyTasksPanel({
           </span>
         </div>
         <AnimatedBar value={pct} />
-        {error && (
-          <p role="alert" className="m-0 text-[13px] text-[#B42318]">
-            <Label de="Nicht gespeichert – bitte Seite neu laden." vi="Chưa lưu được – vui lòng tải lại trang." />
-          </p>
-        )}
       </div>
 
       {groups.map((g) => (

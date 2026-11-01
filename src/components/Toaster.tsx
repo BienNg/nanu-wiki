@@ -4,28 +4,42 @@ import { useEffect, useRef, useState } from "react";
 
 const DEFAULT_MESSAGE = "Noch nicht verfügbar · Chưa có nội dung";
 const SHOW_MS = 2600;
+const EVENT = "nanu:toast";
+
+/** Shows a short message at the bottom of the screen, from any client component. */
+export function toast(text: string) {
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: text }));
+}
 
 /**
- * Catches clicks on placeholder links (`href="#"`) app-wide and shows a short toast instead
- * of doing nothing. A link can set its own text with `data-toast="…"`.
+ * Shows the messages sent with `toast()`. Also catches clicks on placeholder links (`href="#"`)
+ * app-wide and shows a short toast instead of doing nothing. A link can set its own text with `data-toast="…"`.
  */
 export function Toaster() {
   const [toast, setToast] = useState<{ id: number; text: string } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
+    function show(text: string) {
+      clearTimeout(timer.current);
+      setToast({ id: Date.now(), text });
+      timer.current = setTimeout(() => setToast(null), SHOW_MS);
+    }
     function onClick(e: MouseEvent) {
       const a = (e.target as Element | null)?.closest?.('a[href="#"]');
       if (!(a instanceof HTMLAnchorElement)) return;
       e.preventDefault();
-      clearTimeout(timer.current);
-      setToast({ id: Date.now(), text: a.dataset.toast || DEFAULT_MESSAGE });
-      timer.current = setTimeout(() => setToast(null), SHOW_MS);
+      show(a.dataset.toast || DEFAULT_MESSAGE);
+    }
+    function onToast(e: Event) {
+      show((e as CustomEvent<string>).detail);
     }
     // Capture phase: cancel before next/link sees the click (it skips default-prevented events).
     document.addEventListener("click", onClick, true);
+    window.addEventListener(EVENT, onToast);
     return () => {
       document.removeEventListener("click", onClick, true);
+      window.removeEventListener(EVENT, onToast);
       clearTimeout(timer.current);
     };
   }, []);
