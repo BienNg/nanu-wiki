@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getQuiz } from "@/content";
 import { QuizRunner, type QuizQuestion } from "@/components/QuizRunner";
+import { currentLang } from "@/components/Topbar";
 
 export const metadata = { title: "Quiz" };
 
@@ -22,6 +23,7 @@ export default async function QuizPage({ params }: { params: Promise<{ id: strin
       week={{ number: week.week, de: week.title_de, vi: week.title_vi }}
       area={{ slug: area.slug, name_de: area.name_de, name_vi: area.name_vi, color: area.color }}
       questions={questions}
+      lang={await currentLang()}
     />
   );
 }

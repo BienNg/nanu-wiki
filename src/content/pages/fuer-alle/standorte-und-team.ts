@@ -26,7 +26,23 @@ const page: PageContent = {
         }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Wo hat NaNu NaNa Standorte?",
+        question_vi: "NaNu NaNa có văn phòng ở đâu?",
+        options: [
+          { de: "Hà Nội, Đà Nẵng und Berlin", vi: "Hà Nội, Đà Nẵng và Berlin" },
+          { de: "Hồ Chí Minh, Hà Nội und Stuttgart", vi: "Hồ Chí Minh, Hà Nội và Stuttgart" },
+          { de: "Nur in Hồ Chí Minh", vi: "Chỉ ở Hồ Chí Minh" },
+          { de: "Hồ Chí Minh, Hà Nội und München", vi: "Hồ Chí Minh, Hà Nội và München" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

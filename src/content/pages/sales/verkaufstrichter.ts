@@ -695,7 +695,108 @@ const page: PageContent = {
       de: "Nach Anmeldung und Zahlung übernimmt Customer Success die Stufen 6 und 7: Onboarding und Kundenbindung.",
       vi: "Sau khi khách đăng ký và thanh toán, đội Chăm sóc học viên phụ trách bước 6 và 7: bắt đầu học và giữ chân học viên."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Für welche Stufen des Verkaufstrichters ist Sales zuständig?",
+        question_vi: "Sales phụ trách những bước nào của phễu bán hàng?",
+        section: "die-sieben-stufen",
+        options: [
+          { de: "Stufe 1: Bekanntheit", vi: "Bước 1: nhận diện" },
+          { de: "Stufen 6 und 7", vi: "Bước 6 và 7" },
+          { de: "Alle sieben", vi: "Cả bảy bước" },
+          { de: "Stufen 2 bis 5: Erstkontakt bis Angebot & Abschluss", vi: "Bước 2 đến 5: từ liên hệ đầu tiên đến báo giá và chốt" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand fragt nach dem Preis. Was schickst du nach dem Wohnort und vor dem Preis?",
+        question_vi: "Khách hỏi giá. Sau khi biết nơi ở và trước khi báo giá, bạn gửi gì?",
+        section: "2-erstkontakt-sofort-antworten",
+        options: [
+          { de: "Die ganze Preistabelle", vi: "Toàn bộ bảng giá" },
+          { de: "Das Bild „Bộ quà tặng“", vi: "Hình „Bộ quà tặng“" },
+          { de: "Genau ein Vorteilsbild – online oder offline, je nach Wohnort", vi: "Đúng một hình ưu đãi – online hoặc offline tùy nơi ở" },
+          { de: "Drei verschiedene Bilder", vi: "Ba hình khác nhau" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand wohnt in Hanoi, möchte aber online lernen. Welches Vorteilsbild bekommt die Person?",
+        question_vi: "Khách ở Hà Nội nhưng muốn học online. Khách nhận hình ưu đãi nào?",
+        section: "2-erstkontakt-sofort-antworten",
+        options: [
+          { de: "Das Offline-Bild", vi: "Hình offline" },
+          { de: "Das Online-Bild", vi: "Hình online" },
+          { de: "Beide", vi: "Cả hai" },
+          { de: "Keins", vi: "Không hình nào" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Warum stellen wir nur zwei Fragen?",
+        question_vi: "Vì sao chỉ hỏi hai câu?",
+        section: "3-bedarf-klaren-nur-zwei-fragen",
+        options: [
+          { de: "Weil wir wenig Zeit haben", vi: "Vì chúng ta ít thời gian" },
+          { de: "Weil die Leitung es so will", vi: "Vì quản lý muốn vậy" },
+          { de: "Weil mehr Fragen verboten sind", vi: "Vì hỏi thêm bị cấm" },
+          { de: "Jede Frage ist eine Hausaufgabe für den Kunden – vielleicht antwortet er nie", vi: "Mỗi câu hỏi là một bài tập cho khách – có khi khách không bao giờ trả lời" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Es gibt keinen passenden Kurs für die Person. Was bedeutet das?",
+        question_vi: "Không có khóa phù hợp cho khách. Điều đó có nghĩa gì?",
+        section: "4-passende-kurse-vorstellen",
+        options: [
+          { de: "Der Kunde ist verloren", vi: "Mất khách rồi" },
+          { de: "Kein verlorener Kunde – ein Zeichen, dass wir mehr Lehrkräfte und Kurse brauchen", vi: "Không phải mất khách – là dấu hiệu cần thêm giáo viên và khóa học" },
+          { de: "Der Kunde hat sich falsch ausgedrückt", vi: "Khách nói không rõ" },
+          { de: "Wir sollten den Kunden nicht mehr anschreiben", vi: "Không nên nhắn khách nữa" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wenn du eine Wahl gibst – wie?",
+        question_vi: "Nếu cho khách lựa chọn thì thế nào?",
+        section: "5-angebot-abschluss-der-wichtigste-schritt",
+        options: [
+          { de: "So viele Optionen wie möglich", vi: "Càng nhiều lựa chọn càng tốt" },
+          { de: "Alle Niveaus zur Auswahl", vi: "Mọi trình độ để chọn" },
+          { de: "Keine Wahl, nur ein Kurs ohne Uhrzeit", vi: "Không chọn, chỉ một khóa không có giờ" },
+          { de: "Zwei Optionen, die beide ein „Ja“ sind, z. B. Abendkurs oder Wochenendkurs", vi: "Hai lựa chọn đều là „có“, ví dụ lớp tối hoặc lớp cuối tuần" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wann fragst du nach dem Abschluss?",
+        question_vi: "Khi nào bạn hỏi chốt?",
+        section: "5-angebot-abschluss-der-wichtigste-schritt",
+        options: [
+          { de: "Direkt in der Angebotsnachricht – z. B. „Soll ich dir einen Platz reservieren?“", vi: "Ngay trong tin nhắn báo giá – ví dụ „Mình giữ chỗ cho bạn nhé?“" },
+          { de: "Erst wenn der Kunde selbst fragt", vi: "Chỉ khi khách tự hỏi" },
+          { de: "Nach einer Woche", vi: "Sau một tuần" },
+          { de: "Gar nicht, das wirkt aufdringlich", vi: "Không hỏi, như vậy là ép khách" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Darfst du im Chat einen eigenen Rabatt geben?",
+        question_vi: "Bạn có được tự cho giảm giá trong chat không?",
+        section: "5-angebot-abschluss-der-wichtigste-schritt",
+        options: [
+          { de: "Nein – Sonderangebote nur, wenn sie offiziell gelten", vi: "Không – chỉ ưu đãi khi chính thức áp dụng" },
+          { de: "Ja, bis 10 %", vi: "Có, tối đa 10 %" },
+          { de: "Ja, wenn der Kunde zögert", vi: "Có, nếu khách lưỡng lự" },
+          { de: "Ja, am Telefon", vi: "Có, qua điện thoại" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

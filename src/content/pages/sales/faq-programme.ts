@@ -119,7 +119,119 @@ const page: PageContent = {
       de: "Zu klären: Für „70–100 % Deutsch“, Sommercamp und Schulaustausch fehlen Inhalt, Preis, Zielgruppe und Termine. Bis dahin Interesse notieren und an die Leitung geben.",
       vi: "Cần làm rõ: chương trình „tiếng Đức 70–100%“, trại hè và trao đổi tại trường còn thiếu nội dung, chi phí, đối tượng và lịch. Trong lúc chờ, ghi nhận khách quan tâm và chuyển quản lý."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Bei einem Programm steht „Zu klären“. Was machst du?",
+        question_vi: "Một chương trình có ghi „Zu klären“. Bạn làm gì?",
+        options: [
+          { de: "Nichts zusagen und bei der Leitung nachfragen", vi: "Không hứa gì và hỏi quản lý" },
+          { de: "Die Zahl nehmen, die mir richtig vorkommt", vi: "Lấy con số mình thấy đúng" },
+          { de: "Beide Zahlen nennen", vi: "Nêu cả hai con số" },
+          { de: "Das Programm gar nicht erwähnen", vi: "Không nhắc đến chương trình" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was braucht man für die Anerkennung als Pflegefachkraft?",
+        question_vi: "Cần gì để chuyển đổi bằng điều dưỡng?",
+        section: "anerkennung-als-pflegefachkraft-chuyen-oi-bang-ieu-duong",
+        options: [
+          { de: "Nur B2", vi: "Chỉ cần B2" },
+          { de: "Pflegeabschluss an College oder Uni, gültige Berufszulassung (CCHN), Deutsch ab B1 und kein Eintrag im Führungszeugnis", vi: "Bằng điều dưỡng cao đẳng hoặc đại học, chứng chỉ hành nghề (CCHN) còn hạn, tiếng Đức từ B1 và lý lịch tư pháp sạch" },
+          { de: "Abitur und A2", vi: "Tốt nghiệp cấp 3 và A2" },
+          { de: "Nichts, alles lernt man in Deutschland", vi: "Không cần gì, học hết ở Đức" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wo finden die 6 Monate Anpassungsqualifizierung statt?",
+        question_vi: "Sáu tháng đào tạo bổ sung diễn ra ở đâu?",
+        section: "anerkennung-als-pflegefachkraft-chuyen-oi-bang-ieu-duong",
+        options: [
+          { de: "In Stuttgart", vi: "Ở Stuttgart" },
+          { de: "Online aus Vietnam", vi: "Online từ Việt Nam" },
+          { de: "In Hannover", vi: "Ở Hannover" },
+          { de: "In der Wunschstadt", vi: "Ở thành phố mong muốn" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was kostet die Pflege-Anerkennung bei Anmeldung bis Ende 12/2026?",
+        question_vi: "Chi phí chuyển đổi điều dưỡng nếu đăng ký đến hết 12/2026 là bao nhiêu?",
+        section: "kosten-pflege-anerkennung",
+        options: [
+          { de: "5.000 €", vi: "5.000 €" },
+          { de: "199.000.000 VND", vi: "199.000.000 VND" },
+          { de: "3.000 € (ab 01/2027: 5.000 €)", vi: "3.000 € (từ 01/2027: 5.000 €)" },
+          { de: "Kostenlos", vi: "Miễn phí" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Wann wird Rate 1 (500 €) gezahlt?",
+        question_vi: "Khi nào đóng đợt 1 (500 €)?",
+        section: "kosten-pflege-anerkennung",
+        options: [
+          { de: "Mit dem Visum", vi: "Khi có visa" },
+          { de: "Nach der Kenntnisprüfung", vi: "Sau kỳ thi kiến thức" },
+          { de: "Bei Annahme der Unterlagen, erst wenn der Sprachtest bestanden ist – sie wird nicht erstattet", vi: "Khi hồ sơ được nhận, chỉ sau khi đậu kiểm tra tiếng – không hoàn lại" },
+          { de: "Vor dem Sprachtest, mit Erstattung", vi: "Trước kiểm tra tiếng, có hoàn lại" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Brauchen wir die Originale der Unterlagen?",
+        question_vi: "Chúng ta có cần bản gốc hồ sơ không?",
+        section: "kosten-pflege-anerkennung",
+        options: [
+          { de: "Nein, wir behalten keine Originale – Scans reichen", vi: "Không, không giữ bản gốc – bản scan là đủ" },
+          { de: "Ja, alle Originale per Post", vi: "Có, gửi tất cả bản gốc qua bưu điện" },
+          { de: "Ja, bis zum Visum", vi: "Có, giữ đến khi có visa" },
+          { de: "Nur den Reisepass", vi: "Chỉ hộ chiếu" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie berätst du zum Beruf im Programm Verkauf?",
+        question_vi: "Bạn tư vấn ngành nghề trong chương trình bán hàng thế nào?",
+        section: "ausbildung-im-verkauf-du-hoc-nghe-ban-hang",
+        options: [
+          { de: "Immer als Verkauf im Modegeschäft", vi: "Luôn là bán hàng thời trang" },
+          { de: "Als Büroarbeit", vi: "Là công việc văn phòng" },
+          { de: "Allgemein als „Verkauf“ – es kann z. B. Bäckerei- oder Fleischereiverkauf sein", vi: "Nói chung là „bán hàng“ – có thể là bán hàng ở tiệm bánh hay tiệm thịt" },
+          { de: "Als Kassierer im Supermarkt, garantiert", vi: "Chắc chắn là thu ngân siêu thị" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Welche Berufe gibt es in der Ausbildung am Bau?",
+        question_vi: "Học nghề xây dựng có những ngành nào?",
+        section: "ausbildung-am-bau",
+        options: [
+          { de: "Koch, Bäcker, Hotel", vi: "Đầu bếp, thợ bánh, khách sạn" },
+          { de: "Pflege und Zahnmedizin", vi: "Điều dưỡng và nha khoa" },
+          { de: "Gartenbau, Stuckateur, Maurer, Betonstahlbauer, Klempner", vi: "Làm vườn cảnh quan, thợ trát, thợ xây, thợ cốt thép, thợ ống nước" },
+          { de: "Nur Elektriker", vi: "Chỉ thợ điện" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand interessiert sich für das Sommercamp. Was machst du?",
+        question_vi: "Có người quan tâm trại hè. Bạn làm gì?",
+        section: "weitere-neue-programme",
+        options: [
+          { de: "Einen Preis schätzen", vi: "Ước tính giá" },
+          { de: "Sofort anmelden", vi: "Đăng ký ngay" },
+          { de: "Interesse notieren und an die Leitung geben – Inhalt und Preis fehlen noch", vi: "Ghi lại và chuyển quản lý – chưa có nội dung và giá" },
+          { de: "Sagen, dass es das nicht gibt", vi: "Nói là không có" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;

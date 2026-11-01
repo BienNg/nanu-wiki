@@ -42,7 +42,57 @@ const page: PageContent = {
       text: "Dạ bạn mở quyển [A1.1] giúp trung tâm nha, rồi kéo đến trang [93] là sang phần sách bài tập ạ. Bài tập hôm nay là bài [9–12] ở trang [21] của sách bài tập nhé.",
       translation_de: "„Öffne bitte das Buch [A1.1] und scroll bis Seite [93] – dort beginnt das Arbeitsbuch. Die Hausaufgabe heute sind die Übungen [9–12] auf Seite [21] im Arbeitsbuch.“"
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Eine Studentin findet die Hausaufgabe im PDF nicht. Was fragst du zuerst?",
+        question_vi: "Học viên không tìm thấy bài tập trong PDF. Bạn hỏi gì trước tiên?",
+        options: [
+          { de: "Ob sie die Stunde verpasst hat", vi: "Bạn ấy có nghỉ buổi học không" },
+          { de: "Ob sie das Buch schon gekauft hat", vi: "Bạn ấy đã mua sách chưa" },
+          { de: "Welche Lehrkraft sie hat", vi: "Giáo viên của bạn ấy là ai" },
+          { de: "Welche Datei sie gerade offen hat – oft ist es das falsche Buch", vi: "Bạn ấy đang mở file nào – thường là mở nhầm sách" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Worauf bezieht sich die Seitenzahl der Hausaufgabe?",
+        question_vi: "Số trang của bài tập về nhà là số trang nào?",
+        options: [
+          { de: "Auf die Seite im Arbeitsbuch, nicht auf die PDF-Seite", vi: "Trang trong sách bài tập, không phải trang của file PDF" },
+          { de: "Auf die PDF-Seite", vi: "Trang của file PDF" },
+          { de: "Auf die Seite im Kursbuch", vi: "Trang trong sách giáo khoa" },
+          { de: "Auf die Folie aus dem Unterricht", vi: "Slide trong buổi học" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wo beginnt bei A1.1 das Arbeitsbuch?",
+        question_vi: "Ở A1.1, sách bài tập bắt đầu từ trang nào?",
+        options: [
+          { de: "Auf Seite 1", vi: "Trang 1" },
+          { de: "Auf Seite 21", vi: "Trang 21" },
+          { de: "Auf Seite 150", vi: "Trang 150" },
+          { de: "Auf Seite 93", vi: "Trang 93" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Was empfehlen wir: das Buch drucken oder nur am Bildschirm nutzen?",
+        question_vi: "Chúng ta khuyên gì: in sách hay chỉ dùng trên màn hình?",
+        section: "drucken-oder-kaufen",
+        options: [
+          { de: "Einmal drucken oder kaufen – man nutzt es den ganzen Kurs und schreibt hinein", vi: "In hoặc mua một lần – dùng cả khóa và viết trực tiếp vào sách" },
+          { de: "Nur am Bildschirm, Drucken ist verboten", vi: "Chỉ dùng trên màn hình, không được in" },
+          { de: "Jede Lektion einzeln drucken und danach wegwerfen", vi: "In từng bài rồi bỏ đi" },
+          { de: "Egal, das Buch braucht man im Kurs kaum", vi: "Sao cũng được, gần như không cần sách trong khóa học" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

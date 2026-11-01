@@ -225,7 +225,228 @@ const page: PageContent = {
         { de: "Ältere Kunden reden uns oft familiär an („cháu“, „con“). Antworte in derselben Anrede.", vi: "Khách lớn tuổi hay xưng hô thân mật („cháu“, „con“). Hãy trả lời theo đúng cách xưng hô đó." }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Jemand klickt „Chi phí trọn gói là bao nhiêu?“. Was schickst du?",
+        question_vi: "Khách bấm „Chi phí trọn gói là bao nhiêu?“. Bạn gửi gì?",
+        section: "1-wie-viel-kostet-der-kurs",
+        options: [
+          { de: "Erst fünf Fragen zum Bedarf", vi: "Hỏi năm câu về nhu cầu trước" },
+          { de: "Nur „Bitte ruf uns an“", vi: "Chỉ „Vui lòng gọi cho trung tâm“" },
+          { de: "Sofort den vollständigen Preis: Listenpreis, Frühbucherpreis und was enthalten ist", vi: "Báo giá đầy đủ ngay: giá gốc, giá đăng ký sớm và những gì bao gồm" },
+          { de: "Einen persönlichen Rabatt", vi: "Một mức giảm giá riêng" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "„Wann beginnt der nächste Kurs?“ Was antwortest du?",
+        question_vi: "„Khi nào khai giảng khóa tiếp theo?“ Bạn trả lời gì?",
+        section: "2-wann-beginnt-der-nachste-kurs",
+        options: [
+          { de: "„Bald, wir melden uns“", vi: "„Sắp rồi, trung tâm sẽ báo“" },
+          { de: "„Wenn genug Leute da sind“", vi: "„Khi đủ người“" },
+          { de: "„Schau auf die Website“", vi: "„Xem trên website“" },
+          { de: "Immer ein konkretes Datum und eine Uhrzeit – nie nur „bald“", vi: "Luôn nêu ngày và giờ cụ thể – không bao giờ chỉ nói „sắp“" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Ein passender Kurs läuft schon seit 8 Einheiten. Was bietest du an?",
+        question_vi: "Lớp phù hợp đã học được 8 buổi. Bạn đề xuất gì?",
+        section: "2-wann-beginnt-der-nachste-kurs",
+        options: [
+          { de: "Nichts, man muss auf den nächsten Kurs warten", vi: "Không, phải chờ khóa sau" },
+          { de: "Den Einstieg – die verpassten Einheiten werden als 1:1-Stunden nachgeholt", vi: "Vào học luôn – các buổi đã qua được học bù 1:1" },
+          { de: "Einstieg ohne Nachholen", vi: "Vào học, không học bù" },
+          { de: "Einstieg zum halben Preis", vi: "Vào học với nửa giá" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Die Uhrzeit passt nicht. Was fragst du zuerst?",
+        question_vi: "Giờ học không phù hợp. Bạn hỏi gì trước?",
+        section: "3-uhrzeiten-passen-nicht",
+        options: [
+          { de: "Ob sie eine andere Schule kennt", vi: "Khách có biết trường nào khác không" },
+          { de: "Ob sie mehr zahlen kann", vi: "Khách có trả thêm được không" },
+          { de: "Nichts, ich biete eine Uhrzeit nach der anderen an", vi: "Không hỏi, gửi từng khung giờ một" },
+          { de: "Ob die Person in Vietnam oder Deutschland lebt – dann alle Zeitfenster dieser Zeitzone auf einmal anbieten", vi: "Khách sống ở Việt Nam hay Đức – rồi gửi tất cả khung giờ của múi giờ đó một lần" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie viele Schüler sind in einer Online-Klasse?",
+        question_vi: "Một lớp online có bao nhiêu học viên?",
+        section: "4-wie-viele-sind-in-einer-klasse",
+        options: [
+          { de: "8–15", vi: "8–15" },
+          { de: "1–3", vi: "1–3" },
+          { de: "20–30", vi: "20–30" },
+          { de: "5–9", vi: "5–9" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand aus Đà Nẵng will Deutsch lernen. Was bietest du an?",
+        question_vi: "Khách ở Đà Nẵng muốn học tiếng Đức. Bạn giới thiệu gì?",
+        section: "5-online-oder-vor-ort-wo-seid-ihr",
+        options: [
+          { de: "Online – vor Ort gibt es nur Hanoi und Saigon", vi: "Học online – chỉ có lớp trực tiếp ở Hà Nội và Sài Gòn" },
+          { de: "Den Kurs vor Ort in Đà Nẵng", vi: "Lớp trực tiếp ở Đà Nẵng" },
+          { de: "Nichts", vi: "Không gì" },
+          { de: "Umzug nach Hanoi", vi: "Chuyển ra Hà Nội" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was empfehlen wir ehrlich: Gruppe oder 1:1?",
+        question_vi: "Chúng ta thật lòng khuyên học nhóm hay 1:1?",
+        section: "6-einzel-oder-kleingruppenunterricht",
+        options: [
+          { de: "Immer 1:1", vi: "Luôn 1:1" },
+          { de: "Egal", vi: "Sao cũng được" },
+          { de: "1:1, weil es mehr kostet", vi: "1:1 vì đắt hơn" },
+          { de: "Die Gruppe – allein verliert man schneller die Motivation", vi: "Học nhóm – học một mình dễ mất động lực" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie lange dauert es realistisch von null bis B1?",
+        question_vi: "Thực tế từ con số 0 đến B1 mất bao lâu?",
+        section: "7-wie-lange-dauert-es-bis-b1",
+        options: [
+          { de: "2 Monate", vi: "2 tháng" },
+          { de: "8–9 Monate", vi: "8–9 tháng" },
+          { de: "4 Monate", vi: "4 tháng" },
+          { de: "2 Jahre", vi: "2 năm" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Verkaufen wir Bücher an Leute ohne Kurs?",
+        question_vi: "Chúng ta có bán sách cho người không học khóa nào không?",
+        section: "8-lehrbuch-und-material",
+        options: [
+          { de: "Ja, als PDF", vi: "Có, bản PDF" },
+          { de: "Ja, gedruckt", vi: "Có, bản in" },
+          { de: "Ja, für 49 €", vi: "Có, giá 49 €" },
+          { de: "Nein", vi: "Không" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand möchte für den ganzen Kurs eine bestimmte Lehrkraft. Was sagst du?",
+        question_vi: "Khách muốn một giáo viên cụ thể cho cả khóa. Bạn nói gì?",
+        section: "9-wer-unterrichtet",
+        options: [
+          { de: "Ja, gegen Aufpreis", vi: "Được, trả thêm phí" },
+          { de: "Ja, immer", vi: "Được, luôn luôn" },
+          { de: "Nur vor Ort", vi: "Chỉ ở lớp trực tiếp" },
+          { de: "Das versprechen wir nicht", vi: "Không hứa điều đó" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Kann man eine Anzahlung von 2 Mio. machen, um den Platz zu sichern?",
+        question_vi: "Có thể đặt cọc 2 triệu để giữ chỗ không?",
+        section: "11-zahlung",
+        options: [
+          { de: "Nein – auf Nachfrage geht eine Zahlung in 2 Raten (die Hälfte vorab), der Frühbucherpreis bleibt", vi: "Không – nếu khách hỏi có thể chia 2 đợt (đóng trước một nửa), vẫn giữ giá đăng ký sớm" },
+          { de: "Ja, das ist normal", vi: "Có, bình thường" },
+          { de: "Ja, aber dann ohne Frühbucherpreis", vi: "Có, nhưng mất giá đăng ký sớm" },
+          { de: "Ja, 500.000 reichen", vi: "Có, 500.000 là đủ" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Woher nimmst du die Kontodaten, die du schickst?",
+        question_vi: "Bạn lấy thông tin tài khoản để gửi từ đâu?",
+        section: "11-zahlung",
+        options: [
+          { de: "Nur aus der Standardvorlage", vi: "Chỉ từ mẫu chuẩn" },
+          { de: "Aus einer alten Nachricht", vi: "Từ tin nhắn cũ" },
+          { de: "Ich schreibe sie aus dem Gedächtnis", vi: "Viết theo trí nhớ" },
+          { de: "Vom Kunden", vi: "Từ khách" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie lange vorher muss man für den B1-Frühbucherpreis zahlen?",
+        question_vi: "Phải đóng trước bao lâu để được giá đăng ký sớm B1?",
+        section: "12-rabatte",
+        options: [
+          { de: "Mindestens 1 Woche", vi: "Ít nhất 1 tuần" },
+          { de: "Mindestens 2 Wochen", vi: "Ít nhất 2 tuần" },
+          { de: "Mindestens 1 Monat", vi: "Ít nhất 1 tháng" },
+          { de: "Am Starttag", vi: "Vào ngày khai giảng" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was garantieren wir für einen begonnenen Kurs?",
+        question_vi: "Chúng ta cam kết gì cho khóa đã bắt đầu?",
+        section: "13-ruckerstattung-verschiebung-absage",
+        options: [
+          { de: "Dass alle die Prüfung bestehen", vi: "Mọi người đều đậu" },
+          { de: "Dass er zu Ende unterrichtet wird", vi: "Khóa học sẽ được dạy đến hết" },
+          { de: "Dass die Lehrkraft nie wechselt", vi: "Không bao giờ đổi giáo viên" },
+          { de: "Dass man jederzeit Geld zurückbekommt", vi: "Hoàn tiền bất cứ lúc nào" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Jemand will sich auf telc vorbereiten. Was bieten wir an?",
+        question_vi: "Khách muốn luyện thi telc. Chúng ta có gì?",
+        section: "14-prufungsziele",
+        options: [
+          { de: "Eine telc-Gruppe", vi: "Lớp nhóm telc" },
+          { de: "Nichts", vi: "Không có" },
+          { de: "Wir melden ihn direkt zur Prüfung an", vi: "Đăng ký thi trực tiếp cho khách" },
+          { de: "1:1-Vorbereitung – unsere Gruppen bereiten nach Goethe-Format vor", vi: "Luyện thi 1:1 – lớp nhóm luyện theo dạng đề Goethe" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand hat A1 vor Jahren gelernt und viel vergessen. Was ist besser?",
+        question_vi: "Khách học A1 từ nhiều năm trước và quên nhiều. Cách nào tốt hơn?",
+        section: "15-einstufung-ich-habe-a1-vor-jahren-gelernt",
+        options: [
+          { de: "Direkt mit A2 anfangen", vi: "Học thẳng A2" },
+          { de: "In einen laufenden Kurs der Stufe darunter einsteigen", vi: "Vào học lớp đang chạy của trình độ thấp hơn" },
+          { de: "Gleich B1 buchen", vi: "Đăng ký B1 luôn" },
+          { de: "Ohne Test weitermachen", vi: "Học tiếp không cần kiểm tra" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Jemand will einen Kurs 5× pro Woche, in 2 Monaten fertig. Was sagst du?",
+        question_vi: "Khách muốn học 5 buổi/tuần, xong trong 2 tháng. Bạn nói gì?",
+        section: "17-spezielle-wunsche",
+        options: [
+          { de: "Ja, machen wir als 1:1", vi: "Được, học 1:1" },
+          { de: "Ja, gegen Aufpreis", vi: "Được, trả thêm phí" },
+          { de: "Ja, online", vi: "Được, học online" },
+          { de: "Gibt es nicht – der intensivste Kurs ist vor Ort 4× pro Woche", vi: "Không có – lớp cấp tốc nhất là trực tiếp 4 buổi/tuần" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie alt muss man mindestens sein?",
+        question_vi: "Độ tuổi tối thiểu là bao nhiêu?",
+        section: "19-wenn-eltern-oder-verwandte-fragen",
+        options: [
+          { de: "6 Jahre", vi: "6 tuổi" },
+          { de: "18 Jahre", vi: "18 tuổi" },
+          { de: "Es gibt kein Mindestalter", vi: "Không có giới hạn" },
+          { de: "14 Jahre – für Jüngere nichts zusagen, an die Leitung geben", vi: "14 tuổi – nhỏ hơn thì không hứa, chuyển quản lý" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

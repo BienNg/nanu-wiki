@@ -133,7 +133,96 @@ const page: PageContent = {
         }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Was trägt die Lehrkraft nach jeder Stunde in die Excel-Liste ein?",
+        question_vi: "Sau mỗi buổi, giáo viên ghi gì vào file Excel?",
+        section: "feedback-der-lehrkrafte",
+        options: [
+          { de: "Für jeden Schüler: aktiv mitgemacht, Hausaufgabe, Verspätung, Kamera (online) und kurzes Feedback", vi: "Với từng học viên: tham gia tích cực, bài tập, đi trễ, camera (online) và nhận xét ngắn" },
+          { de: "Nur, wer anwesend war", vi: "Chỉ ai có mặt" },
+          { de: "Nur die Noten vom Mini-Test", vi: "Chỉ điểm mini-test" },
+          { de: "Nichts, das macht Customer Success", vi: "Không gì, Customer Success ghi" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Eine Lehrkraft hat zwei Tage nichts eingetragen. Was machst du?",
+        question_vi: "Giáo viên không ghi gì trong hai ngày. Bạn làm gì?",
+        section: "feedback-der-lehrkrafte",
+        options: [
+          { de: "Nichts, sie trägt es schon nach", vi: "Không làm gì, giáo viên sẽ bổ sung" },
+          { de: "Die Klasse informieren", vi: "Báo cho lớp" },
+          { de: "Im Tagesbericht im Backoffice notieren: Klasse, Tage, Abzug und Screenshot", vi: "Ghi vào báo cáo ngày trong Backoffice: lớp, ngày, số tiền trừ và ảnh chụp" },
+          { de: "Selbst für sie ausfüllen", vi: "Tự điền giúp" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Wo findest du die Excel-Liste einer Klasse?",
+        question_vi: "Bạn tìm file Excel của một lớp ở đâu?",
+        section: "feedback-der-lehrkrafte",
+        options: [
+          { de: "In der Zalo-Gruppe der Klasse", vi: "Trong nhóm Zalo của lớp" },
+          { de: "In NaNu Go", vi: "Trong NaNu Go" },
+          { de: "Im Google Kalender der Lehrkraft: Termin öffnen, Link unter „Google Drive“", vi: "Trên Google Calendar của giáo viên: mở lịch, link dưới „Google Drive“" },
+          { de: "Im Messenger-Postfach", vi: "Trong hộp thư Messenger" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Eine Lehrkraft fällt morgen aus. Was passiert zuerst?",
+        question_vi: "Giáo viên sẽ vắng ngày mai. Việc gì xảy ra trước?",
+        section: "wenn-eine-lehrkraft-ausfallt",
+        options: [
+          { de: "Sie meldet sich beim Zentrum – die Klasse erfährt es erst, wenn klar ist, ob es Ersatz gibt", vi: "Giáo viên báo trung tâm – lớp chỉ được báo khi đã rõ có người thay hay không" },
+          { de: "Sie sagt es direkt der Klasse", vi: "Giáo viên báo thẳng cho lớp" },
+          { de: "Wir warten bis Montag", vi: "Chờ đến thứ Hai" },
+          { de: "Die Stunde fällt ohne Nachricht aus", vi: "Buổi học bị hủy không báo" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "In Deutschland ist am 3.10. Feiertag. Wer hat frei?",
+        question_vi: "Ngày 3.10 là ngày lễ ở Đức. Ai được nghỉ?",
+        section: "wenn-eine-lehrkraft-ausfallt",
+        options: [
+          { de: "Alle Klassen die ganze Woche", vi: "Tất cả các lớp cả tuần" },
+          { de: "Nur wer an genau diesem Tag Unterricht hätte – andere Klassen finden statt", vi: "Chỉ lớp có lịch học đúng ngày đó – các lớp khác vẫn học" },
+          { de: "Nur Klassen in Vietnam", vi: "Chỉ các lớp ở Việt Nam" },
+          { de: "Niemand", vi: "Không ai" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Ein Schüler sagt: „Die Klasse ist zu groß, ich komme selten dran.“ Was machst du?",
+        question_vi: "Học viên nói: „Lớp đông quá, ít khi được gọi.“ Bạn làm gì?",
+        section: "typische-beschwerden-uber-den-unterricht",
+        options: [
+          { de: "Die Nachricht einfach an die Lehrkraft weiterleiten", vi: "Chỉ chuyển tiếp tin nhắn cho giáo viên" },
+          { de: "Der Lehrkraft genau schreiben, was gesagt wurde, um etwas Konkretes bitten und nach der nächsten Stunde nachfragen", vi: "Nhắn giáo viên đúng điều học viên nói, đề nghị cụ thể và hỏi lại sau buổi sau" },
+          { de: "Sagen, dass man das nicht ändern kann", vi: "Nói là không thay đổi được" },
+          { de: "Sofort eine andere Klasse anbieten", vi: "Đề nghị chuyển lớp ngay" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Ein Schüler zweifelt an der Qualifikation der Lehrkraft und will ihr Zeugnis sehen. Was machst du?",
+        question_vi: "Học viên nghi ngờ trình độ giáo viên và muốn xem bằng cấp. Bạn làm gì?",
+        section: "typische-beschwerden-uber-den-unterricht",
+        options: [
+          { de: "Das Zeugnis sofort aus dem Drive schicken", vi: "Gửi ngay bằng từ Drive" },
+          { de: "Sagen, dass das nicht seine Sache ist", vi: "Nói đó không phải việc của học viên" },
+          { de: "Ernst nehmen, Grund erfragen, an die Leitung geben – Zeugnisse nur nach Rücksprache verschicken", vi: "Coi trọng, hỏi lý do, chuyển quản lý – chỉ gửi bằng cấp khi đã hỏi quản lý" },
+          { de: "Die Lehrkraft austauschen", vi: "Đổi giáo viên" }
+        ],
+        correct: 2
+      }
+    ]
+  }
 };
 
 export default page;

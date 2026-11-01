@@ -157,14 +157,24 @@ export type PageContent = {
   verified_until: string | null;
   updated_at: string; // YYYY-MM-DD – bump when the content changes (sorts "Neuigkeiten")
   published?: boolean; // false = draft, only editors of the area and admins see it
+  quiz?: PageQuiz;
 };
+
+/** The quiz at the end of a Handbuch page: everyone must get every question right.
+ *  Bump `version` when content someone must know is added or changed (not for typo fixes):
+ *  passes of an older version then show as „Neue Inhalte – Quiz wiederholen“.
+ *  `section` = the heading id (see headingId) the question is about, linked after a wrong answer.
+ *  The browser sees each option's position in this file (not `correct`), so vary where the right answer sits. */
+export type PageQuiz = { version: number; questions: PageQuizQuestion[] };
+export type PageQuizQuestion = { question_de: string; question_vi: string; options: { de: string; vi: string }[]; correct: number; section?: string };
 
 /** A labelled group of pages in an area's Handbuch tab, listed in reading order. */
 export type HandbookGroup = { de: string; vi: string; pages: PageContent[] };
 
 /** A page plus where it lives. `id` is "<area>/<slug>" and is what the database stores (chat_responses.page_id). */
-export type PageWithMeta = PageContent & {
+export type PageWithMeta = Omit<PageContent, "quiz"> & {
   id: string;
+  quiz: { version: number; questions: number } | null; // the questions themselves stay server-side, see getPageQuiz
   href: string;
   published: boolean;
   area: Pick<Area, "slug" | "name_de" | "name_vi" | "color" | "icon">;

@@ -28,7 +28,56 @@ const page: PageContent = {
       de: "Neue Frage, die hier fehlt? Trag sie mit Datum hier ein, auch wenn die Antwort noch offen ist.",
       vi: "Có câu hỏi mới chưa có ở đây? Ghi lại kèm ngày, kể cả khi chưa có câu trả lời."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Jemand fragt: „Kann ich nur das Buch kaufen?“ Was antwortest du?",
+        question_vi: "Có người hỏi: „Tôi chỉ mua sách được không?“ Bạn trả lời gì?",
+        options: [
+          { de: "Ja, für 49 €", vi: "Có, giá 49 €" },
+          { de: "Ja, aber nur das PDF", vi: "Có, nhưng chỉ bản PDF" },
+          { de: "Ich schicke ihm den Link zum Ordner", vi: "Gửi link thư mục cho khách" },
+          { de: "Nein – Material gibt es nur mit einem gebuchten Kurs; freundlich einen passenden Kurs anbieten", vi: "Không – tài liệu chỉ dành cho người đã đăng ký khóa; nhẹ nhàng giới thiệu khóa phù hợp" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Gibt es Übungstests für Goethe A1?",
+        question_vi: "Có đề thi thử Goethe A1 không?",
+        options: [
+          { de: "Nein, die muss man selbst kaufen", vi: "Không, phải tự mua" },
+          { de: "Nur im 1:1-Unterricht", vi: "Chỉ trong lớp 1:1" },
+          { de: "Nur in der App gegen Aufpreis", vi: "Chỉ trong app, phải trả thêm" },
+          { de: "Ja, das Goethe-A1-Set ist im PDF-Paket", vi: "Có, bộ đề Goethe A1 có trong gói PDF" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand hat gestern gefehlt und fragt nach Video und Hausaufgabe. Was machst du?",
+        question_vi: "Học viên nghỉ hôm qua và hỏi video và bài tập. Bạn làm gì?",
+        options: [
+          { de: "Auf die Zalo-Gruppe und die App verweisen; findet die Person es nicht, direkt schicken", vi: "Chỉ vào nhóm Zalo và app; nếu không tìm thấy thì gửi trực tiếp" },
+          { de: "Sagen, dass es dafür kein Video gibt", vi: "Nói là không có video" },
+          { de: "Sie an die Lehrkraft verweisen und nichts weiter tun", vi: "Bảo hỏi giáo viên và không làm gì thêm" },
+          { de: "Ihr einen neuen Kurs anbieten", vi: "Mời đăng ký khóa mới" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Was machst du mit einer neuen Frage, die auf dieser Seite noch fehlt?",
+        question_vi: "Bạn làm gì với câu hỏi mới chưa có trên trang này?",
+        options: [
+          { de: "Nichts, nur wenn die Frage oft kommt", vi: "Không làm gì, trừ khi câu hỏi hay gặp" },
+          { de: "Mit Datum auf der Seite eintragen, auch wenn die Antwort noch offen ist", vi: "Ghi vào trang kèm ngày, kể cả khi chưa có câu trả lời" },
+          { de: "Erst eintragen, wenn die Antwort klar ist", vi: "Chỉ ghi khi đã có câu trả lời" },
+          { de: "Nur im privaten Zalo notieren", vi: "Chỉ ghi vào Zalo riêng" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

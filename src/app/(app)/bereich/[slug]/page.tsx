@@ -1,7 +1,7 @@
 import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEditorAreas, requireRole } from "@/lib/auth";
+import { getEditorAreas, hasRole, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, readablePages, visibleAreas, type AreaTab } from "@/content";
 import { Topbar } from "@/components/Topbar";
@@ -15,6 +15,8 @@ import { DocView } from "@/components/DocView";
 import { PaneCrumb, PaneLayout } from "@/components/DocPane";
 import { DailyTasksPanel } from "@/components/DailyTasksPanel";
 import { vnToday, weekday, WEEKDAYS } from "@/lib/days";
+import { myQuizStatuses } from "@/lib/quizProgress";
+import type { QuizStatus } from "@/lib/pageQuiz";
 import type { PageWithMeta } from "@/lib/types";
 
 const TABS: { key: AreaTab; de: string; vi: string }[] = [
@@ -43,6 +45,8 @@ export default async function AreaPage({
   const tab: AreaTab = tabs.includes(tabParam as AreaTab) ? (tabParam as AreaTab) : tabs[0];
   const canEdit = canEditArea(profile, editorAreas, area.slug);
   const pages = readablePages(profile, editorAreas).filter((p) => p.area.slug === area.slug);
+  // Quiz status per page, for staff and up (candidates don't take page quizzes).
+  const quiz = hasRole(profile.role, "staff") ? await myQuizStatuses(profile.id, pages.filter((p) => p.section !== "interview")) : undefined;
 
   // `?seite=<page>` = that page is open in the side pane; the list narrows to its "Seite" column.
   const base = area.is_shared ? `/bereich/${area.slug}` : `/bereich/${area.slug}?tab=${tab}`;
@@ -68,7 +72,10 @@ export default async function AreaPage({
       </header>
 
       {area.is_shared ? (
-        <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} paneHref={paneHref} narrow={narrow} />
+        <>
+          {quiz && !narrow && <QuizCounter quiz={quiz} />}
+          <PageTable pages={[...pages].sort((a, b) => a.title_de.localeCompare(b.title_de, "de"))} paneHref={paneHref} narrow={narrow} quiz={quiz} />
+        </>
       ) : (
         <>
           {!narrow && (
@@ -91,7 +98,7 @@ export default async function AreaPage({
           {tab === "daily" && <DailyTab areaSlug={area.slug} profileId={profile.id} paneBase={base} narrow={narrow} />}
           {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
           {tab === "handbook" && (
-            <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} narrow={narrow} />
+            <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} narrow={narrow} quiz={quiz} />
           )}
         </>
       )}
@@ -252,12 +259,15 @@ function HandbookTab({
   pages,
   paneHref,
   narrow,
+  quiz,
 }: {
   areaSlug: string;
   pages: PageWithMeta[];
   paneHref: (p: PageWithMeta) => string;
   narrow: boolean;
+  quiz?: Record<string, QuizStatus>;
 }) {
+  const own = quiz && Object.fromEntries(Object.entries(quiz).filter(([id]) => pages.some((p) => p.id === id)));
   const newestFirst = (list: PageWithMeta[]) => [...list].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
   const groups = getHandbookGroups(areaSlug).map((g) => ({
     ...g,
@@ -267,7 +277,8 @@ function HandbookTab({
     return (
       <div role="tabpanel" className="flex flex-col gap-3">
         <span className="cap">SOPs · Skripte · FAQs · Entscheidungen</span>
-        <PageTable pages={newestFirst(pages)} paneHref={paneHref} narrow={narrow} />
+        {own && !narrow && <QuizCounter quiz={own} />}
+        <PageTable pages={newestFirst(pages)} paneHref={paneHref} narrow={narrow} quiz={own} />
       </div>
     );
   }
@@ -277,14 +288,41 @@ function HandbookTab({
   const shown = [...groups, ...(rest.length ? [{ de: "Weitere", vi: "Khác", pages: rest }] : [])].filter((g) => g.pages.length);
   return (
     <div role="tabpanel" className="flex flex-col gap-8">
+      {own && !narrow && <QuizCounter quiz={own} />}
       {shown.map((g, i) => (
         <section key={g.de} className="flex flex-col gap-2">
           <h2 data-reveal className={`font-display m-0 px-2.5 font-bold text-heading ${narrow ? "text-[15px]" : "text-lg"}`}>
             <Bi de={g.de} vi={g.vi} />
           </h2>
-          <PageTable pages={g.pages} header={i === 0} paneHref={paneHref} narrow={narrow} />
+          <PageTable pages={g.pages} header={i === 0} paneHref={paneHref} narrow={narrow} quiz={own} />
         </section>
       ))}
+    </div>
+  );
+}
+
+/** „7 / 12 Quizze bestanden“ above a page list, plus how many need a retake after new content. */
+function QuizCounter({ quiz }: { quiz: Record<string, QuizStatus> }) {
+  const all = Object.values(quiz);
+  if (!all.length) return null;
+  const passed = all.filter((s) => s.state === "passed").length;
+  const outdated = all.filter((s) => s.state === "outdated").length;
+  const pct = Math.round((passed / all.length) * 100);
+  return (
+    <div data-reveal className="flex max-w-[520px] flex-col gap-1.5 rounded-lg border border-line px-4 py-3">
+      <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px]">
+        <strong className="text-ink">
+          <Label de={`${passed} / ${all.length} Quizze bestanden`} vi={`Đã qua ${passed}/${all.length} quiz`} />
+        </strong>
+        {outdated > 0 && (
+          <span className="text-[#7F5F05]">
+            <Label de={`${outdated} wegen neuer Inhalte wiederholen`} vi={`${outdated} cần làm lại vì có nội dung mới`} />
+          </span>
+        )}
+      </span>
+      <span aria-hidden="true" className="h-1.5 overflow-hidden rounded-full bg-chip">
+        <span className="block h-full rounded-full bg-ok" style={{ width: `${pct}%` }} />
+      </span>
     </div>
   );
 }

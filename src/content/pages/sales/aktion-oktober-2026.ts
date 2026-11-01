@@ -43,7 +43,59 @@ const page: PageContent = {
       de: "Zu klären: Die −2.000.000 VND ergeben genau den bisherigen „Frühbucherpreis“ (A1 13,8 → 11,8 Mio.). Ist die Aktion dasselbe wie der Frühbucherrabatt – also gilt sie auch ohne Anmeldung eine Woche vorher? Und gilt der Rabatt für Ehemalige (−500.000) zusätzlich zu den −2.500.000 oder ist er schon darin?",
       vi: "Cần làm rõ: giảm 2.000.000 VND ra đúng bằng „giá đăng ký sớm“ trước đây (A1 13,8 → 11,8 triệu). Ưu đãi tháng 10 có phải chính là ưu đãi đăng ký sớm không – tức là có áp dụng khi không đăng ký trước 1 tuần? Và giảm 500.000 cho học viên cũ được cộng thêm vào 2.500.000 hay đã nằm trong đó?"
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Jemand fragt im November nach der Oktober-Aktion. Was sagst du?",
+        question_vi: "Tháng 11 có người hỏi về ưu đãi tháng 10. Bạn nói gì?",
+        options: [
+          { de: "Dass sie noch bis Jahresende gilt", vi: "Nói vẫn áp dụng đến cuối năm" },
+          { de: "Ehrlich, dass die Aktion vorbei ist – sie galt nur für Anmeldungen im Oktober 2026", vi: "Nói thật là ưu đãi đã kết thúc – chỉ áp dụng cho đăng ký trong tháng 10/2026" },
+          { de: "Ich gebe den Rabatt trotzdem", vi: "Vẫn cho giảm giá" },
+          { de: "Ich antworte nicht auf die Frage", vi: "Không trả lời câu hỏi" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wie viel Rabatt gab es sofort für Neukunden in der Aktion?",
+        question_vi: "Khách mới được giảm ngay bao nhiêu trong chương trình?",
+        section: "die-sechs-vorteile",
+        options: [
+          { de: "−500.000 VND", vi: "−500.000 VND" },
+          { de: "−2.000.000 VND", vi: "−2.000.000 VND" },
+          { de: "−2.500.000 VND", vi: "−2.500.000 VND" },
+          { de: "−15 %", vi: "−15 %" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wer bekommt die Stofftasche NaNu NaNa?",
+        question_vi: "Ai được nhận túi vải NaNu NaNa?",
+        section: "die-sechs-vorteile",
+        options: [
+          { de: "Schüler in Vietnam", vi: "Học viên ở Việt Nam" },
+          { de: "Alle Schüler, auch in Deutschland", vi: "Tất cả học viên, kể cả ở Đức" },
+          { de: "Nur Schüler der Kombi A1–B1", vi: "Chỉ học viên combo A1–B1" },
+          { de: "Nur Lehrkräfte", vi: "Chỉ giáo viên" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Ein Schüler lernt gerade A1 und meldet sich im Oktober schon für A2 an. Bekommt er die Geschenke?",
+        question_vi: "Học viên đang học A1 và trong tháng 10 đăng ký luôn A2. Có được quà không?",
+        section: "dazu",
+        options: [
+          { de: "Nein, nur Neukunden", vi: "Không, chỉ khách mới" },
+          { de: "Ja, auch er bekommt die Geschenke", vi: "Có, cũng được nhận quà" },
+          { de: "Nur, wenn er die Kombi A1–B1 bucht", vi: "Chỉ khi đăng ký combo A1–B1" },
+          { de: "Nur die Stofftasche", vi: "Chỉ túi vải" }
+        ],
+        correct: 1
+      }
+    ]
+  }
 };
 
 export default page;

@@ -177,7 +177,106 @@ const page: PageContent = {
       text: "Báo cáo công việc hôm nay\n1. Thời gian làm việc: từ … đến …\n2. Tư vấn khách hàng:\n- Số khách mới: …\n- Từng khách: họ tên + link Facebook/SĐT/Zalo (HN/SG) + nhu cầu\n- Ảnh chụp tin nhắn cuối cùng trên Messenger, Zalo, WhatsApp, TikTok\n3. Đã hoàn thành: story đã đăng chưa, các việc khác đã xử lý\n4. Chưa hoàn thành: việc gì, vì sao, ai cần theo dõi tiếp",
       translation_de: "„Bericht von heute\n1. Arbeitszeit: von … bis …\n2. Beratung:\n- Neue Kontakte: …\n- Für jeden Kontakt: Name + Facebook-Link/Telefon/Zalo (HN/SG) + was die Person möchte\n- Screenshot der letzten Nachricht in Messenger, Zalo, WhatsApp, TikTok\n3. Erledigt: Story gepostet? Was hast du sonst erledigt?\n4. Offen: Was, warum, und wer muss weitermachen?“"
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Wer schreibt einer Person, nachdem sie bezahlt hat?",
+        question_vi: "Sau khi khách đóng tiền, ai sẽ nhắn tin với khách?",
+        options: [
+          { de: "Sales und Customer Success abwechselnd", vi: "Sales và Customer Success thay phiên" },
+          { de: "Nur noch Customer Success", vi: "Chỉ Customer Success" },
+          { de: "Weiter Sales, bis der Kurs beginnt", vi: "Vẫn là Sales cho đến khi khai giảng" },
+          { de: "Die Lehrkraft", vi: "Giáo viên" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was schreibt Sales bei der Übergabe in Slack dazu?",
+        question_vi: "Khi chuyển khách trên Slack, Sales ghi thêm gì?",
+        options: [
+          { de: "Was der Person versprochen wurde, z. B. Sonderpreis, Ratenzahlung oder späterer Start", vi: "Những gì đã hứa với khách, ví dụ giá đặc biệt, trả góp hay khai giảng muộn" },
+          { de: "Nichts, nur den Namen", vi: "Không gì, chỉ tên" },
+          { de: "Den ganzen Chatverlauf als Text", vi: "Toàn bộ đoạn chat dạng văn bản" },
+          { de: "Wie lange das Gespräch gedauert hat", vi: "Cuộc trò chuyện kéo dài bao lâu" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Eine neue Zahlung kommt am Sonntagabend. Wer kümmert sich?",
+        question_vi: "Có khoản thanh toán mới vào tối Chủ nhật. Ai xử lý?",
+        section: "die-vier-aufgaben-und-wann-sie-dran-sind",
+        options: [
+          { de: "Niemand bis Montag", vi: "Không ai cho đến thứ Hai" },
+          { de: "Sales", vi: "Sales" },
+          { de: "Wer gerade Customer-Success-Schicht hat – auch abends und am Wochenende", vi: "Người đang trực ca Customer Success – kể cả buổi tối và cuối tuần" },
+          { de: "Die Leitung", vi: "Quản lý" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Eine Schülerin schreibt auf WhatsApp. Wo antwortest du?",
+        question_vi: "Học viên nhắn qua WhatsApp. Bạn trả lời ở đâu?",
+        section: "die-vier-aufgaben-und-wann-sie-dran-sind",
+        options: [
+          { de: "In Zalo, das ist unser Kanal", vi: "Trên Zalo, vì đó là kênh của mình" },
+          { de: "Am selben Tag auf WhatsApp – im selben Kanal", vi: "Trong ngày, trên WhatsApp – cùng kênh" },
+          { de: "Per E-Mail", vi: "Qua email" },
+          { de: "In der Klassengruppe", vi: "Trong nhóm lớp" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Was zählt bei den KPIs von Customer Success?",
+        question_vi: "Điều gì được tính trong KPI của Customer Success?",
+        section: "kpis-ziel-ist-jeweils-100",
+        options: [
+          { de: "Wie viele Nachrichten du schickst", vi: "Bạn gửi bao nhiêu tin nhắn" },
+          { de: "Wie schnell du die Schicht beendest", vi: "Bạn kết thúc ca nhanh thế nào" },
+          { de: "Wie viele Kurse du verkaufst", vi: "Bạn bán được bao nhiêu khóa" },
+          { de: "Wie viele Probleme du findest und löst und wie viele Schüler deshalb weiterlernen", vi: "Bạn tìm ra và giải quyết bao nhiêu vấn đề và bao nhiêu học viên vì thế học tiếp" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Eine Klasse wechselt bald von A1 nach A2. Wann informierst du Sales?",
+        question_vi: "Một lớp sắp lên từ A1 lên A2. Khi nào bạn báo Sales?",
+        section: "kpis-ziel-ist-jeweils-100",
+        options: [
+          { de: "Einmal, am letzten Kurstag", vi: "Một lần, vào buổi cuối" },
+          { de: "Gar nicht, Sales sieht es selbst", vi: "Không báo, Sales tự thấy" },
+          { de: "Erst wenn Schüler abspringen", vi: "Chỉ khi có học viên bỏ học" },
+          { de: "Dreimal: einen Monat, zwei Wochen und drei Arbeitstage vorher", vi: "Ba lần: trước một tháng, hai tuần và ba ngày làm việc" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Du hast die Lehrkraft gefragt, sie hat noch nicht geantwortet. Ist die Aufgabe erledigt?",
+        question_vi: "Bạn đã hỏi giáo viên nhưng chưa có trả lời. Việc đã xong chưa?",
+        section: "so-arbeiten-wir-im-team",
+        options: [
+          { de: "Ja, ich habe meinen Teil gemacht", vi: "Rồi, mình đã làm phần của mình" },
+          { de: "Ja, wenn ich es im Bericht notiere", vi: "Rồi, nếu ghi vào báo cáo" },
+          { de: "Ja, nach 24 Stunden automatisch", vi: "Rồi, tự động sau 24 giờ" },
+          { de: "Nein – erledigt ist sie erst, wenn die Person das Ergebnis bekommen hat", vi: "Chưa – chỉ xong khi khách nhận được kết quả" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Eine Aufgabe aus Zalo schaffst du heute nicht mehr. Was machst du?",
+        question_vi: "Bạn không kịp làm một việc được giao qua Zalo hôm nay. Bạn làm gì?",
+        section: "so-arbeiten-wir-im-team",
+        options: [
+          { de: "Morgen weitermachen, ohne es aufzuschreiben", vi: "Mai làm tiếp, không cần ghi lại" },
+          { de: "Die Aufgabe ignorieren", vi: "Bỏ qua việc đó" },
+          { de: "Der Person schreiben, dass es nicht geht", vi: "Nhắn khách là không làm được" },
+          { de: "Am Abend in Slack schreiben, mit Screenshot der Zalo-Nachricht", vi: "Buổi tối ghi lên Slack, kèm ảnh chụp tin nhắn Zalo" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

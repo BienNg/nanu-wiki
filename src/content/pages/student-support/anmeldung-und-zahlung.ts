@@ -116,7 +116,84 @@ const page: PageContent = {
         }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Jemand lässt sich vormerken, zahlt aber noch nicht. Hat die Person einen festen Platz?",
+        question_vi: "Có người ghi danh trước nhưng chưa đóng tiền. Người đó đã có chỗ chắc chắn chưa?",
+        section: "vormerken-ohne-zahlung",
+        options: [
+          { de: "Ja, für bis zu 12 Monate", vi: "Có, giữ đến 12 tháng" },
+          { de: "Ja, wenn sie eine Anzahlung macht", vi: "Có, nếu đặt cọc" },
+          { de: "Nein – zahlt jemand anderes vorher, bekommt der den Platz", vi: "Chưa – nếu người khác đóng trước thì người đó được chỗ" },
+          { de: "Ja, Vormerken ist dasselbe wie Zahlen", vi: "Có, ghi danh trước cũng như đã đóng tiền" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand will den Kombipreis, kann aber nicht alles auf einmal zahlen. Was geht?",
+        question_vi: "Có người muốn giá combo nhưng không trả hết một lần được. Có cách nào?",
+        section: "vormerken-ohne-zahlung",
+        options: [
+          { de: "Eine Anzahlung von 1.000.000 VND", vi: "Đặt cọc 1.000.000 VND" },
+          { de: "Monatlich in 12 Raten", vi: "Trả góp 12 tháng" },
+          { de: "50 % der ersten Stufe jetzt, den Rest vor Ende dieser Stufe", vi: "Đóng 50 % trình độ đầu bây giờ, phần còn lại trước khi hết trình độ đó" },
+          { de: "Gar nichts, der Kombipreis gilt nur bei voller Zahlung sofort", vi: "Không có cách nào, combo chỉ áp dụng khi trả đủ ngay" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was brauchen wir vom Personalausweis (CCCD) für die Rechnung?",
+        question_vi: "Chúng ta cần gì từ CCCD để xuất hóa đơn?",
+        section: "was-wir-nach-der-zahlung-brauchen",
+        options: [
+          { de: "Ein Foto von Vorder- und Rückseite", vi: "Ảnh hai mặt" },
+          { de: "Gar nichts", vi: "Không cần gì" },
+          { de: "Das Original per Post", vi: "Bản gốc gửi bưu điện" },
+          { de: "Nur die Nummer, kein Foto", vi: "Chỉ số CCCD, không cần ảnh" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand zahlt am Samstag. Was machst du?",
+        question_vi: "Có người đóng tiền vào thứ Bảy. Bạn làm gì?",
+        section: "was-wir-nach-der-zahlung-brauchen",
+        options: [
+          { de: "Nichts bis Montag", vi: "Không làm gì đến thứ Hai" },
+          { de: "Sofort die Rechnung selbst ausstellen", vi: "Tự xuất hóa đơn ngay" },
+          { de: "Die Person bitten, am Montag noch einmal zu zahlen", vi: "Nhờ khách đóng lại vào thứ Hai" },
+          { de: "In Slack melden und der Person sagen, dass das Geld am nächsten Arbeitstag geprüft wird", vi: "Báo trên Slack và nói với khách là tiền sẽ được kiểm tra vào ngày làm việc tiếp theo" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand in Deutschland will in Euro zahlen. Welchen Umrechnungskurs nimmst du?",
+        question_vi: "Khách ở Đức muốn trả bằng Euro. Bạn dùng tỷ giá nào?",
+        section: "zahlung-aus-deutschland-in-euro",
+        options: [
+          { de: "Den Preis aus der Preisdatei", vi: "Giá trong file bảng giá" },
+          { de: "Einen festen Kurs von 1 € = 20.000 VND", vi: "Tỷ giá cố định 1 € = 20.000 VND" },
+          { de: "Den Kurs, den der Kunde vorschlägt", vi: "Tỷ giá khách đề xuất" },
+          { de: "Den Kurs vom selben Tag, den du bei der Leitung erfragst", vi: "Tỷ giá trong ngày, hỏi quản lý" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand braucht eine Teilnahmebestätigung. Was notierst du?",
+        question_vi: "Có người cần giấy xác nhận học. Bạn ghi lại gì?",
+        section: "weitere-bitten-die-oft-kommen",
+        options: [
+          { de: "Nur den Namen", vi: "Chỉ tên" },
+          { de: "Nichts, das machen wir nicht", vi: "Không làm việc này" },
+          { de: "Passfoto und Adresse", vi: "Ảnh thẻ và địa chỉ" },
+          { de: "Name, Geburtsdatum, Kurs und Zeitraum – in Slack weitergeben und sagen, bis wann sie kommt", vi: "Tên, ngày sinh, khóa học và thời gian – chuyển trên Slack và báo khi nào có" }
+        ],
+        correct: 3
+      }
+    ]
+  }
 };
 
 export default page;

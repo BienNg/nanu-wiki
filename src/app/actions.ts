@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
-import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getQuiz, readablePages, searchPages } from "@/content";
+import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getPageQuiz, getQuiz, readablePages, requiredQuizPages, searchPages } from "@/content";
+import { PAGE_QUIZ_PREFIX, pageQuizId, quizStatus, type QuizAttemptRow } from "@/lib/pageQuiz";
 import { dmByEmail, siteUrl } from "@/lib/slack";
 import { vnToday } from "@/lib/days";
 import { blockKey, blockText, COMMENT_STATUSES, tagInfo } from "@/lib/comments";
@@ -129,6 +130,48 @@ export async function submitQuiz(quizId: string, answers: number[]) {
   );
   revalidatePath("/", "layout");
   return result;
+}
+
+// ------------------------------------------------------------------ page quiz
+/** Grades the quiz at the end of a Handbuch page. 100 % passes. Only says which questions were wrong, never the right answers.
+ *  `answers[i]` is the original index of the option picked for question i (the browser shows them shuffled). */
+export async function submitPageQuiz(pageId: string, version: number, answers: number[]) {
+  const session = await getSession();
+  if (!session || !hasRole(session.profile.role, "staff")) throw new Error("not allowed");
+  const page = getPageById(pageId);
+  const quiz = getPageQuiz(pageId);
+  if (!page || !quiz || !canReadPage(session.profile, await getEditorAreas(), page)) {
+    return { ok: false as const, message: "Quiz nicht gefunden · Không tìm thấy bài kiểm tra" };
+  }
+  if (version !== quiz.version) {
+    return { ok: false as const, message: "Die Seite wurde gerade aktualisiert. Lade das Quiz neu · Trang vừa được cập nhật. Hãy tải lại bài kiểm tra" };
+  }
+  const clean = quiz.questions.map((_, i) => (Number.isInteger(answers[i]) ? answers[i] : -1));
+  const wrong = quiz.questions.flatMap((q, i) => (clean[i] === q.correct ? [] : [i]));
+  const total = quiz.questions.length;
+  const score = total - wrong.length;
+  const passed = wrong.length === 0;
+
+  // Users can't insert attempts themselves (no RLS insert policy), so a pass can't be faked from the browser.
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("quiz_attempts")
+    .insert({ quiz_id: pageQuizId(pageId, quiz.version), profile_id: session.profile.id, answers: clean, score, total, passed });
+  if (error) return { ok: false as const, message: error.message };
+
+  // One Slack message to the buddy once every required quiz is passed, not one per page.
+  const required = requiredQuizPages(session.profile.primary_area);
+  if (passed && required.some((p) => p.id === pageId)) {
+    const { data } = await admin.from("quiz_attempts").select("quiz_id, profile_id, passed, created_at").eq("profile_id", session.profile.id).like("quiz_id", `${PAGE_QUIZ_PREFIX}%`);
+    const rows = (data ?? []) as QuizAttemptRow[];
+    const done = required.filter((p) => quizStatus(rows, p.id, p.quiz!.version).state === "passed").length;
+    const firstPass = rows.filter((r) => r.passed && r.quiz_id === pageQuizId(pageId, quiz.version)).length === 1;
+    if (done === required.length && firstPass) {
+      await notifyBuddy(`🎓 ${who(session)} hat alle ${required.length} Handbuch-Quizze bestanden. ${siteUrl("/admin/quiz")}`);
+    }
+  }
+  revalidatePath("/", "layout");
+  return { ok: true as const, score, total, passed, wrong };
 }
 
 // ------------------------------------------------------------------ messenger simulation

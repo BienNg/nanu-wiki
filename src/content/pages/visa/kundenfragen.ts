@@ -32,7 +32,67 @@ const page: PageContent = {
       de: "Neue Frage, die hier fehlt? Trag sie mit Datum hier ein, auch wenn die Antwort noch offen ist.",
       vi: "Có câu hỏi mới chưa có ở đây? Ghi lại kèm ngày, kể cả khi chưa có câu trả lời."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Viele Visa-Fragen im Messenger sind eigentlich etwas anderes. Was?",
+        question_vi: "Nhiều câu hỏi visa trên Messenger thực ra là gì?",
+        options: [
+          { de: "Beschwerden über die Botschaft", vi: "Phàn nàn về Đại sứ quán" },
+          { de: "Sprachkurs-Anfragen mit einem Visum-Ziel – den passenden Kurs anbieten", vi: "Hỏi khóa tiếng với mục tiêu visa – giới thiệu khóa phù hợp" },
+          { de: "Spam", vi: "Tin rác" },
+          { de: "Bewerbungen für einen Job bei uns", vi: "Ứng tuyển làm việc ở trung tâm" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "„Ich brauche B1, um meinen Aufenthalt zu verlängern.“ Was bietest du an?",
+        question_vi: "„Tôi cần B1 để gia hạn cư trú.“ Bạn giới thiệu gì?",
+        options: [
+          { de: "Unsere Visumbegleitung für die Verlängerung", vi: "Dịch vụ hỗ trợ gia hạn visa" },
+          { de: "Einen Kurs vor Ort in Hanoi", vi: "Khóa trực tiếp ở Hà Nội" },
+          { de: "Nichts, wir helfen nur Leuten in Vietnam", vi: "Không gì, chỉ hỗ trợ người ở Việt Nam" },
+          { de: "B1 online nach deutscher Zeit – und Prüfungstermin und Frist der Ausländerbehörde erfragen", vi: "B1 online theo giờ Đức – và hỏi lịch thi và hạn của Sở Ngoại kiều" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand braucht A1/A2 für den Familiennachzug. Was machen wir?",
+        question_vi: "Có người cần A1/A2 để đoàn tụ gia đình. Chúng ta làm gì?",
+        options: [
+          { de: "Kurs und das ganze Visumverfahren übernehmen", vi: "Nhận cả khóa học và toàn bộ hồ sơ visa" },
+          { de: "Ablehnen, das ist nicht unser Thema", vi: "Từ chối, không phải việc của chúng ta" },
+          { de: "Kurs und Prüfung anbieten – das Visum selbst begleiten wir nicht", vi: "Giới thiệu khóa học và thi – không hỗ trợ làm visa" },
+          { de: "Die Person an die Botschaft verweisen, ohne Kurs", vi: "Chỉ bảo hỏi Đại sứ quán, không giới thiệu khóa" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "„Wie lange dauert das Visum zur Ausbildung?“ Was antwortest du?",
+        question_vi: "„Visa du học nghề mất bao lâu?“ Bạn trả lời gì?",
+        options: [
+          { de: "Genau 4 Wochen, das garantieren wir", vi: "Đúng 4 tuần, trung tâm cam kết" },
+          { de: "Ungefähr ein Jahr", vi: "Khoảng một năm" },
+          { de: "Oft 3–5 Monate – und ehrlich sagen, dass die Botschaft entscheidet", vi: "Thường 3–5 tháng – và nói thật là Đại sứ quán quyết định" },
+          { de: "Das können wir überhaupt nicht sagen", vi: "Hoàn toàn không thể nói" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand fragt nach Hilfe beim Finanzierungsnachweis. Was klärst du, bevor du übergibst?",
+        question_vi: "Có người hỏi hỗ trợ chứng minh tài chính. Bạn hỏi gì trước khi chuyển tiếp?",
+        options: [
+          { de: "Über unsere Vermittlung oder ohne, und Ausbildung oder Studium – dann an Student Support", vi: "Qua dịch vụ của trung tâm hay không, du học nghề hay đại học – rồi chuyển Student Support" },
+          { de: "Nur den Namen – dann an Sales", vi: "Chỉ hỏi tên – rồi chuyển Sales" },
+          { de: "Wie viel Geld die Familie hat – dann selbst ausfüllen", vi: "Gia đình có bao nhiêu tiền – rồi tự điền" },
+          { de: "Nichts, das macht die Botschaft", vi: "Không hỏi gì, Đại sứ quán lo" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

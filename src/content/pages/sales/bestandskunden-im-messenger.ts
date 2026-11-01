@@ -48,7 +48,59 @@ const page: PageContent = {
       de: "Nachricht übersehen oder am Wochenende liegen geblieben? Offen sagen und entschuldigen („Trung tâm bị trôi mất tin nhắn của chị ạ“). Ehrlichkeit wirkt besser als Ausreden.",
       vi: "Bỏ sót tin nhắn hoặc để qua cuối tuần? Nói thẳng và xin lỗi („Trung tâm bị trôi mất tin nhắn của chị ạ“). Thành thật hiệu quả hơn biện hộ."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Ein Schüler schreibt auf die Seite, weil er auf Zalo keine Antwort bekommt. Was ist das?",
+        question_vi: "Học viên nhắn vào trang vì không được trả lời trên Zalo. Đây là gì?",
+        options: [
+          { de: "Spam", vi: "Tin rác" },
+          { de: "Ein neuer Lead für einen Kurs", vi: "Khách mới muốn học" },
+          { de: "Nicht unsere Aufgabe", vi: "Không phải việc của mình" },
+          { de: "Kein neuer Lead – ein Schüler, für den jede Minute Warten zählt", vi: "Không phải khách mới – là học viên, mỗi phút chờ đều quan trọng" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Was machst du als Erstes?",
+        question_vi: "Bạn làm gì đầu tiên?",
+        section: "so-gehst-du-vor",
+        options: [
+          { de: "Auf Zalo verweisen", vi: "Bảo nhắn lại trên Zalo" },
+          { de: "Erklären, dass Zalo nicht unsere Schuld ist", vi: "Giải thích lỗi Zalo không phải do mình" },
+          { de: "Bis morgen warten", vi: "Chờ đến mai" },
+          { de: "Sofort bestätigen und entschuldigen – auch wenn die Ursache in einem anderen Kanal liegt", vi: "Xác nhận ngay và xin lỗi – kể cả khi lỗi ở kênh khác" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Die Person braucht die Hausaufgabe von gestern. Wo schickst du sie hin?",
+        question_vi: "Học viên cần bài tập hôm qua. Bạn gửi ở đâu?",
+        section: "so-gehst-du-vor",
+        options: [
+          { de: "Ich verweise sie auf die Zalo-Gruppe", vi: "Bảo vào nhóm Zalo" },
+          { de: "Direkt hier im Messenger", vi: "Ngay tại Messenger" },
+          { de: "Per Post", vi: "Gửi bưu điện" },
+          { de: "Gar nicht, das macht die Lehrkraft", vi: "Không gửi, giáo viên lo" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Du hast eine Nachricht am Wochenende übersehen. Was sagst du?",
+        question_vi: "Bạn bỏ sót tin nhắn cuối tuần. Bạn nói gì?",
+        section: "so-gehst-du-vor",
+        options: [
+          { de: "Offen sagen und entschuldigen – Ehrlichkeit wirkt besser als Ausreden", vi: "Nói thật và xin lỗi – trung thực tốt hơn viện cớ" },
+          { de: "Sagen, die Nachricht ist nicht angekommen", vi: "Nói tin nhắn không đến" },
+          { de: "Nichts dazu sagen", vi: "Không nhắc gì" },
+          { de: "Sagen, das System war kaputt", vi: "Nói hệ thống bị lỗi" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

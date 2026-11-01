@@ -6,6 +6,8 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { checkAnswer, submitQuiz } from "@/app/actions";
 import { Bi, Label } from "./Bi";
+import { LangToggle } from "./LangToggle";
+import type { Lang } from "@/lib/types";
 
 export type QuizQuestion = {
   question_de: string;
@@ -24,12 +26,14 @@ export function QuizRunner({
   week,
   area,
   questions,
+  lang,
 }: {
   quizId: string;
   passPercent: number;
   week: { number: number; de: string; vi: string };
   area: { slug: string; name_de: string; name_vi: string; color: string };
   questions: QuizQuestion[];
+  lang: Lang;
 }) {
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
@@ -102,9 +106,12 @@ export function QuizRunner({
         <span className="text-[13px] text-body">
           <Label de={area.name_de} vi={area.name_vi} /> · <Label de={`Woche ${week.number}`} vi={`Tuần ${week.number}`} />
         </span>
-        <Link href={backHref} className="ml-auto flex min-h-10 items-center px-1.5 text-[13px] text-[#4A4F57]">
-          <Label de="Schließen" vi="Đóng" />
-        </Link>
+        <div className="ml-auto flex items-center gap-2">
+          <LangToggle initial={lang} />
+          <Link href={backHref} className="flex min-h-10 items-center px-1.5 text-[13px] text-[#4A4F57]">
+            <Label de="Schließen" vi="Đóng" />
+          </Link>
+        </div>
       </div>
 
       <main className="mx-auto flex w-full max-w-[1180px] flex-1 flex-wrap items-start gap-12 px-8 pb-16 pt-8">

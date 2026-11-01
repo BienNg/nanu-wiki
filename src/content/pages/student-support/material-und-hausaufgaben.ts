@@ -116,7 +116,72 @@ const page: PageContent = {
       de: "Der Satz „Alle wichtigen Infos stehen in der Gruppe“ stimmt – hilft aber nur, wenn du gleich dazu schickst, was gesucht wird.",
       vi: "Câu „Các thông tin quan trọng đều có trong nhóm“ là đúng – nhưng chỉ có ích khi mình gửi kèm luôn thứ học viên đang tìm."
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "Welche Version einer Datei schickst du?",
+        question_vi: "Bạn gửi phiên bản nào của file?",
+        section: "typische-anfragen",
+        options: [
+          { de: "Immer die neueste aus Google Drive", vi: "Luôn bản mới nhất trên Google Drive" },
+          { de: "Die Datei, die ich mir einmal heruntergeladen habe", vi: "File mình đã tải về trước đây" },
+          { de: "Die aus der letzten Kursmail", vi: "File trong email khóa trước" },
+          { de: "Egal, sie sind alle gleich", vi: "Sao cũng được, đều giống nhau" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Jemand möchte eine Aufzeichnung der Live-Stunde. Was antwortest du?",
+        question_vi: "Có người muốn xem lại video buổi học trực tiếp. Bạn trả lời gì?",
+        section: "so-antwortest-du",
+        options: [
+          { de: "Die Aufzeichnung kommt morgen in die Gruppe", vi: "Video sẽ có trong nhóm ngày mai" },
+          { de: "Alle Lektionen sind in NaNu Go", vi: "Tất cả bài học có trong NaNu Go" },
+          { de: "Die Lehrkraft schickt sie privat", vi: "Giáo viên gửi riêng" },
+          { de: "Live-Stunden werden nicht aufgezeichnet – stattdessen Unterrichtsdatei, Hausaufgabe und die Trợ-giảng-Stunde anbieten", vi: "Buổi học trực tiếp không được ghi hình – thay vào đó gửi file bài giảng, bài tập và buổi trợ giảng" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wie antwortest du auf eine Frage nach der Hausaufgabe?",
+        question_vi: "Bạn trả lời câu hỏi về bài tập thế nào?",
+        section: "so-antwortest-du",
+        options: [
+          { de: "Nur die Datei schicken", vi: "Chỉ gửi file" },
+          { de: "Auf die Gruppe verweisen", vi: "Bảo xem trong nhóm" },
+          { de: "Sagen, sie soll die Lehrkraft fragen", vi: "Bảo hỏi giáo viên" },
+          { de: "Buch, Seite und Aufgabe nennen, nicht nur die Datei schicken", vi: "Nói rõ quyển sách, trang và bài, không chỉ gửi file" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Wann schickst du das Material der nächsten Stufe?",
+        question_vi: "Khi nào bạn gửi tài liệu của trình độ tiếp theo?",
+        section: "so-antwortest-du",
+        options: [
+          { de: "Kurz vor Kursende, zusammen mit der Info zum Folgekurs", vi: "Gần cuối khóa, kèm thông tin khóa tiếp theo" },
+          { de: "Gleich am ersten Kurstag", vi: "Ngay buổi đầu" },
+          { de: "Nur wenn jemand danach fragt, sofort", vi: "Gửi ngay khi có người hỏi" },
+          { de: "Erst nach der Prüfung", vi: "Chỉ sau kỳ thi" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Eine Schülerin sagt, sie findet Übung 9 nicht. Was klärt das am schnellsten?",
+        question_vi: "Học viên nói không tìm thấy bài 9. Cách nào nhanh nhất?",
+        section: "so-antwortest-du",
+        options: [
+          { de: "Fragen, welches Buch sie offen hat, und um ein Foto der ersten Seite bitten", vi: "Hỏi đang mở quyển nào và xin ảnh trang đầu" },
+          { de: "Die ganze PDF noch einmal schicken", vi: "Gửi lại toàn bộ file PDF" },
+          { de: "Ihr sagen, dass alles in der Gruppe steht", vi: "Bảo mọi thứ có trong nhóm" },
+          { de: "Einen neuen Kurs anbieten", vi: "Giới thiệu khóa mới" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;

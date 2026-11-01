@@ -62,7 +62,72 @@ const page: PageContent = {
         { de: "Technikprobleme intern weitergeben, damit sie für alle gelöst werden.", vi: "Báo lỗi kỹ thuật cho nội bộ để sửa cho tất cả học viên." }
       ]
     }
-  ]
+  ],
+  quiz: {
+    version: 1,
+    questions: [
+      {
+        question_de: "„App này giá bao nhiêu?“ Was antwortest du?",
+        question_vi: "„App này giá bao nhiêu?“ Bạn trả lời gì?",
+        section: "die-antwort",
+        options: [
+          { de: "49 Euro", vi: "49 Euro" },
+          { de: "1.300.000 VND im Monat", vi: "1.300.000 VND mỗi tháng" },
+          { de: "Für unsere Schüler 100 % kostenlos – einzeln verkaufen wir sie nicht", vi: "Miễn phí 100 % cho học viên – không bán riêng" },
+          { de: "Kostenlos für alle, auch ohne Kurs", vi: "Miễn phí cho mọi người, kể cả không học" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was gibt es Stand 27.10.2026 in der App?",
+        question_vi: "Đến ngày 27.10.2026 app có gì?",
+        section: "die-antwort",
+        options: [
+          { de: "Alle Lektionen von A1 bis B2", vi: "Tất cả bài từ A1 đến B2" },
+          { de: "Aufzeichnungen aller Live-Stunden", vi: "Video tất cả buổi học trực tiếp" },
+          { de: "Nur Spiele", vi: "Chỉ trò chơi" },
+          { de: "Nur die ersten 8 Lektionen von A1.1 – für A2 oder höher noch nichts", vi: "Chỉ 8 bài đầu của A1.1 – A2 trở lên chưa có" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Was darfst du über die App NICHT versprechen?",
+        question_vi: "Điều gì về app bạn KHÔNG được hứa?",
+        section: "die-antwort",
+        options: [
+          { de: "Dass sie für Schüler kostenlos ist", vi: "Miễn phí cho học viên" },
+          { de: "Dass es Wortschatz und Hörübungen gibt", vi: "Có từ vựng và bài nghe" },
+          { de: "Dass es eine Rangliste gibt", vi: "Có bảng xếp hạng" },
+          { de: "Videos zu jeder Lektion oder die App als Ersatz für verpasste Stunden", vi: "Có video cho mọi bài hoặc dùng app thay buổi học đã nghỉ" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand klickt den App-Button dreimal und schreibt dann nichts mehr. Was machst du?",
+        question_vi: "Khách bấm nút app ba lần rồi không nhắn gì nữa. Bạn làm gì?",
+        section: "die-antwort",
+        options: [
+          { de: "Auf jeden Klick einzeln antworten", vi: "Trả lời từng lần bấm" },
+          { de: "Gar nicht antworten", vi: "Không trả lời" },
+          { de: "Einmal antworten, keine Wiederholungen – nach 24 Stunden einmal nachfassen", vi: "Trả lời một lần, không lặp lại – sau 24 giờ nhắn lại một lần" },
+          { de: "Jeden Tag nachfassen", vi: "Nhắn lại mỗi ngày" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Ein Schüler sagt: „Das Passwort stimmt nicht.“ Was machst du?",
+        question_vi: "Học viên nói: „Mật khẩu không đúng.“ Bạn làm gì?",
+        section: "probleme-von-schulern-mit-der-app",
+        options: [
+          { de: "Nach Screenshot fragen, die richtige Anmelde-E-Mail prüfen und den Link erneut schicken", vi: "Xin ảnh chụp màn hình, kiểm tra email đăng nhập và gửi lại link" },
+          { de: "Sagen, er soll ein neues Konto anlegen", vi: "Bảo tạo tài khoản mới" },
+          { de: "Ihn an Google verweisen", vi: "Bảo hỏi Google" },
+          { de: "Ihm einen anderen Kurs anbieten", vi: "Giới thiệu khóa khác" }
+        ],
+        correct: 0
+      }
+    ]
+  }
 };
 
 export default page;
