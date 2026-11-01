@@ -27,8 +27,8 @@ const page: PageContent = {
           vi: "Đã bắt đầu học và muốn tạm dừng giữa khoá A1: được xem xét bảo lưu phần còn lại từ 6 đến 12 tháng, tuỳ tình hình thực tế và xác nhận của trung tâm."
         },
         {
-          de: "Pausieren oder Aufhören bringt kein Geld zurück. Es gelten die Rückerstattungsregeln aus der Kursmail. Die Geld-zurück-Zusage nach zwei Probestunden ist ein eigener Fall (siehe „Probestunden & Geld-zurück-Zusage“).",
-          vi: "Bảo lưu hay ngừng học thì không được hoàn học phí, theo điều khoản hoàn học phí trong email khoá học. Cam kết hoàn tiền sau hai buổi học thử là trường hợp riêng (xem trang „Học thử & cam kết hoàn tiền“)."
+          de: "Pausieren oder Aufhören bringt kein Geld zurück. Es gelten die Rückerstattungsregeln aus der Kursmail. Die Geld-zurück-Zusage nach zwei Probestunden ist ein eigener Fall (siehe „[Probestunden & Geld-zurück-Zusage](student-support/probestunden-und-rueckerstattung)“).",
+          vi: "Bảo lưu hay ngừng học thì không được hoàn học phí, theo điều khoản hoàn học phí trong email khoá học. Cam kết hoàn tiền sau hai buổi học thử là trường hợp riêng (xem trang „[Học thử & cam kết hoàn tiền](student-support/probestunden-und-rueckerstattung)“)."
         },
         {
           de: "Die Person meldet die Pause an, und das Zentrum bestätigt sie, bevor sie aufhört. Wer einfach nicht mehr kommt, hat nichts pausiert.",

@@ -11,8 +11,8 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Was im Slack-Kanal immer wieder korrigiert wurde: Preis zu früh geschickt, kein Bild, Termin ohne Ort, ein Versprechen, das wir nicht halten können. Diese Seite ergänzt „Erstkontakt über Messenger“.",
-      vi: "Những điều hay bị nhắc trên Slack: gửi học phí quá sớm, không có hình, hẹn mà không ghi gọi điện hay đến văn phòng, hứa điều trung tâm không làm được. Trang này bổ sung cho trang „Trả lời tin nhắn đầu tiên“."
+      de: "Was im Slack-Kanal immer wieder korrigiert wurde: Preis zu früh geschickt, kein Bild, Termin ohne Ort, ein Versprechen, das wir nicht halten können. Diese Seite ergänzt „[Erstkontakt über Messenger](sales/erstkontakt-messenger)“.",
+      vi: "Những điều hay bị nhắc trên Slack: gửi học phí quá sớm, không có hình, hẹn mà không ghi gọi điện hay đến văn phòng, hứa điều trung tâm không làm được. Trang này bổ sung cho trang „[Trả lời tin nhắn đầu tiên](sales/erstkontakt-messenger)“."
     },
     { type: "heading", de: "Reihenfolge in der Beratung", vi: "Thứ tự tư vấn" },
     {
@@ -33,8 +33,8 @@ const page: PageContent = {
         {
           de: "Preis und Leistungen",
           vi: "Học phí và quyền lợi",
-          body_de: "Aus der aktuellen Preisliste, mit der laufenden Aktion. Siehe „FAQ Sprachkurse“ und „Aktion Oktober 2026“.",
-          body_vi: "Theo bảng giá hiện hành, kèm ưu đãi đang áp dụng. Xem „FAQ khoá học tiếng“ và „Ưu đãi tháng 10/2026“."
+          body_de: "Aus der aktuellen Preisliste, mit der laufenden Aktion. Siehe „[FAQ Sprachkurse](sales/faq-sprachkurse)“ und „[Aktion Oktober 2026](sales/aktion-oktober-2026)“.",
+          body_vi: "Theo bảng giá hiện hành, kèm ưu đãi đang áp dụng. Xem „[FAQ khoá học tiếng](sales/faq-sprachkurse)“ và „[Ưu đãi tháng 10/2026](sales/aktion-oktober-2026)“."
         }
       ]
     },

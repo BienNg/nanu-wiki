@@ -12,8 +12,8 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Seit August sind mehrere Programme dazugekommen. Hier steht, was im Team dazu verschickt wurde. Wo Angaben fehlen oder sich widersprechen, steht ein „Zu klären“ – dann nichts zusagen, sondern bei der Leitung nachfragen. Allgemeines zur Ausbildung: „FAQ Ausbildung“.",
-      vi: "Từ tháng 8 có thêm nhiều chương trình mới. Trang này tổng hợp những gì đã được gửi trong team. Chỗ nào thiếu thông tin hoặc mâu thuẫn thì có ghi „Cần làm rõ“ – khi đó không tự cam kết mà hỏi lại quản lý. Thông tin chung về du học nghề: xem „FAQ du học nghề“."
+      de: "Seit August sind mehrere Programme dazugekommen. Hier steht, was im Team dazu verschickt wurde. Wo Angaben fehlen oder sich widersprechen, steht ein „Zu klären“ – dann nichts zusagen, sondern bei der Leitung nachfragen. Allgemeines zur Ausbildung: „[FAQ Ausbildung](sales/faq-ausbildung)“.",
+      vi: "Từ tháng 8 có thêm nhiều chương trình mới. Trang này tổng hợp những gì đã được gửi trong team. Chỗ nào thiếu thông tin hoặc mâu thuẫn thì có ghi „Cần làm rõ“ – khi đó không tự cam kết mà hỏi lại quản lý. Thông tin chung về du học nghề: xem „[FAQ du học nghề](sales/faq-ausbildung)“."
     },
     { type: "heading", de: "Anerkennung als Pflegefachkraft (Chuyển đổi bằng điều dưỡng)", vi: "Chuyển đổi bằng điều dưỡng" },
     { type: "paragraph", de: "Für ausgebildete Pflegekräfte, die in Deutschland als Pflegefachkraft arbeiten wollen.", vi: "Dành cho người đã có bằng điều dưỡng muốn sang Đức làm điều dưỡng." },
@@ -73,8 +73,8 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "warning",
-      de: "Zu klären: „FAQ Ausbildung“ nennt für das Paket mit Sprachkurs 220 Mio. VND „nur vor Ort“, aber keine Raten; für das Paket mit B1 gelten 50 / 50 / 99 Mio. Gelten für Verkauf 54 / 50 / 116 Mio.? Gibt es das Programm auch online? Und was passiert mit den Raten, wenn das Interview nicht klappt?",
-      vi: "Cần làm rõ: trang „FAQ du học nghề“ ghi gói kèm học tiếng 220 triệu „chỉ học offline“ nhưng không có các đợt đóng; gói đã có B1 là 50 / 50 / 99 triệu. Ngành bán hàng áp dụng 54 / 50 / 116 triệu đúng không? Có học online được không? Nếu không đỗ phỏng vấn thì các đợt đã đóng xử lý thế nào?"
+      de: "Zu klären: „[FAQ Ausbildung](sales/faq-ausbildung)“ nennt für das Paket mit Sprachkurs 220 Mio. VND „nur vor Ort“, aber keine Raten; für das Paket mit B1 gelten 50 / 50 / 99 Mio. Gelten für Verkauf 54 / 50 / 116 Mio.? Gibt es das Programm auch online? Und was passiert mit den Raten, wenn das Interview nicht klappt?",
+      vi: "Cần làm rõ: trang „[FAQ du học nghề](sales/faq-ausbildung)“ ghi gói kèm học tiếng 220 triệu „chỉ học offline“ nhưng không có các đợt đóng; gói đã có B1 là 50 / 50 / 99 triệu. Ngành bán hàng áp dụng 54 / 50 / 116 triệu đúng không? Có học online được không? Nếu không đỗ phỏng vấn thì các đợt đã đóng xử lý thế nào?"
     },
     { type: "heading", de: "Ausbildung am Bau", vi: "Du học nghề ngành xây dựng" },
     {

@@ -28,14 +28,14 @@ const page: PageContent = {
         { de: "Deutsch bis mindestens B1", vi: "Học tiếng Đức tối thiểu B1" },
         { de: "APS-Prüfung der Unterlagen", vi: "Thẩm tra hồ sơ APS", body_de: "Kommt zuerst. Für einen Start im September beginnen wir Anfang des Jahres.", body_vi: "Làm đầu tiên. Muốn nhập học tháng 9 thì bắt đầu từ đầu năm." },
         { de: "TestAS (falls nötig)", vi: "TestAS (nếu cần)", body_de: "Eignungstest, kein Bestehen oder Durchfallen, ca. 4 Stunden, auch auf Englisch.", body_vi: "Bài đánh giá năng lực, không có đậu hay trượt, khoảng 4 tiếng, có thể thi bằng tiếng Anh." },
-        { de: "Zulassung Studienkolleg oder Hochschule", vi: "Nhận thư mời dự bị hoặc đại học", body_de: "Ob die Zulassung schon da ist, entscheidet, welches Visum beantragt wird (siehe „Mit Zulassung oder ohne Zulassung“).", body_vi: "Đã có thư mời nhập học hay chưa sẽ quyết định xin loại visa nào (xem phần „Có thư mời hay chưa có thư mời“)." },
+        { de: "Zulassung Studienkolleg oder Hochschule", vi: "Nhận thư mời dự bị hoặc đại học", body_de: "Ob die Zulassung schon da ist, entscheidet, welches Visum beantragt wird (siehe „[Mit Zulassung oder ohne Zulassung](#zulassung)“).", body_vi: "Đã có thư mời nhập học hay chưa sẽ quyết định xin loại visa nào (xem phần „[Có thư mời hay chưa có thư mời](#zulassung)“)." },
         { de: "Finanzierungsnachweis (Sperrkonto)", vi: "Chứng minh tài chính (tài khoản phong tỏa)", body_de: "[ERGÄNZEN: aktueller Betrag pro Jahr, Anbieter, wie wir helfen]", body_vi: "[ERGÄNZEN: số tiền hiện hành mỗi năm, nhà cung cấp, cách trung tâm hỗ trợ]" },
         { de: "Krankenversicherung", vi: "Bảo hiểm y tế", body_de: "Muss ab dem gewünschten Einreisedatum gelten, auch wenn man schon vor Semesterbeginn einreist.", body_vi: "Phải có hiệu lực từ ngày muốn nhập cảnh, kể cả khi sang Đức trước ngày bắt đầu học kỳ." },
-        { de: "Visumantrag über das Auslandsportal", vi: "Nộp visa qua Auslandsportal", body_de: "Unterlagen hochladen, VFS-Servicegebühr bezahlen, nach der Vorprüfung Termin bei VFS buchen (Originale abgeben, Fingerabdrücke und Foto). Details unten.", body_vi: "Tải hồ sơ lên, đóng phí dịch vụ VFS, sau khi được kiểm tra sơ bộ thì đặt lịch hẹn ở VFS (nộp bản gốc, lấy vân tay và ảnh). Chi tiết bên dưới." },
+        { de: "Visumantrag über das Auslandsportal", vi: "Nộp visa qua Auslandsportal", body_de: "Unterlagen hochladen, VFS-Servicegebühr bezahlen, nach der Vorprüfung Termin bei VFS buchen (Originale abgeben, Fingerabdrücke und Foto). Details [unten](#antrag-und-vfs).", body_vi: "Tải hồ sơ lên, đóng phí dịch vụ VFS, sau khi được kiểm tra sơ bộ thì đặt lịch hẹn ở VFS (nộp bản gốc, lấy vân tay và ảnh). Chi tiết [bên dưới](#antrag-und-vfs)." },
         { de: "Nach der Einreise: Anmeldung und Aufenthaltstitel", vi: "Sau khi nhập cảnh: đăng ký cư trú và thẻ cư trú", body_de: "Spätestens zwei Wochen nach dem Einzug beim Einwohnermelde- oder Bürgeramt anmelden. Danach bei der Ausländerbehörde am Wohnort den Aufenthaltstitel beantragen.", body_vi: "Chậm nhất 2 tuần sau khi dọn vào nhà phải đăng ký cư trú (Anmeldung) ở Bürgeramt. Sau đó xin thẻ cư trú (Aufenthaltstitel) ở Sở Ngoại kiều (Ausländerbehörde) nơi ở." }
       ]
     },
-    { type: "heading", de: "Mit Zulassung oder ohne Zulassung", vi: "Có thư mời hay chưa có thư mời" },
+    { type: "heading", de: "Mit Zulassung oder ohne Zulassung", vi: "Có thư mời hay chưa có thư mời", anchor: "zulassung" },
     {
       type: "paragraph",
       de: "Die Botschaft unterscheidet zwei Fälle. Beide werden gleich beantragt (Auslandsportal und VFS), nur einzelne Unterlagen sind verschieden.",
@@ -83,7 +83,7 @@ const page: PageContent = {
         { de: "Nachweis der Krankenversicherung", vi: "Giấy tờ bảo hiểm y tế" }
       ]
     },
-    { type: "heading", de: "Antrag über Auslandsportal und VFS", vi: "Nộp hồ sơ qua Auslandsportal và VFS" },
+    { type: "heading", de: "Antrag über Auslandsportal und VFS", vi: "Nộp hồ sơ qua Auslandsportal và VFS", anchor: "antrag-und-vfs" },
     {
       type: "steps",
       items: [

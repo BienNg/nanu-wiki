@@ -11,8 +11,8 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Technik ist die häufigste Frage in den ersten zwei Wochen. Wer sich nicht anmelden kann, verliert Zeit und Lust – und schreibt oft mehrmals, bevor es klappt. Für Fragen von Interessierten zur App siehe die FAQ App im Sales-Bereich.",
-      vi: "Kỹ thuật là câu hỏi nhiều nhất trong hai tuần đầu. Không đăng nhập được thì học viên mất thời gian và mất hứng – và thường phải nhắn nhiều lần mới xong. Câu hỏi về app của khách chưa đăng ký: xem trang FAQ App ở mục Sales."
+      de: "Technik ist die häufigste Frage in den ersten zwei Wochen. Wer sich nicht anmelden kann, verliert Zeit und Lust – und schreibt oft mehrmals, bevor es klappt. Für Fragen von Interessierten zur App siehe die [FAQ App](sales/faq-app) im Sales-Bereich.",
+      vi: "Kỹ thuật là câu hỏi nhiều nhất trong hai tuần đầu. Không đăng nhập được thì học viên mất thời gian và mất hứng – và thường phải nhắn nhiều lần mới xong. Câu hỏi về app của khách chưa đăng ký: xem trang [FAQ App](sales/faq-app) ở mục Sales."
     },
     { type: "heading", de: "Grundregel", vi: "Nguyên tắc chung" },
     {
@@ -65,8 +65,8 @@ const page: PageContent = {
           vi: "Không có link Zoom: link nằm trong nhóm lớp. Ai không ở trong nhóm thì nhận link riêng trước mỗi buổi."
         },
         {
-          de: "Frage nach etwas Einfacherem als Classroom: NaNu Go hat Wortschatz, Hörübungen und aufgezeichnete Lektionen. Login dort zuerst lösen – aber nur versprechen, was es schon gibt (siehe unten).",
-          vi: "Học viên hỏi có gì dễ dùng hơn Classroom không: NaNu Go có từ vựng, bài nghe và bài giảng quay sẵn. Ưu tiên giúp học viên vào được NaNu Go trước – nhưng chỉ hứa những gì app đã có (xem bên dưới)."
+          de: "Frage nach etwas Einfacherem als Classroom: NaNu Go hat Wortschatz, Hörübungen und aufgezeichnete Lektionen. Login dort zuerst lösen – aber nur versprechen, was es schon gibt (siehe [unten](#nanu-go-stand)).",
+          vi: "Học viên hỏi có gì dễ dùng hơn Classroom không: NaNu Go có từ vựng, bài nghe và bài giảng quay sẵn. Ưu tiên giúp học viên vào được NaNu Go trước – nhưng chỉ hứa những gì app đã có (xem [bên dưới](#nanu-go-stand))."
         },
         {
           de: "Login im Zalo-Browser klappt nicht: Den Link in Chrome oder Safari öffnen, nicht direkt in Zalo.",
@@ -74,7 +74,7 @@ const page: PageContent = {
         }
       ]
     },
-    { type: "heading", de: "NaNu Go: was es schon gibt", vi: "NaNu Go: hiện đã có gì" },
+    { type: "heading", de: "NaNu Go: was es schon gibt", vi: "NaNu Go: hiện đã có gì", anchor: "nanu-go-stand" },
     {
       type: "callout",
       tone: "warning",

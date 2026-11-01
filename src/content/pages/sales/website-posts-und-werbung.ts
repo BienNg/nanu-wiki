@@ -31,7 +31,7 @@ const page: PageContent = {
       items: [
         { de: "Alle Formulare der Website landen im Slack-Kanal #website-form, nicht mehr per E-Mail. Den Kanal jeden Tag prüfen.", vi: "Tất cả form đăng ký trên website được gửi vào kênh Slack #website-form thay vì email. Kiểm tra kênh này mỗi ngày." },
         { de: "Nach dem Kontakt mit der Person ✅ an die Nachricht setzen.", vi: "Thả ✅ sau khi đã liên hệ với khách hàng." },
-        { de: "Die App NaNu Go ist auch auf der Website erklärt. Probiere sie selbst aus, damit du sicher beraten kannst – sie ist noch im Aufbau (siehe „FAQ App“).", vi: "App NaNu Go cũng được giới thiệu trên website. Hãy tự dùng thử để tư vấn tự tin – app vẫn đang hoàn thiện (xem „FAQ App“)." }
+        { de: "Die App NaNu Go ist auch auf der Website erklärt. Probiere sie selbst aus, damit du sicher beraten kannst – sie ist noch im Aufbau (siehe „[FAQ App](sales/faq-app)“).", vi: "App NaNu Go cũng được giới thiệu trên website. Hãy tự dùng thử để tư vấn tự tin – app vẫn đang hoàn thiện (xem „[FAQ App](sales/faq-app)“)." }
       ]
     },
     { type: "heading", de: "Posts und Storys", vi: "Bài đăng và story" },

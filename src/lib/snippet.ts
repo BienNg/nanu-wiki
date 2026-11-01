@@ -1,8 +1,13 @@
 import type { Block, PageWithMeta } from "@/lib/types";
 import { defaultSelection, resolveConversation } from "@/lib/dialogue";
+import { toPlain } from "@/lib/links";
 
-/** Flattens German + Vietnamese text of all blocks (for snippets). */
+/** Flattens German + Vietnamese text of all blocks (for snippets), without link targets. */
 function blockTexts(blocks: Block[]): { de: string; vi: string }[] {
+  return rawTexts(blocks).map((t) => ({ de: toPlain(t.de), vi: toPlain(t.vi) }));
+}
+
+function rawTexts(blocks: Block[]): { de: string; vi: string }[] {
   return blocks.flatMap((b): { de: string; vi: string }[] => {
     switch (b.type) {
       case "heading":

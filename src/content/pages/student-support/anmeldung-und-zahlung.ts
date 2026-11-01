@@ -11,8 +11,8 @@ const page: PageContent = {
   body: [
     {
       type: "paragraph",
-      de: "Rund um die Zahlung kommen jeden Tag dieselben Fragen: Kann ich mich schon anmelden und später zahlen? Kann ich in Euro zahlen? Was braucht ihr von mir? Hier stehen die Antworten. Was danach passiert, steht in „Nach der Zahlung“.",
-      vi: "Quanh việc đóng học phí, ngày nào cũng có những câu hỏi giống nhau: em đăng ký trước rồi đóng sau được không? Em đóng bằng Euro được không? Trung tâm cần thông tin gì? Câu trả lời ở đây. Bước tiếp theo xem trang „Sau khi khách chuyển khoản“."
+      de: "Rund um die Zahlung kommen jeden Tag dieselben Fragen: Kann ich mich schon anmelden und später zahlen? Kann ich in Euro zahlen? Was braucht ihr von mir? Hier stehen die Antworten. Was danach passiert, steht in „[Nach der Zahlung](student-support/nach-der-zahlung)“.",
+      vi: "Quanh việc đóng học phí, ngày nào cũng có những câu hỏi giống nhau: em đăng ký trước rồi đóng sau được không? Em đóng bằng Euro được không? Trung tâm cần thông tin gì? Câu trả lời ở đây. Bước tiếp theo xem trang „[Sau khi khách chuyển khoản](student-support/nach-der-zahlung)“."
     },
     { type: "heading", de: "Vormerken ohne Zahlung", vi: "Ghi danh trước, chưa cần đóng tiền" },
     {

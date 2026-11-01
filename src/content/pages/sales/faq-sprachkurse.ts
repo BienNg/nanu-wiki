@@ -18,8 +18,8 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "warning",
-      de: "Zu klären: Am 14.10. hat das Team diese Preise bestätigt (online und vor Ort gleich): A1 13.800.000 → 11.800.000, A2 14.500.000 → 12.300.000, B1 15.000.000 → 12.800.000, B2 17.300.000 → 13.800.000 VND (−20 %). In Messenger wurden im Oktober aber auch Listenpreise von 16.799.000 genannt. Welcher Listenpreis gilt? Bis dahin den Endpreis nennen und den Listenpreis aus „Preise & Positionierung“.",
-      vi: "Cần làm rõ: Ngày 14/10 team đã xác nhận học phí (online và offline như nhau): A1 13.800.000 → 11.800.000, A2 14.500.000 → 12.300.000, B1 15.000.000 → 12.800.000, B2 17.300.000 → 13.800.000 VND (giảm 20%). Nhưng trên Messenger tháng 10 cũng có lúc báo giá gốc 16.799.000. Giá gốc nào đúng? Trong lúc chờ, báo giá sau ưu đãi và giá gốc theo trang „Học phí & định vị“."
+      de: "Zu klären: Am 14.10. hat das Team diese Preise bestätigt (online und vor Ort gleich): A1 13.800.000 → 11.800.000, A2 14.500.000 → 12.300.000, B1 15.000.000 → 12.800.000, B2 17.300.000 → 13.800.000 VND (−20 %). In Messenger wurden im Oktober aber auch Listenpreise von 16.799.000 genannt. Welcher Listenpreis gilt? Bis dahin den Endpreis nennen und den Listenpreis aus „[Preise & Positionierung](fuer-alle/preise-und-positionierung)“.",
+      vi: "Cần làm rõ: Ngày 14/10 team đã xác nhận học phí (online và offline như nhau): A1 13.800.000 → 11.800.000, A2 14.500.000 → 12.300.000, B1 15.000.000 → 12.800.000, B2 17.300.000 → 13.800.000 VND (giảm 20%). Nhưng trên Messenger tháng 10 cũng có lúc báo giá gốc 16.799.000. Giá gốc nào đúng? Trong lúc chờ, báo giá sau ưu đãi và giá gốc theo trang „[Học phí & định vị](fuer-alle/preise-und-positionierung)“."
     },
     { type: "heading", de: "1. „Wie viel kostet der Kurs?“", vi: "1. „Học phí bao nhiêu?“" },
     {
@@ -124,8 +124,8 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "warning",
-      de: "Zu klären: Dürfen wir „Bachelor oder Master“ sagen? Im August wollte ein Teilnehmer sein Geld zurück, weil ihm „Unterricht mit Master“ versprochen worden war. Siehe „Beratung: Reihenfolge, Einstufung & Termine“.",
-      vi: "Cần làm rõ: có được nói „tốt nghiệp đại học hoặc thạc sĩ“ không? Tháng 8 có học viên đòi hoàn tiền vì lúc tư vấn được hứa „thạc sĩ dạy“. Xem trang „Tư vấn: thứ tự, xếp trình độ & lịch hẹn“."
+      de: "Zu klären: Dürfen wir „Bachelor oder Master“ sagen? Im August wollte ein Teilnehmer sein Geld zurück, weil ihm „Unterricht mit Master“ versprochen worden war. Siehe „[Beratung: Reihenfolge, Einstufung & Termine](sales/beratung-und-termine)“.",
+      vi: "Cần làm rõ: có được nói „tốt nghiệp đại học hoặc thạc sĩ“ không? Tháng 8 có học viên đòi hoàn tiền vì lúc tư vấn được hứa „thạc sĩ dạy“. Xem trang „[Tư vấn: thứ tự, xếp trình độ & lịch hẹn](sales/beratung-und-termine)“."
     },
     { type: "heading", de: "10. Probestunde", vi: "10. Học thử" },
     {
@@ -151,7 +151,7 @@ const page: PageContent = {
       items: [
         { de: "Frühbucher: A1/A2 mindestens 1 Woche vor Start, B1 mindestens 2 Wochen (15 %).", vi: "Đăng ký sớm: A1/A2 trước ít nhất 1 tuần, B1 trước ít nhất 2 tuần (giảm 15%)." },
         { de: "Kombi-Pakete: A1+A2, A2–B1 (24.500.000 VND) und A1–B1 sind deutlich günstiger als einzeln.", vi: "Combo: A1+A2, A2–B1 (24.500.000 VND) và A1–B1 rẻ hơn nhiều so với đăng ký từng khóa." },
-        { de: "Im Oktober 2026 gilt zusätzlich die Aktion – siehe „Aktion Oktober 2026“.", vi: "Trong tháng 10/2026 có thêm ưu đãi – xem „Ưu đãi tháng 10/2026“." },
+        { de: "Im Oktober 2026 gilt zusätzlich die Aktion – siehe „[Aktion Oktober 2026](sales/aktion-oktober-2026)“.", vi: "Trong tháng 10/2026 có thêm ưu đãi – xem „[Ưu đãi tháng 10/2026](sales/aktion-oktober-2026)“." },
         { de: "Ehemalige Teilnehmende: −500.000 VND. Zweite Person aus derselben Familie: −500.000 VND.", vi: "Học viên cũ: giảm 500.000 VND. Người thứ hai trong cùng gia đình: giảm 500.000 VND." },
         { de: "Saisonaktionen (z. B. Tết) gelten nur in ihrem Zeitraum – ehrlich sagen, wenn sie vorbei sind.", vi: "Ưu đãi theo dịp (ví dụ Tết) chỉ áp dụng trong thời gian đó – nói thật nếu đã hết." },
         { de: "Kann jemand erst ein paar Tage nach der Frist zahlen und meldet sich vorher: Frühbucherpreis nach Rücksprache halten.", vi: "Khách báo trước là chỉ đóng được trễ vài ngày: hỏi quản lý để giữ ưu đãi đăng ký sớm." }

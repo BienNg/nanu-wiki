@@ -6,6 +6,7 @@ import { HANDBOOK_GROUPS_BY_AREA, PAGES_BY_AREA } from "./pages";
 import { ONBOARDING_BY_AREA } from "./onboarding";
 import { DAILY_TASKS_BY_AREA } from "./daily";
 import { weekday } from "@/lib/days";
+import { headingId, parseLinks } from "@/lib/links";
 
 // Everything people read lives in this folder. The database only stores who did what
 // (checklist_progress, quiz_attempts, chat_responses) next to profiles and roles.
@@ -22,6 +23,44 @@ export const PAGES: PageWithMeta[] = AREAS.flatMap((area) =>
     area: { slug: area.slug, name_de: area.name_de, name_vi: area.name_vi, color: area.color, icon: area.icon },
   })),
 );
+
+/** Content links (`[text](area/page#section)`) whose page or section doesn't exist, and headings on one page that share an id. */
+export function brokenLinks(): string[] {
+  const ids = new Map(PAGES.map((p) => [p.id, p.body.flatMap((b) => (b.type === "heading" ? [headingId(b)] : []))]));
+  const problems: string[] = [];
+  for (const [id, headings] of ids) {
+    const twice = headings.filter((h, i) => headings.indexOf(h) !== i);
+    if (twice.length) problems.push(`${id}: Überschriften mit gleicher id: ${twice.join(", ")}`);
+  }
+  const check = (where: string, text: string) => {
+    for (const part of parseLinks(text)) {
+      if (typeof part === "string") continue;
+      const target = part.page ? `${part.area}/${part.page}` : where;
+      const headings = ids.get(target);
+      if (!headings) problems.push(`${where}: Seite „${target}“ gibt es nicht ([${part.text}])`);
+      else if (part.anchor && !headings.includes(part.anchor)) problems.push(`${where}: Abschnitt „${target}#${part.anchor}“ gibt es nicht ([${part.text}])`);
+    }
+  };
+  const walk = (where: string, v: unknown, key?: string): void => {
+    if (typeof v === "string") {
+      if (key !== "text") check(where, v); // template text is copied as-is, never linked
+    } else if (Array.isArray(v)) v.forEach((x) => walk(where, x));
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(where, x, k);
+  };
+  for (const p of PAGES) walk(p.id, p.body);
+  return problems;
+}
+
+// Broken links fail the build, and show in the dev server log while editing. At runtime they just
+// lead to the page without the section, so production never throws here.
+if (process.env.NEXT_PHASE === "phase-production-build" || process.env.NODE_ENV === "development") {
+  const problems = brokenLinks();
+  if (problems.length) {
+    const message = `Kaputte Links im Handbuch:\n- ${problems.join("\n- ")}`;
+    if (process.env.NEXT_PHASE === "phase-production-build") throw new Error(message);
+    console.error(message);
+  }
+}
 
 export function getArea(slug: string | null | undefined): Area | undefined {
   return AREAS.find((a) => a.slug === slug);

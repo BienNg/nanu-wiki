@@ -196,6 +196,16 @@ html.lang-vi .vs::before { content: none; }
   .comment-pulse { animation: none; }
 }
 
+/* A content link opened this section (see DocLink): it lights up light blue and fades out.
+   The shadow spreads each block's tint over half the gap to its neighbours, so the section reads as one area. */
+.section-flash { animation: section-flash 1.8s ease-out; }
+.section-flash-first { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.section-flash-last { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+@keyframes section-flash {
+  0%, 25% { background: rgba(44, 110, 203, 0.1); box-shadow: 0 0 0 10px rgba(44, 110, 203, 0.1); }
+  100% { background: rgba(44, 110, 203, 0); box-shadow: 0 0 0 10px rgba(44, 110, 203, 0); }
+}
+
 /* ---------- Side pane (area page with ?seite=, see PaneFrame) ---------- */
 /* Opening: the pane glides in from the right edge. Switching pages: the new page fades in place. */
 .pane-in { animation: pane-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }

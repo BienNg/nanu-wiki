@@ -38,14 +38,14 @@ const page: PageContent = {
         {
           de: "Daten zurückbestätigen",
           vi: "Xác nhận lại thông tin",
-          body_de: "Name, E-Mail, Telefonnummer, Klasse (Code, Niveau, Uhrzeit), gezahlter Betrag (ganzer oder halber Kurs). So fallen Tippfehler in der E-Mail sofort auf – sonst klappt später der App-Login nicht. Für die Rechnung zusätzlich Adresse und die Nummer des Personalausweises (CCCD) erfragen – siehe „Vormerken, Zahlung & Rechnung“.",
-          body_vi: "Tên, email, số điện thoại, lớp (mã lớp, trình độ, giờ học), số tiền đã đóng (cả khoá hay nửa khoá). Như vậy sai sót trong email lộ ra ngay – nếu không, sau này sẽ không đăng nhập được app. Để xuất hoá đơn, xin thêm địa chỉ và số CCCD – xem trang „Ghi danh trước, đóng học phí & hoá đơn“."
+          body_de: "Name, E-Mail, Telefonnummer, Klasse (Code, Niveau, Uhrzeit), gezahlter Betrag (ganzer oder halber Kurs). So fallen Tippfehler in der E-Mail sofort auf – sonst klappt später der App-Login nicht. Für die Rechnung zusätzlich Adresse und die Nummer des Personalausweises (CCCD) erfragen – siehe „[Vormerken, Zahlung & Rechnung](student-support/anmeldung-und-zahlung)“.",
+          body_vi: "Tên, email, số điện thoại, lớp (mã lớp, trình độ, giờ học), số tiền đã đóng (cả khoá hay nửa khoá). Như vậy sai sót trong email lộ ra ngay – nếu không, sau này sẽ không đăng nhập được app. Để xuất hoá đơn, xin thêm địa chỉ và số CCCD – xem trang „[Ghi danh trước, đóng học phí & hoá đơn](student-support/anmeldung-und-zahlung)“."
         },
         {
           de: "Kanal festlegen",
           vi: "Chốt kênh liên lạc",
-          body_de: "Fragen, wo die Person erreichbar ist: Zalo, WhatsApp oder Messenger. Nicht alle nutzen Zalo – siehe „Ein Kanal pro Teilnehmende“.",
-          body_vi: "Hỏi học viên liên lạc qua đâu tiện nhất: Zalo, WhatsApp hay Messenger. Không phải ai cũng dùng Zalo – xem trang „Mỗi học viên một kênh“."
+          body_de: "Fragen, wo die Person erreichbar ist: Zalo, WhatsApp oder Messenger. Nicht alle nutzen Zalo – siehe „[Ein Kanal pro Teilnehmende](student-support/kanaele)“.",
+          body_vi: "Hỏi học viên liên lạc qua đâu tiện nhất: Zalo, WhatsApp hay Messenger. Không phải ai cũng dùng Zalo – xem trang „[Mỗi học viên một kênh](student-support/kanaele)“."
         },
         {
           de: "Onboarding-E-Mail mit Material",

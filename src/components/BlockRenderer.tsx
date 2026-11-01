@@ -10,15 +10,7 @@ import { ConversationTabs } from "./ConversationTabs";
 import { ChannelMockups } from "./ChannelMockups";
 import { McqCards } from "./McqCards";
 import { blockKey } from "@/lib/comments";
-
-export function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
+import { headingId } from "@/lib/links";
 
 const CALLOUT = {
   info: { box: "bg-[#EEF4FB] text-[#21476E]", icon: "#2C6ECB", de: "Hinweis", vi: "Lưu ý" },
@@ -44,7 +36,7 @@ function renderBlock(b: Block, i: number, chat?: { pageId: string; done: string[
   switch (b.type) {
     case "heading":
       return (
-        <h2 key={i} id={slugify(b.de)} data-reveal className="font-display mt-3 scroll-mt-6 text-2xl font-bold leading-tight tracking-tight text-heading">
+        <h2 key={i} id={headingId(b)} data-reveal className="font-display mt-3 scroll-mt-6 text-2xl font-bold leading-tight tracking-tight text-heading">
           <Bi de={b.de} vi={b.vi} />
         </h2>
       );

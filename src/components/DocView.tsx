@@ -8,7 +8,8 @@ import { Reveal } from "./Reveal";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
 import { KindBadge, VerifiedPill } from "./Badges";
-import { BlockRenderer, slugify } from "./BlockRenderer";
+import { BlockRenderer } from "./BlockRenderer";
+import { SectionArrival } from "./DocLink";
 import { DocToc } from "./DocToc";
 import { ChatResponses } from "./ChatResponses";
 import { McqResponses } from "./McqResponses";
@@ -18,6 +19,7 @@ import { PaneClose } from "./DocPane";
 import type { CommentAnchor, PageWithMeta, Profile } from "@/lib/types";
 import { resolveAnchor } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
+import { headingId, toPlain } from "@/lib/links";
 
 /**
  * One handbook page: the full page at /bereich/<area>/<page>, or (`pane`) the inside of the side pane
@@ -75,10 +77,10 @@ export async function DocView({
     });
   }
   const openComments = comments.filter((c) => c.status !== "resolved").length;
-  const headings = (page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string }[]).map((h) => ({
-    id: slugify(h.de),
-    de: h.de,
-    vi: h.vi,
+  const headings = (page.body.filter((b) => b.type === "heading") as { type: "heading"; de: string; vi: string; anchor?: string }[]).map((h) => ({
+    id: headingId(h),
+    de: toPlain(h.de),
+    vi: toPlain(h.vi),
   }));
   const tint = `${page.area.color}22`;
   const toggle = canComment ? <CommentToggle open={openComments} /> : undefined;
@@ -107,6 +109,7 @@ export async function DocView({
       ) : (
         <BlockRenderer blocks={page.body} chat={{ pageId: page.id, done }} />
       )}
+      <SectionArrival />
       {canEdit && hasMcq && <McqResponses pageId={page.id} blocks={page.body} />}
       {canEdit && hasChat && <ChatResponses pageId={page.id} blocks={page.body} />}
     </>

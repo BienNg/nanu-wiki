@@ -27,15 +27,15 @@ const page: PageContent = {
         {
           de: "Neue Teilnehmende betreuen",
           vi: "Chăm sóc học viên sau khi đăng ký",
-          body_de: "Begrüße die Person und hilf ihr in die Klassengruppe, in Zoom, Classroom und NaNu Go. Prüfe, ob sie Material, Stundenplan und Regeln bekommen hat. Frag nach der ersten und nach der zweiten Stunde, wie es läuft. Wenn sie den Termin wechseln oder pausieren will, klärst du das nach unseren Regeln. Achte darauf, ob jemand unzufrieden wirkt. Technische Probleme (Zoom, Jotform, Drive voll) meldest du sofort im Team.\nJeden Tag: Allen Teilnehmenden antworten – wie genau, steht weiter unten.\nMontags: In jeder Klassengruppe daran erinnern, was die Teilnehmenden bei uns haben: Drive mit Büchern A1–B2, Classroom, NaNu Go und das Handbuch.",
-          body_vi: "Chào mừng, hướng dẫn vào nhóm lớp, Zoom, Classroom và NaNu Go; kiểm tra học viên đã nhận đủ tài liệu, lịch học và nội quy; hỏi thăm sau buổi 1 và buổi 2; hỗ trợ đổi lịch, bảo lưu theo quy định; để ý học viên có dấu hiệu không hài lòng. Lỗi kỹ thuật (Zoom, Jotform, Drive đầy) báo nội bộ ngay.\nMỗi ngày: trả lời mọi học viên – cách làm xem bên dưới.\nThứ Hai: nhắn vào từng nhóm lớp nhắc học viên trung tâm có những gì: Drive sách A1–B2, Classroom, NaNu Go, Handbuch.",
+          body_de: "Begrüße die Person und hilf ihr in die Klassengruppe, in Zoom, Classroom und NaNu Go. Prüfe, ob sie Material, Stundenplan und Regeln bekommen hat. Frag nach der ersten und nach der zweiten Stunde, wie es läuft. Wenn sie den Termin wechseln oder pausieren will, klärst du das nach unseren Regeln. Achte darauf, ob jemand unzufrieden wirkt. Technische Probleme (Zoom, Jotform, Drive voll) meldest du sofort im Team.\nJeden Tag: Allen Teilnehmenden antworten – wie genau, steht [weiter unten](#allen-antworten).\nMontags: In jeder Klassengruppe daran erinnern, was die Teilnehmenden bei uns haben: Drive mit Büchern A1–B2, Classroom, NaNu Go und das Handbuch.",
+          body_vi: "Chào mừng, hướng dẫn vào nhóm lớp, Zoom, Classroom và NaNu Go; kiểm tra học viên đã nhận đủ tài liệu, lịch học và nội quy; hỏi thăm sau buổi 1 và buổi 2; hỗ trợ đổi lịch, bảo lưu theo quy định; để ý học viên có dấu hiệu không hài lòng. Lỗi kỹ thuật (Zoom, Jotform, Drive đầy) báo nội bộ ngay.\nMỗi ngày: trả lời mọi học viên – cách làm xem [bên dưới](#allen-antworten).\nThứ Hai: nhắn vào từng nhóm lớp nhắc học viên trung tâm có những gì: Drive sách A1–B2, Classroom, NaNu Go, Handbuch.",
           when: [{ de: "Täglich", vi: "Hằng ngày" }, { de: "Montag", vi: "Thứ Hai" }]
         },
         {
           de: "Lehrkräfte erinnern und begleiten",
           vi: "Nhắc nhở và theo dõi giáo viên",
-          body_de: "Die Lehrkräfte sollen pünktlich anfangen und die volle Zeit unterrichten. Sie tragen Anwesenheit und Fortschritt ein und schicken Unterrichtsdatei und Hausaufgabe in die Gruppe. Sie füllen das Feedback zu den Teilnehmenden rechtzeitig aus und machen in den ersten zwei Stunden ein Klassenfoto. Mehr dazu auf der Seite „Lehrkräfte begleiten“.\nJeden Tag: Die Lehrkräfte an diese Punkte erinnern.\nMontags: Den Lehrkräften sagen, was in der neuen Woche ansteht.\nMittwochs: Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.",
-          body_vi: "Đúng giờ, dạy đủ thời lượng, cập nhật điểm danh và tiến độ, gửi bài giảng và bài tập vào nhóm, điền nhận xét học viên đúng hạn, chụp ảnh lớp trong hai buổi đầu. Xem trang „Theo dõi giáo viên“.\nMỗi ngày: nhắc giáo viên những việc này.\nThứ Hai: nhắc giáo viên về tuần mới.\nThứ Tư: kiểm tra giáo viên đã điền nhận xét chưa.",
+          body_de: "Die Lehrkräfte sollen pünktlich anfangen und die volle Zeit unterrichten. Sie tragen Anwesenheit und Fortschritt ein und schicken Unterrichtsdatei und Hausaufgabe in die Gruppe. Sie füllen das Feedback zu den Teilnehmenden rechtzeitig aus und machen in den ersten zwei Stunden ein Klassenfoto. Mehr dazu auf der Seite „[Lehrkräfte begleiten](student-support/lehrkraefte-begleiten)“.\nJeden Tag: Die Lehrkräfte an diese Punkte erinnern.\nMontags: Den Lehrkräften sagen, was in der neuen Woche ansteht.\nMittwochs: Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.",
+          body_vi: "Đúng giờ, dạy đủ thời lượng, cập nhật điểm danh và tiến độ, gửi bài giảng và bài tập vào nhóm, điền nhận xét học viên đúng hạn, chụp ảnh lớp trong hai buổi đầu. Xem trang „[Theo dõi giáo viên](student-support/lehrkraefte-begleiten)“.\nMỗi ngày: nhắc giáo viên những việc này.\nThứ Hai: nhắc giáo viên về tuần mới.\nThứ Tư: kiểm tra giáo viên đã điền nhận xét chưa.",
           when: [{ de: "Täglich", vi: "Hằng ngày" }, { de: "Montag", vi: "Thứ Hai" }, { de: "Mittwoch", vi: "Thứ Tư" }]
         },
         {
@@ -68,15 +68,15 @@ const page: PageContent = {
         }
       ]
     },
-    { type: "heading", de: "Jeden Tag: allen Teilnehmenden antworten", vi: "Mỗi ngày: trả lời mọi học viên" },
+    { type: "heading", de: "Jeden Tag: allen Teilnehmenden antworten", vi: "Mỗi ngày: trả lời mọi học viên", anchor: "allen-antworten" },
     {
       type: "steps",
       items: [
         {
           de: "Alle Kanäle durchgehen",
           vi: "Kiểm tra hết các kênh",
-          body_de: "Lies die Klassengruppen und die Einzelchats in Zalo, WhatsApp und Messenger. Montags beantwortest du zuerst die Nachrichten vom Wochenende. Mehr dazu auf der Seite „Ein Kanal pro Teilnehmende“.",
-          body_vi: "Nhóm lớp và tin nhắn riêng trên Zalo, WhatsApp và Messenger. Thứ Hai thì trả lời tin nhắn cuối tuần trước tiên. Xem trang „Mỗi học viên một kênh“."
+          body_de: "Lies die Klassengruppen und die Einzelchats in Zalo, WhatsApp und Messenger. Montags beantwortest du zuerst die Nachrichten vom Wochenende. Mehr dazu auf der Seite „[Ein Kanal pro Teilnehmende](student-support/kanaele)“.",
+          body_vi: "Nhóm lớp và tin nhắn riêng trên Zalo, WhatsApp và Messenger. Thứ Hai thì trả lời tin nhắn cuối tuần trước tiên. Xem trang „[Mỗi học viên một kênh](student-support/kanaele)“."
         },
         {
           de: "Am selben Tag antworten – im selben Kanal",

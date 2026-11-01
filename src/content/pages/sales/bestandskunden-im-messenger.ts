@@ -21,7 +21,7 @@ const page: PageContent = {
         { de: "„Schickt mir bitte das Video und die Hausaufgabe von gestern.“", vi: "„Cho em xin video bài giảng và bài tập hôm qua.“" },
         { de: "„Auf WhatsApp/Zalo antwortet niemand.“", vi: "„Em nhắn WhatsApp/Zalo mà không ai trả lời.“" },
         { de: "„Das Buch ist noch nicht angekommen.“ / „Kann ich das A2-Material schon haben?“", vi: "„Chưa thấy gửi sách.“ / „Cho em xin tài liệu A2 trước được không?“" },
-        { de: "„Ich komme nicht in die App / in Classroom.“ – siehe FAQ App.", vi: "„Em không vào được app / Classroom.“ – xem FAQ App." },
+        { de: "„Ich komme nicht in die App / in Classroom.“ – siehe [FAQ App](sales/faq-app).", vi: "„Em không vào được app / Classroom.“ – xem [FAQ App](sales/faq-app)." },
         { de: "Prüfungstag: Wann muss ich da sein, wie lange dauert es, was, wenn ich durchfalle?", vi: "Ngày thi: mấy giờ có mặt, thi bao lâu, nếu trượt thì sao?" },
         { de: "„Ich bin im Büro – wo seid ihr?“ (Termin vor Ort)", vi: "„Em tới văn phòng rồi – mọi người đâu ạ?“ (hẹn trực tiếp)" }
       ]

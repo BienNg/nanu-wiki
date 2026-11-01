@@ -19,7 +19,7 @@ const page: PageContent = {
       type: "list",
       items: [
         { de: "Unterrichtsdatei und Hausaufgabe der letzten Stunde", vi: "File bài giảng và bài tập của buổi trước" },
-        { de: "Eine Aufzeichnung der Stunde – gibt es nicht (siehe unten)", vi: "Video quay lại buổi học – trung tâm không có (xem bên dưới)" },
+        { de: "Eine Aufzeichnung der Stunde – gibt es nicht (siehe [unten](#so-antwortest-du))", vi: "Video quay lại buổi học – trung tâm không có (xem [bên dưới](#so-antwortest-du))" },
         { de: "Die Unterrichtsdatei fehlt noch in der Gruppe", vi: "File bài giảng chưa có trong nhóm" },
         { de: "Welche Datei aus der Mail gedruckt werden soll", vi: "File nào trong mail là file cần in" },
         { de: "Material der nächsten Stufe, bevor der Kurs zu Ende ist", vi: "Tài liệu trình độ tiếp theo khi khoá hiện tại chưa kết thúc" },
@@ -33,7 +33,7 @@ const page: PageContent = {
       de: "Immer die neueste Version aus Google Drive schicken. Nie eine Datei, die du dir einmal heruntergeladen hast: Drive wird ständig geändert, kleine Änderungen werden nicht angekündigt. Mit einer alten Datei schickst du schnell falsche Infos.",
       vi: "Luôn lấy bản mới nhất trên Google Drive mỗi lần gửi. Tuyệt đối không dùng file đã tải về máy từ trước: Drive được cập nhật liên tục, các thay đổi nhỏ không được thông báo riêng. Dùng file cũ rất dễ gửi thông tin sai cho học viên."
     },
-    { type: "heading", de: "So antwortest du", vi: "Cách trả lời" },
+    { type: "heading", de: "So antwortest du", vi: "Cách trả lời", anchor: "so-antwortest-du" },
     {
       type: "list",
       items: [
@@ -62,8 +62,8 @@ const page: PageContent = {
           vi: "Học viên online nhận sách giáo khoa dạng PDF. Sách Handbuch in thì gửi về nhà nếu thuộc ưu đãi – báo tình trạng gửi hàng."
         },
         {
-          de: "Material der nächsten Stufe erst kurz vor Kursende schicken – zusammen mit der Info zum Folgekurs (siehe „Nächster Kurs & Treue“).",
-          vi: "Tài liệu trình độ tiếp theo chỉ gửi khi gần hết khoá – kèm thông tin về khoá tiếp theo (xem „Khoá tiếp theo & giữ chân học viên“)."
+          de: "Material der nächsten Stufe erst kurz vor Kursende schicken – zusammen mit der Info zum Folgekurs (siehe „[Nächster Kurs & Treue](student-support/naechster-kurs-und-treue)“).",
+          vi: "Tài liệu trình độ tiếp theo chỉ gửi khi gần hết khoá – kèm thông tin về khoá tiếp theo (xem „[Khoá tiếp theo & giữ chân học viên](student-support/naechster-kurs-und-treue)“)."
         },
         {
           de: "Verpasste Stunde: Unterrichtsdatei schicken und auf die Trợ-giảng-Stunde hinweisen. Wer später in eine laufende Klasse einsteigt, bekommt 1-zu-1-Nachholstunden, bis er aufgeholt hat.",

@@ -1,5 +1,6 @@
 import type { Block, CommentAnchor, CommentStatus, CommentTag } from "@/lib/types";
 import { locate, similarity, strip, trustworthy, type QuoteMatch } from "@/lib/anchorMatch";
+import { toPlain } from "@/lib/links";
 
 /** The key a comment uses to point at a block: the block's own `id`, or a short hash of its content.
  *  Editing a block without an `id` changes the key; its comments then show as "Stelle geändert". */
@@ -41,7 +42,7 @@ export function blockText(b: Block): string {
   const out: string[] = [];
   const walk = (v: unknown, key?: string) => {
     if (typeof v === "string") {
-      if (!key || !NOT_TEXT.has(key)) out.push(v);
+      if (!key || !NOT_TEXT.has(key)) out.push(toPlain(v));
     } else if (Array.isArray(v)) v.forEach((x) => walk(x));
     else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k);
   };

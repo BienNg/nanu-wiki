@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { Area } from "@/lib/types";
 import { Icon } from "./Icon";
 import { SearchOverlay } from "./SearchOverlay";
+import { ScrollMemory } from "./DocLink";
 
 const WIDTH_KEY = "nanu.sidebar.width";
 const COLLAPSED_KEY = "nanu.sidebar.collapsed";
@@ -223,6 +224,7 @@ export function AppShell({
 
   return (
     <ShellContext.Provider value={shell}>
+      <ScrollMemory />
       <div className="flex min-h-dvh items-start bg-white">
         {drawerOpen && (
           <button
