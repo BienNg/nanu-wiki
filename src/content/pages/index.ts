@@ -1,6 +1,7 @@
 import type { HandbookGroup, PageContent } from "@/lib/types";
 import fuerAlleAllgemeineRegeln from "./fuer-alle/allgemeine-regeln";
 import fuerAlleGeschichteUndWerte from "./fuer-alle/geschichte-und-werte";
+import fuerAlleGoogleDriveOffline from "./fuer-alle/google-drive-offline";
 import fuerAlleKurseUndLeistungen from "./fuer-alle/kurse-und-leistungen";
 import fuerAllePreiseUndPositionierung from "./fuer-alle/preise-und-positionierung";
 import fuerAlleStandorteUndTeam from "./fuer-alle/standorte-und-team";
@@ -44,7 +45,7 @@ import visaVisumStudium from "./visa/visum-studium";
 
 /** Pages per area slug. To add a page: create a file in the area's folder and list it here. */
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
-  "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools, fuerAlleUmHilfeBitten],
+  "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleGoogleDriveOffline, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools, fuerAlleUmHilfeBitten],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
   sales: [salesAktionOktober2026, salesAnmeldungUndZahlung, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
   "student-support": [studentSupportAufgabenUndRhythmus, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],
