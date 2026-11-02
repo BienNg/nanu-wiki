@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-02",
   body: [
     {
       type: "paragraph",
@@ -27,7 +27,7 @@ const page: PageContent = {
       type: "list",
       items: [
         { de: "Mindestens 18 Jahre und mindestens B1 in allen vier Fertigkeiten. Drei Fertigkeiten reichen nicht – erst nach dem vierten Ergebnis weiter.", vi: "Từ 18 tuổi và có tối thiểu B1 đủ 4 kỹ năng. 3 kỹ năng là chưa đủ – chờ có điểm kỹ năng thứ 4 rồi mới tiếp tục." },
-        { de: "Pflege und Zahnmedizinische Fachangestellte: mindestens B2. Hotel: zusätzlich gutes Englisch.", vi: "Điều dưỡng và trợ lý nha khoa: tối thiểu B2. Khách sạn: cần thêm tiếng Anh tốt." },
+        { de: "Gesundheitswesen (Pflegehelfer, ZFA, MFA): mindestens B2. Hotel: zusätzlich gutes Englisch.", vi: "Ngành y tế (Pflegehelfer, ZFA, MFA – điều dưỡng, trợ lý nha khoa, trợ lý y tế): tối thiểu B2. Khách sạn: cần thêm tiếng Anh tốt." },
         { de: "Ein B1-Zertifikat gilt für das Visum nur 12 Monate. Deshalb früh starten.", vi: "Bằng B1 chỉ có hiệu lực 12 tháng để xin visa. Vì vậy nên bắt đầu sớm." },
         { de: "Auch Bewerber, die nicht bei uns gelernt haben, nehmen wir an – aber nur nach einem Sprachtest bei der Leitung.", vi: "Trung tâm nhận cả hồ sơ của các bạn không học tại trung tâm – nhưng phải test tiếng với quản lý trước." },
         { de: "Alter oder älterer Abschluss (z. B. 38 Jahre): ehrlich sagen, dass wir den Einzelfall nach den Unterlagen prüfen – nichts versprechen.", vi: "Lớn tuổi hoặc tốt nghiệp đã lâu (ví dụ 38 tuổi): nói thật là trung tâm cần xem hồ sơ cụ thể – không hứa trước." }
@@ -107,7 +107,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Welche Angaben erfragst du zuerst bei einer Ausbildungsanfrage?",
@@ -134,8 +134,8 @@ const page: PageContent = {
         correct: 3
       },
       {
-        question_de: "Welches Niveau braucht man für Pflege?",
-        question_vi: "Ngành điều dưỡng cần trình độ nào?",
+        question_de: "Welches Niveau braucht man im Gesundheitswesen (Pflegehelfer, ZFA, MFA)?",
+        question_vi: "Ngành y tế (Pflegehelfer, ZFA, MFA) cần trình độ nào?",
         section: "voraussetzungen",
         options: [
           { de: "A2", vi: "A2" },

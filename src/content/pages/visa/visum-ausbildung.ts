@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-02",
   body: [
     {
       type: "callout",
@@ -15,12 +15,30 @@ const page: PageContent = {
       de: "Entwurf: Unterlagenliste und Botschaftsablauf folgen.",
       vi: "Bản nháp: danh sách hồ sơ và quy trình tại Đại sứ quán sẽ được bổ sung."
     },
+    { type: "heading", de: "Unsere Ausbildungsbereiche", vi: "Các ngành nghề của chúng ta", anchor: "ausbildungsbereiche" },
+    {
+      type: "paragraph",
+      de: "Das Ausbildungsprogramm von NaNu NaNa hat zurzeit 6 Bereiche:",
+      vi: "Chương trình du học nghề hiện tại của NaNu NaNa có 6 ngành nghề:"
+    },
+    {
+      type: "list",
+      ordered: true,
+      items: [
+        { de: "Verkauf (Bäckerei, Metzgerei, Metzger): Verkauf in der Bäckerei oder Metzgerei, Fleischverarbeitung", vi: "Verkauf (Bäckerei, Metzgerei, Metzger): Ngành bán hàng (bán hàng ở tiệm bánh/tiệm thịt, nhân viên chế biến thịt)" },
+        { de: "Bäcker: Brot und Backwaren herstellen", vi: "Bäcker: Thợ làm bánh" },
+        { de: "Baubereich (Maurer, Fliesenleger, Gärtner): Bau und Garten", vi: "Baubereich (Maurer, Fliesenleger, Gärtner): Lĩnh vực xây dựng (thợ xây, thợ lát gạch, thợ làm vườn)" },
+        { de: "Gastronomie (Hotelfachkraft, Restaurantfachkraft, Koch): Hotel, Restaurant und Küche", vi: "Gastronomie (Hotelfachkraft, Restaurantfachkraft, Koch): Ngành dịch vụ ăn uống/nhà hàng – khách sạn (nhân viên khách sạn, nhân viên nhà hàng, đầu bếp)" },
+        { de: "Gesundheitswesen (Pflegehelfer, ZFA, MFA): Pflege, Zahnarztpraxis und Arztpraxis – hier ist Deutsch B2 Pflicht", vi: "Gesundheitswesen (Pflegehelfer, ZFA, MFA): Ngành y tế/chăm sóc sức khỏe (điều dưỡng, trợ lý nha khoa, trợ lý điều dưỡng, trợ lý y tế) – YÊU CẦU TIẾNG ĐỨC B2" },
+        { de: "Einzelhandel: Verkauf im Einzelhandel, z. B. Elektro- und Haushaltsgeschäfte", vi: "Einzelhandel: Ngành bán lẻ/bán hàng (cửa hàng điện gia dụng, cửa hàng bán lẻ…)" }
+      ]
+    },
     { type: "heading", de: "Voraussetzungen", vi: "Điều kiện" },
     {
       type: "list",
       items: [
         { de: "Unterschriebener Ausbildungsvertrag mit einem deutschen Betrieb", vi: "Hợp đồng học nghề đã ký với doanh nghiệp Đức" },
-        { de: "Deutsch mindestens B1 in allen vier Fertigkeiten (Pflege und Zahnmedizin: B2)", vi: "Tiếng Đức tối thiểu B1 đủ 4 kỹ năng (điều dưỡng và nha khoa: B2)" },
+        { de: "Deutsch mindestens B1 in allen vier Fertigkeiten (Gesundheitswesen – Pflegehelfer, ZFA, MFA: B2)", vi: "Tiếng Đức tối thiểu B1 đủ 4 kỹ năng (ngành y tế – Pflegehelfer, ZFA, MFA: B2)" },
         { de: "Mindestens 18 Jahre", vi: "Từ 18 tuổi trở lên" },
         { de: "[ERGÄNZEN: Anerkennung des Schulabschlusses, Finanzierung, Versicherung]", vi: "[ERGÄNZEN: công nhận bằng cấp, tài chính, bảo hiểm]" }
       ]
@@ -53,11 +71,47 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
-        question_de: "Welches Deutschniveau braucht man für das Ausbildungsvisum (außer Pflege und Zahnmedizin)?",
-        question_vi: "Cần trình độ tiếng Đức nào cho visa du học nghề (trừ điều dưỡng và nha khoa)?",
+        question_de: "Wie viele Ausbildungsbereiche hat das Programm von NaNu NaNa zurzeit?",
+        question_vi: "Chương trình du học nghề của NaNu NaNa hiện có bao nhiêu ngành nghề?",
+        section: "ausbildungsbereiche",
+        options: [
+          { de: "3", vi: "3" },
+          { de: "6", vi: "6" },
+          { de: "10", vi: "10" },
+          { de: "Jeder Beruf ist möglich", vi: "Ngành nào cũng được" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "In welchem Bereich ist Deutsch B2 Pflicht?",
+        question_vi: "Ngành nào bắt buộc tiếng Đức B2?",
+        section: "ausbildungsbereiche",
+        options: [
+          { de: "Gastronomie (Hotel, Restaurant, Koch)", vi: "Gastronomie (khách sạn, nhà hàng, đầu bếp)" },
+          { de: "Baubereich (Maurer, Fliesenleger, Gärtner)", vi: "Baubereich (thợ xây, thợ lát gạch, thợ làm vườn)" },
+          { de: "Gesundheitswesen (Pflegehelfer, ZFA, MFA)", vi: "Gesundheitswesen (Pflegehelfer, ZFA, MFA)" },
+          { de: "Einzelhandel", vi: "Einzelhandel" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Ein Kunde will Gärtner werden. Zu welchem Bereich gehört das?",
+        question_vi: "Khách muốn làm thợ làm vườn (Gärtner). Ngành này thuộc lĩnh vực nào?",
+        section: "ausbildungsbereiche",
+        options: [
+          { de: "Gastronomie", vi: "Gastronomie" },
+          { de: "Baubereich", vi: "Baubereich" },
+          { de: "Einzelhandel", vi: "Einzelhandel" },
+          { de: "Verkauf", vi: "Verkauf" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Welches Deutschniveau braucht man für das Ausbildungsvisum (außer Gesundheitswesen)?",
+        question_vi: "Cần trình độ tiếng Đức nào cho visa du học nghề (trừ ngành y tế)?",
         section: "voraussetzungen",
         options: [
           { de: "Mindestens B1 in allen vier Fertigkeiten", vi: "Tối thiểu B1 cả bốn kỹ năng" },
