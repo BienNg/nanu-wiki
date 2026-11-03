@@ -29,7 +29,9 @@ profiles/roles and progress (`checklist_progress`, `quiz_attempts`, `chat_respon
 
 - **New page:** add `src/content/pages/<area>/<slug>.ts` (a `PageContent` with bilingual blocks) and list it in
   `src/content/pages/index.ts`. URL: `/bereich/<area>/<slug>`. Bump `updated_at` when you change a page.
-- **Onboarding & quiz:** `src/content/onboarding/<area>.ts`. Checklist item `id`s and quiz `id`s are what progress
+- **Onboarding & quiz:** `src/content/onboarding/<area>.ts`. Week 1 of every role opens with the „Für alle“ items in
+  `src/content/onboarding/fuer-alle.ts` (one per page, skipped where the role links that page itself); a role without its
+  own file still gets that week 1. New hires (first 4 weeks) land on the Onboarding tab until week 1 is done. Checklist item `id`s and quiz `id`s are what progress
   rows point at – keep them stable, otherwise people lose their ticks/attempts for that item.
 - **Comments** (`page_comments`) remember the block (`blockKey`: its optional `id`, else a hash of its content), the
   quoted words with a bit of text around them, and for a whole-block comment the block's text. After an edit,

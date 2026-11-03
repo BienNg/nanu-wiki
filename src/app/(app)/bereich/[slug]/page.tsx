@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditorAreas, hasRole, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, onboardingQuizPage, readablePages, visibleAreas, type AreaTab } from "@/content";
+import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, getPageById, onboardingQuizPage, readablePages, readingMinutes, visibleAreas, type AreaTab } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -17,7 +17,7 @@ import { DailyTasksPanel } from "@/components/DailyTasksPanel";
 import { vnToday, weekday, WEEKDAYS } from "@/lib/days";
 import { myQuizAttempts, myQuizStatuses, onboardingDone } from "@/lib/quizProgress";
 import { quizStatus, type QuizStatus } from "@/lib/pageQuiz";
-import type { PageWithMeta } from "@/lib/types";
+import type { PageWithMeta, Profile } from "@/lib/types";
 
 const TABS: { key: AreaTab; de: string; vi: string }[] = [
   { key: "daily", de: "Tägliche Aufgaben", vi: "Việc hằng ngày" },
@@ -42,7 +42,7 @@ export default async function AreaPage({
 
   const editorAreas = await getEditorAreas();
   const tabs = areaTabs(profile, area.slug);
-  const tab: AreaTab = tabs.includes(tabParam as AreaTab) ? (tabParam as AreaTab) : tabs[0];
+  const tab: AreaTab = tabs.includes(tabParam as AreaTab) ? (tabParam as AreaTab) : await defaultTab(profile, area.slug, tabs);
   const canEdit = canEditArea(profile, editorAreas, area.slug);
   const pages = readablePages(profile, editorAreas).filter((p) => p.area.slug === area.slug);
   // Quiz status per page, for staff and up (candidates don't take page quizzes).
@@ -132,6 +132,18 @@ export default async function AreaPage({
       {open && <DocView page={open} profile={profile} pane />}
     </PaneLayout>
   );
+}
+
+/** Without `?tab=`: new hires (first 4 weeks) open their own role on Onboarding until week 1 is done –
+ *  the daily tasks come after they know the basics. Everyone else gets the first tab. */
+async function defaultTab(profile: Profile, areaSlug: string, tabs: AreaTab[]): Promise<AreaTab> {
+  const isNew = Date.now() - new Date(profile.created_at).getTime() < 28 * 86_400_000;
+  const week1 = getOnboarding(areaSlug)[0];
+  if (isNew && week1 && tabs.includes("onboarding") && profile.primary_area === areaSlug) {
+    const done = await onboardingDone(profile.id, areaSlug);
+    if (!week1.items.every((i) => done.has(i.id))) return "onboarding";
+  }
+  return tabs[0];
 }
 
 async function InterviewTab({ pages, profileId, canEdit }: { pages: PageWithMeta[]; profileId: string; canEdit: boolean }) {
@@ -238,12 +250,14 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
         const [pageArea, pageSlug] = i.page?.split("/") ?? [];
         const full = i.page ? `/bereich/${i.page}` : null;
         const quizPage = onboardingQuizPage(i);
+        const page = i.page ? getPageById(i.page.split("#")[0]) : undefined;
         return {
           id: i.id,
           label_de: i.label_de,
           label_vi: i.label_vi,
           href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}` : full,
           fullHref: pageArea === areaSlug ? full : null,
+          minutes: page ? readingMinutes(page) : null,
           quiz: quizPage ? { href: `${quizPage.href}/quiz`, state: quizStatus(pageQuiz, quizPage.id, quizPage.quiz!.version).state } : null,
         };
       }),

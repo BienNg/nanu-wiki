@@ -17,8 +17,8 @@ export type WeekData = {
   quizId: string | null;
   quizPassed: boolean;
   bestScore: string | null;
-  // fullHref set → href opens the side pane. quiz set → ticked by passing that page's quiz, not by hand.
-  items: { id: string; label_de: string; label_vi: string; href: string | null; fullHref: string | null; quiz: { href: string; state: QuizState } | null }[];
+  // minutes = time for the linked page, quiz included. fullHref set → href opens the side pane. quiz set → ticked by passing that page's quiz, not by hand.
+  items: { id: string; label_de: string; label_vi: string; href: string | null; fullHref: string | null; minutes: number | null; quiz: { href: string; state: QuizState } | null }[];
 };
 
 /** Ticks changed in this tab (item → done): the list next to the side pane and the full list are two
@@ -40,6 +40,7 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
   const doneCount = weeks.reduce((n, w) => n + w.items.filter((i) => done.has(i.id)).length, 0);
   const pct = total ? Math.round((doneCount / total) * 100) : 0;
   const quizzesPassed = weeks.filter((w) => w.quizPassed).length;
+  const weekQuizzes = weeks.filter((w) => w.quizId).length;
 
   function toggle(itemId: string, value: boolean) {
     changed.set(itemId, value);
@@ -63,7 +64,7 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
         <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-2.5">
           <Stat value={doneCount} cls="bg-ok-soft text-ok" de="Erledigt" vi="Đã xong" />
           <Stat value={total - doneCount} cls="bg-[#EEEFF1] text-[#4A4F57]" de="Offen" vi="Còn lại" />
-          <Stat value={`${quizzesPassed}/${weeks.filter((w) => w.quizId).length}`} cls="bg-warn-soft text-[#7F5F05]" de="Quiz bestanden" vi="Quiz đã qua" />
+          {weekQuizzes > 0 && <Stat value={`${quizzesPassed}/${weekQuizzes}`} cls="bg-warn-soft text-[#7F5F05]" de="Quiz bestanden" vi="Quiz đã qua" />}
           <Stat value={`${pct} %`} cls="bg-[#E3EEF9] text-[#2D5F92]" de="Gesamt" vi="Tổng" />
         </div>
         <AnimatedBar value={pct} />
@@ -71,7 +72,7 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
 
       <div className="flex flex-col gap-2">
         <span className="cap">
-          <Label de={`Lernpfad · ${weeks.length} Wochen`} vi={`Lộ trình · ${weeks.length} tuần`} />
+          <Label de={`Lernpfad · ${weeks.length} ${weeks.length === 1 ? "Woche" : "Wochen"}`} vi={`Lộ trình · ${weeks.length} tuần`} />
         </span>
         {weeks.map((w) => {
           const wDone = w.items.filter((i) => done.has(i.id)).length;
@@ -116,6 +117,11 @@ export function OnboardingPanel({ weeks, initialDone, areaSlug }: { weeks: WeekD
                         <span className={checked ? "text-faint line-through" : "text-ink"}>
                           <Bi de={it.label_de} vi={it.label_vi} />
                         </span>
+                        {it.minutes && !checked && (
+                          <span className="text-xs text-muted">
+                            <Label de={`~${it.minutes} Min.`} vi={`~${it.minutes} phút`} />
+                          </span>
+                        )}
                         {it.quiz && !checked && (
                           <span className="flex flex-wrap items-center gap-2 text-xs text-muted">
                             <Icon name="spark" size={12} />

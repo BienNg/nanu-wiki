@@ -3,13 +3,8 @@ import type { OnboardingWeek } from "@/lib/types";
 /** Learning path of this role. Item `id`s are stored in checklist_progress – keep them stable when editing labels. */
 const weeks: OnboardingWeek[] = [
   {
+    // Week 1 opens with the „Für alle“ pages (onboarding/fuer-alle.ts), one item each.
     items: [
-      {
-        id: "sales.w1.seiten-fur-alle-lesen",
-        label_de: "Seiten „Für alle“ lesen",
-        label_vi: "Đọc các trang „Cho tất cả“",
-        page: "fuer-alle"
-      },
       {
         id: "sales.w1.zugange-slack-notion-zalo-oa-mes",
         label_de: "Zugänge: Slack, Notion, Zalo OA, Messenger",

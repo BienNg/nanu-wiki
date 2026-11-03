@@ -3,7 +3,7 @@ import { hasRole } from "@/lib/auth";
 import type { Area, DailyTask, HandbookGroup, OnboardingWeek, PageQuiz, PageWithMeta, Profile, QuizContent } from "@/lib/types";
 import { AREAS } from "./areas";
 import { HANDBOOK_GROUPS_BY_AREA, PAGES_BY_AREA } from "./pages";
-import { ONBOARDING_BY_AREA } from "./onboarding";
+import { onboardingFor } from "./onboarding";
 import { DAILY_TASKS_BY_AREA } from "./daily";
 import { weekday } from "@/lib/days";
 import { pageAnchors, parseLinks, parseTarget } from "@/lib/links";
@@ -110,8 +110,23 @@ export function getHandbookGroups(areaSlug: string): HandbookGroup[] {
   return HANDBOOK_GROUPS_BY_AREA[areaSlug] ?? [];
 }
 
+/** The learning path of a role (see onboardingFor). The shared „Für alle“ area has none of its own. */
 export function getOnboarding(areaSlug: string): OnboardingWeek[] {
-  return ONBOARDING_BY_AREA[areaSlug] ?? [];
+  return AREAS.some((a) => a.slug === areaSlug && !a.is_shared) ? onboardingFor(areaSlug) : [];
+}
+
+/** About how many minutes a page takes, quiz included: its German text and message templates at ~120 words
+ *  a minute (most people read it in their second language), plus a minute for the quiz. At least 1. */
+export function readingMinutes(page: PageWithMeta): number {
+  let words = 0;
+  const walk = (v: unknown, key = ""): void => {
+    if (typeof v === "string") {
+      if (key === "de" || key.endsWith("_de") || key === "text") words += v.split(/\s+/).filter(Boolean).length;
+    } else if (Array.isArray(v)) v.forEach((x) => walk(x));
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k);
+  };
+  walk(page.body);
+  return Math.max(1, Math.round(words / 120) + (page.quiz ? 1 : 0));
 }
 
 /** The page whose quiz ticks this onboarding item (instead of a manual tick), if its link points to one. */
