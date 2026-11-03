@@ -32,6 +32,7 @@ import salesVerkaufstrichter from "./sales/verkaufstrichter";
 import salesWebsitePostsUndWerbung from "./sales/website-posts-und-werbung";
 import salesAnmeldungUndZahlung from "./sales/anmeldung-und-zahlung";
 import studentSupportAufgabenUndRhythmus from "./student-support/aufgaben-und-rhythmus";
+import studentSupportKommentareBeantworten from "./student-support/kommentare-beantworten";
 import studentSupportKursPausieren from "./student-support/kurs-pausieren";
 import studentSupportLehrkraefteBegleiten from "./student-support/lehrkraefte-begleiten";
 import studentSupportMaterialUndHausaufgaben from "./student-support/material-und-hausaufgaben";
@@ -48,7 +49,7 @@ export const PAGES_BY_AREA: Record<string, PageContent[]> = {
   "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleGoogleDriveOffline, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools, fuerAlleUmHilfeBitten],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
   sales: [salesAktionOktober2026, salesAnmeldungUndZahlung, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
-  "student-support": [studentSupportAufgabenUndRhythmus, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],
+  "student-support": [studentSupportAufgabenUndRhythmus, studentSupportKommentareBeantworten, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
 
@@ -78,6 +79,7 @@ export const HANDBOOK_GROUPS_BY_AREA: Record<string, HandbookGroup[]> = {
       pages: [studentSupportNachDerZahlung, studentSupportTechnikHilfe, studentSupportProbestundenUndRueckerstattung],
     },
     { de: "Während des Kurses", vi: "Trong khoá học", pages: [studentSupportMaterialUndHausaufgaben, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten] },
+    { de: "Social Media", vi: "Mạng xã hội", pages: [studentSupportKommentareBeantworten] },
   ],
   visa: [
     { de: "Grundlagen", vi: "Nền tảng", pages: [visaUeberblick] },
