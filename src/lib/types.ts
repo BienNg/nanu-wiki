@@ -1,6 +1,6 @@
 import type { ClassList } from "@/lib/classes";
 
-export type AppRole = "pending" | "candidate" | "staff" | "editor" | "admin";
+export type AppRole = "pending" | "candidate" | "staff" | "admin";
 export type KnowledgeKind = "reference" | "process" | "decision" | "living";
 export type PageSection = "general" | "interview" | "onboarding" | "handbook";
 export type Lang = "both" | "de" | "vi";
@@ -156,7 +156,7 @@ export type PageContent = {
   body: Block[];
   verified_until: string | null;
   updated_at: string; // YYYY-MM-DD – bump when the content changes (sorts "Neuigkeiten")
-  published?: boolean; // false = draft, only editors of the area and admins see it
+  published?: boolean; // false = draft, only admins see it
   quiz?: PageQuiz;
 };
 

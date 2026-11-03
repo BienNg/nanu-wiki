@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
+import { getSession, hasRole } from "@/lib/auth";
 import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getPageQuiz, getQuiz, onboardingQuizPage, readablePages, requiredQuizPages, searchPages } from "@/content";
 import { PAGE_QUIZ_PREFIX, pageQuizId, quizStatus, type QuizAttemptRow } from "@/lib/pageQuiz";
 import { onboardingDone } from "@/lib/quizProgress";
@@ -136,7 +136,7 @@ export async function submitPageQuiz(pageId: string, version: number, answers: n
   if (!session || !hasRole(session.profile.role, "staff")) throw new Error("not allowed");
   const page = getPageById(pageId);
   const quiz = getPageQuiz(pageId);
-  if (!page || !quiz || !canReadPage(session.profile, await getEditorAreas(), page)) {
+  if (!page || !quiz || !canReadPage(session.profile, page)) {
     return { ok: false as const, message: "Quiz nicht gefunden · Không tìm thấy bài kiểm tra" };
   }
   if (version !== quiz.version) {
@@ -188,7 +188,7 @@ export async function submitChat(pageId: string, simId: string, turns: ChatTurn[
   const session = await getSession();
   if (!session) throw new Error("not signed in");
   const page = getPageById(pageId);
-  if (!page || !canReadPage(session.profile, await getEditorAreas(), page) || !page.body.some((b) => b.type === "chat" && b.id === simId)) {
+  if (!page || !canReadPage(session.profile, page) || !page.body.some((b) => b.type === "chat" && b.id === simId)) {
     return { ok: false as const, message: "Seite nicht gefunden · Không tìm thấy trang" };
   }
   const clean = turns.slice(0, 30).map((t) => ({
@@ -213,7 +213,7 @@ export async function submitMcq(pageId: string, mcqId: string, answers: number[]
   if (!session) throw new Error("not signed in");
   const page = getPageById(pageId);
   const block = page?.body.find((b) => b.type === "mcq" && b.id === mcqId);
-  if (!page || !block || block.type !== "mcq" || !canReadPage(session.profile, await getEditorAreas(), page)) {
+  if (!page || !block || block.type !== "mcq" || !canReadPage(session.profile, page)) {
     return { ok: false as const, message: "Seite nicht gefunden · Không tìm thấy trang" };
   }
   const quizId = `${pageId}#${mcqId}`;
@@ -239,7 +239,7 @@ export async function addComment(input: { pageId: string; anchor: CommentAnchor;
   const session = await getSession();
   if (!session || !hasRole(session.profile.role, "staff")) return { ok: false as const, message: "Nicht erlaubt · Không được phép" };
   const page = getPageById(input.pageId);
-  if (!page || !canReadPage(session.profile, await getEditorAreas(), page)) {
+  if (!page || !canReadPage(session.profile, page)) {
     return { ok: false as const, message: "Seite nicht gefunden · Không tìm thấy trang" };
   }
   const tag = tagInfo(input.tag) ? input.tag : null;
@@ -271,14 +271,14 @@ export async function addComment(input: { pageId: string; anchor: CommentAnchor;
     .single();
   if (error) return { ok: false as const, message: error.message };
 
-  await notifyEditors(page, `💬 ${who(session)}`, { anchor, tag, body, id: data.id }, session.profile.id);
+  await notifyAdmins(page, `💬 ${who(session)}`, { anchor, tag, body, id: data.id }, session.profile.id);
   revalidatePath("/admin/kommentare");
   revalidatePath(page.href);
   return { ok: true as const };
 }
 
-/** DMs the editors of the page's area (or the admins when the area has none). */
-async function notifyEditors(
+/** DMs every admin except the person who wrote the comment. */
+async function notifyAdmins(
   page: PageWithMeta,
   from: string,
   c: { anchor: CommentAnchor; tag: CommentTag | null; body: string; id: string },
@@ -286,13 +286,7 @@ async function notifyEditors(
 ) {
   // Service role only to look up who to tell; what is read is decided here, not by the user.
   const admin = createAdminClient();
-  const { data: editors } = await admin.from("area_editors").select("profiles(id, email, role)").eq("area", page.area.slug);
-  let people = (editors ?? []).flatMap((e) => (e.profiles ? [e.profiles as unknown as { id: string; email: string; role: AppRole }] : []));
-  people = people.filter((p) => p.role === "editor" || p.role === "admin");
-  if (people.length === 0) {
-    const { data: admins } = await admin.from("profiles").select("id, email, role").eq("role", "admin");
-    people = (admins ?? []) as typeof people;
-  }
+  const { data: admins } = await admin.from("profiles").select("id, email").eq("role", "admin");
   const t = tagInfo(c.tag);
   const lines = [
     `${from} hat „${page.title_de}“ kommentiert${t ? ` (${t.emoji} ${t.de})` : ""}:`,
@@ -300,20 +294,20 @@ async function notifyEditors(
     c.body ? c.body.slice(0, 500) : null,
     `${siteUrl(`${page.href}?c=${c.id}`)}  ·  Alle Kommentare: ${siteUrl(`/admin/kommentare?area=${page.area.slug}`)}`,
   ].filter(Boolean);
-  await Promise.all(people.filter((p) => p.id !== authorId && p.email).map((p) => dmByEmail(p.email, lines.join("\n"))));
+  await Promise.all((admins ?? []).filter((p) => p.id !== authorId && p.email).map((p) => dmByEmail(p.email, lines.join("\n"))));
 }
 
-/** Editors and admins move a comment along. On "resolved"/"declined" the author gets a thank-you DM. */
+/** Admins move a comment along. On "resolved"/"declined" the author gets a thank-you DM. */
 export async function setCommentStatus(id: string, status: CommentStatus, note?: string) {
   const session = await getSession();
-  if (!session || !hasRole(session.profile.role, "editor")) throw new Error("editors only");
+  if (!session || !hasRole(session.profile.role, "admin")) throw new Error("admins only");
   if (!COMMENT_STATUSES.some((s) => s.id === status)) throw new Error("unknown status");
   const supabase = await createClient();
   const { data: before } = await supabase.from("page_comments").select("status, page_id, anchor, author_id").eq("id", id).single();
   if (!before) return { ok: false as const, message: "Kommentar nicht gefunden · Không tìm thấy bình luận" };
 
   const resolution_note = note?.trim().slice(0, 2000) || null;
-  // RLS only lets editors of the comment's area (and admins) update; 0 rows means not allowed.
+  // RLS only lets admins update; 0 rows means not allowed.
   const { data: updated, error } = await supabase.from("page_comments").update({ status, resolution_note }).eq("id", id).select("id");
   if (error) return { ok: false as const, message: error.message };
   if (!updated?.length) return { ok: false as const, message: "Nicht erlaubt · Không được phép" };
@@ -374,20 +368,11 @@ export async function resetUserProgress(profileId: string) {
   return { ok: true as const };
 }
 
-export async function setAreaEditor(area: string, profileId: string, enabled: boolean) {
-  const session = await getSession();
-  if (!session || !hasRole(session.profile.role, "admin")) throw new Error("admins only");
-  const supabase = await createClient();
-  if (enabled) await supabase.from("area_editors").upsert({ area, profile_id: profileId });
-  else await supabase.from("area_editors").delete().eq("area", area).eq("profile_id", profileId);
-  revalidatePath("/admin/benutzer");
-}
-
 // ------------------------------------------------------------------ search
 /** Search overlay: published pages this user may read that match `q`, newest first. */
 export async function searchWiki(q: string, limit: number): Promise<PageWithMeta[]> {
   const session = await getSession();
   if (!session || !hasRole(session.profile.role, "staff")) return [];
-  const pages = readablePages(session.profile, await getEditorAreas()).filter((p) => p.published);
+  const pages = readablePages(session.profile).filter((p) => p.published);
   return searchPages(pages, q.slice(0, 80)).slice(0, limit);
 }

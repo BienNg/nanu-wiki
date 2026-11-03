@@ -26,7 +26,7 @@ export default async function QuizAdminPage({ searchParams }: { searchParams: Pr
   const supabase = await createClient();
   const [{ data: attemptData }, { data: staff }] = await Promise.all([
     supabase.from("quiz_attempts").select("quiz_id, profile_id, passed, created_at, score, total").like("quiz_id", `${PAGE_QUIZ_PREFIX}%`).order("created_at", { ascending: false }),
-    supabase.from("profiles").select("id, full_name, email, primary_area").in("role", ["staff", "editor", "admin"]),
+    supabase.from("profiles").select("id, full_name, email, primary_area").in("role", ["staff", "admin"]),
   ]);
   const attempts = (attemptData ?? []) as Attempt[];
   const all = (staff ?? []) as Person[];

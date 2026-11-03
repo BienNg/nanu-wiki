@@ -1,7 +1,7 @@
 import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEditorAreas, hasRole, requireRole } from "@/lib/auth";
+import { hasRole, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, getPageById, onboardingQuizPage, readablePages, readingMinutes, visibleAreas, type AreaTab } from "@/content";
 import { Topbar } from "@/components/Topbar";
@@ -40,11 +40,10 @@ export default async function AreaPage({
   const area = visibleAreas(profile).find((a) => a.slug === slug);
   if (!area) notFound();
 
-  const editorAreas = await getEditorAreas();
   const tabs = areaTabs(profile, area.slug);
   const tab: AreaTab = tabs.includes(tabParam as AreaTab) ? (tabParam as AreaTab) : await defaultTab(profile, area.slug, tabs);
-  const canEdit = canEditArea(profile, editorAreas, area.slug);
-  const pages = readablePages(profile, editorAreas).filter((p) => p.area.slug === area.slug);
+  const canEdit = canEditArea(profile);
+  const pages = readablePages(profile).filter((p) => p.area.slug === area.slug);
   // Quiz status per page, for staff and up (candidates don't take page quizzes).
   const quiz = hasRole(profile.role, "staff") ? await myQuizStatuses(profile.id, pages.filter((p) => p.section !== "interview")) : undefined;
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getEditorAreas, requireRole } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { AREAS, readablePages, searchPages } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
@@ -23,7 +23,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const roles = list(sp.role);
   const verifiedOnly = sp.verified === "1";
 
-  const all = searchPages(readablePages(profile, await getEditorAreas()).filter((p) => p.published), q);
+  const all = searchPages(readablePages(profile).filter((p) => p.published), q);
 
   const okType = (p: PageWithMeta) => !types.length || types.includes(p.kind);
   const okRole = (p: PageWithMeta) => !roles.length || roles.includes(p.area.slug);

@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { getEditorAreas, getSession, hasRole } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { AppShell } from "@/components/AppShell";
 import { NavigationLoader } from "@/components/NavigationLoader";
 import { Toaster } from "@/components/Toaster";
-import { AREAS, getOnboarding, visibleAreas } from "@/content";
+import { getOnboarding, visibleAreas } from "@/content";
 import { onboardingDone } from "@/lib/quizProgress";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -23,20 +23,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     onboardingPct = Math.round((done.size / itemIds.length) * 100);
   }
 
-  // Editors and admins: open comments waiting in their areas (sidebar badge).
+  // Admins: open comments waiting anywhere (sidebar badge).
   let openComments: number | null = null;
-  if (hasRole(session.profile.role, "editor")) {
-    const areas = session.profile.role === "admin" ? AREAS.map((a) => a.slug) : await getEditorAreas();
-    openComments = 0;
-    if (areas.length) {
-      const supabase = await createClient();
-      const { count } = await supabase
-        .from("page_comments")
-        .select("id", { count: "exact", head: true })
-        .in("area", areas)
-        .in("status", ["open", "in_progress"]);
-      openComments = count ?? 0;
-    }
+  if (session.profile.role === "admin") {
+    const supabase = await createClient();
+    const { count } = await supabase
+      .from("page_comments")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["open", "in_progress"]);
+    openComments = count ?? 0;
   }
 
   return (

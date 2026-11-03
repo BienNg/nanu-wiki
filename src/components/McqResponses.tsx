@@ -16,8 +16,8 @@ type Row = {
 
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
-/** For editors/admins: everyone's multiple-choice rounds on a page.
- *  quiz_attempts RLS only lets admins and buddies read, so DocView renders this only for editors of the area
+/** For admins: everyone's multiple-choice rounds on a page.
+ *  quiz_attempts RLS only lets admins and buddies read, so DocView renders this only for admins
  *  and the rows are read with the service role. */
 export async function McqResponses({ pageId, blocks }: { pageId: string; blocks: Block[] }) {
   const rounds = blocks.filter((b) => b.type === "mcq");

@@ -16,12 +16,12 @@ German main text, Vietnamese underneath, with a DE+VI / DE / VI toggle.
 | Page view (SOPs etc.), table of contents, YouTube blocks | `src/app/(app)/bereich/[slug]/[page]/page.tsx` |
 | Weekly quiz (graded on the server) | `src/app/(app)/quiz/[id]`, `src/components/QuizRunner.tsx` |
 | Search with filters by type, role, "nur geprüfte" | `src/app/(app)/suche/page.tsx` |
-| Admin: approve sign-ups, set roles, buddy, editor areas | `src/app/(app)/admin/benutzer` |
+| Admin: approve sign-ups, set roles, buddy | `src/app/(app)/admin/benutzer` |
 | Comments on pages (select words / 💬 next to a block / box at the end) | `src/components/CommentLayer.tsx`, `src/lib/comments.ts` |
-| Comment inbox for editors & admins | `src/app/(app)/admin/kommentare` |
+| Comment inbox for admins | `src/app/(app)/admin/kommentare` |
 | Slack: buddy notifications, new comments, "Danke" on resolve | `src/lib/slack.ts`, `src/app/actions.ts` |
 | **All content**: areas, pages, onboarding weeks, quizzes | `src/content/` |
-| Database schema + RLS (people and progress only) | `supabase/migrations/` (latest: `20261101000000_daily_tasks.sql`) |
+| Database schema + RLS (people and progress only) | `supabase/migrations/` (latest: `20261103150316_drop_editor_role.sql`) |
 
 ### Content lives in code
 Everything people read is hard-coded in `src/content` and ships with each deploy; the database only stores
@@ -39,7 +39,7 @@ profiles/roles and progress (`checklist_progress`, `quiz_attempts`, `chat_respon
   most similar block. Only when they're really gone does a comment show "Stelle geändert", still with the old text.
   **Renaming a page slug** orphans its comments; move them along with
   `update page_comments set page_id = '<area>/<new-slug>' where page_id = '<area>/<old-slug>';`
-- **Areas:** `src/content/areas.ts`. The slug is stored on profiles (`primary_area`, `candidate_area`) and `area_editors`.
+- **Areas:** `src/content/areas.ts`. The slug is stored on profiles (`primary_area`, `candidate_area`).
 - Old `/seite/<uuid>` links redirect to the new URLs (`next.config.ts`).
 
 ### Access levels (checked in `src/content/index.ts` for content, RLS in Postgres for progress)
@@ -49,8 +49,7 @@ profiles/roles and progress (`checklist_progress`, `quiz_attempts`, `chat_respon
 | `pending` | Nothing – waits on `/pending` until an admin approves (every new Google sign-up starts here) |
 | `candidate` | Only the **Interview** tab of the one role they applied for |
 | `staff` | Read all published pages, own onboarding checklist, quizzes, search |
-| `editor` | Staff + sees drafts and candidates' chat answers in the areas an admin assigns |
-| `admin` | Everything, including user management |
+| `admin` | Everything, including drafts, comment inbox, and user management |
 
 Security notes: users can never change their own role (DB trigger), quiz answers never reach the browser
 (`src/content` is server-only; grading happens in server actions), and the service-role key is used only to
@@ -99,8 +98,8 @@ From then on, approve everyone else under **Benutzer & Rollen** in the app.
 
 What it sends (people are matched by their Google e-mail = Slack e-mail):
 - **To the buddy** when a new hire finishes an onboarding week or takes a weekly quiz.
-- **To the editors of an area** (or the admins, if it has none) when someone comments on one of its pages.
-- **To the commenter** when their comment is marked "Erledigt" or "Abgelehnt", with the editor's optional reply.
+- **To the admins** when someone comments on a page.
+- **To the commenter** when their comment is marked "Erledigt" or "Abgelehnt", with the admin's optional reply.
 
 ### 6. GitHub
 ```bash

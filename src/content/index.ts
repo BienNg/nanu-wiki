@@ -163,7 +163,7 @@ export function visibleAreas(profile: Profile): Area[] {
 }
 
 /** Tabs on a role page, in display order.
- *  Only admin sees Interview next to Handbuch and Onboarding. Staff and editors: Handbuch and Onboarding.
+ *  Only admin sees Interview next to Handbuch and Onboarding. Staff: Handbuch and Onboarding.
  *  Candidates: Handbuch and Interview of the role they applied for.
  *  Areas with a daily checklist add „Tägliche Aufgaben“ for staff+ – anyone may tick it, not only the area's own people. */
 export function areaTabs(profile: Profile, areaSlug: string): AreaTab[] {
@@ -173,27 +173,26 @@ export function areaTabs(profile: Profile, areaSlug: string): AreaTab[] {
   return [...daily, "handbook", "onboarding"];
 }
 
-/** Admins everywhere; editors in the areas an admin assigned them (area_editors). */
-export function canEditArea(profile: Profile, editorAreas: string[], areaSlug: string) {
-  return profile.role === "admin" || (profile.role === "editor" && editorAreas.includes(areaSlug));
+/** Admins see drafts and everyone's answers. */
+export function canEditArea(profile: Profile) {
+  return profile.role === "admin";
 }
 
-/** Admins read everything, including Interview. Editors read drafts of their areas, but not Interview.
+/** Admins read everything, including drafts and Interview.
  *  Staff read published Handbuch and Onboarding, not Interview.
  *  Candidates read published Handbuch and Interview of the role they applied for. */
-export function canReadPage(profile: Profile, editorAreas: string[], page: PageWithMeta) {
+export function canReadPage(profile: Profile, page: PageWithMeta) {
   if (profile.role === "admin") return true;
   if (page.section === "interview") {
     return page.published && profile.role === "candidate" && page.area.slug === profile.candidate_area;
   }
-  if (canEditArea(profile, editorAreas, page.area.slug)) return true;
   if (!page.published) return false;
   if (hasRole(profile.role, "staff")) return true;
   return profile.role === "candidate" && page.section === "handbook" && page.area.slug === profile.candidate_area;
 }
 
-export function readablePages(profile: Profile, editorAreas: string[]) {
-  return PAGES.filter((p) => canReadPage(profile, editorAreas, p));
+export function readablePages(profile: Profile) {
+  return PAGES.filter((p) => canReadPage(profile, p));
 }
 
 /** Case-insensitive match on title and all block text, newest first. */

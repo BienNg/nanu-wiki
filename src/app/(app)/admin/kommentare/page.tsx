@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getEditorAreas, requireRole } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AREAS, getPageById } from "@/content";
 import { Topbar } from "@/components/Topbar";
@@ -34,16 +34,16 @@ const SORTS = [
 const DEFAULTS: Required<Params> = { status: "offen", area: "", tag: "", page: "", sort: "alt" };
 
 export default async function CommentsPage({ searchParams }: { searchParams: Promise<Params> }) {
-  const { profile } = await requireRole("editor");
+  await requireRole("admin");
   const sp = await searchParams;
-  const myAreas = profile.role === "admin" ? AREAS.map((a) => a.slug) : await getEditorAreas();
+  const myAreas = AREAS.map((a) => a.slug);
 
   // Everything in the user's areas, filtered here: the tabs and every dropdown show counts for the other filters.
   const supabase = await createClient();
   const { data } = await supabase
     .from("page_comments")
     .select("*, author:profiles!page_comments_author_id_fkey(full_name, email)")
-    .in("area", myAreas.length ? myAreas : ["-"]) // an editor without areas sees nothing
+    .in("area", myAreas)
     .order("created_at")
     .limit(2000);
   const all = (data ?? []) as Row[];

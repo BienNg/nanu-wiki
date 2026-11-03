@@ -38,7 +38,7 @@ export default async function DailyTasksAdminPage({ searchParams }: { searchPara
   const [{ data: logData }, { data: members }] = await Promise.all([
     supabase.from("daily_task_log").select("profile_id, task_id, day, done, note").eq("area", area.slug).gte("day", days[0]).lte("day", days[6]),
     // The area's own people always get a row, so an empty week shows up as 0 – others appear once they ticked something.
-    supabase.from("profiles").select("id, full_name, email").eq("primary_area", area.slug).in("role", ["staff", "editor", "admin"]),
+    supabase.from("profiles").select("id, full_name, email").eq("primary_area", area.slug).in("role", ["staff", "admin"]),
   ]);
   const logs = (logData ?? []) as Log[];
   const known = new Map(((members ?? []) as Person[]).map((p) => [p.id, p]));

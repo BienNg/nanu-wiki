@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getEditorAreas, requireRole } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { canReadPage, getPage, getPageQuiz } from "@/content";
 import { PageQuizRunner, type PageQuizQuestionView } from "@/components/PageQuizRunner";
 import { headingId, toPlain } from "@/lib/links";
@@ -21,7 +21,7 @@ export default async function PageQuizPage({ params }: { params: Promise<{ slug:
   const { profile } = await requireRole("staff");
   const { slug, page: pageSlug } = await params;
   const page = getPage(slug, pageSlug);
-  if (!page || !canReadPage(profile, await getEditorAreas(), page)) notFound();
+  if (!page || !canReadPage(profile, page)) notFound();
   const quiz = getPageQuiz(page.id);
   if (!quiz) notFound();
 

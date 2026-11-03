@@ -12,10 +12,7 @@ export const metadata = { title: "Benutzer & Rollen" };
 export default async function UsersPage() {
   await requireRole("admin");
   const supabase = await createClient();
-  const [{ data: profiles }, { data: editors }] = await Promise.all([
-    supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-    supabase.from("area_editors").select("area, profile_id"),
-  ]);
+  const { data: profiles } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
 
   const list = ((profiles ?? []) as Profile[]).sort((a, b) => Number(b.role === "pending") - Number(a.role === "pending"));
   const pendingCount = list.filter((p) => p.role === "pending").length;
@@ -33,8 +30,8 @@ export default async function UsersPage() {
           </h1>
           <p className="m-0 max-w-[720px] text-[#4A4F57]">
             <Bi
-              de="Neue Google-Konten landen als „pending“. Weise eine Zugriffsstufe zu: candidate (Handbuch und Interview einer Rolle), staff (Handbuch und Onboarding), editor (wie staff, plus Entwürfe in ausgewählten Bereichen), admin (Handbuch, Onboarding und Interview)."
-              vi="Tài khoản Google mới ở trạng thái „pending“. Hãy gán quyền: candidate (Sổ tay và phỏng vấn của một vai trò), staff (Sổ tay và hội nhập), editor (như staff, thêm bản nháp trong các mục được chọn), admin (Sổ tay, hội nhập và phỏng vấn)."
+              de="Neue Google-Konten landen als „pending“. Weise eine Zugriffsstufe zu: candidate (Handbuch und Interview einer Rolle), staff (Handbuch und Onboarding), admin (Handbuch, Onboarding und Interview, plus Entwürfe)."
+              vi="Tài khoản Google mới ở trạng thái „pending“. Hãy gán quyền: candidate (Sổ tay và phỏng vấn của một vai trò), staff (Sổ tay và hội nhập), admin (Sổ tay, hội nhập và phỏng vấn, thêm bản nháp)."
             />
           </p>
         </header>
@@ -46,7 +43,7 @@ export default async function UsersPage() {
           </div>
         )}
 
-        <UsersTable profiles={list} areas={AREAS} editors={editors ?? []} />
+        <UsersTable profiles={list} areas={AREAS} />
       </main>
     </>
   );

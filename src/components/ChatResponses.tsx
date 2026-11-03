@@ -14,7 +14,7 @@ type Row = {
 
 const secs = (s: number) => (s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${s % 60} s`);
 
-/** For editors/admins: everyone's answers to the Messenger simulations on a page (RLS limits who sees what). */
+/** For admins: everyone's answers to the Messenger simulations on a page (RLS limits who sees what). */
 export async function ChatResponses({ pageId, blocks }: { pageId: string; blocks: Block[] }) {
   const sims = blocks.filter((b) => b.type === "chat");
   if (!sims.length) return null;

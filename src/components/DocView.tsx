@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getEditorAreas, hasRole } from "@/lib/auth";
+import { hasRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { canEditArea } from "@/content";
 import { Crumb, Topbar, currentLang } from "./Topbar";
@@ -38,7 +38,7 @@ export async function DocView({
   c?: string;
   pane?: boolean;
 }) {
-  const canEdit = canEditArea(profile, await getEditorAreas(), page.area.slug);
+  const canEdit = canEditArea(profile);
   const hasChat = page.body.some((b) => b.type === "chat");
   const supabase = await createClient();
   const { data: mine } = hasChat

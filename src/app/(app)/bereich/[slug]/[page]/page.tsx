@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getEditorAreas, getSession, requireRole } from "@/lib/auth";
+import { getSession, requireRole } from "@/lib/auth";
 import { canReadPage, getPage } from "@/content";
 import { DocView } from "@/components/DocView";
 
@@ -11,7 +11,7 @@ async function load(params: Params) {
   const { slug, page: pageSlug } = await params;
   const session = await getSession();
   const page = getPage(slug, pageSlug);
-  if (!page || !session || !canReadPage(session.profile, await getEditorAreas(), page)) return undefined;
+  if (!page || !session || !canReadPage(session.profile, page)) return undefined;
   return page;
 }
 

@@ -7,7 +7,7 @@ import { NavLink } from "./NavLink";
 import { initials } from "@/lib/format";
 import { CollapseSidebarButton, SearchTrigger } from "./AppShell";
 
-/** `openComments`: open comments in the areas this editor/admin works through, null for everyone else. */
+/** `openComments`: open comments for an admin, null for everyone else. */
 export function Sidebar({
   areas,
   profile,

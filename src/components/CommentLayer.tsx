@@ -16,7 +16,7 @@ type Spot = { anchor: CommentAnchor; top: number; left: number };
  * Wraps a page's blocks so staff can comment on them:
  * select words → "Kommentieren" bubble; hover a block → 💬 in the margin; feedback box at the end of the page.
  * `focus` (from `?c=<id>`) scrolls to a comment's spot and highlights the quoted words.
- * `comments` are shown in the comment view (see CommentView); `canManage` = editor of this area or admin.
+ * `comments` are shown in the comment view (see CommentView); `canManage` = admin.
  */
 export function CommentLayer({
   pageId,
