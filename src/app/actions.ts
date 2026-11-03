@@ -357,6 +357,23 @@ export async function updateUser(
   return { ok: true as const };
 }
 
+/** Deletes everything a person has done – onboarding ticks, quiz attempts (week, page and interview), Messenger
+ *  simulations, daily-task log – and restarts their „new hire“ clock (created_at), so they start over like a
+ *  new user. Role, areas, buddy, location and their comments on pages stay. */
+export async function resetUserProgress(profileId: string) {
+  const session = await getSession();
+  if (!session || !hasRole(session.profile.role, "admin")) throw new Error("admins only");
+  const admin = createAdminClient();
+  for (const table of ["checklist_progress", "quiz_attempts", "chat_responses", "daily_task_log"]) {
+    const { error } = await admin.from(table).delete().eq("profile_id", profileId);
+    if (error) return { ok: false as const, message: error.message };
+  }
+  const { error } = await admin.from("profiles").update({ created_at: new Date().toISOString() }).eq("id", profileId);
+  if (error) return { ok: false as const, message: error.message };
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
 export async function setAreaEditor(area: string, profileId: string, enabled: boolean) {
   const session = await getSession();
   if (!session || !hasRole(session.profile.role, "admin")) throw new Error("admins only");

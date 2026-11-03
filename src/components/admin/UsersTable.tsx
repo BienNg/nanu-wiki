@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { setAreaEditor, updateUser } from "@/app/actions";
+import { resetUserProgress, setAreaEditor, updateUser } from "@/app/actions";
 import type { AppRole, Area, Profile } from "@/lib/types";
 import { initials } from "@/lib/format";
 
@@ -55,6 +55,7 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
     location: profile.location ?? "",
   });
   const [status, setStatus] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [pending, startTransition] = useTransition();
   const dirty =
     form.role !== profile.role ||
@@ -73,6 +74,14 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
         location: form.location || null,
       });
       setStatus(res.ok ? "✓" : res.message);
+    });
+  }
+
+  function reset() {
+    startTransition(async () => {
+      const res = await resetUserProgress(profile.id);
+      setConfirmReset(false);
+      setStatus(res.ok ? "✓ Fortschritt gelöscht" : res.message);
     });
   }
 
@@ -147,8 +156,34 @@ function UserRow({ profile, profiles, areas, editorAreas }: { profile: Profile; 
             {pending ? "…" : "Speichern"}
           </button>
           {status && <span className="ml-2 text-xs text-muted">{status}</span>}
+          {profile.role !== "pending" && !confirmReset && (
+            <button type="button" onClick={() => setConfirmReset(true)} disabled={pending} className="mt-1.5 block w-full whitespace-nowrap text-right text-xs text-muted hover:text-[#B42318]">
+              Fortschritt löschen
+            </button>
+          )}
         </td>
       </tr>
+      {confirmReset && (
+        <tr className="bg-[#FEF3F2]">
+          <td colSpan={7} className="px-3 py-2.5">
+            {/* sticky: stays in view when the wide table is scrolled sideways */}
+            <div className="sticky left-3 flex w-[min(640px,calc(100vw-4rem))] flex-col items-start gap-2.5 text-[13px] text-[#7A271A]">
+              <span>
+                <strong>{profile.full_name ?? profile.email}</strong> startet wie neu: Onboarding-Häkchen, alle Quiz-Versuche, Messenger-Übungen und
+                Tagesaufgaben werden gelöscht. Rolle, Buddy, Standort und Kommentare bleiben. Das lässt sich nicht rückgängig machen.
+              </span>
+              <span className="flex flex-none gap-2">
+                <button type="button" onClick={() => setConfirmReset(false)} disabled={pending} className="h-8 rounded-md bg-white px-3 font-medium text-ink">
+                  Abbrechen
+                </button>
+                <button type="button" onClick={reset} disabled={pending} className="h-8 rounded-md bg-[#B42318] px-3 font-medium text-white">
+                  {pending ? "…" : "Ja, alles löschen"}
+                </button>
+              </span>
+            </div>
+          </td>
+        </tr>
+      )}
       {profile.role === "editor" && (
         <tr className="bg-side/60">
           <td colSpan={7} className="px-3 pb-3 pt-1">
