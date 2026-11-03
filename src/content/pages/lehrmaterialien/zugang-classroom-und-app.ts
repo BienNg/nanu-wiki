@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -20,7 +20,8 @@ const page: PageContent = {
       items: [
         { de: "Die App gibt es nicht im App Store. Sie läuft im Browser auf Handy oder Computer, ohne Installation.", vi: "App không có trên App Store. Học thẳng trên web bằng điện thoại hoặc máy tính, không cần cài đặt." },
         { de: "Anmelden mit der E-Mail, die die Person uns gegeben hat.", vi: "Đăng nhập bằng email học viên đã gửi trung tâm." },
-        { de: "Classroom: Die Anmeldung muss nur einmal gemacht werden. Einen Klassencode erklärt die Lehrkraft in der ersten Stunde.", vi: "Classroom: chỉ cần làm 1 lần là vào được cho các lần sau. Mã lớp thì giáo viên hướng dẫn trong buổi học đầu." }
+        { de: "Classroom: Die Anmeldung muss nur einmal gemacht werden. Einen Klassencode erklärt die Lehrkraft in der ersten Stunde.", vi: "Classroom: chỉ cần làm 1 lần là vào được cho các lần sau. Mã lớp thì giáo viên hướng dẫn trong buổi học đầu." },
+        { de: "Der Link zum Buch ist nicht frei zugänglich, weil er Teile enthält, die wir extra für unsere Schüler gemacht haben. Wer sich anmeldet, bekommt den Zugang von uns freigeschaltet – nur für die gebuchte Stufe (A1 → nur A1).", vi: "Link sách không cho truy cập tự do, vì có nhiều phần trung tâm làm thêm cho học viên. Ai đăng ký học thì trung tâm mở quyền cho học viên – đúng trình độ đã đăng ký (A1 thì mở đúng A1)." }
       ]
     },
     { type: "heading", de: "Wenn es nicht klappt", vi: "Khi không vào được" },
@@ -49,7 +50,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Ein Student sucht die App im App Store und findet sie nicht. Was erklärst du?",
@@ -96,6 +97,18 @@ const page: PageContent = {
           { de: "Keine Sorge – die Hausaufgabe steht in der Zalo-Gruppe, auf Papier machen ist völlig in Ordnung", vi: "Đừng lo – bài tập có trong nhóm Zalo, làm ra giấy hoàn toàn được" },
           { de: "Ohne Classroom kann sie nicht am Kurs teilnehmen", vi: "Không có Classroom thì không học được" },
           { de: "Sie soll warten, bis die Lehrkraft sich meldet", vi: "Chờ giáo viên liên hệ" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Ein neuer A1-Schüler kann den Link zum Buch nicht öffnen. Was ist los?",
+        question_vi: "Học viên A1 mới không mở được link sách. Vì sao?",
+        section: "was-studierende-wissen-mussen",
+        options: [
+          { de: "Der Link ist kaputt, er soll das Buch kaufen", vi: "Link bị lỗi, học viên phải mua sách" },
+          { de: "Der Link ist nicht frei – wir müssen den Zugang freischalten, und zwar nur für A1", vi: "Link không truy cập tự do – trung tâm phải mở quyền, và chỉ mở đúng A1" },
+          { de: "Er braucht eine andere E-Mail", vi: "Phải dùng email khác" },
+          { de: "Das Buch gibt es erst ab A2", vi: "Sách chỉ có từ A2" }
         ],
         correct: 1
       }

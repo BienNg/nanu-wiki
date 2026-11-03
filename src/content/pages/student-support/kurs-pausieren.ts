@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -33,6 +33,14 @@ const page: PageContent = {
         {
           de: "Die Person meldet die Pause an, und das Zentrum bestätigt sie, bevor sie aufhört. Wer einfach nicht mehr kommt, hat nichts pausiert.",
           vi: "Học viên phải báo và được trung tâm xác nhận bảo lưu trước khi tạm dừng. Tự ý nghỉ thì không tính là bảo lưu."
+        },
+        {
+          de: "Eine Pause früh melden – am besten vor Kursbeginn, nicht wenn der halbe Kurs vorbei ist. Ein paar Termine pausieren gibt es nicht: Der Platz war für die Person reserviert, niemand sonst konnte ihn nehmen.",
+          vi: "Muốn bảo lưu thì báo sớm – tốt nhất trước khi khoá bắt đầu, không phải khi đã học được nửa khoá. Không có bảo lưu vài buổi: lớp đã giữ chỗ cho học viên nên không cho ai khác vào học."
+        },
+        {
+          de: "Wer z. B. in Stunde 10 in eine andere A1.2-Klasse wechseln will, pausiert nicht – das ist ein Klassenwechsel.",
+          vi: "Ví dụ buổi 10 xin vào một lớp A1.2 khác thì đó là chuyển lớp, không phải bảo lưu."
         },
         {
           de: "Während der Pause meldet sich die Person selbst, um eine neue Klasse zu wählen. Wir erinnern trotzdem vor Ablauf.",
@@ -84,6 +92,13 @@ const page: PageContent = {
     },
     {
       type: "template",
+      label_de: "Vorlage · Späte Pause (erst die Regel, dann nachfragen)",
+      label_vi: "Mẫu · Xin bảo lưu muộn (nói quy định trước, rồi hỏi quản lý)",
+      text: "Dạ lớp giữ chỗ cho [chị/anh/bạn] nên không cho học viên nào khác vào học. Bây giờ lớp đã học gần xong khoá rồi nên bên em không sắp xếp được ạ. Bảo lưu vài buổi bên em không có ạ – nếu [chị/anh/bạn] báo ngay từ đầu thì trung tâm sẽ cố gắng tìm học viên học nửa khoá sau, nhưng giờ thì bị nhỡ ạ.\nNhưng [chị/anh/bạn] để em hỏi lại quản lý nha.",
+      translation_de: "„Der Platz in der Klasse war für dich reserviert, deshalb konnte niemand anderes einsteigen. Jetzt ist der Kurs fast vorbei, das können wir nicht mehr umplanen. Eine Pause für ein paar Termine gibt es bei uns nicht – hättest du es am Anfang gesagt, hätten wir jemanden für die zweite Hälfte gesucht. Ich frage aber die Leitung für dich.“"
+    },
+    {
+      type: "template",
       label_de: "Vorlage · Pause bestätigen",
       label_vi: "Mẫu · Xác nhận bảo lưu",
       text: "Dạ trung tâm xác nhận bảo lưu khoá học cho [tên] nha:\n- Khoá/lớp: … (đã học đến …)\n- Phần được bảo lưu: …\n- Thời hạn bảo lưu: đến ngày …\nTrong thời gian này, khi nào [chị/anh/bạn] sắp xếp được thì nhắn trung tâm để xếp lớp phù hợp nhé. Trước khi hết hạn trung tâm cũng sẽ nhắn nhắc [chị/anh/bạn] ạ. Học phí không hoàn lại khi bảo lưu theo quy định trong email khoá học ạ.",
@@ -97,7 +112,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Jemand hat bezahlt, aber noch nicht angefangen. Wie lange kann der Kurs pausiert werden?",
@@ -182,6 +197,18 @@ const page: PageContent = {
           { de: "Ja, nur in der Zalo-Gruppe", vi: "Có, chỉ trong nhóm Zalo" }
         ],
         correct: 0
+      },
+      {
+        question_de: "Jemand ist schon über die Hälfte des Kurses und will „ein paar Termine pausieren“. Was antwortest du zuerst?",
+        question_vi: "Học viên đã học quá nửa khoá và xin „bảo lưu vài buổi“. Bạn trả lời gì trước?",
+        section: "so-gehst-du-vor",
+        options: [
+          { de: "„Kein Problem, ich trage es ein.“", vi: "„Không sao, em ghi lại cho chị.“" },
+          { de: "Gar nicht antworten, bis die Leitung entschieden hat", vi: "Không trả lời cho đến khi quản lý quyết định" },
+          { de: "Erst klar sagen, dass das nicht geht (der Platz war reserviert, Pause für ein paar Termine gibt es nicht) – dann: „Ich frage aber die Leitung.“", vi: "Nói rõ trước là không được (lớp đã giữ chỗ, không có bảo lưu vài buổi) – rồi: „Nhưng em hỏi lại quản lý nha.“" },
+          { de: "Sofort das Geld für die restlichen Termine zurückgeben", vi: "Hoàn ngay tiền các buổi còn lại" }
+        ],
+        correct: 2
       }
     ]
   }

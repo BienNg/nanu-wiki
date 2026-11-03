@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: "2027-05-01",
-  updated_at: "2026-11-01",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -153,6 +153,14 @@ const page: PageContent = {
           vi: "Việc nhận trong Zalo phải làm xong trong ngày. Chưa kịp thì cuối ngày ghi vào Slack – kèm ảnh chụp tin nhắn Zalo."
         },
         {
+          de: "Was in Slack steht, geht nicht verloren: Jede Aufgabe bekommt eine Rückmeldung, wenn sie erledigt ist. Ohne Rückmeldung ist sie nicht erledigt. Was du heute nicht schaffst, schiebst du auf den nächsten Tag – die Leitung erinnert nicht noch einmal.",
+          vi: "Việc gì đã ghi trên Slack thì không được quên: làm xong phải báo lại. Chưa báo lại là chưa xong. Hôm nay chưa xong thì chuyển sang ngày tiếp theo – quản lý sẽ không kiểm tra và nhắc lại nữa."
+        },
+        {
+          de: "Notizen in Notion so genau schreiben, dass später niemand die Nachrichten noch einmal lesen muss: was die Person gemacht hat, was das Problem ist, was das Zentrum entschieden hat – dazu ein Screenshot.",
+          vi: "Ghi chú trên Notion kỹ đến mức sau này chỉ cần xem Notion, không cần đọc lại tin nhắn mà vẫn đủ thông tin: học viên đã làm gì, vướng gì, trung tâm quyết định thế nào – kèm ảnh chụp màn hình."
+        },
+        {
           de: "Erledigt ist etwas erst, wenn die Person das Ergebnis bekommen hat. „Ich habe die Lehrkraft gefragt“ ist noch nicht erledigt – erst, wenn die Lehrkraft geantwortet hat. Wenn die Leitung etwas prüfen soll, ist es erst erledigt, wenn sie es bestätigt hat.",
           vi: "Xong nghĩa là kết quả đã đến được học viên. „Đã hỏi giáo viên“ chưa phải là xong – giáo viên trả lời rồi mới xong. Việc cần quản lý duyệt thì chỉ xong khi quản lý xác nhận."
         },
@@ -179,7 +187,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Wer schreibt einer Person, nachdem sie bezahlt hat?",
@@ -272,6 +280,18 @@ const page: PageContent = {
           { de: "Die Aufgabe ignorieren", vi: "Bỏ qua việc đó" },
           { de: "Der Person schreiben, dass es nicht geht", vi: "Nhắn khách là không làm được" },
           { de: "Am Abend in Slack schreiben, mit Screenshot der Zalo-Nachricht", vi: "Buổi tối ghi lên Slack, kèm ảnh chụp tin nhắn Zalo" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Eine Aufgabe steht seit heute Morgen in Slack, du schaffst sie nicht. Was machst du?",
+        question_vi: "Một việc được giao trên Slack từ sáng mà bạn chưa làm kịp. Bạn làm gì?",
+        section: "so-arbeiten-wir-im-team",
+        options: [
+          { de: "Warten, bis die Leitung nachfragt", vi: "Chờ quản lý hỏi lại" },
+          { de: "Sie als erledigt markieren", vi: "Đánh dấu là đã xong" },
+          { de: "Sie vergessen, sie war nicht wichtig", vi: "Bỏ qua, không quan trọng" },
+          { de: "Auf den nächsten Tag schieben – und Rückmeldung geben, sobald sie erledigt ist", vi: "Chuyển sang ngày tiếp theo – và báo lại khi đã xong" }
         ],
         correct: 3
       }

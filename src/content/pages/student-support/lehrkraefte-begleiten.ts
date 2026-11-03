@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: "2027-05-01",
-  updated_at: "2026-11-01",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -102,14 +102,65 @@ const page: PageContent = {
           vi: "Không có người thay: dời buổi",
           body_de: "Der Klasse den Nachholtermin gleich mitnennen.",
           body_vi: "Báo lớp luôn ngày học bù."
+        },
+        {
+          de: "Vergessen, der Klasse Bescheid zu geben? Am nächsten Tag entschuldigen",
+          vi: "Quên báo lớp? Xin lỗi lớp ngay hôm sau",
+          body_de: "Ehrlich sagen, was passiert ist, und dass es unser Fehler war (Vorlage unten). Erst der Leitung zum Freigeben schicken. Ist es schon ein paar Tage her, lieber jedem Schüler einzeln schreiben als in die Gruppe.",
+          body_vi: "Nói thật chuyện gì đã xảy ra và đây là lỗi của trung tâm (mẫu bên dưới). Gửi quản lý duyệt trước. Nếu đã qua vài hôm thì nhắn riêng từng bạn thay vì nhắn nhóm."
         }
       ]
+    },
+    {
+      type: "template",
+      label_de: "Vorlage · Entschuldigung an die Klasse",
+      label_vi: "Mẫu · Xin lỗi lớp",
+      text: "Hallo lớp mình,\nBuổi học [thứ …] vừa rồi, [thầy/cô …] báo [lý do] nên không thể lên lớp. Tuy nhiên, trung tâm đã chậm trễ trong việc thông báo đến lớp. Đây là thiếu sót từ phía trung tâm và trung tâm thành thật xin lỗi vì đã để lớp mình mất thời gian và ảnh hưởng đến kế hoạch cá nhân.\nTrung tâm sẽ nghiêm túc rút kinh nghiệm và cải thiện quy trình sắp xếp, thông báo để hạn chế tối đa những trường hợp tương tự xảy ra trong thời gian tới.\nLớp mình sẽ học lại bình thường với [thầy/cô …] từ [ngày] theo lịch học.\nMột lần nữa, trung tâm thành thật xin lỗi và cảm ơn lớp mình đã thông cảm, đồng hành cùng trung tâm. Chúc cả lớp một buổi học thật hiệu quả!\nWir danken euch für euer Verständnis und entschuldigen uns nochmals aufrichtig.",
+      translation_de: "„Hallo zusammen, letzten [Tag] konnte [Lehrkraft] wegen [Grund] nicht unterrichten. Wir haben euch zu spät informiert – das war unser Fehler, und wir entschuldigen uns, dass ihr Zeit verloren habt. Wir verbessern unsere Planung und Benachrichtigung. Ab [Datum] geht es normal mit [Lehrkraft] weiter. Danke für euer Verständnis!“"
+    },
+    {
+      type: "callout",
+      tone: "info",
+      de: "Jede neue Klasse bekommt eine feste Ansprechperson aus Customer Success. Sie liest an jedem Arbeitstag die Gruppen ihrer Klassen und ihrer Lehrkräfte. Der Name der Lehrkraft-Gruppe zeigt, wer zuständig ist: „NaNu NaNa - GV [Lehrkraft] - [Name] phụ trách“.",
+      vi: "Mỗi lớp mới có một người phụ trách cố định trong đội Chăm sóc học viên. Mỗi ngày đi làm, người đó đọc tin nhắn trong nhóm các lớp và nhóm giáo viên mình phụ trách. Tên nhóm giáo viên ghi rõ ai phụ trách: „NaNu NaNa - GV [tên giáo viên] - [tên] phụ trách“."
     },
     {
       type: "callout",
       tone: "warning",
       de: "Feiertage: Fällt ein Feiertag an (in Vietnam z. B. 2.9., in Deutschland 3.10.), allen Lehrkräften und Klassen frühzeitig Bescheid geben. Frei hat nur, wer an genau diesem Tag Unterricht hätte – Klassen nach deutscher Abendzeit können trotzdem stattfinden. Im September fiel eine Klasse aus, die gar nicht hätte frei haben sollen.",
       vi: "Ngày lễ: khi có ngày lễ (ở Việt Nam ví dụ 2/9, ở Đức 3/10) thì báo sớm cho tất cả giáo viên và các lớp. Chỉ lớp nào có buổi học đúng vào ngày đó mới nghỉ – các lớp tối giờ Đức vẫn có thể học bình thường. Tháng 9 đã có một lớp nghỉ nhầm."
+    },
+    { type: "heading", de: "Was wir von Lehrkräften erwarten", vi: "Những điều trung tâm yêu cầu ở giáo viên", anchor: "erwartungen" },
+    {
+      type: "list",
+      items: [
+        { de: "Nicht zu spät kommen, nicht früher gehen – auch nicht eine Minute.", vi: "Không đi muộn, không về sớm – 1 phút cũng không." },
+        { de: "Freundlich lächeln und mehr Deutsch sprechen (langsam ist in Ordnung – Hauptsache Deutsch).", vi: "Tươi cười với học viên và nói tiếng Đức nhiều hơn (nói chậm cũng được, cốt là nói tiếng Đức)." },
+        { de: "Im Unterricht immer den Bildschirm mit Classroom teilen und „Tipps anzeigen“ anklicken, damit die Schüler sehen, dass der Text zum Hören schon hochgeladen ist. Wörter direkt auf dem Bildschirm erklären. So wissen die Schüler: Zu Hause können sie genau so wiederholen.", vi: "Khi dạy luôn share màn hình Classroom và ấn „Tipps anzeigen“ để học viên thấy trung tâm đã tải text bài nghe lên. Giải thích từ vựng thẳng trên màn hình. Để học viên hiểu: về nhà có thể học lại y hệt như vậy." },
+        { de: "Lehrkräfte und Assistenz drucken ihr Material selbst: früh kommen und den Drucker mit dem eigenen Laptop verbinden.", vi: "Giáo viên và trợ giảng tự in bài: đến sớm và tự kết nối máy in với máy tính." }
+      ]
+    },
+    {
+      type: "paragraph",
+      de: "Jeden Montagmorgen schreibst du jeder deiner Lehrkräfte einzeln diese Erinnerung und fragst nach Rückmeldungen aus der Klasse. Die Antwort soll noch am selben Tag kommen – auch eine kleine.",
+      vi: "Mỗi sáng thứ Hai bạn nhắn riêng cho từng giáo viên mình phụ trách lời nhắc này và hỏi lớp có feedback gì không. Giáo viên trả lời trong ngày – dù chỉ là một feedback nhỏ."
+    },
+    {
+      type: "template",
+      label_de: "Vorlage · Montag an jede Lehrkraft",
+      label_vi: "Mẫu · Tin nhắn thứ Hai cho giáo viên",
+      text: "1. Không đi muộn, về sớm (1 phút cũng không)\n2. Tươi cười với học viên\n3. Nói tiếng Đức nhiều hơn\n\nGuten Morgen [anh/chị] …,\ncó bạn nào feedback gì không [anh/chị]?\nVà trên là 1 số lời dặn dò về phong cách làm việc của trung tâm cho tất cả các giáo viên của NaNu NaNa, [anh/chị] lưu ý giúp em nha.\nFeedback [anh/chị] trả lời hôm nay giúp em (bất cứ 1 feedback nhỏ gì).\nCảm ơn [anh/chị]!\n\nLG\n[Tên]",
+      translation_de: "„1. Nicht zu spät kommen, nicht früher gehen (auch nicht 1 Minute). 2. Freundlich lächeln. 3. Mehr Deutsch sprechen. – Guten Morgen …, gab es Rückmeldungen aus der Klasse? Oben stehen ein paar Punkte zu unserem Arbeitsstil für alle Lehrkräfte von NaNu NaNa, bitte achte darauf. Bitte antworte heute (auch eine Kleinigkeit). Danke!“"
+    },
+    { type: "heading", de: "Im Unterricht hospitieren (dự giờ)", vi: "Dự giờ giáo viên", anchor: "hospitieren" },
+    {
+      type: "steps",
+      items: [
+        { de: "Die Lehrkraft vorher informieren", vi: "Báo giáo viên trước", body_de: "Ein, zwei Tage vorher Bescheid geben, dass jemand aus dem Zentrum zuschaut.", body_vi: "Báo trước 1–2 hôm là trung tâm sẽ vào dự giờ." },
+        { de: "Still dabei sein", vi: "Vào lớp im lặng", body_de: "Kamera und Mikrofon aus, Name in Zoom: „NaNuNaNa - Dự giờ“. 10–20 Minuten reichen.", body_vi: "Tắt cam, tắt mic, đặt tên Zoom là „NaNuNaNa - Dự giờ“. Vào khoảng 10–20 phút là đủ." },
+        { de: "Wie ein Schüler bewerten", vi: "Đánh giá như một học viên", body_de: "Technik: Ton (Mikrofon, Nebengeräusche), Licht, ob die Folien vom Zentrum gezeigt werden, Kamerawinkel. Lehrkraft: Kleidung, Haltung zu den Schülern (z. B. lobt sie richtige Antworten?), wie verständlich und lebendig sie erklärt.", body_vi: "Kỹ thuật: âm thanh (micro, tạp âm), ánh sáng, có trình chiếu đúng slide trung tâm không, góc quay. Giáo viên: trang phục, thái độ với học viên (ví dụ có khen khi trả lời đúng không), phong cách giảng dạy có dễ hiểu, vui vẻ không." },
+        { de: "Ergebnis melden", vi: "Báo lại kết quả", body_de: "Die Bewertung in Slack schreiben und im Backoffice ablegen. Fällt etwas auf, das alle Lehrkräfte betrifft (z. B. Classroom wird nicht geteilt), schreibt die Leitung es in die Gruppe der Lehrkräfte.", body_vi: "Ghi đánh giá lên Slack và lưu vào Backoffice. Nếu có điểm liên quan đến tất cả giáo viên (ví dụ không share Classroom), quản lý sẽ nhắc vào nhóm giáo viên." }
+      ]
     },
     { type: "heading", de: "Typische Beschwerden über den Unterricht", vi: "Các phản ánh thường gặp về lớp học" },
     {
@@ -135,7 +186,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Was trägt die Lehrkraft nach jeder Stunde in die Excel-Liste ein?",
@@ -220,6 +271,42 @@ const page: PageContent = {
           { de: "Die Lehrkraft austauschen", vi: "Đổi giáo viên" }
         ],
         correct: 2
+      },
+      {
+        question_de: "Eine Lehrkraft fiel aus und niemand hat es der Klasse gesagt. Was machst du?",
+        question_vi: "Giáo viên nghỉ mà không ai báo lớp. Bạn làm gì?",
+        section: "wenn-eine-lehrkraft-ausfallt",
+        options: [
+          { de: "Nichts mehr sagen, es ist schon vorbei", vi: "Không nói gì nữa, chuyện đã qua" },
+          { de: "Der Lehrkraft die Schuld geben", vi: "Đổ lỗi cho giáo viên" },
+          { de: "Am nächsten Tag ehrlich entschuldigen – es war unser Fehler – und den Text vorher der Leitung zeigen", vi: "Ngay hôm sau xin lỗi lớp thật lòng – đây là lỗi của trung tâm – và gửi quản lý duyệt trước" },
+          { de: "Eine Gutschrift anbieten, ohne zu fragen", vi: "Tự đề nghị bù tiền mà không hỏi ai" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was muss eine Lehrkraft im Unterricht immer tun?",
+        question_vi: "Giáo viên luôn phải làm gì khi dạy?",
+        section: "erwartungen",
+        options: [
+          { de: "Den Bildschirm mit Classroom teilen und „Tipps anzeigen“ anklicken, damit die Schüler den Text zum Hören sehen", vi: "Share màn hình Classroom và ấn „Tipps anzeigen“ để học viên thấy text bài nghe" },
+          { de: "Nur aus dem Buch vorlesen", vi: "Chỉ đọc theo sách" },
+          { de: "Die Kamera ausschalten", vi: "Tắt camera" },
+          { de: "Am Ende 10 Minuten früher Schluss machen", vi: "Cho lớp nghỉ sớm 10 phút" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Du hospitierst in einer Online-Stunde. Wie trittst du in Zoom auf?",
+        question_vi: "Bạn vào dự giờ một lớp online. Bạn vào Zoom thế nào?",
+        section: "hospitieren",
+        options: [
+          { de: "Mit Kamera, damit die Lehrkraft dich sieht", vi: "Bật cam để giáo viên thấy mình" },
+          { de: "Mit deinem Vornamen, und du stellst Fragen", vi: "Dùng tên riêng và đặt câu hỏi" },
+          { de: "Ohne die Lehrkraft vorher zu informieren", vi: "Không báo giáo viên trước" },
+          { de: "Kamera und Mikrofon aus, Name „NaNuNaNa - Dự giờ“, 10–20 Minuten", vi: "Tắt cam và mic, tên „NaNuNaNa - Dự giờ“, 10–20 phút" }
+        ],
+        correct: 3
       }
     ]
   }

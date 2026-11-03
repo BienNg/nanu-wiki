@@ -8,7 +8,7 @@ const page: PageContent = {
   kind: "living",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -20,7 +20,7 @@ const page: PageContent = {
       items: [
         { de: "„Ich brauche B1, um meinen Aufenthalt zu verlängern.“", vi: "„Chị cần bằng B1 để gia hạn cư trú.“", body_de: "Lebt meist schon in Deutschland. B1-Kurs online nach deutscher Zeit anbieten, Prüfungstermin und Frist der Ausländerbehörde erfragen.", body_vi: "Thường đã sống ở Đức. Gợi ý lớp B1 online giờ Đức, hỏi ngày thi và hạn của Sở ngoại kiều." },
         { de: "„Ich brauche A1/A2 für den Familiennachzug.“", vi: "„Chị cần bằng A1/A2 để đi định cư / đoàn tụ.“", body_de: "Kurs und Prüfung anbieten. Das Visum selbst begleiten wir nicht. [ERGÄNZEN: welches Niveau wann nötig ist]", body_vi: "Gợi ý khóa học và kỳ thi. Bản thân visa thì trung tâm không làm. [ERGÄNZEN: trình độ nào cần cho trường hợp nào]" },
-        { de: "„Macht ihr §18b?“", vi: "„Bên mình có đi diện 18b không?“", body_de: "Erst fragen, welches Zertifikat und welchen Abschluss die Person hat. [ERGÄNZEN: unsere Antwort zu §18b]", body_vi: "Hỏi trước khách có bằng tiếng và bằng cấp gì. [ERGÄNZEN: câu trả lời của trung tâm về diện 18b]" },
+        { de: "„Macht ihr §18b?“", vi: "„Bên mình có đi diện 18b không?“", body_de: "Erst fragen, welches Zertifikat und welchen Abschluss die Person hat. Dann ehrlich sagen: §18b machen wir zurzeit nicht. Wer §18b selbst schafft, kann es versuchen – kommt das Visum vor dem B1, meldet sich die Person bei uns. Sonst weiter auf B1 lernen; mit Ausbildungsvertrag unterstützen wir sie 2 Jahre lang. Immer auch einen Deutschkurs anbieten. Will jemand deswegen den Vertrag kündigen: die Regel aus dem Vertrag schicken und an die Leitung geben.", body_vi: "Hỏi trước khách có bằng tiếng và bằng cấp gì. Sau đó nói thật: hiện tại trung tâm không làm diện 18b. Nếu bạn tự làm được 18b thì cứ thử – có visa trước khi có B1 thì nhắn lại trung tâm. Nếu không thì tiếp tục học B1; với hợp đồng du học nghề, trung tâm vẫn hỗ trợ trong vòng 2 năm. Luôn gợi ý thêm khoá học tiếng. Nếu vì vậy mà muốn huỷ hợp đồng: gửi quy định trong hợp đồng và báo quản lý." },
         { de: "„Helft ihr beim Finanzierungsnachweis?“", vi: "„Trung tâm có hỗ trợ chứng minh tài chính không?“", body_de: "Klären: über unsere Vermittlung oder ohne? Ausbildung oder Studium? Dann an Student Support.", body_vi: "Hỏi rõ: đi theo đơn của trung tâm hay không? Du học nghề hay đại học? Rồi chuyển cho Hỗ trợ học viên." },
         { de: "„Wie lange dauert das Visum?“", vi: "„Visa mất bao lâu?“", body_de: "Ausbildung: oft 3–5 Monate. Ehrlich sagen, dass die Botschaft entscheidet.", body_vi: "Du học nghề: thường 3–5 tháng. Nói thật là Đại sứ quán quyết định." },
         { de: "„Was passiert, wenn das Visum abgelehnt wird?“", vi: "„Nếu trượt visa thì sao?“", body_de: "[ERGÄNZEN: unsere Regel zu Rate 3, Rückerstattung, zweiter Antrag]", body_vi: "[ERGÄNZEN: quy định của trung tâm về đợt 3, hoàn tiền, nộp lại]" }
@@ -34,7 +34,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Viele Visa-Fragen im Messenger sind eigentlich etwas anderes. Was?",
@@ -90,6 +90,17 @@ const page: PageContent = {
           { de: "Nichts, das macht die Botschaft", vi: "Không hỏi gì, Đại sứ quán lo" }
         ],
         correct: 0
+      },
+      {
+        question_de: "„Macht ihr §18b?“ Was antwortest du?",
+        question_vi: "„Bên mình có làm diện 18b không?“ Bạn trả lời gì?",
+        options: [
+          { de: "Ja, das ist im Ausbildungspaket enthalten", vi: "Có, đã gồm trong gói du học nghề" },
+          { de: "Ehrlich: zurzeit nicht. Wer es selbst schafft, kann es versuchen – sonst weiter auf B1 lernen, und wir bieten einen Deutschkurs an", vi: "Nói thật: hiện tại không làm. Bạn tự làm được thì cứ thử – nếu không thì tiếp tục học B1, và gợi ý khoá học tiếng" },
+          { de: "Nein, und dann nicht weiter antworten", vi: "Không, rồi không trả lời thêm" },
+          { de: "Ja, gegen Aufpreis", vi: "Có, trả thêm phí" }
+        ],
+        correct: 1
       }
     ]
   }

@@ -7,13 +7,13 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-28",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "callout",
       tone: "info",
-      de: "Entwurf: Sperrkonto-Betrag folgt. Unterlagen, Antrag, Gebühren und Bearbeitungszeit stammen vom Merkblatt der Deutschen Botschaft Hanoi (Stand Oktober 2026). Vor jeder Beratung kurz auf der Botschaftsseite prüfen, ob sich etwas geändert hat.",
-      vi: "Bản nháp: số tiền tài khoản phong tỏa sẽ được bổ sung. Hồ sơ, cách nộp, lệ phí và thời gian xét duyệt lấy từ trang thông tin của Đại sứ quán Đức tại Hà Nội (tháng 10/2026). Trước mỗi buổi tư vấn nên kiểm tra lại trang Đại sứ quán xem có thay đổi gì không."
+      de: "Entwurf. Unterlagen, Antrag, Gebühren und Bearbeitungszeit stammen vom Merkblatt der Deutschen Botschaft Hanoi (Stand Oktober 2026). Vor jeder Beratung kurz auf der Botschaftsseite prüfen, ob sich etwas geändert hat.",
+      vi: "Bản nháp. Hồ sơ, cách nộp, lệ phí và thời gian xét duyệt lấy từ trang thông tin của Đại sứ quán Đức tại Hà Nội (tháng 10/2026). Trước mỗi buổi tư vấn nên kiểm tra lại trang Đại sứ quán xem có thay đổi gì không."
     },
     {
       type: "link",
@@ -29,9 +29,10 @@ const page: PageContent = {
         { de: "APS-Prüfung der Unterlagen", vi: "Thẩm tra hồ sơ APS", body_de: "Kommt zuerst. Für einen Start im September beginnen wir Anfang des Jahres.", body_vi: "Làm đầu tiên. Muốn nhập học tháng 9 thì bắt đầu từ đầu năm." },
         { de: "TestAS (falls nötig)", vi: "TestAS (nếu cần)", body_de: "Eignungstest, kein Bestehen oder Durchfallen, ca. 4 Stunden, auch auf Englisch.", body_vi: "Bài đánh giá năng lực, không có đậu hay trượt, khoảng 4 tiếng, có thể thi bằng tiếng Anh." },
         { de: "Zulassung Studienkolleg oder Hochschule", vi: "Nhận thư mời dự bị hoặc đại học", body_de: "Ob die Zulassung schon da ist, entscheidet, welches Visum beantragt wird (siehe „[Mit Zulassung oder ohne Zulassung](#zulassung)“).", body_vi: "Đã có thư mời nhập học hay chưa sẽ quyết định xin loại visa nào (xem phần „[Có thư mời hay chưa có thư mời](#zulassung)“)." },
-        { de: "Finanzierungsnachweis (Sperrkonto)", vi: "Chứng minh tài chính (tài khoản phong tỏa)", body_de: "[ERGÄNZEN: aktueller Betrag pro Jahr, Anbieter, wie wir helfen]", body_vi: "[ERGÄNZEN: số tiền hiện hành mỗi năm, nhà cung cấp, cách trung tâm hỗ trợ]" },
-        { de: "Krankenversicherung", vi: "Bảo hiểm y tế", body_de: "Muss ab dem gewünschten Einreisedatum gelten, auch wenn man schon vor Semesterbeginn einreist.", body_vi: "Phải có hiệu lực từ ngày muốn nhập cảnh, kể cả khi sang Đức trước ngày bắt đầu học kỳ." },
+        { de: "Finanzierungsnachweis (Sperrkonto)", vi: "Chứng minh tài chính (tài khoản phong tỏa)", body_de: "Sobald mindestens eine Zulassung da ist, eröffnet der Schüler das Sperrkonto noch am selben Tag (noch ohne Geld). Etwa eine Woche später zahlt er den Betrag ein: 2026 sind das 13.093 € für ein Jahr. Der Betrag ändert sich jedes Jahr – vor der Beratung auf der Botschaftsseite prüfen. [ERGÄNZEN: Anbieter]", body_vi: "Khi đã có thư mời của ít nhất 1 trường, học viên đăng ký mở tài khoản phong tỏa ngay trong ngày (chưa cần nộp tiền). Khoảng 1 tuần sau thì nộp tiền vào: năm 2026 là 13.093 € cho một năm. Số tiền thay đổi mỗi năm – trước khi tư vấn kiểm tra lại trang Đại sứ quán. [ERGÄNZEN: nhà cung cấp]" },
+        { de: "Krankenversicherung", vi: "Bảo hiểm y tế", body_de: "Muss ab dem gewünschten Einreisedatum gelten, auch wenn man schon vor Semesterbeginn einreist. Die Versicherung für die ersten 90 Tage kaufen wir. Die Versicherung für ein Jahr in Deutschland (Studienkolleg) kauft der Schüler selbst, wir erklären, wie.", body_vi: "Phải có hiệu lực từ ngày muốn nhập cảnh, kể cả khi sang Đức trước ngày bắt đầu học kỳ. Bảo hiểm 90 ngày đầu do trung tâm mua. Bảo hiểm 1 năm ở Đức cho dự bị do học viên tự mua, trung tâm hướng dẫn." },
         { de: "Visumantrag über das Auslandsportal", vi: "Nộp visa qua Auslandsportal", body_de: "Unterlagen hochladen, VFS-Servicegebühr bezahlen, nach der Vorprüfung Termin bei VFS buchen (Originale abgeben, Fingerabdrücke und Foto). Details [unten](#antrag-und-vfs).", body_vi: "Tải hồ sơ lên, đóng phí dịch vụ VFS, sau khi được kiểm tra sơ bộ thì đặt lịch hẹn ở VFS (nộp bản gốc, lấy vân tay và ảnh). Chi tiết [bên dưới](#antrag-und-vfs)." },
+        { de: "Visum abholen, Flug buchen", vi: "Nhận visa, đặt vé máy bay", body_de: "Das Visum wird nicht nach Hause geschickt: Beim VFS-Termin sagt der Schüler selbst, dass es an unser Büro in Hanoi bzw. Saigon geht. Er holt es dort ab und zahlt den Rest. Den Flug erst buchen, wenn das Visum mit Datum da ist.", body_vi: "Không nhận visa ở nhà: khi đến VFS, học viên tự nói địa chỉ nhận thư là văn phòng trung tâm ở HN/SG. Học viên lên trung tâm lấy visa và hoàn thành chi phí còn lại. Chỉ đặt vé máy bay khi đã có visa với ngày đi." },
         { de: "Nach der Einreise: Anmeldung und Aufenthaltstitel", vi: "Sau khi nhập cảnh: đăng ký cư trú và thẻ cư trú", body_de: "Spätestens zwei Wochen nach dem Einzug beim Einwohnermelde- oder Bürgeramt anmelden. Danach bei der Ausländerbehörde am Wohnort den Aufenthaltstitel beantragen.", body_vi: "Chậm nhất 2 tuần sau khi dọn vào nhà phải đăng ký cư trú (Anmeldung) ở Bürgeramt. Sau đó xin thẻ cư trú (Aufenthaltstitel) ở Sở Ngoại kiều (Ausländerbehörde) nơi ở." }
       ]
     },
@@ -107,6 +108,7 @@ const page: PageContent = {
       type: "list",
       items: [
         { de: "„Kann die Familie den Finanzierungsnachweis übernehmen und die Lebenskosten teilweise?“ – Ja, das ist der übliche Weg. [ERGÄNZEN: Details]", vi: "„Gia đình lo chứng minh tài chính và một phần sinh hoạt phí được không?“ – Được, đây là cách thông thường. [ERGÄNZEN: chi tiết]" },
+        { de: "„Darf mein Kind im Studienkolleg arbeiten?“ – Ja, mit dem Visum für das Studienkolleg meist bis zu 20 Stunden pro Woche. Nach einem Jahr kommt die Abschlussprüfung; wer durchfällt, darf sie höchstens zweimal wiederholen, aber erst im nächsten Termin (etwa ein halbes Jahr später).", vi: "„Con học dự bị có được đi làm thêm không?“ – Được, với visa dự bị thường tối đa 20 giờ/tuần. Sau 1 năm có kỳ thi cuối khoá; nếu rớt được thi lại tối đa 2 lần, nhưng phải đợi kỳ sau (khoảng nửa năm)." },
         { de: "„Was, wenn das erste Studienjahr in Vietnam nicht ganz glatt war?“ – Entscheidend ist die Bestätigung der Uni, dass das Jahr abgeschlossen ist.", vi: "„Năm nhất ở Việt Nam trượt môn thì sao?“ – Quan trọng là trường xác nhận đã hoàn thành năm nhất." },
         { de: "„Wie lange dauert das Visum?“ – Meist ca. zwölf Wochen ab Antrag, manchmal länger. Wer im September beginnt, sollte spätestens im Frühsommer beantragen.", vi: "„Visa mất bao lâu?“ – Thường khoảng 12 tuần từ lúc nộp, có khi lâu hơn. Nhập học tháng 9 thì nên nộp chậm nhất vào đầu hè." },
         { de: "„Kann mein Kind früher einreisen, um sich einzugewöhnen?“ – Ja, das Visum kann meist bis zu eine Woche vor Semesterbeginn gelten. Das Datum muss schon im Antrag stehen.", vi: "„Con có sang sớm để làm quen được không?“ – Được, visa thường có hiệu lực sớm nhất 1 tuần trước khi học kỳ bắt đầu. Ngày này phải ghi ngay trong đơn." }
@@ -114,7 +116,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Was kommt auf dem Weg zum Studienvisum zuerst, nach Deutsch B1?",
@@ -199,6 +201,30 @@ const page: PageContent = {
           { de: "Spätestens im Frühsommer", vi: "Muộn nhất là đầu hè" }
         ],
         correct: 3
+      },
+      {
+        question_de: "Wie viel Geld kommt 2026 auf das Sperrkonto, und wann?",
+        question_vi: "Năm 2026 phải nộp bao nhiêu tiền vào tài khoản phong tỏa, và khi nào?",
+        section: "der-weg-zum-visum",
+        options: [
+          { de: "5.000 €, schon bei Vertragsunterschrift", vi: "5.000 €, ngay khi ký hợp đồng" },
+          { de: "13.093 € für ein Jahr – etwa eine Woche nach Eröffnung des Kontos, wenn mindestens eine Zulassung da ist", vi: "13.093 € cho một năm – khoảng 1 tuần sau khi mở tài khoản, khi đã có thư mời của ít nhất 1 trường" },
+          { de: "13.093 €, erst nach der Ankunft in Deutschland", vi: "13.093 €, sau khi sang Đức" },
+          { de: "Kein Geld, die Familie zeigt das Sparbuch", vi: "Không cần tiền, gia đình đưa sổ tiết kiệm" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wann bucht man den Flug?",
+        question_vi: "Khi nào đặt vé máy bay?",
+        section: "der-weg-zum-visum",
+        options: [
+          { de: "Gleich nach der Zulassung, dann ist er billiger", vi: "Ngay sau khi có thư mời, cho rẻ" },
+          { de: "Beim VFS-Termin", vi: "Khi đến hẹn VFS" },
+          { de: "Wenn das Visum mit Datum da ist – vorher nicht", vi: "Khi đã có visa với ngày đi – trước đó thì không" },
+          { de: "Eine Woche vor Semesterbeginn, egal ob Visum oder nicht", vi: "1 tuần trước khi vào học, có visa hay chưa cũng được" }
+        ],
+        correct: 2
       }
     ]
   }

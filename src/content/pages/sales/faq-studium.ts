@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -36,6 +36,16 @@ const page: PageContent = {
         { de: "„Macht ihr alles von A bis Z?“ – Ja: Deutschkurs von Anfang an plus Bewerbung.", vi: "„Trung tâm hỗ trợ từ A-Z không?“ – Có: dạy tiếng Đức từ đầu và làm hồ sơ." }
       ]
     },
+    { type: "heading", de: "Hochschulen, Semester, Paket", vi: "Trường, kỳ nhập học, trọn gói", anchor: "hochschulen-und-semester" },
+    {
+      type: "list",
+      items: [
+        { de: "Wir bewerben uns kostenlos bei allen Hochschulen, die zum Fach passen – immer bei staatlichen. Deshalb nicht von „staatlich oder privat“ sprechen. Verlangt eine Hochschule besondere Studiengebühren, fragen wir zuerst die Familie.", vi: "Trung tâm nộp miễn phí vào tất cả các trường phù hợp với khối ngành – luôn là trường công. Vì vậy không cần nói nộp trường công hay tư. Trường nào yêu cầu đặc biệt về học phí thì trung tâm hỏi ý kiến gia đình trước." },
+        { de: "Nicht davon sprechen, dass es nicht klappen könnte. Stattdessen: „Wer das B1 rechtzeitig im März/April einreicht, schafft den Wintertermin.“ Erst wenn die Familie fragt, was bei einer nicht bestandenen Prüfung passiert, das erklären.", vi: "Không nói đến chuyện nộp không được – sẽ làm học viên hoang mang. Thay vào đó: „Nếu nộp bằng B1 đúng hạn tháng 3–4 thì nộp kịp kỳ đông.“ Khi nào gia đình hỏi về việc thi không đỗ thì mới tư vấn tiếp." },
+        { de: "Kein Sommersemester versprechen. Studienkollegs beginnen meist im Winter. Gibt es einen Sommertermin, bewerben wir uns – sonst bis zum nächsten Winter warten (läuft das Zertifikat ab, muss neu geprüft werden). Das ändert sich jedes Jahr.", vi: "Không nhấn mạnh kỳ hè. Các trường dự bị thường mở kỳ đông; nếu kỳ hè có thì trung tâm nộp, không thì đợi kỳ đông tiếp theo (bằng hết hạn thì phải thi lại). Mỗi năm các trường thay đổi khác nhau." },
+        { de: "Paket Studium (Flyer, Stand Juli 2026): 129 Mio. VND – Deutsch A1–B1, Bewerbung bei Hochschulen im Wunschfach, Visum und Flug. Den Flyer schicken und wie immer erklären.", vi: "Trọn gói du học đại học (flyer, tháng 7/2026): 129 triệu VND – học tiếng A1–B1, nộp vào các trường theo khối ngành mong muốn, xin visa, vé máy bay. Gửi flyer và giải thích như bình thường." }
+      ]
+    },
     {
       type: "callout",
       tone: "warning",
@@ -44,7 +54,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Was schickst du zuerst bei einer Studienanfrage?",
@@ -92,6 +102,31 @@ const page: PageContent = {
           { de: "Im Internet nachsehen", vi: "Tra trên mạng" }
         ],
         correct: 1
+      },
+      {
+        question_de: "Eine Familie fragt, ob wir uns bei staatlichen oder privaten Hochschulen bewerben. Was sagst du?",
+        question_vi: "Gia đình hỏi trung tâm nộp trường công hay tư. Bạn nói gì?",
+        section: "hochschulen-und-semester",
+        options: [
+          { de: "„Am besten privat, da ist es sicherer.“", vi: "„Nên nộp trường tư cho chắc.“" },
+          { de: "„Das entscheidet ihr allein.“", vi: "„Gia đình tự quyết.“" },
+          { de: "„Wir bewerben uns kostenlos bei allen passenden Hochschulen; nur bei besonderen Studiengebühren fragen wir euch vorher.“", vi: "„Trung tâm nộp miễn phí vào các trường phù hợp với khối ngành; trường nào yêu cầu đặc biệt về học phí thì sẽ hỏi ý kiến gia đình.“" },
+          { de: "„Privat kostet extra, staatlich ist nicht möglich.“", vi: "„Trường tư tốn thêm, trường công không được.“" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Jemand möchte unbedingt im Sommer anfangen. Was antwortest du?",
+        question_vi: "Khách muốn nhất định nhập học kỳ hè. Bạn trả lời gì?",
+        section: "hochschulen-und-semester",
+        options: [
+          { de: "Studienkollegs beginnen meist im Winter. Gibt es einen Sommertermin, bewerben wir uns – versprechen können wir ihn nicht.", vi: "Trường dự bị thường mở kỳ đông. Nếu kỳ hè có thì trung tâm nộp – nhưng không hứa trước được." },
+          { de: "„Kein Problem, der Sommer ist sicher.“", vi: "„Không sao, kỳ hè chắc chắn có.“" },
+          { de: "„Im Sommer gibt es nie Plätze.“", vi: "„Kỳ hè không bao giờ có chỗ.“" },
+          { de: "„Dann besser eine Ausbildung.“", vi: "„Vậy đi du học nghề đi.“" }
+        ],
+        correct: 0
+
       }
     ]
   }

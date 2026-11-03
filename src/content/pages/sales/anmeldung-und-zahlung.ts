@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-11-01",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -95,6 +95,10 @@ const page: PageContent = {
           vi: "Học viên hỏi số tài khoản công ty: có trong tin nhắn nhanh trên Messenger. Học viên đóng vào tài khoản công ty xong thì nhắc kế toán để xuất hoá đơn."
         },
         {
+          de: "Will jemand eine Rechnung mit Mehrwertsteuer (hoá đơn VAT), frag nur dafür nach: vollständiger Name, Nummer des Personalausweises (CCCD), Adresse wie auf dem CCCD und E-Mail. Nur die Nummer – kein Foto vom Ausweis, kein Geburtsdatum. Viele wollen ihre Daten nicht zeigen.",
+          vi: "Khách cần xuất hoá đơn VAT thì chỉ trong trường hợp này mới xin: họ tên, số căn cước công dân (CCCD), địa chỉ trên CCCD và email. Chỉ cần số – không cần chụp CCCD, không cần ngày sinh. Nhiều người ngại lộ thông tin cá nhân."
+        },
+        {
           de: "Im Messenger-Postfach das Label auf „Kurs“ setzen, sobald die Person bezahlt hat.",
           vi: "Học viên đóng tiền xong thì đổi nhãn trong hộp thư Messenger thành „Kurs“."
         },
@@ -142,7 +146,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 2,
+    version: 3,
     questions: [
       {
         question_de: "Jemand lässt sich vormerken, zahlt aber noch nicht. Hat die Person einen festen Platz?",
@@ -227,6 +231,19 @@ const page: PageContent = {
           { de: "Name, Geburtsdatum, Kurs und Zeitraum – in Slack weitergeben und sagen, bis wann sie kommt", vi: "Tên, ngày sinh, khóa học và thời gian – chuyển trên Slack và báo khi nào có" }
         ],
         correct: 3
+      },
+      {
+        question_de: "Jemand möchte eine Rechnung mit Mehrwertsteuer (hoá đơn VAT). Was erfragst du?",
+        question_vi: "Khách cần xuất hoá đơn VAT. Bạn xin những thông tin gì?",
+        section: "was-wir-nach-der-zahlung-brauchen",
+        options: [
+          { de: "Ein Foto vom Personalausweis, vorne und hinten", vi: "Ảnh chụp CCCD hai mặt" },
+          { de: "Name, CCCD-Nummer, Adresse wie auf dem CCCD und E-Mail – kein Foto", vi: "Họ tên, số CCCD, địa chỉ trên CCCD và email – không cần ảnh" },
+          { de: "Nur die Telefonnummer", vi: "Chỉ số điện thoại" },
+          { de: "Geburtsdatum und Reisepass", vi: "Ngày sinh và hộ chiếu" }
+        ],
+        correct: 1
+
       }
     ]
   }

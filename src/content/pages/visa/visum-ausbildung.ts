@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-11-02",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "callout",
@@ -40,7 +40,8 @@ const page: PageContent = {
         { de: "Unterschriebener Ausbildungsvertrag mit einem deutschen Betrieb", vi: "Hợp đồng học nghề đã ký với doanh nghiệp Đức" },
         { de: "Deutsch mindestens B1 in allen vier Fertigkeiten (Gesundheitswesen – Pflegehelfer, ZFA, MFA: B2)", vi: "Tiếng Đức tối thiểu B1 đủ 4 kỹ năng (ngành y tế – Pflegehelfer, ZFA, MFA: B2)" },
         { de: "Mindestens 18 Jahre", vi: "Từ 18 tuổi trở lên" },
-        { de: "[ERGÄNZEN: Anerkennung des Schulabschlusses, Finanzierung, Versicherung]", vi: "[ERGÄNZEN: công nhận bằng cấp, tài chính, bảo hiểm]" }
+        { de: "Finanzierung: Steht im Vertrag eine Ausbildungsvergütung von mindestens 1.048 € im Monat, braucht man keinen Finanzierungsnachweis (Betrag seit 01.09.2025). Bei weniger, z. B. 800–980 €, braucht man ihn. Finanzierungsnachweis heißt: genug Geld für das Leben jeden Monat – nicht Haus, Grundstück oder Sparbuch.", vi: "Tài chính: nếu hợp đồng ghi lương học nghề từ 1.048 €/tháng trở lên thì không cần chứng minh tài chính (mức áp dụng từ 01.09.2025). Thấp hơn, ví dụ 800–980 €, thì vẫn phải chứng minh. Chứng minh tài chính nghĩa là có đủ tiền sinh hoạt mỗi tháng theo quy định – không phải giấy tờ nhà đất hay sổ tiết kiệm." },
+        { de: "[ERGÄNZEN: Anerkennung des Schulabschlusses, Versicherung]", vi: "[ERGÄNZEN: công nhận bằng cấp, bảo hiểm]" }
       ]
     },
     { type: "heading", de: "Ablauf", vi: "Quy trình" },
@@ -49,9 +50,9 @@ const page: PageContent = {
       items: [
         { de: "Vertrag liegt vor – Rate 2 (50 Mio.)", vi: "Có hợp đồng – đóng đợt 2 (50 triệu)" },
         { de: "Unterlagen vorbereiten und übersetzen", vi: "Chuẩn bị và dịch thuật hồ sơ", body_de: "[ERGÄNZEN: Liste der Unterlagen]", body_vi: "[ERGÄNZEN: danh sách hồ sơ]" },
-        { de: "Termin bei der Botschaft", vi: "Hẹn lịch Đại sứ quán", body_de: "[ERGÄNZEN: Hanoi oder Generalkonsulat Ho-Chi-Minh-Stadt, Buchungsweg]", body_vi: "[ERGÄNZEN: Hà Nội hay Tổng lãnh sự quán TP.HCM, cách đặt lịch]" },
+        { de: "Termin bei der Botschaft", vi: "Hẹn lịch Đại sứ quán", body_de: "Seit 23.03.2026 wird auch das Ausbildungsvisum online über das Auslandsportal (CSP) beantragt: unter „Visa for Study“ den Punkt „Vocational training“ wählen. [ERGÄNZEN: Hanoi oder Generalkonsulat Ho-Chi-Minh-Stadt]", body_vi: "Từ 23.03.2026, visa du học nghề cũng phải nộp online qua Auslandsportal (CSP): trong mục „Visa for Study“ chọn „Vocational training“. [ERGÄNZEN: Hà Nội hay Tổng lãnh sự quán TP.HCM]" },
         { de: "Warten auf das Visum – oft 3–5 Monate", vi: "Chờ visa – thường 3–5 tháng" },
-        { de: "Visum erteilt – Rate 3 (99 Mio.), Flug buchen", vi: "Có visa – đóng đợt 3 (99 triệu), đặt vé máy bay" }
+        { de: "Visum erteilt – Rate 3 (99 Mio.), Flug buchen", vi: "Có visa – đóng đợt 3 (99 triệu), đặt vé máy bay", body_de: "Das Visum wird nicht nach Hause geschickt. Beim Termin sagt der Schüler selbst, dass es an unser Büro in Hanoi bzw. Saigon geht – Adresse und Telefon dafür sind in der Gruppe angepinnt. Dann holt er es im Büro ab und zahlt dort Rate 3. Den Flug erst buchen, wenn das Visum mit Datum da ist.", body_vi: "Không cho học viên nhận visa ở nhà. Khi nộp hồ sơ, học viên tự nói địa chỉ nhận thư là văn phòng trung tâm ở HN/SG – địa chỉ và SĐT nhận visa được ghim sẵn trong nhóm. Sau đó học viên lên trung tâm lấy visa và đóng đợt 3. Chỉ đặt vé máy bay khi đã có visa với ngày đi." }
       ]
     },
     { type: "heading", de: "Fristen, die alles entscheiden", vi: "Những mốc thời gian quyết định" },
@@ -71,7 +72,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 2,
+    version: 3,
     questions: [
       {
         question_de: "Wie viele Ausbildungsbereiche hat das Programm von NaNu NaNa zurzeit?",
@@ -156,6 +157,30 @@ const page: PageContent = {
           { de: "Ja, wenn du auf deine Wunschstadt wartest", vi: "Có, nếu chờ được thành phố mình muốn" }
         ],
         correct: 0
+      },
+      {
+        question_de: "Im Vertrag stehen 900 € Ausbildungsvergütung im Monat. Braucht die Person einen Finanzierungsnachweis?",
+        question_vi: "Hợp đồng ghi lương học nghề 900 €/tháng. Có cần chứng minh tài chính không?",
+        section: "voraussetzungen",
+        options: [
+          { de: "Nein, wer eine Vergütung bekommt, braucht nie einen", vi: "Không, có lương thì không bao giờ cần" },
+          { de: "Ja – ohne Nachweis geht es erst ab 1.048 € im Monat", vi: "Có – từ 1.048 €/tháng trở lên mới không cần chứng minh" },
+          { de: "Nur, wenn die Familie ein Haus hat", vi: "Chỉ khi gia đình có nhà" },
+          { de: "Nein, das prüft die Botschaft nicht", vi: "Không, Đại sứ quán không kiểm tra" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wohin wird das Visum geschickt?",
+        question_vi: "Visa được gửi về đâu?",
+        section: "ablauf",
+        options: [
+          { de: "Nach Hause zur Familie", vi: "Về nhà cho gia đình" },
+          { de: "Direkt zum Betrieb in Deutschland", vi: "Thẳng cho doanh nghiệp ở Đức" },
+          { de: "An unser Büro in Hanoi bzw. Saigon – der Schüler holt es dort ab und zahlt Rate 3", vi: "Về văn phòng trung tâm ở HN/SG – học viên lên lấy và đóng đợt 3" },
+          { de: "Man holt es selbst bei VFS ab, wann man will", vi: "Tự lên VFS lấy lúc nào cũng được" }
+        ],
+        correct: 2
       }
     ]
   }

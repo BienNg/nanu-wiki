@@ -8,7 +8,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -55,7 +55,8 @@ const page: PageContent = {
         { de: "Online, deutsche Zeit: morgens 8:00–9:30 (ab Winterzeit 7:00–8:30), nachmittags 14:30–16:00, abends 21:00–22:30", vi: "Online giờ Đức: sáng 8:00–9:30 (từ giờ mùa đông 7:00–8:30), chiều 14:30–16:00, tối 21:00–22:30" },
         { de: "Online, vietnamesische Zeit: mittags 13:00–14:30, abends 18:30–20:00 oder 20:30–22:00", vi: "Online giờ Việt Nam: trưa 13:00–14:30, tối 18:30–20:00 hoặc 20:30–22:00" },
         { de: "Vor Ort in Saigon und Hanoi: 9:00–11:30, 15:30–18:00 oder 18:00–20:30, 4 Termine pro Woche (Intensivkurs)", vi: "Offline tại Sài Gòn và Hà Nội: 9:00–11:30, 15:30–18:00 hoặc 18:00–20:30, 4 buổi/tuần (lớp cấp tốc)" },
-        { de: "Online meist 3–4 Termine pro Woche à 1,5 Stunden (z. B. Mo-Do-Fr-Sa oder Mo-Mi-Fr)", vi: "Online thường 3–4 buổi/tuần, mỗi buổi 1,5 tiếng (ví dụ thứ 2-5-6-7 hoặc 2-4-6)" }
+        { de: "Online meist 3–4 Termine pro Woche à 1,5 Stunden (z. B. Mo-Do-Fr-Sa oder Mo-Mi-Fr)", vi: "Online thường 3–4 buổi/tuần, mỗi buổi 1,5 tiếng (ví dụ thứ 2-5-6-7 hoặc 2-4-6)" },
+        { de: "Länge eines Termins: vor Ort 2,5 Stunden, online 1,5 Stunden, jeweils ohne Pause. Der erste Termin kann bis zu 30 Minuten länger dauern. 1:1: 1 Stunde 15 Minuten.", vi: "Thời lượng mỗi buổi: offline 2,5 tiếng, online 1,5 tiếng, không có giờ nghỉ. Buổi đầu tiên có thể kéo dài thêm tối đa 30 phút. Lớp kèm 1-1: 1 tiếng 15 phút." }
       ]
     },
     {
@@ -88,6 +89,15 @@ const page: PageContent = {
       type: "paragraph",
       de: "Wir empfehlen ehrlich die Gruppe: allein verliert man schneller die Motivation. 1:1 bieten wir nur an, wenn kein Gruppenkurs passt (z. B. telc-Vorbereitung kurz vor der Prüfung) und eine Lehrkraft frei ist. Preis immer aus der aktuellen Liste – Beispiel Oktober: telc-B1-Vorbereitung 1:1 für 7.400.000 VND, 2–3 Termine pro Woche.",
       vi: "Chúng ta thật lòng khuyên học nhóm: học một mình dễ mất động lực. Lớp kèm 1-1 chỉ mở khi không có lớp nhóm phù hợp (ví dụ ôn thi telc sát ngày thi) và có giáo viên trống lịch. Giá luôn theo bảng hiện hành – ví dụ tháng 10: ôn thi telc B1 kèm 1-1 là 7.400.000 VND, 2–3 buổi/tuần."
+    },
+    {
+      type: "list",
+      items: [
+        { de: "Immer zuerst eine passende Gruppe anbieten. Erst wenn die Person keine Gruppe kann und weiter 1:1 will, Preis nennen und den Plan der Lehrkräfte prüfen lassen.", vi: "Luôn gợi ý lớp nhóm phù hợp trước. Chỉ khi khách không học nhóm được mà vẫn muốn 1-1 thì mới báo học phí và kiểm tra lịch giáo viên." },
+        { de: "Bei 1:1 richtet sich die Person nach unserem Plan: „Wir prüfen, welche Zeiten frei sind, und melden uns bald – die Gruppen sind gerade sehr voll.“", vi: "Học 1-1 thì học viên theo lịch của trung tâm: „Trung tâm sẽ kiểm tra lịch còn trống và báo lại sớm – hiện các lớp nhóm khá kín lịch nên anh chị đợi xíu nha.“" },
+        { de: "1:1 unterrichten Lehrkräfte in Vietnam, nicht die Lehrkräfte in Deutschland – und nicht zu den Zeiten der Gruppenkurse (13:00 und 20:30 Uhr vietnamesischer Zeit).", vi: "Lớp 1-1 do giáo viên ở Việt Nam dạy, không mở cho giáo viên ở Đức – và không xếp vào khung giờ lớp nhóm (13h và 20h30 giờ VN)." },
+        { de: "Einen halben Kurs als 1:1 gibt es nicht.", vi: "Không có học kèm 1-1 nửa khoá." }
+      ]
     },
     { type: "heading", de: "7. Wie lange dauert es bis B1?", vi: "7. Học bao lâu thì lên B1?" },
     {
@@ -123,9 +133,9 @@ const page: PageContent = {
     },
     {
       type: "callout",
-      tone: "warning",
-      de: "Zu klären: Dürfen wir „Bachelor oder Master“ sagen? Im August wollte ein Teilnehmer sein Geld zurück, weil ihm „Unterricht mit Master“ versprochen worden war. Siehe „[Beratung: Reihenfolge, Einstufung & Termine](sales/beratung-und-termine)“.",
-      vi: "Cần làm rõ: có được nói „tốt nghiệp đại học hoặc thạc sĩ“ không? Tháng 8 có học viên đòi hoàn tiền vì lúc tư vấn được hứa „thạc sĩ dạy“. Xem trang „[Tư vấn: thứ tự, xếp trình độ & lịch hẹn](sales/beratung-und-termine)“."
+      tone: "info",
+      de: "So darfst du es sagen (Phương, Februar 2026): „Alle Lehrkräfte haben in Deutschland studiert und gelebt und dort einen Bachelor oder Master abgeschlossen.“ Für die ganze Schule – nie als Versprechen für eine bestimmte Klasse („bei dir unterrichtet ein Master“). Im August wollte ein Teilnehmer sein Geld zurück, weil ihm genau das versprochen worden war. Mehr dazu: „[Beratung: Reihenfolge, Einstufung & Termine](sales/beratung-und-termine#uber-lehrkrafte-sprechen)“.",
+      vi: "Cách được phép nói (chị Phương, tháng 2/2026): „Thầy cô đều đã học và sống tại Đức, tốt nghiệp đại học hoặc thạc sĩ tại Đức.“ Đây là nói về đội ngũ giáo viên của trung tâm – không bao giờ hứa cho một lớp cụ thể („lớp em sẽ có thạc sĩ dạy“). Tháng 8 có học viên đòi hoàn tiền vì được hứa đúng câu đó. Xem thêm: „[Tư vấn: thứ tự, xếp trình độ & lịch hẹn](sales/beratung-und-termine#uber-lehrkrafte-sprechen)“."
     },
     { type: "heading", de: "10. Probestunde", vi: "10. Học thử" },
     {
@@ -153,6 +163,7 @@ const page: PageContent = {
         { de: "Kombi-Pakete: A1+A2, A2–B1 (24.500.000 VND) und A1–B1 sind deutlich günstiger als einzeln.", vi: "Combo: A1+A2, A2–B1 (24.500.000 VND) và A1–B1 rẻ hơn nhiều so với đăng ký từng khóa." },
         { de: "Im Oktober 2026 gilt zusätzlich die Aktion – siehe „[Aktion Oktober 2026](sales/aktion-oktober-2026)“.", vi: "Trong tháng 10/2026 có thêm ưu đãi – xem „[Ưu đãi tháng 10/2026](sales/aktion-oktober-2026)“." },
         { de: "Ehemalige Schüler: −500.000 VND. Zweite Person aus derselben Familie: −500.000 VND.", vi: "Học viên cũ: giảm 500.000 VND. Người thứ hai trong cùng gia đình: giảm 500.000 VND." },
+        { de: "Mehrere Freunde melden sich zusammen an (Stand Juni 2026, vor der Zusage kurz bei der Leitung bestätigen): Einzelkurs – ab der zweiten Person −500.000 VND auf den reduzierten Preis. Kombi A1–B1 zu dritt – ab der zweiten Person −10 % auf den reduzierten Preis (z. B. 36 → 32,4 Mio.). Ganzes Ausbildungs- oder Studienpaket – die zweite Person −5 Mio.", vi: "Nhóm bạn đăng ký cùng (thông tin tháng 6/2026, trước khi báo khách hỏi lại quản lý): khoá lẻ – từ học viên thứ 2 giảm thêm 500.000 VND so với giá đã giảm. Combo A1–B1 cho 3 bạn – từ học viên thứ 2 giảm thêm 10% so với giá đã giảm (ví dụ 36 → 32,4 triệu). Trọn gói du học – học viên thứ 2 giảm thêm 5 triệu." },
         { de: "Saisonaktionen (z. B. Tết) gelten nur in ihrem Zeitraum – ehrlich sagen, wenn sie vorbei sind.", vi: "Ưu đãi theo dịp (ví dụ Tết) chỉ áp dụng trong thời gian đó – nói thật nếu đã hết." },
         { de: "Kann jemand erst ein paar Tage nach der Frist zahlen und meldet sich vorher: Frühbucherpreis nach Rücksprache halten.", vi: "Khách báo trước là chỉ đóng được trễ vài ngày: hỏi quản lý để giữ ưu đãi đăng ký sớm." }
       ]
@@ -195,7 +206,8 @@ const page: PageContent = {
       items: [
         { de: "Aufzeichnungen der Stunden gibt es nicht – nie versprechen.", vi: "Trung tâm không quay lại buổi học – không bao giờ hứa có video." },
         { de: "Die App NaNu Go hat vorab aufgenommene Lektionen, ist aber noch im Aufbau: Stand 27.10.2026 gibt es nur die ersten 8 Lektionen von A1.1.", vi: "App NaNu Go có bài giảng quay sẵn nhưng vẫn đang hoàn thiện: tính đến 27/10/2026 mới có 8 bài đầu của A1.1." },
-        { de: "Verpasst? Wir schicken die Unterlagen der Stunde. Bei genug Interessenten öffnen wir eine Nachhilfestunde mit der Assistenz.", vi: "Nghỉ buổi nào? Trung tâm gửi file bài buổi đó. Nếu đủ học viên đăng ký, trung tâm mở lớp trợ giảng." }
+        { de: "Verpasst? Wir schicken die Unterlagen der Stunde. Bei genug Interessenten öffnen wir eine Nachhilfestunde mit der Assistenz.", vi: "Nghỉ buổi nào? Trung tâm gửi file bài buổi đó. Nếu đủ học viên đăng ký, trung tâm mở lớp trợ giảng." },
+        { de: "Wer neu in eine laufende Klasse einsteigt: Die Stunden mit der Assistenz gibt es ab 3 verpassten Terminen. Bei 1–2 Terminen die Unterlagen schicken und die Assistenz nicht erwähnen.", vi: "Học viên vào lớp đang học: lớp trợ giảng dành cho các bạn vào trễ từ 3 buổi trở lên. Trễ 1–2 buổi thì gửi file bài, không nhắc đến trợ giảng." }
       ]
     },
     { type: "heading", de: "17. Spezielle Wünsche", vi: "17. Yêu cầu đặc biệt" },
@@ -227,7 +239,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Jemand klickt „Chi phí trọn gói là bao nhiêu?“. Was schickst du?",
@@ -444,6 +456,54 @@ const page: PageContent = {
           { de: "14 Jahre – für Jüngere nichts zusagen, an die Leitung geben", vi: "14 tuổi – nhỏ hơn thì không hứa, chuyển quản lý" }
         ],
         correct: 3
+      },
+      {
+        question_de: "Jemand will 1:1, eine passende Gruppe gibt es aber. Was machst du zuerst?",
+        question_vi: "Khách muốn học 1-1 nhưng có lớp nhóm phù hợp. Bạn làm gì trước?",
+        section: "6-einzel-oder-kleingruppenunterricht",
+        options: [
+          { de: "Sofort den 1:1-Preis schicken", vi: "Gửi ngay học phí 1-1" },
+          { de: "Eine Lehrkraft in Deutschland fragen, ob sie Zeit hat", vi: "Hỏi giáo viên ở Đức có rảnh không" },
+          { de: "Die Gruppe anbieten – erst wenn das nicht geht, den 1:1-Preis nennen und den Plan der Lehrkräfte prüfen", vi: "Gợi ý lớp nhóm – không được thì mới báo học phí 1-1 và kiểm tra lịch giáo viên" },
+          { de: "Einen halben Kurs 1:1 anbieten", vi: "Gợi ý học 1-1 nửa khoá" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Was darfst du über unsere Lehrkräfte sagen?",
+        question_vi: "Bạn được nói gì về giáo viên của trung tâm?",
+        section: "9-wer-unterrichtet",
+        options: [
+          { de: "„In deiner Klasse unterrichtet ein Master.“", vi: "„Lớp em sẽ có thạc sĩ dạy.“" },
+          { de: "„Alle haben in Deutschland studiert und gelebt und dort einen Bachelor oder Master gemacht“ – für die ganze Schule, nicht als Versprechen für eine Klasse", vi: "„Thầy cô đều đã học và sống tại Đức, tốt nghiệp đại học hoặc thạc sĩ tại Đức“ – nói về đội ngũ, không hứa cho một lớp" },
+          { de: "Gar nichts", vi: "Không nói gì cả" },
+          { de: "„Phương unterrichtet dich die ganze Zeit.“", vi: "„Chị Phương sẽ dạy em suốt khoá.“" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Wie lange dauert ein Termin vor Ort?",
+        question_vi: "Một buổi học offline kéo dài bao lâu?",
+        section: "3-uhrzeiten-passen-nicht",
+        options: [
+          { de: "1,5 Stunden mit Pause", vi: "1,5 tiếng có nghỉ giữa giờ" },
+          { de: "1 Stunde 15 Minuten", vi: "1 tiếng 15 phút" },
+          { de: "3 Stunden", vi: "3 tiếng" },
+          { de: "2,5 Stunden ohne Pause – der erste Termin kann bis zu 30 Minuten länger dauern", vi: "2,5 tiếng không nghỉ – buổi đầu có thể dài thêm tối đa 30 phút" }
+        ],
+        correct: 3
+      },
+      {
+        question_de: "Jemand steigt zwei Termine zu spät in eine laufende Klasse ein. Bekommt er Stunden mit der Assistenz?",
+        question_vi: "Học viên vào lớp đang học trễ 2 buổi. Có được học trợ giảng không?",
+        section: "16-aufzeichnungen-und-verpasste-termine",
+        options: [
+          { de: "Nein – Assistenz gibt es ab 3 verpassten Terminen; bei 1–2 Terminen schicken wir die Unterlagen", vi: "Không – trợ giảng dành cho trễ từ 3 buổi; trễ 1–2 buổi thì gửi file bài" },
+          { de: "Ja, immer", vi: "Có, luôn luôn" },
+          { de: "Ja, und dazu die Aufzeichnung", vi: "Có, kèm video buổi học" },
+          { de: "Nur gegen Aufpreis", vi: "Chỉ khi trả thêm phí" }
+        ],
+        correct: 0
       }
     ]
   }

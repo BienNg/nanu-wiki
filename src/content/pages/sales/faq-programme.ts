@@ -8,7 +8,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -102,8 +102,18 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "warning",
-      de: "Zu klären – zur Zeit nichts zusagen außer „B1 nötig“: (1) Wie alt darf das B1 sein? „FAQ Ausbildung“ sagt „nicht älter als 2 Monate“, im August hieß es „noch 10 Monate gültig“. (2) Mindestens 70 Punkte pro Fertigkeit – stimmt das? (3) Zählen nur telc und Goethe oder auch ÖSD? (4) Was kostet die Teilnahme über uns, und wie hoch ist die Anzahlung, die dieses Jahr neu ist? (5) Wie lange dauert es bis zur Ausreise?",
-      vi: "Cần làm rõ – hiện tại chỉ tư vấn „cần có B1“: (1) Bằng B1 được bao lâu? Trang „FAQ du học nghề“ ghi „chưa quá 2 tháng“, tháng 8 lại nói „còn hạn 10 tháng“. (2) Đủ 70 điểm mỗi kỹ năng – có đúng không? (3) Chỉ nhận telc, Goethe hay cả ÖSD? (4) Đi qua trung tâm thì chi phí bao nhiêu, tiền cọc năm nay thay đổi thế nào? (5) Bao lâu thì có thể bay?"
+      de: "Zu klären – zur Zeit nichts zusagen außer „B1 nötig“: Wie alt darf das B1 sein? Im März hieß es „nicht älter als 2 Monate“, im August „noch 10 Monate gültig“. Und gelten die Regeln aus dem März (unten) auch für den nächsten Jahrgang?",
+      vi: "Cần làm rõ – hiện tại chỉ tư vấn „cần có B1“: bằng B1 được bao lâu? Tháng 3 ghi „chưa quá 2 tháng“, tháng 8 lại nói „còn hạn 10 tháng“. Và các quy định tháng 3 (bên dưới) có áp dụng cho khoá năm sau không?"
+    },
+    {
+      type: "list",
+      items: [
+        { de: "Stand März 2026 (Jahrgang 2026, DEHOGA Sachsen-Anhalt): mindestens 70 % insgesamt und in jeder Fertigkeit (vor allem Hören und Sprechen). Mit B2 von Goethe oder telc konnte man sich bis 07/2026 direkt bewerben.", vi: "Thông tin tháng 3/2026 (khoá 2026, DEHOGA Sachsen-Anhalt): đạt ≥70% tổng và ≥70% từng kỹ năng (đặc biệt Nghe – Nói). Có B2 Goethe/telc thì ứng tuyển trực tiếp đến 07/2026." },
+        { de: "Vor der Ausreise ist B2 Pflicht. Passende Bewerber können einen B2-Kurs am Goethe-Institut Hanoi oder Ho-Chi-Minh-Stadt bezahlt bekommen.", vi: "Bắt buộc đạt B2 trước khi sang Đức. Ứng viên phù hợp có thể được tài trợ khoá B2 tại Goethe-Institut Hà Nội hoặc TP.HCM." },
+        { de: "Ausbildung 3 Jahre in Sachsen-Anhalt (Magdeburg und Umgebung), Start 04–09/2026.", vi: "Học nghề 3 năm tại bang Sachsen-Anhalt (Magdeburg và khu vực lân cận), bắt đầu 04–09/2026." },
+        { de: "Kosten: Deutschkurs, Übersetzungen, Visum und Flug zahlt die Person selbst. Dazu eine Kaution an DEHOGA nach dem Visum, die nach dem Abschluss zurückkommt: 3.000 € bei direkter Bewerbung, 2.000 € über uns. Was die Person uns zahlt, ist eine eigene Vereinbarung mit dem Zentrum.", vi: "Chi phí: học viên tự trả học tiếng, dịch thuật, phí visa và vé máy bay. Thêm tiền cọc cho DEHOGA sau khi có visa, hoàn lại sau khi tốt nghiệp: 3.000 € nếu tự ứng tuyển, 2.000 € nếu qua trung tâm. Chi phí với trung tâm là thoả thuận riêng." },
+        { de: "Unterlagen im Original mit beglaubigter deutscher Übersetzung: Schulabschluss, Führungszeugnis, Gesundheitszeugnis mit Blutbild, Impfnachweis (Gesundheitszeugnis und Impfnachweis auf Englisch müssen nicht übersetzt werden).", vi: "Hồ sơ bản gốc + dịch công chứng tiếng Đức: bằng THPT, lý lịch tư pháp, giấy khám sức khoẻ đủ điều kiện làm việc (có xét nghiệm máu tổng quát), giấy tiêm chủng (giấy khám và tiêm chủng có tiếng Anh thì không cần dịch)." }
+      ]
     },
     { type: "heading", de: "Weitere neue Programme", vi: "Các chương trình mới khác" },
     {
@@ -121,7 +131,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Bei einem Programm steht „Zu klären“. Was machst du?",
@@ -229,6 +239,19 @@ const page: PageContent = {
           { de: "Sagen, dass es das nicht gibt", vi: "Nói là không có" }
         ],
         correct: 2
+      },
+      {
+        question_de: "Programm DEHOGA Sachsen-Anhalt (Stand März 2026): Welche Kaution zahlt man über uns, und wann?",
+        question_vi: "Chương trình DEHOGA Sachsen-Anhalt (tháng 3/2026): đi qua trung tâm thì đặt cọc bao nhiêu, khi nào?",
+        section: "b2-kurs-gratis-viethoga-dehoga",
+        options: [
+          { de: "Keine Kaution", vi: "Không cần cọc" },
+          { de: "5.000 € vor dem Interview", vi: "5.000 € trước phỏng vấn" },
+          { de: "3.000 € bei der Anmeldung, nicht erstattet", vi: "3.000 € khi đăng ký, không hoàn lại" },
+          { de: "2.000 € nach dem Visum – sie kommt nach dem Abschluss zurück", vi: "2.000 € sau khi có visa – được hoàn lại sau khi tốt nghiệp" }
+        ],
+        correct: 3
+
       }
     ]
   }

@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-11-02",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -89,6 +89,17 @@ const page: PageContent = {
       de: "Reicht das Niveau im Sprachtest nicht, sag es klar und nenne den nächsten Schritt (z. B. erst B2). Das ist besser als ein Vertrag, der in Deutschland scheitert.",
       vi: "Nếu trình độ chưa đạt trong buổi test, hãy nói rõ và gợi ý bước tiếp theo (ví dụ học lên B2). Như vậy tốt hơn một hợp đồng thất bại khi sang Đức."
     },
+    { type: "heading", de: "Mit Vertrag: Berufe, B1 und Zeitplan", vi: "Đã ký hợp đồng: ngành nghề, B1 và lộ trình", anchor: "zeitplan" },
+    {
+      type: "list",
+      items: [
+        { de: "Mindestens 3 Berufe wählen, die die Person wirklich machen würde. Wir bewerben uns für alle 3 gleichzeitig – der Beruf, bei dem es klappt, wird es. Für nur einen Beruf bewerben wir nicht.", vi: "Chọn ít nhất 3 ngành mà học viên chấp nhận đi. Trung tâm apply đồng thời 3 ngành đó – đậu ngành nào thì đi ngành đó. Trung tâm không apply chỉ 1 ngành." },
+        { de: "B1: Liegen zwischen den Prüfungen der Fertigkeiten mehr als 4 Monate, muss neu geprüft werden – sonst ist das Zertifikat nicht gültig. Den Prüfungstermin dem Zentrum melden.", vi: "B1: nếu thời gian thi giữa các kỹ năng cách nhau quá 4 tháng thì bắt buộc phải thi lại để có chứng chỉ hợp lệ. Báo ngày thi cụ thể cho trung tâm." },
+        { de: "Für einen Start im September/Oktober: B1-Prüfung im März oder April, das B1 spätestens im Mai bei uns einreichen. Wer später kommt, schafft diesen Start vielleicht nicht – das sagen wir offen.", vi: "Muốn đi kỳ tháng 9/10: thi B1 vào tháng 3 hoặc 4, nộp bằng B1 cho trung tâm muộn nhất vào tháng 5. Nộp muộn thì trung tâm không đảm bảo đi kịp kỳ đó – nói rõ với học viên." },
+        { de: "Während der B1-Zeit macht die Person ihren Reisepass (Pflicht) und meldet sich selbst zur Prüfung an – wir erklären, wie.", vi: "Trong lúc học B1, học viên làm hộ chiếu (bắt buộc) và tự đăng ký thi – trung tâm hướng dẫn." },
+        { de: "Während der Bewerbung lernt die Person weiter: B2-Kurs, Aussprache und Sprechen sind Pflicht. Nach Hause fahren und nur warten oder nur allein lernen geht nicht. Interviewtraining, Bewerbung bei Betrieben und Unterlagen kosten nichts extra.", vi: "Trong lúc làm hồ sơ, học viên vẫn phải học tiếp: bắt buộc đăng ký học B2, học phát âm và giao tiếp. Trung tâm không chấp nhận học viên về quê chờ hồ sơ mà không học hoặc chỉ tự học. Luyện phỏng vấn, xin doanh nghiệp và làm hồ sơ không phải đóng thêm." }
+      ]
+    },
     { type: "heading", de: "Nach der Ankunft", vi: "Sau khi sang Đức" },
     {
       type: "list",
@@ -107,7 +118,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 2,
+    version: 3,
     questions: [
       {
         question_de: "Welche Angaben erfragst du zuerst bei einer Ausbildungsanfrage?",
@@ -216,6 +227,43 @@ const page: PageContent = {
           { de: "Ja, die Leitung übernimmt", vi: "Có, quản lý lo" }
         ],
         correct: 0
+      },
+      {
+        question_de: "Ein Schüler mit Vertrag will sich nur für einen Beruf bewerben. Was gilt?",
+        question_vi: "Học viên đã ký hợp đồng chỉ muốn apply 1 ngành. Quy định thế nào?",
+        section: "zeitplan",
+        options: [
+          { de: "Kein Problem, wir bewerben uns nur dafür", vi: "Không sao, trung tâm chỉ apply ngành đó" },
+          { de: "Er muss mindestens 3 Berufe wählen – wir bewerben uns für alle gleichzeitig", vi: "Phải chọn ít nhất 3 ngành – trung tâm apply đồng thời cả 3" },
+          { de: "Er muss 10 Berufe wählen", vi: "Phải chọn 10 ngành" },
+          { de: "Den Beruf bestimmt der Betrieb", vi: "Ngành do doanh nghiệp chọn" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Zwischen den B1-Prüfungen für Hören und Sprechen liegen 5 Monate. Was heißt das?",
+        question_vi: "Thi kỹ năng Nghe và Nói B1 cách nhau 5 tháng. Điều đó có nghĩa là gì?",
+        section: "zeitplan",
+        options: [
+          { de: "Nichts, jede Fertigkeit zählt einzeln", vi: "Không sao, mỗi kỹ năng tính riêng" },
+          { de: "Das Zertifikat gilt doppelt so lange", vi: "Chứng chỉ có giá trị gấp đôi" },
+          { de: "Mehr als 4 Monate Abstand – die Person muss neu prüfen, sonst ist das Zertifikat nicht gültig", vi: "Cách nhau quá 4 tháng – phải thi lại, nếu không chứng chỉ không hợp lệ" },
+          { de: "Sie muss direkt B2 machen", vi: "Phải thi luôn B2" }
+        ],
+        correct: 2
+      },
+      {
+        question_de: "Wann muss das B1 spätestens bei uns sein, damit ein Start im September/Oktober realistisch ist?",
+        question_vi: "Muốn đi kỳ tháng 9/10 thì muộn nhất khi nào phải nộp bằng B1 cho trung tâm?",
+        section: "zeitplan",
+        options: [
+          { de: "Im Mai – die Prüfung also im März oder April", vi: "Tháng 5 – tức là thi vào tháng 3 hoặc 4" },
+          { de: "Im August", vi: "Tháng 8" },
+          { de: "Eine Woche vor dem Flug", vi: "1 tuần trước khi bay" },
+          { de: "Egal, Hauptsache vor Jahresende", vi: "Lúc nào cũng được, miễn trước cuối năm" }
+        ],
+        correct: 0
+
       }
     ]
   }

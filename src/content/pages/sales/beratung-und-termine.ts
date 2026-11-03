@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-03",
   body: [
     {
       type: "paragraph",
@@ -90,8 +90,8 @@ const page: PageContent = {
           vi: "Video quay lại buổi học: trung tâm không có. Đã có học viên khẳng định lúc tư vấn được hứa là có."
         },
         {
-          de: "Eine bestimmte Lehrkraft oder einen bestimmten Abschluss („Unterricht mit Master“): Alle Lehrkräfte haben in Deutschland studiert – mehr nicht zusagen. Ein Teilnehmer wollte sonst sein Geld zurück.",
-          vi: "Một giáo viên cụ thể hay bằng cấp cụ thể („thạc sĩ dạy“): tất cả giáo viên đều học tại Đức – không hứa hơn. Đã có học viên đòi hoàn tiền vì điều này."
+          de: "Eine bestimmte Lehrkraft oder einen bestimmten Abschluss für eine Klasse („bei dir unterrichtet ein Master“). Was du sagen darfst, steht unten bei „[Über Lehrkräfte sprechen](#uber-lehrkrafte-sprechen)“. Ein Teilnehmer wollte sein Geld zurück, weil ihm das versprochen worden war.",
+          vi: "Một giáo viên cụ thể hay bằng cấp cụ thể cho một lớp („lớp em có thạc sĩ dạy“). Được nói gì thì xem phần „[Nói về giáo viên](#uber-lehrkrafte-sprechen)“ bên dưới. Đã có học viên đòi hoàn tiền vì được hứa như vậy."
         },
         {
           de: "Visum, Bestehen der Prüfung, einen bestimmten Ausbildungsort.",
@@ -103,11 +103,75 @@ const page: PageContent = {
         }
       ]
     },
+    { type: "heading", de: "Gruppe zuerst, 1:1 nur auf Wunsch", vi: "Ưu tiên lớp nhóm, 1-1 chỉ khi khách yêu cầu" },
     {
-      type: "callout",
-      tone: "warning",
-      de: "Zu klären: Welche Aussage über Lehrkräfte ist erlaubt? „FAQ Sprachkurse“ sagt „alle haben einen Bachelor oder Master“. Soll Sales Abschlüsse überhaupt nennen – und wenn ja, wie?",
-      vi: "Cần làm rõ: được phép nói gì về giáo viên? Trang „FAQ khoá học tiếng“ ghi „tất cả đều tốt nghiệp đại học hoặc thạc sĩ“. Sales có nên nhắc đến bằng cấp không – nếu có thì nói thế nào?"
+      type: "list",
+      items: [
+        {
+          de: "Immer zuerst eine passende Gruppe anbieten – wir brauchen volle Gruppen. Erst wenn die Person wirklich keine Gruppe kann und weiter 1:1 will, den Preis nennen und den Plan der Lehrkräfte prüfen. Regeln für 1:1: „[FAQ Sprachkurse](sales/faq-sprachkurse#6-einzel-oder-kleingruppenunterricht)“.",
+          vi: "Luôn gợi ý lớp nhóm phù hợp trước – trung tâm đang rất cần mở lớp nhóm. Chỉ khi khách thật sự không học nhóm được mà vẫn muốn 1-1 thì mới báo học phí và kiểm tra lịch giáo viên. Quy định lớp 1-1: „[FAQ khoá học tiếng](sales/faq-sprachkurse#6-einzel-oder-kleingruppenunterricht)“."
+        },
+        {
+          de: "Vor dem Anbieten in Notion schauen, welche Klasse bald startet und wie viele Plätze noch fehlen – und diese Klasse zuerst anbieten.",
+          vi: "Trước khi tư vấn, vào Notion xem lớp nào sắp khai giảng và còn thiếu bao nhiêu chỗ – rồi ưu tiên đẩy lớp đó."
+        }
+      ]
+    },
+    { type: "heading", de: "Über Lehrkräfte sprechen", vi: "Nói về giáo viên" },
+    {
+      type: "list",
+      items: [
+        {
+          de: "Das darfst du sagen (Phương, Februar 2026): „Alle Lehrkräfte haben in Deutschland studiert und gelebt und dort einen Bachelor oder Master abgeschlossen.“ Wir stellen nicht massenhaft ein – alle sind Deutsche oder leben schon lange in Deutschland. Das gilt für die Schule, nie als Versprechen für eine bestimmte Klasse.",
+          vi: "Được nói (chị Phương, tháng 2/2026): „Thầy cô đều đã học và sống tại Đức, tốt nghiệp đại học hoặc thạc sĩ tại Đức.“ Trung tâm không tuyển giáo viên ồ ạt – tất cả là người Đức hoặc đã sống ở Đức lâu năm. Đây là nói về đội ngũ, không bao giờ hứa cho một lớp cụ thể."
+        },
+        {
+          de: "Nie sagen, dass eine Lehrkraft leicht oder schwer zu verstehen ist, schnell spricht o. Ä. Sonst wollen die Leute nur noch zu einer Lehrkraft – und gehen woanders hin, wenn es deren Klasse nicht gibt. Ein Schüler hat im Juli genau deshalb gewechselt.",
+          vi: "Không bao giờ nói giáo viên nào giọng dễ nghe hay khó nghe, nói nhanh… Nếu vậy học viên chỉ muốn học một người – không có lớp người đó dạy thì đi trung tâm khác. Tháng 7 đã có học viên bỏ đi vì đúng lý do này."
+        },
+        {
+          de: "Immer positiv und mit Lösung: „Alle unsere Lehrkräfte sind sehr gut. Wenn dir etwas zu schnell geht, sag Bescheid – wir geben es an die Lehrkraft weiter und helfen dir.“",
+          vi: "Luôn nói tích cực và đưa cách giải quyết: „Các giáo viên đều rất giỏi. Nếu thầy nói nhanh quá thì em báo lại để trung tâm feedback cho thầy cải thiện và hỗ trợ em luôn.“"
+        },
+        {
+          de: "Möchte jemand Phương als Lehrerin: Sie pendelt zwischen Vietnam und Deutschland und kann keine feste Klasse übernehmen. Eine Gruppe anbieten. Die Qualität kommt aus unserem System, nicht von einer Person.",
+          vi: "Khách muốn chị Phương dạy: chị di chuyển giữa Việt Nam và Đức nên không nhận lớp cố định được. Gợi ý lớp nhóm. Chất lượng đến từ hệ thống của trung tâm, không phải từ một người."
+        }
+      ]
+    },
+    { type: "heading", de: "So schreiben wir", vi: "Cách nhắn tin" },
+    {
+      type: "list",
+      items: [
+        {
+          de: "Jede Nachricht endet mit einer Frage oder einem klaren Abschluss – sonst antwortet niemand. Und immer mit Bild, wenn es um einen Kurs geht.",
+          vi: "Mỗi tin nhắn kết thúc bằng một câu hỏi hoặc câu chốt rõ ràng – nếu không khách sẽ không trả lời. Khi nói về lớp học thì luôn kèm hình."
+        },
+        {
+          de: "Mehr fragen, nicht drängen. Lieber herausfinden, was die Person braucht, als sofort verkaufen.",
+          vi: "Hỏi nhiều hơn, không ép bán. Tìm hiểu khách cần gì trước khi chốt."
+        },
+        {
+          de: "Anrede: Die Person mit anh, chị oder bạn ansprechen, sich selbst „trung tâm“ oder em/chị nennen – und dabei bleiben. „Mình“ nur ganz selten, sonst ist unklar, wer gemeint ist.",
+          vi: "Xưng hô: gọi khách là anh/chị/bạn, tự xưng là „trung tâm“ hoặc em/chị – và giữ nhất quán. Hạn chế chữ „mình“ vì dễ nhầm ai với ai."
+        },
+        {
+          de: "Wir schreiben wie eine Person: Wer den Chat übernimmt, liest vorher alles und macht dort weiter – nie so fragen, als hätte noch niemand mit der Person gesprochen.",
+          vi: "Nhắn như cùng một người: ai tiếp nhận cuộc trò chuyện thì đọc lại toàn bộ trước rồi nhắn tiếp – không hỏi lại như thể chưa ai tư vấn khách."
+        },
+        {
+          de: "In WhatsApp gleich nach dem Namen fragen. Partner und Bewerber: höflich und förmlich. Bei Partnern schreibt NaNu immer die letzte Nachricht.",
+          vi: "Trên WhatsApp hỏi tên khách ngay. Với đối tác và ứng viên xin việc: lịch sự, trang trọng. Với đối tác thì NaNu luôn là người nhắn tin cuối cùng."
+        },
+        {
+          de: "Was du nicht sicher weißt, nicht beantworten. Neue Infos (auch Antworten aus ChatGPT oder unter Posts) erst prüfen lassen: suchen, fragen, OK bekommen, dann schicken. Zu Aufenthaltsrecht oder Familiennachzug nur allgemein antworten – keine Rechtsberatung.",
+          vi: "Điều gì không chắc thì không trả lời. Thông tin mới (kể cả câu trả lời từ ChatGPT hay trong bình luận) phải được duyệt trước: tìm, hỏi, được OK rồi mới gửi. Về luật cư trú hay đoàn tụ gia đình chỉ trả lời chung chung – không tư vấn pháp lý."
+        },
+        {
+          de: "Nie auf unbekannte Links klicken.",
+          vi: "Không bao giờ bấm vào link lạ."
+        }
+      ]
     },
     { type: "heading", de: "Unsere Methode erklären", vi: "Giải thích phương pháp học" },
     {
@@ -124,7 +188,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Wann schickst du den Preis?",
@@ -209,6 +273,42 @@ const page: PageContent = {
           { de: "Keine, ich erkläre es frei", vi: "Không dùng, tự giải thích" }
         ],
         correct: 0
+      },
+      {
+        question_de: "Ein Schüler sagt, er versteht eine Lehrkraft schlecht. Was antwortest du?",
+        question_vi: "Học viên nói khó nghe thầy giảng. Bạn trả lời thế nào?",
+        section: "uber-lehrkrafte-sprechen",
+        options: [
+          { de: "„Ja, er spricht sehr schnell, nimm lieber die andere Lehrerin.“", vi: "„Đúng rồi, thầy nói nhanh lắm, em học cô kia đi.“" },
+          { de: "Positiv bleiben: „Unsere Lehrkräfte sind sehr gut. Wenn es zu schnell geht, sag Bescheid – wir geben es weiter und helfen dir.“", vi: "Nói tích cực: „Giáo viên đều rất giỏi. Nếu thầy nói nhanh quá thì em báo lại để trung tâm feedback và hỗ trợ em.“" },
+          { de: "Gar nicht antworten", vi: "Không trả lời" },
+          { de: "Sofort Geld zurück anbieten", vi: "Đề nghị hoàn tiền ngay" }
+        ],
+        correct: 1
+      },
+      {
+        question_de: "Jemand möchte Phương als feste Lehrerin. Was sagst du?",
+        question_vi: "Khách muốn chị Phương dạy cố định. Bạn nói gì?",
+        section: "uber-lehrkrafte-sprechen",
+        options: [
+          { de: "Dass sie zwischen Vietnam und Deutschland pendelt und keine feste Klasse übernimmt – und eine Gruppe anbieten", vi: "Chị di chuyển giữa Việt Nam và Đức nên không nhận lớp cố định – và gợi ý lớp nhóm" },
+          { de: "„Kein Problem, ich trage dich bei ihr ein.“", vi: "„Không sao, em ghi tên chị vào lớp của chị Phương.“" },
+          { de: "„Nur 1:1 und gegen Aufpreis.“", vi: "„Chỉ học 1-1 và trả thêm phí.“" },
+          { de: "„Das weiß ich nicht.“", vi: "„Em không biết.“" }
+        ],
+        correct: 0
+      },
+      {
+        question_de: "Wie sprichst du Kunden im Chat an?",
+        question_vi: "Bạn xưng hô với khách trên chat thế nào?",
+        section: "so-schreiben-wir",
+        options: [
+          { de: "Immer „mình“ und „bạn“", vi: "Luôn xưng „mình“ – „bạn“" },
+          { de: "Jedes Mal anders", vi: "Mỗi lần một kiểu" },
+          { de: "Ohne Anrede", vi: "Không xưng hô" },
+          { de: "Kunde: anh, chị oder bạn; ich: „trung tâm“ oder em/chị – und dabei bleiben", vi: "Gọi khách anh/chị/bạn; tự xưng „trung tâm“ hoặc em/chị – và giữ nhất quán" }
+        ],
+        correct: 3
       }
     ]
   }
