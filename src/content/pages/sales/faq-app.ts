@@ -7,21 +7,12 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-04",
   body: [
     {
       type: "paragraph",
-      de: "Rund 40 Chats im Oktober kamen über die App-Anzeige – fast alle mit einer Standardfrage per Button. Diese Leute haben noch keine Frage zu einem Kurs, sondern zur App. Beantworte sie kurz und lenke dann auf den Kurs.",
-      vi: "Khoảng 40 tin nhắn trong tháng 10 đến từ quảng cáo app – hầu hết là câu hỏi mẫu bấm từ nút. Những khách này chưa hỏi về khóa học, mà hỏi về app. Trả lời ngắn gọn rồi dẫn sang khóa học."
-    },
-    { type: "heading", de: "Die drei Button-Fragen", vi: "Ba câu hỏi từ nút bấm" },
-    {
-      type: "list",
-      items: [
-        { de: "„App này giá bao nhiêu?“ (Was kostet die App?) – 24 Chats", vi: "„App này giá bao nhiêu?“ – 24 cuộc trò chuyện" },
-        { de: "„Tôi cần đăng ký lớp học để sử dụng app?“ (Muss ich einen Kurs buchen?) – 13 Chats", vi: "„Tôi cần đăng ký lớp học để sử dụng app?“ – 13 cuộc trò chuyện" },
-        { de: "„App này có miễn phí không?“ (Ist die App kostenlos?) – 7 Chats", vi: "„App này có miễn phí không?“ – 7 cuộc trò chuyện" }
-      ]
+      de: "Viele schreiben zuerst wegen der App, noch nicht wegen eines Kurses. Beantworte die Frage kurz und lenke dann auf den Kurs.",
+      vi: "Nhiều khách nhắn trước về app, chưa hỏi về khoá học. Trả lời ngắn rồi dẫn sang khoá học."
     },
     { type: "heading", de: "Die Antwort", vi: "Câu trả lời" },
     {
@@ -50,21 +41,22 @@ const page: PageContent = {
     {
       type: "callout",
       tone: "tip",
-      de: "Viele klicken den Button mehrmals oder schreiben danach nichts mehr. Eine Antwort reicht – keine Wiederholungen. Kommt nach 24 Stunden nichts, einmal nachfassen.",
-      vi: "Nhiều khách bấm nút nhiều lần hoặc sau đó không nhắn gì thêm. Trả lời một lần là đủ – không lặp lại. Sau 24 giờ không thấy trả lời thì nhắn lại một lần."
+      de: "Fragt jemand mehrmals dasselbe oder schreibt danach nichts mehr: Eine Antwort reicht. Kommt nach 24 Stunden nichts, einmal nachfassen.",
+      vi: "Khách hỏi đi hỏi lại cùng một câu hoặc sau đó không nhắn gì thêm: trả lời một lần là đủ. Sau 24 giờ không thấy trả lời thì nhắn lại một lần."
     },
     { type: "heading", de: "Probleme von Schülern mit der App", vi: "Học viên gặp sự cố với app" },
     {
       type: "list",
       items: [
-        { de: "„Die App will einen Klassencode“ oder „Das Passwort stimmt nicht“: Nach Screenshot fragen, die richtige Anmelde-E-Mail prüfen und den Link der Hör-App erneut schicken.", vi: "„App yêu cầu mã lớp“ hoặc „Mật khẩu sai“: xin ảnh chụp màn hình, kiểm tra đúng email đăng nhập và gửi lại link app luyện nghe." },
+        { de: "„Die App will einen Klassencode“: Das ist Google Classroom, nicht NaNu Go. Schick den Klassencode oder den Einladungslink direkt.", vi: "„App yêu cầu mã lớp“: đó là Google Classroom, không phải NaNu Go. Gửi ngay mã lớp hoặc link mời." },
+        { de: "„Das Passwort stimmt nicht“: Das ist NaNu Go. Frag nach einem Screenshot, prüfe die richtige Anmelde-E-Mail und schick den Link [nanugo.app](https://nanugo.app) noch einmal.", vi: "„Mật khẩu sai“: đó là NaNu Go. Xin ảnh chụp màn hình, kiểm tra đúng email đăng nhập và gửi lại link [nanugo.app](https://nanugo.app)." },
         { de: "Google Classroom: Die Anmeldung muss nur einmal gemacht werden. Klappt es nicht, die Hausaufgabe vorerst als Datei oder Screenshot schicken – damit niemand eine Lektion verpasst.", vi: "Google Classroom: chỉ cần đăng nhập một lần. Nếu chưa vào được, tạm thời gửi bài tập dạng file hoặc ảnh chụp – để học viên không bị lỡ bài." },
         { de: "Technikprobleme intern weitergeben, damit sie für alle gelöst werden.", vi: "Báo lỗi kỹ thuật cho nội bộ để sửa cho tất cả học viên." }
       ]
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "„App này giá bao nhiêu?“ Was antwortest du?",
@@ -103,13 +95,13 @@ const page: PageContent = {
         correct: 3
       },
       {
-        question_de: "Jemand klickt den App-Button dreimal und schreibt dann nichts mehr. Was machst du?",
-        question_vi: "Khách bấm nút app ba lần rồi không nhắn gì nữa. Bạn làm gì?",
+        question_de: "Jemand fragt dreimal nach der App und schreibt dann nichts mehr. Was machst du?",
+        question_vi: "Khách hỏi về app ba lần rồi không nhắn gì nữa. Bạn làm gì?",
         section: "die-antwort",
         options: [
-          { de: "Auf jeden Klick einzeln antworten", vi: "Trả lời từng lần bấm" },
+          { de: "Auf jede Frage einzeln antworten", vi: "Trả lời từng câu một" },
           { de: "Gar nicht antworten", vi: "Không trả lời" },
-          { de: "Einmal antworten, keine Wiederholungen – nach 24 Stunden einmal nachfassen", vi: "Trả lời một lần, không lặp lại – sau 24 giờ nhắn lại một lần" },
+          { de: "Einmal antworten – nach 24 Stunden einmal nachfassen", vi: "Trả lời một lần – sau 24 giờ nhắn lại một lần" },
           { de: "Jeden Tag nachfassen", vi: "Nhắn lại mỗi ngày" }
         ],
         correct: 2
@@ -119,7 +111,7 @@ const page: PageContent = {
         question_vi: "Học viên nói: „Mật khẩu không đúng.“ Bạn làm gì?",
         section: "probleme-von-schulern-mit-der-app",
         options: [
-          { de: "Nach Screenshot fragen, die richtige Anmelde-E-Mail prüfen und den Link erneut schicken", vi: "Xin ảnh chụp màn hình, kiểm tra email đăng nhập và gửi lại link" },
+          { de: "Nach Screenshot fragen, die richtige Anmelde-E-Mail prüfen und nanugo.app erneut schicken – das ist NaNu Go, nicht Classroom", vi: "Xin ảnh chụp màn hình, kiểm tra email đăng nhập và gửi lại nanugo.app – đây là NaNu Go, không phải Classroom" },
           { de: "Sagen, er soll ein neues Konto anlegen", vi: "Bảo tạo tài khoản mới" },
           { de: "Ihn an Google verweisen", vi: "Bảo hỏi Google" },
           { de: "Ihm einen anderen Kurs anbieten", vi: "Giới thiệu khóa khác" }

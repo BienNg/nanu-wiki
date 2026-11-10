@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { AppShell } from "@/components/AppShell";
 import { NavigationLoader } from "@/components/NavigationLoader";
 import { Toaster } from "@/components/Toaster";
-import { getOnboarding, visibleAreas } from "@/content";
+import { getOnboarding, onboardingLeafIds, visibleAreas } from "@/content";
 import { onboardingDone } from "@/lib/quizProgress";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const areaList = visibleAreas(session.profile);
 
   let onboardingPct: number | null = null;
-  const itemIds = getOnboarding(session.profile.primary_area ?? "").flatMap((w) => w.items.map((i) => i.id));
+  const itemIds = onboardingLeafIds(getOnboarding(session.profile.primary_area ?? ""));
   if (itemIds.length && session.profile.role !== "candidate") {
     const done = await onboardingDone(session.profile.id, session.profile.primary_area!);
     onboardingPct = Math.round((done.size / itemIds.length) * 100);

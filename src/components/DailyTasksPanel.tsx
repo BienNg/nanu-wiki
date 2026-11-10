@@ -15,10 +15,11 @@ export type DailyItem = {
   id: string;
   label_de: string;
   label_vi: string;
-  weekdayOnly: boolean; // only due on this weekday
+  weekdayOnly?: boolean; // only due on this weekday (parents and standalone tasks)
   href: string | null;
   fullHref: string | null; // set → href opens the side pane
   anchor: string | null; // the section of the page to jump to
+  subtasks?: DailyItem[];
 };
 
 type Entry = { done: boolean; note: string };
@@ -43,11 +44,11 @@ function goToSection(e: React.MouseEvent<HTMLAnchorElement>, it: DailyItem) {
   store(ARRIVE, to.pathname + to.search + to.hash);
 }
 
-/** The small book button next to a task: opens the Handbuch page it comes from. */
-const BOOK_LINK = {
-  title: "Im Handbuch öffnen · Mở trong Sổ tay",
-  "aria-label": "Im Handbuch öffnen · Mở trong Sổ tay",
-  className: "flex h-7 w-7 flex-none items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink",
+/** The button next to a task: opens its step-by-step guide (which links on to the Handbuch). */
+const GUIDE_LINK = {
+  title: "Schritt für Schritt · Hướng dẫn từng bước",
+  "aria-label": "Schritt für Schritt · Hướng dẫn từng bước",
+  className: "flex h-7 flex-none items-center gap-1 rounded-md px-1.5 text-xs text-muted hover:bg-hover hover:text-ink",
 };
 
 export function DailyTasksPanel({
@@ -68,7 +69,7 @@ export function DailyTasksPanel({
   const router = useRouter();
   const [state, setState] = useState<Record<string, Entry>>(() => {
     const merged = { ...initial };
-    for (const it of items) {
+    for (const it of items.flatMap((i) => [i, ...(i.subtasks ?? [])])) {
       const s = saved.get(`${areaSlug}|${day}|${it.id}`);
       if (s) merged[it.id] = s;
     }
@@ -77,27 +78,56 @@ export function DailyTasksPanel({
   const [openNote, setOpenNote] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  const doneCount = items.filter((i) => state[i.id]?.done).length;
-  const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+  const leaves = items.flatMap((i) => (i.subtasks?.length ? i.subtasks : [i]));
+  const doneCount = leaves.filter((i) => state[i.id]?.done).length;
+  const pct = leaves.length ? Math.round((doneCount / leaves.length) * 100) : 0;
 
-  function save(id: string, next: Entry) {
-    const before = state[id] ?? { done: false, note: "" };
-    const key = `${areaSlug}|${day}|${id}`;
-    saved.set(key, next);
-    setState((prev) => ({ ...prev, [id]: next }));
+  function saveMany(updates: { id: string; next: Entry }[]) {
+    const before: Record<string, Entry> = {};
+    for (const u of updates) {
+      before[u.id] = state[u.id] ?? { done: false, note: "" };
+      saved.set(`${areaSlug}|${day}|${u.id}`, u.next);
+    }
+    setState((prev) => {
+      const copy = { ...prev };
+      for (const u of updates) copy[u.id] = u.next;
+      return copy;
+    });
     startTransition(async () => {
       try {
-        const res = await saveDailyTask(areaSlug, id, day, next.done, next.note);
-        if (!res.ok) {
+        const results = await Promise.all(updates.map((u) => saveDailyTask(areaSlug, u.id, day, u.next.done, u.next.note)));
+        if (results.some((res) => !res.ok)) {
           toast("Neuer Tag – die Liste wurde zurückgesetzt · Ngày mới – danh sách đã được làm mới");
           router.refresh();
         }
       } catch {
-        saved.set(key, before);
-        setState((prev) => ({ ...prev, [id]: before }));
+        for (const u of updates) saved.set(`${areaSlug}|${day}|${u.id}`, before[u.id]);
+        setState((prev) => ({ ...prev, ...before }));
         toast("Nicht gespeichert – bitte noch einmal · Chưa lưu được – vui lòng thử lại");
       }
     });
+  }
+
+  function save(id: string, next: Entry) {
+    saveMany([{ id, next }]);
+  }
+
+  /** A grouped task is done exactly when every part is done. Ticking the parent ticks every part. */
+  function toggleParent(it: DailyItem, done: boolean) {
+    const parts = it.subtasks ?? [];
+    saveMany([
+      ...parts.map((s) => ({ id: s.id, next: { ...(state[s.id] ?? { done: false, note: "" }), done } })),
+      { id: it.id, next: { ...(state[it.id] ?? { done: false, note: "" }), done } },
+    ]);
+  }
+
+  function togglePart(it: DailyItem, partId: string, done: boolean) {
+    const parts = it.subtasks ?? [];
+    const parentDone = parts.every((s) => (s.id === partId ? done : state[s.id]?.done));
+    saveMany([
+      { id: partId, next: { ...(state[partId] ?? { done: false, note: "" }), done } },
+      { id: it.id, next: { ...(state[it.id] ?? { done: false, note: "" }), done: parentDone } },
+    ]);
   }
 
   const groups = [
@@ -113,7 +143,7 @@ export function DailyTasksPanel({
         </span>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <strong className="text-[22px] font-semibold text-ink">
-            {doneCount}/{items.length}
+            {doneCount}/{leaves.length}
           </strong>
           <span className="text-[13px] text-muted">
             <Label de="erledigt · die Liste beginnt jeden Tag um 0 Uhr (Vietnam) neu" vi="đã xong · danh sách làm mới lúc 0h mỗi ngày (giờ Việt Nam)" />
@@ -129,57 +159,51 @@ export function DailyTasksPanel({
           </h3>
           <div className="rounded-md bg-white px-1.5 py-1 shadow-[0_1px_2px_rgba(16,24,40,.06)]">
             {g.list.map((it) => {
-              const entry = state[it.id] ?? { done: false, note: "" };
-              const editing = openNote === it.id;
+              const parts = it.subtasks ?? [];
+              const partDone = parts.filter((s) => state[s.id]?.done).length;
+              const done = parts.length ? partDone === parts.length : !!state[it.id]?.done;
+              const mixed = parts.length > 0 && partDone > 0 && partDone < parts.length;
               return (
                 <div key={it.id} className="border-b border-[#F0F1F3] px-1.5 py-2.5 text-[13px] last:border-b-0">
-                  <div className="flex items-start gap-2.5">
-                    <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5">
-                      <input
-                        type="checkbox"
-                        checked={entry.done}
-                        onChange={(e) => save(it.id, { ...entry, done: e.target.checked })}
-                        className="mt-0.5 h-[15px] w-[15px] flex-none accent-accent"
-                      />
-                      <span className={entry.done ? "text-faint line-through" : "text-ink"}>
-                        <Bi de={it.label_de} vi={it.label_vi} />
-                      </span>
-                    </label>
-                    {!narrow && (
-                      <button
-                        type="button"
-                        onClick={() => setOpenNote(editing ? null : it.id)}
-                        aria-expanded={editing}
-                        title="Notiz · Ghi chú"
-                        className={`flex h-7 flex-none items-center gap-1 rounded-md px-1.5 text-xs hover:bg-hover ${entry.note ? "text-accent-dark" : "text-muted"}`}
-                      >
-                        <Icon name="edit" size={13} />
-                        <Label de="Notiz" vi="Ghi chú" />
-                      </button>
-                    )}
-                    {it.href && it.fullHref ? (
-                      <PaneLink href={it.href} fullHref={it.fullHref} onClick={(e) => goToSection(e, it)} {...BOOK_LINK}>
-                        <Icon name="book" size={14} />
-                      </PaneLink>
-                    ) : (
-                      it.href && (
-                        <Link href={it.href} onClick={(e) => goToSection(e, it)} {...BOOK_LINK}>
-                          <Icon name="book" size={14} />
-                        </Link>
-                      )
-                    )}
-                  </div>
-                  {narrow ? null : editing ? (
-                    <NoteEditor
-                      initial={entry.note}
-                      onSave={(note) => {
-                        setOpenNote(null);
-                        if (note.trim() !== entry.note) save(it.id, { ...entry, note: note.trim() });
-                      }}
-                      onCancel={() => setOpenNote(null)}
-                    />
-                  ) : (
-                    entry.note && <p className="m-0 mt-1.5 whitespace-pre-wrap pl-[25px] text-xs text-muted">{entry.note}</p>
+                  <TaskLine
+                    it={it}
+                    done={done}
+                    mixed={mixed}
+                    entry={state[it.id] ?? { done: false, note: "" }}
+                    narrow={narrow}
+                    editing={openNote === it.id}
+                    onToggle={(checked) => (parts.length ? toggleParent(it, checked) : save(it.id, { ...(state[it.id] ?? { done: false, note: "" }), done: checked }))}
+                    onNote={() => setOpenNote(openNote === it.id ? null : it.id)}
+                    onSaveNote={(note) => {
+                      setOpenNote(null);
+                      const entry = state[it.id] ?? { done: false, note: "" };
+                      if (note.trim() !== entry.note) save(it.id, { done, note: note.trim() });
+                    }}
+                    onCancelNote={() => setOpenNote(null)}
+                  />
+                  {parts.length > 0 && (
+                    <div className="mt-1 ml-[25px] border-l border-[#F0F1F3] pl-2.5">
+                      {parts.map((sub) => (
+                        <TaskLine
+                          key={sub.id}
+                          it={sub}
+                          done={!!state[sub.id]?.done}
+                          mixed={false}
+                          entry={state[sub.id] ?? { done: false, note: "" }}
+                          narrow={narrow}
+                          editing={openNote === sub.id}
+                          guide={sub.anchor !== it.anchor}
+                          onToggle={(checked) => togglePart(it, sub.id, checked)}
+                          onNote={() => setOpenNote(openNote === sub.id ? null : sub.id)}
+                          onSaveNote={(note) => {
+                            setOpenNote(null);
+                            const entry = state[sub.id] ?? { done: false, note: "" };
+                            if (note.trim() !== entry.note) save(sub.id, { ...entry, note: note.trim() });
+                          }}
+                          onCancelNote={() => setOpenNote(null)}
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
               );
@@ -188,6 +212,92 @@ export function DailyTasksPanel({
         </section>
       ))}
     </div>
+  );
+}
+
+function TaskLine({
+  it,
+  done,
+  mixed,
+  entry,
+  narrow,
+  editing,
+  guide = true,
+  onToggle,
+  onNote,
+  onSaveNote,
+  onCancelNote,
+}: {
+  it: DailyItem;
+  done: boolean;
+  mixed: boolean;
+  entry: Entry;
+  narrow: boolean;
+  editing: boolean;
+  guide?: boolean;
+  onToggle: (checked: boolean) => void;
+  onNote: () => void;
+  onSaveNote: (note: string) => void;
+  onCancelNote: () => void;
+}) {
+  return (
+    <div className="py-1 first:pt-0 last:pb-0">
+      <div className="flex items-start gap-2.5">
+        <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5">
+          <input
+            ref={(el) => {
+              if (el) el.indeterminate = mixed;
+            }}
+            type="checkbox"
+            checked={done}
+            onChange={(e) => onToggle(e.target.checked)}
+            className="mt-0.5 h-[15px] w-[15px] flex-none accent-accent"
+          />
+          <span className={done ? "text-faint line-through" : "text-ink"}>
+            <Bi de={it.label_de} vi={it.label_vi} />
+          </span>
+        </label>
+        {!narrow && (
+          <button
+            type="button"
+            onClick={onNote}
+            aria-expanded={editing}
+            title="Notiz · Ghi chú"
+            className={`flex h-7 flex-none items-center gap-1 rounded-md px-1.5 text-xs hover:bg-hover ${entry.note ? "text-accent-dark" : "text-muted"}`}
+          >
+            <Icon name="edit" size={13} />
+            <Label de="Notiz" vi="Ghi chú" />
+          </button>
+        )}
+        {guide && it.href && it.fullHref ? (
+          <PaneLink href={it.href} fullHref={it.fullHref} onClick={(e) => goToSection(e, it)} {...GUIDE_LINK}>
+            <GuideLabel narrow={narrow} />
+          </PaneLink>
+        ) : (
+          guide &&
+          it.href && (
+            <Link href={it.href} onClick={(e) => goToSection(e, it)} {...GUIDE_LINK}>
+              <GuideLabel narrow={narrow} />
+            </Link>
+          )
+        )}
+      </div>
+      {narrow ? null : editing ? (
+        <NoteEditor initial={entry.note} onSave={onSaveNote} onCancel={onCancelNote} />
+      ) : (
+        entry.note && <p className="m-0 mt-1.5 whitespace-pre-wrap pl-[25px] text-xs text-muted">{entry.note}</p>
+      )}
+    </div>
+  );
+}
+
+/** Icon plus „Anleitung“ – the word only when there is room (no side pane open). */
+function GuideLabel({ narrow }: { narrow: boolean }) {
+  return (
+    <>
+      <Icon name="doc" size={14} />
+      {!narrow && <Label de="Anleitung" vi="Hướng dẫn" />}
+    </>
   );
 }
 

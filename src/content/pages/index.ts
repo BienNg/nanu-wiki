@@ -6,7 +6,6 @@ import fuerAlleKurseUndLeistungen from "./fuer-alle/kurse-und-leistungen";
 import fuerAllePreiseUndPositionierung from "./fuer-alle/preise-und-positionierung";
 import fuerAlleStandorteUndTeam from "./fuer-alle/standorte-und-team";
 import fuerAlleTools from "./fuer-alle/tools";
-import fuerAlleUmHilfeBitten from "./fuer-alle/um-hilfe-bitten";
 import lehrmaterialienBuchFinden from "./lehrmaterialien/buch-finden";
 import lehrmaterialienFaqMaterial from "./lehrmaterialien/faq-material";
 import lehrmaterialienLehrbuchUndMethode from "./lehrmaterialien/lehrbuch-und-methode";
@@ -31,6 +30,7 @@ import salesProbestundeBuchen from "./sales/probestunde-buchen";
 import salesVerkaufstrichter from "./sales/verkaufstrichter";
 import salesWebsitePostsUndWerbung from "./sales/website-posts-und-werbung";
 import salesAnmeldungUndZahlung from "./sales/anmeldung-und-zahlung";
+import salesTaeglicheAufgaben from "./sales/taegliche-aufgaben";
 import studentSupportAufgabenUndRhythmus from "./student-support/aufgaben-und-rhythmus";
 import studentSupportKommentareBeantworten from "./student-support/kommentare-beantworten";
 import studentSupportKursPausieren from "./student-support/kurs-pausieren";
@@ -39,6 +39,7 @@ import studentSupportMaterialUndHausaufgaben from "./student-support/material-un
 import studentSupportNachDerZahlung from "./student-support/nach-der-zahlung";
 import studentSupportProbestundenUndRueckerstattung from "./student-support/probestunden-und-rueckerstattung";
 import studentSupportTechnikHilfe from "./student-support/technik-hilfe";
+import studentSupportTaeglicheAufgaben from "./student-support/taegliche-aufgaben";
 import visaKundenfragen from "./visa/kundenfragen";
 import visaUeberblick from "./visa/ueberblick";
 import visaVisumAusbildung from "./visa/visum-ausbildung";
@@ -46,10 +47,10 @@ import visaVisumStudium from "./visa/visum-studium";
 
 /** Pages per area slug. To add a page: create a file in the area's folder and list it here. */
 export const PAGES_BY_AREA: Record<string, PageContent[]> = {
-  "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleGoogleDriveOffline, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools, fuerAlleUmHilfeBitten],
+  "fuer-alle": [fuerAlleAllgemeineRegeln, fuerAlleGeschichteUndWerte, fuerAlleGoogleDriveOffline, fuerAlleKurseUndLeistungen, fuerAllePreiseUndPositionierung, fuerAlleStandorteUndTeam, fuerAlleTools],
   lehrmaterialien: [lehrmaterialienBuchFinden, lehrmaterialienFaqMaterial, lehrmaterialienLehrbuchUndMethode, lehrmaterialienMaterialVerschicken, lehrmaterialienMaterialienUeberblick, lehrmaterialienZugangClassroomUndApp],
-  sales: [salesAktionOktober2026, salesAnmeldungUndZahlung, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
-  "student-support": [studentSupportAufgabenUndRhythmus, studentSupportKommentareBeantworten, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportProbestundenUndRueckerstattung, studentSupportTechnikHilfe],
+  sales: [salesAktionOktober2026, salesAnmeldungUndZahlung, salesAufgabenUndKpis, salesBeratungUndTermine, salesBestandskundenImMessenger, salesErstkontaktMessenger, salesFaqApp, salesFaqAusbildung, salesFaqProgramme, salesFaqSprachkurse, salesFaqStudium, salesInterview, salesInterviewFaelle, salesKampagneProbestunde, salesKeineKunden, salesProbestundeBuchen, salesTaeglicheAufgaben, salesVerkaufstrichter, salesWebsitePostsUndWerbung],
+  "student-support": [studentSupportAufgabenUndRhythmus, studentSupportKommentareBeantworten, studentSupportKursPausieren, studentSupportLehrkraefteBegleiten, studentSupportMaterialUndHausaufgaben, studentSupportNachDerZahlung, studentSupportProbestundenUndRueckerstattung, studentSupportTaeglicheAufgaben, studentSupportTechnikHilfe],
   visa: [visaKundenfragen, visaUeberblick, visaVisumAusbildung, visaVisumStudium],
 };
 

@@ -62,7 +62,7 @@ export function brokenLinks(): string[] {
     });
   }
   for (const [area, tasks] of Object.entries(DAILY_TASKS_BY_AREA)) {
-    for (const t of tasks) {
+    for (const t of tasks.flatMap((task) => [task, ...(task.subtasks ?? [])])) {
       if (!t.page) continue;
       const { area: a, page, anchor } = parseTarget(t.page);
       const headings = ids.get(`${a}/${page}`);
@@ -135,15 +135,43 @@ export function onboardingQuizPage(item: OnboardingWeek["items"][number]): PageW
   return page?.quiz && page.published ? page : undefined;
 }
 
+/** Ids a person actually ticks. A step with children counts each child, not the parent. */
+export function checklistIds(item: OnboardingWeek["items"][number]): string[] {
+  return item.children?.length ? item.children.map((c) => c.id) : [item.id];
+}
+
+export function onboardingLeafIds(weeks: OnboardingWeek[]): string[] {
+  return weeks.flatMap((w) => w.items.flatMap(checklistIds));
+}
+
+/** Every tick of the block is done, including each app under a grouped step. */
+export function weekComplete(week: OnboardingWeek, done: Set<string>): boolean {
+  return week.items.every((i) => checklistIds(i).every((id) => done.has(id)));
+}
+
 /** Every task of an area's daily checklist, whatever the weekday. */
 export function getDailyTasks(areaSlug: string): DailyTask[] {
   return DAILY_TASKS_BY_AREA[areaSlug] ?? [];
 }
 
-/** The tasks due on `day` ("YYYY-MM-DD"): the everyday ones plus that weekday's. */
+/** The tasks due on `day` ("YYYY-MM-DD"): the everyday ones plus that weekday's. Parents stay nested. */
 export function dailyTasksFor(areaSlug: string, day: string): DailyTask[] {
   const wd = weekday(day);
   return getDailyTasks(areaSlug).filter((t) => !t.days || t.days.includes(wd));
+}
+
+/** Tasks that count as their own tick: the parts of a grouped task, otherwise the task itself. */
+export function dailyLeavesFor(areaSlug: string, day: string): DailyTask[] {
+  return dailyTasksFor(areaSlug, day).flatMap((t) =>
+    t.subtasks?.length
+      ? t.subtasks.map((s) => ({ id: s.id, label_de: s.label_de, label_vi: s.label_vi, page: s.page ?? t.page, days: t.days }))
+      : [t],
+  );
+}
+
+/** Parent id or one of its part ids, among the tasks due that day. */
+export function isDailyTaskId(areaSlug: string, day: string, taskId: string): boolean {
+  return dailyTasksFor(areaSlug, day).some((t) => t.id === taskId || t.subtasks?.some((s) => s.id === taskId));
 }
 
 export function getQuiz(id: string): { quiz: QuizContent; week: OnboardingWeek; area: Area } | undefined {

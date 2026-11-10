@@ -21,7 +21,7 @@ export type UpcomingClass = {
  *  where the list goes; `line`/`line_de` is one list entry with `{kurs}`, `{art}`, `{zeit}` and `{start}`. */
 export type ClassList = { line: string; line_de: string };
 
-const MODE_LABEL: Record<ClassMode, { de: string; vi: string }> = {
+export const MODE_LABEL: Record<ClassMode, { de: string; vi: string }> = {
   "online-de": { de: "online (deutsche Zeit)", vi: "online (giờ Đức)" },
   "online-vn": { de: "online (vietnamesische Zeit)", vi: "online (giờ Việt Nam)" },
   hanoi: { de: "vor Ort in Hà Nội", vi: "tại Hà Nội" },

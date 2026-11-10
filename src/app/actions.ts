@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSession, hasRole } from "@/lib/auth";
-import { canReadPage, dailyTasksFor, getOnboarding, getPageById, getPageQuiz, getQuiz, onboardingQuizPage, readablePages, requiredQuizPages, searchPages } from "@/content";
+import { canReadPage, checklistIds, getOnboarding, getPageById, getPageQuiz, getQuiz, isDailyTaskId, onboardingQuizPage, readablePages, requiredQuizPages, searchPages, weekComplete } from "@/content";
 import { PAGE_QUIZ_PREFIX, pageQuizId, quizStatus, type QuizAttemptRow } from "@/lib/pageQuiz";
 import { onboardingDone } from "@/lib/quizProgress";
 import { dmByEmail, siteUrl } from "@/lib/slack";
@@ -26,22 +26,29 @@ function who(session: NonNullable<Awaited<ReturnType<typeof getSession>>>) {
 }
 
 // ------------------------------------------------------------------ onboarding checklist
-export async function toggleChecklistItem(itemId: string, done: boolean, areaSlug: string) {
+/** Ticks or clears one or more checklist steps. A grouped step is stored per child, never as the parent id. */
+export async function toggleChecklistItem(itemIds: string | string[], done: boolean, areaSlug: string) {
   const session = await getSession();
   if (!session) throw new Error("not signed in");
+  const ids = [...new Set(Array.isArray(itemIds) ? itemIds : [itemIds])];
   const weeks = getOnboarding(areaSlug);
-  const week = weeks.find((w) => w.items.some((i) => i.id === itemId));
-  if (!week) throw new Error("unknown checklist item");
-  if (onboardingQuizPage(week.items.find((i) => i.id === itemId)!)) throw new Error("ticked by passing the page quiz");
+  const touched = new Set<OnboardingWeek>();
+  for (const id of ids) {
+    const week = weeks.find((w) => w.items.some((i) => checklistIds(i).includes(id)));
+    const item = week?.items.find((i) => checklistIds(i).includes(id));
+    if (!week || !item) throw new Error("unknown checklist item");
+    if (!item.children?.length && onboardingQuizPage(item)) throw new Error("ticked by passing the page quiz");
+    touched.add(week);
+  }
   const supabase = await createClient();
 
   if (done) {
-    await supabase.from("checklist_progress").upsert({ profile_id: session.profile.id, item_id: itemId });
+    await supabase.from("checklist_progress").upsert(ids.map((item_id) => ({ profile_id: session.profile.id, item_id })));
   } else {
-    await supabase.from("checklist_progress").delete().eq("profile_id", session.profile.id).eq("item_id", itemId);
+    await supabase.from("checklist_progress").delete().eq("profile_id", session.profile.id).in("item_id", ids);
   }
 
-  if (done) await notifyWeekFinished(session, areaSlug, week);
+  if (done) for (const week of touched) await notifyWeekFinished(session, areaSlug, week);
   revalidatePath(`/bereich/${areaSlug}`);
   revalidatePath("/", "layout");
 }
@@ -49,8 +56,9 @@ export async function toggleChecklistItem(itemId: string, done: boolean, areaSlu
 /** Week finished (manual ticks and passed page quizzes together)? → tell the buddy on Slack. Call right after the step that may have finished it. */
 async function notifyWeekFinished(session: NonNullable<Awaited<ReturnType<typeof getSession>>>, areaSlug: string, week: OnboardingWeek) {
   const done = await onboardingDone(session.profile.id, areaSlug);
-  if (week.items.every((i) => done.has(i.id))) {
-    await notifyBuddy(`✅ ${who(session)} hat Woche ${week.week} („${week.title_de}“) abgeschlossen. ${siteUrl(`/bereich/${areaSlug}?tab=onboarding`)}`);
+  if (weekComplete(week, done)) {
+    const label = week.timed === false ? `„${week.title_de}“` : `Woche ${week.week} („${week.title_de}“)`;
+    await notifyBuddy(`✅ ${who(session)} hat ${label} abgeschlossen. ${siteUrl(`/bereich/${areaSlug}?tab=onboarding`)}`);
   }
 }
 
@@ -62,7 +70,7 @@ export async function saveDailyTask(areaSlug: string, taskId: string, day: strin
   if (!session || !hasRole(session.profile.role, "staff")) throw new Error("not allowed");
   const today = vnToday();
   if (day !== today) return { ok: false as const, stale: true };
-  if (!dailyTasksFor(areaSlug, today).some((t) => t.id === taskId)) throw new Error("unknown task");
+  if (!isDailyTaskId(areaSlug, today, taskId)) throw new Error("unknown task");
 
   const supabase = await createClient();
   const key = { profile_id: session.profile.id, task_id: taskId, day: today };

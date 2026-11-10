@@ -2,7 +2,7 @@ import type { ClassList } from "@/lib/classes";
 
 export type AppRole = "pending" | "candidate" | "staff" | "admin";
 export type KnowledgeKind = "reference" | "process" | "decision" | "living";
-export type PageSection = "general" | "interview" | "onboarding" | "handbook";
+export type PageSection = "general" | "interview" | "onboarding" | "handbook" | "daily"; // daily = step-by-step guide behind the „Tägliche Aufgaben“ checklist, not listed in the Handbuch tab
 export type Lang = "both" | "de" | "vi";
 
 export type Profile = {
@@ -226,23 +226,44 @@ export type QuizContent = {
   }[];
 };
 
-/** One week of a role's learning path. Item ids are stored in checklist_progress, so keep them stable. */
+/** One tick on a learning path. Ids are stored in checklist_progress, so keep them stable. */
+export type OnboardingCheck = { id: string; label_de: string; label_vi: string };
+
+/** One step. `children` are ticked one by one; the step itself is done only when every child is. */
+export type OnboardingItem = OnboardingCheck & {
+  page?: string; // "<area>/<slug>"
+  children?: OnboardingCheck[];
+};
+
+/** One block of a role's learning path. `timed: false` is a set of tasks with no calendar week. */
 export type OnboardingWeek = {
   week: number;
   title_de: string;
   title_vi: string;
-  items: { id: string; label_de: string; label_vi: string; page?: string }[]; // page = "<area>/<slug>"
+  timed?: boolean;
+  items: OnboardingItem[];
   quiz?: QuizContent;
 };
 
+/** One part of a daily task. Ticked on its own; the parent is done only when every part is done.
+ *  Ids are stored in daily_task_log, so keep them stable. */
+export type DailySubtask = {
+  id: string;
+  label_de: string;
+  label_vi: string;
+  page?: string;
+};
+
 /** One item of an area's daily checklist. Ids are stored in daily_task_log, so keep them stable.
- *  `days` limits it to weekdays (1 = Monday … 7 = Sunday); without it the task is due every day. */
+ *  `days` limits it to weekdays (1 = Monday … 7 = Sunday); without it the task is due every day.
+ *  With `subtasks`, each part is ticked separately and the parent follows them. */
 export type DailyTask = {
   id: string;
   label_de: string;
   label_vi: string;
   days?: number[];
-  page?: string; // "<area>/<slug>" or "<area>/<slug>#<anchor>" – the Handbuch page (and section) it comes from
+  page?: string; // "<area>/taegliche-aufgaben#<anchor>" – its step-by-step guide (section "daily"), which links on to the Handbuch
+  subtasks?: DailySubtask[];
 };
 
 export type IconName =

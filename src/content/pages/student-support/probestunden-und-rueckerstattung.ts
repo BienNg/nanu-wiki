@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "reference",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-04",
   body: [
     {
       type: "paragraph",
@@ -27,12 +27,12 @@ const page: PageContent = {
           vi: "Cam kết chỉ áp dụng khi có cả hai điều kiện: lớp online và là khoá đầu tiên tại trung tâm. Lớp offline và khoá học tiếp (ví dụ A2 sau khi đã học A1 ở trung tâm) không áp dụng."
         },
         {
-          de: "Kursausfall: Online braucht eine Klasse mindestens 5 Schüler, vor Ort mindestens 8. Kommen sie nicht zusammen, bieten wir eine Alternative an. Wer sie nicht will, bekommt sofort 100 % zurück.",
-          vi: "Lớp không mở: lớp online cần tối thiểu 5 học viên, lớp offline tối thiểu 8. Nếu không đủ, trung tâm đưa ra phương án thay thế. Ai không đồng ý thì được hoàn 100% ngay."
+          de: "Kursausfall: Eine Online-Klasse startet erst ab 5 Schülern, eine Klasse vor Ort erst ab 8. Das sind dieselben Mindestzahlen wie in „[FAQ Sprachkurse](sales/faq-sprachkurse)“. Kommen sie nicht zusammen, bieten wir eine Alternative an. Wer sie nicht will, bekommt sofort 100 % zurück.",
+          vi: "Lớp không mở: lớp online chỉ mở từ 5 học viên, lớp tại trung tâm từ 8. Đây là số tối thiểu giống trang „[FAQ khoá tiếng](sales/faq-sprachkurse)“. Không đủ người thì trung tâm đưa phương án khác. Ai không đồng ý thì được hoàn 100% ngay."
         },
         {
-          de: "Bezahlt wird trotzdem vorher – die Zusage ersetzt nicht die Zahlung. Sonderwünsche (nur zwei Stunden zahlen) entscheidet die Leitung.",
-          vi: "Vẫn đóng học phí trước – cam kết không thay cho việc thanh toán. Yêu cầu đặc biệt (chỉ đóng tiền hai buổi) do quản lý quyết định."
+          de: "Der Schüler zahlt den ganzen Kurs, bevor der Kurs startet. Die Geld-zurück-Zusage heißt nicht, dass er erst nach den zwei Stunden zahlen darf. Will jemand nur die zwei Probestunden bezahlen, entscheidet die Leitung. Das darfst du nicht allein zusagen.",
+          vi: "Học viên đóng cả khoá trước khi lớp bắt đầu. Cam kết hoàn tiền không có nghĩa là được đóng sau hai buổi. Ai chỉ muốn đóng tiền hai buổi học thử thì quản lý quyết định. Bạn không được tự đồng ý."
         }
       ]
     },
@@ -41,16 +41,16 @@ const page: PageContent = {
       type: "steps",
       items: [
         {
-          de: "Danken und Grund erfragen",
-          vi: "Cảm ơn và hỏi lý do",
-          body_de: "Nicht überreden. Fragen, was nicht gepasst hat: Uhrzeit, Tempo, Lehrkraft, Technik?",
-          body_vi: "Không thuyết phục ép. Hỏi điều gì chưa phù hợp: giờ học, tốc độ, giáo viên, kỹ thuật?"
+          de: "Danken und eine Frage stellen",
+          vi: "Cảm ơn và hỏi một câu",
+          body_de: "Bedank dich. Frag nur: „Was hat nicht gepasst?“ Hör zu. Sag nicht „bleib doch“.",
+          body_vi: "Cảm ơn học viên. Chỉ hỏi: „Điều gì chưa phù hợp?“ Rồi nghe. Đừng nói „ở lại đi“."
         },
         {
-          de: "Eine Lösung anbieten – einmal",
-          vi: "Đưa một giải pháp – một lần thôi",
-          body_de: "Lag es an App oder Material, hilft oft ein Videoanruf. Lag es an der Uhrzeit, gibt es vielleicht eine andere Klasse. Sagt die Person nein, ist das in Ordnung.",
-          body_vi: "Nếu vướng app hay tài liệu, gọi video hướng dẫn thường giải quyết được. Nếu do giờ học, có thể có lớp khác. Học viên vẫn từ chối thì cũng không sao."
+          de: "Genau eine Alternative anbieten",
+          vi: "Đưa đúng một phương án khác",
+          body_de: "Danach bietest du einmal eine passende Alternative an: eine andere Uhrzeit, eine andere Klasse oder Hilfe bei der Technik. Sagt die Person nein, ist das in Ordnung. Dann geht es weiter mit der Rückzahlung.",
+          body_vi: "Sau đó đưa một lần đúng một phương án hợp: giờ khác, lớp khác hoặc giúp phần kỹ thuật. Học viên vẫn từ chối thì cũng được. Lúc đó làm tiếp việc hoàn tiền."
         },
         {
           de: "An die Leitung geben – mit Datum",
@@ -74,7 +74,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 1,
+    version: 2,
     questions: [
       {
         question_de: "Für wen gilt die Geld-zurück-Zusage nach zwei Probestunden?",
@@ -118,7 +118,7 @@ const page: PageContent = {
         section: "wenn-jemand-nach-den-probestunden-aufhoren-will",
         options: [
           { de: "So lange überreden, bis die Person bleibt", vi: "Thuyết phục đến khi khách ở lại" },
-          { de: "Danken und fragen, was nicht gepasst hat – nicht überreden", vi: "Cảm ơn và hỏi điều gì chưa phù hợp – không thuyết phục ép" },
+          { de: "Danken, nur fragen „Was hat nicht gepasst?“ und zuhören – nicht „bleib doch“ sagen", vi: "Cảm ơn, chỉ hỏi „Điều gì chưa phù hợp?“ rồi nghe – không nói „ở lại đi“" },
           { de: "Sofort ohne Frage überweisen", vi: "Chuyển tiền ngay không hỏi gì" },
           { de: "Sagen, dass die Zusage nicht gilt", vi: "Nói cam kết không áp dụng" }
         ],

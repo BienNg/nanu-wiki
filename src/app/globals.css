@@ -223,3 +223,18 @@ html.lang-vi .vs::before { content: none; }
 @keyframes pane-out {
   to { transform: translateX(100%); opacity: 0.4; }
 }
+
+/* Antwort-Assistent: bubbles pop in like Messenger, cards rise in softly (one-shot, on mount). */
+@keyframes anim-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes anim-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.anim-pop { animation: anim-pop 0.36s cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.anim-rise { animation: anim-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-pop, .anim-rise { animation: none; }
+}

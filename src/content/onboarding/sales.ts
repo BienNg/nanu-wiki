@@ -6,9 +6,15 @@ const weeks: OnboardingWeek[] = [
     // Week 1 opens with the „Für alle“ pages (onboarding/fuer-alle.ts), one item each.
     items: [
       {
-        id: "sales.w1.zugange-slack-notion-zalo-oa-mes",
-        label_de: "Zugänge: Slack, Notion, Zalo OA, Messenger",
-        label_vi: "Tài khoản: Slack, Notion, Zalo OA, Messenger"
+        id: "sales.w1.zugange",
+        label_de: "Zugänge",
+        label_vi: "Tài khoản",
+        children: [
+          { id: "sales.w1.zugang-slack", label_de: "Slack", label_vi: "Slack" },
+          { id: "sales.w1.zugang-notion", label_de: "Notion", label_vi: "Notion" },
+          { id: "sales.w1.zugang-zalo-oa", label_de: "Zalo OA", label_vi: "Zalo OA" },
+          { id: "sales.w1.zugang-messenger", label_de: "Messenger", label_vi: "Messenger" },
+        ],
       },
       {
         id: "sales.w1.kursniveaus-a1-c1-kennenlernen",
@@ -16,13 +22,9 @@ const weeks: OnboardingWeek[] = [
         label_vi: "Tìm hiểu các trình độ A1–C1",
         page: "fuer-alle/kurse-und-leistungen"
       },
-      {
-        id: "sales.w1.3-beratungsgesprache-mithoren",
-        label_de: "3 Beratungsgespräche mithören",
-        label_vi: "Nghe 3 buổi tư vấn của đồng nghiệp"
-      }
     ],
     week: 1,
+    timed: false,
     title_de: "Ankommen & Grundlagen",
     title_vi: "Làm quen & nền tảng"
   },

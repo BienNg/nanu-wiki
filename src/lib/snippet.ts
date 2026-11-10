@@ -71,3 +71,12 @@ export function snippet(page: PageWithMeta, q: string) {
     vi: hit.vi.slice(0, 140),
   };
 }
+
+/** A page as plain text, e.g. as background for the reply assistant. German only by default;
+ *  `withVi` adds the Vietnamese where it differs (about 40 % more text). */
+export function pageText(page: Pick<PageWithMeta, "body">, { withVi = false } = {}): string {
+  return blockTexts(page.body ?? [])
+    .filter((t) => t.de || (withVi && t.vi))
+    .map((t) => (withVi && t.vi && t.vi !== t.de ? `${t.de}\n[VI] ${t.vi}` : t.de))
+    .join("\n");
+}

@@ -4,12 +4,6 @@ import type { OnboardingWeek } from "@/lib/types";
  *  They open week 1 of every role (see onboardingFor). Item `id`s are stored in checklist_progress – keep them stable. */
 const items: OnboardingWeek["items"] = [
   {
-    id: "fuer-alle.w1.um-hilfe-bitten",
-    label_de: "Um Hilfe bitten: die 1:3:1-Regel",
-    label_vi: "Nhờ giúp đỡ: quy tắc 1:3:1",
-    page: "fuer-alle/um-hilfe-bitten"
-  },
-  {
     id: "fuer-alle.w1.allgemeine-regeln",
     label_de: "Allgemeine Regeln lesen",
     label_vi: "Đọc quy định chung",
@@ -26,12 +20,6 @@ const items: OnboardingWeek["items"] = [
     label_de: "Standorte & Team kennenlernen",
     label_vi: "Tìm hiểu cơ sở & đội ngũ",
     page: "fuer-alle/standorte-und-team"
-  },
-  {
-    id: "fuer-alle.w1.geschichte-und-werte",
-    label_de: "Unsere Geschichte & Werte",
-    label_vi: "Câu chuyện & giá trị của chúng ta",
-    page: "fuer-alle/geschichte-und-werte"
   },
   {
     id: "fuer-alle.w1.kurse-und-leistungen",

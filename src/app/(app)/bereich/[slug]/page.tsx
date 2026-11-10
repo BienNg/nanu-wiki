@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasRole, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, getPageById, onboardingQuizPage, readablePages, readingMinutes, visibleAreas, type AreaTab } from "@/content";
+import { areaTabs, canEditArea, dailyTasksFor, getHandbookGroups, getOnboarding, getPageById, onboardingQuizPage, readablePages, readingMinutes, visibleAreas, weekComplete, type AreaTab } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Reveal } from "@/components/Reveal";
 import { Bi, Label } from "@/components/Bi";
@@ -140,7 +140,7 @@ async function defaultTab(profile: Profile, areaSlug: string, tabs: AreaTab[]): 
   const week1 = getOnboarding(areaSlug)[0];
   if (isNew && week1 && tabs.includes("onboarding") && profile.primary_area === areaSlug) {
     const done = await onboardingDone(profile.id, areaSlug);
-    if (!week1.items.every((i) => done.has(i.id))) return "onboarding";
+    if (!weekComplete(week1, done)) return "onboarding";
   }
   return tabs[0];
 }
@@ -193,6 +193,18 @@ const onboardingProgress = cache(async (profileId: string, areaSlug: string) => 
   return [done, attempts, pageQuiz] as const;
 });
 
+function taskLinks(page: string | undefined, areaSlug: string, paneBase: string) {
+  const [pageId, anchor] = page?.split("#") ?? [];
+  const [pageArea, pageSlug] = pageId?.split("/") ?? [];
+  const hash = anchor ? `#${anchor}` : "";
+  const full = pageId ? `/bereich/${pageId}${hash}` : null;
+  return {
+    href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}${hash}` : full,
+    fullHref: pageArea === areaSlug ? full : null,
+    anchor: anchor ?? null,
+  };
+}
+
 async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: string; profileId: string; paneBase: string; narrow: boolean }) {
   const day = vnToday();
   const tasks = dailyTasksFor(areaSlug, day);
@@ -208,21 +220,19 @@ async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: s
       day={day}
       dayLabel={{ de: wd.de, vi: wd.vi }}
       initial={initial}
-      items={tasks.map((t) => {
-        const [pageId, anchor] = t.page?.split("#") ?? [];
-        const [pageArea, pageSlug] = pageId?.split("/") ?? [];
-        const hash = anchor ? `#${anchor}` : "";
-        const full = pageId ? `/bereich/${pageId}${hash}` : null;
-        return {
-          id: t.id,
-          label_de: t.label_de,
-          label_vi: t.label_vi,
-          weekdayOnly: !!t.days,
-          href: pageArea === areaSlug ? `${paneBase}&seite=${pageSlug}${hash}` : full,
-          fullHref: pageArea === areaSlug ? full : null,
-          anchor: anchor ?? null,
-        };
-      })}
+      items={tasks.map((t) => ({
+        ...taskLinks(t.page, areaSlug, paneBase),
+        id: t.id,
+        label_de: t.label_de,
+        label_vi: t.label_vi,
+        weekdayOnly: !!t.days,
+        subtasks: (t.subtasks ?? []).map((s) => ({
+          ...taskLinks(s.page ?? t.page, areaSlug, paneBase),
+          id: s.id,
+          label_de: s.label_de,
+          label_vi: s.label_vi,
+        })),
+      }))}
     />
   );
 }
@@ -239,6 +249,7 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
     return {
       id: `${areaSlug}.w${w.week}`,
       week: w.week,
+      timed: w.timed !== false,
       title_de: w.title_de,
       title_vi: w.title_vi,
       quizId: w.quiz?.id ?? null,
@@ -258,6 +269,7 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
           fullHref: pageArea === areaSlug ? full : null,
           minutes: page ? readingMinutes(page) : null,
           quiz: quizPage ? { href: `${quizPage.href}/quiz`, state: quizStatus(pageQuiz, quizPage.id, quizPage.quiz!.version).state } : null,
+          children: i.children,
         };
       }),
     };

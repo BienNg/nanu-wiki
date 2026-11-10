@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: "2027-05-01",
-  updated_at: "2026-11-03",
+  updated_at: "2026-11-04",
   body: [
     {
       type: "paragraph",
@@ -32,22 +32,27 @@ const page: PageContent = {
     },
     {
       type: "paragraph",
-      de: "Jeden Tag prüfst du, ob die Lehrkräfte alles eingetragen haben. Fehlt etwas, schreibst du es im Backoffice in den Tagesbericht:",
-      vi: "Mỗi ngày bạn kiểm tra xem giáo viên đã điền đủ chưa. Nếu thiếu, bạn ghi vào báo cáo cuối ngày trên Backoffice:"
+      de: "Jeden Tag prüfst du, ob die Lehrkräfte alles eingetragen haben. Fehlt etwas, schreibst du der Lehrkraft direkt und bittest sie, es nachzutragen. Beim ersten und zweiten Mal reicht diese Erinnerung.",
+      vi: "Mỗi ngày bạn kiểm tra xem giáo viên đã điền đủ chưa. Thiếu thì bạn nhắn thẳng giáo viên và nhờ điền bổ sung. Lần thứ nhất và thứ hai chỉ cần nhắc như vậy."
+    },
+    {
+      type: "paragraph",
+      de: "Fehlt es zum dritten Mal, sagst du der Lehrkraft, dass dafür Geld abgezogen wird. Außerdem schreibst du es im Backoffice in den Tagesbericht:",
+      vi: "Lần thứ ba vẫn thiếu thì bạn nói với giáo viên là sẽ bị trừ tiền. Đồng thời ghi vào báo cáo ngày trên Backoffice:"
     },
     {
       type: "list",
       items: [
         { de: "welche Klasse es ist,", vi: "lớp nào," },
         { de: "an welchen Tagen etwas fehlt,", vi: "thiếu những ngày nào," },
-        { de: "wie viel Geld der Lehrkraft dafür abgezogen wird,", vi: "giáo viên bị trừ bao nhiêu tiền," },
+        { de: "dass der Lehrkraft dafür Geld abgezogen wird,", vi: "giáo viên bị trừ tiền vì lần này," },
         { de: "und einen Screenshot als Nachweis.", vi: "và một ảnh chụp màn hình làm bằng chứng." }
       ]
     },
     {
       type: "paragraph",
-      de: "Das Geld wird am Monatsende abgezogen. Außerdem:",
-      vi: "Tiền sẽ bị trừ vào cuối tháng. Ngoài ra:"
+      de: "Außerdem:",
+      vi: "Ngoài ra:"
     },
     {
       type: "list",
@@ -57,8 +62,8 @@ const page: PageContent = {
           vi: "Học viên khen giáo viên nào thì bạn ghi lại và chuyển tiếp. Nếu không, đến cuối tháng không ai còn nhớ ai dạy tốt."
         },
         {
-          de: "In der Mitte jeder Stufe gibt es einen kurzen Test, den Mini-Test. Danach sagen wir jedem Schüler, wo er gerade steht. Dafür nehmen wir sein Testergebnis und die Einträge der Lehrkraft.",
-          vi: "Giữa mỗi khoá có một bài kiểm tra ngắn, gọi là Mini Test. Sau đó chúng ta cho từng học viên biết trình độ hiện tại, dựa trên điểm bài test và những gì giáo viên đã ghi."
+          de: "In der Mitte jeder Stufe gibt es einen kurzen Test, den Mini-Test. Danach sagst du jedem Schüler, wo er gerade steht. Dafür nimmst du sein Testergebnis und die Einträge der Lehrkraft. Das ist keine eigene Kachel in den täglichen Aufgaben. Du machst es an dem Tag mit, an dem du die Klasse von gestern prüfst – aber nur, wenn die Klasse in der Mitte der Stufe ist. Siehe „[Klassen von gestern](student-support/taegliche-aufgaben#klassen-vortag)“.",
+          vi: "Giữa mỗi trình độ có một bài kiểm tra ngắn, gọi là Mini Test. Sau đó bạn nói cho từng học viên biết đang ở đâu, dựa trên điểm bài test và những gì giáo viên đã ghi. Đây không phải một mục riêng trong việc hằng ngày. Bạn làm cùng vào ngày kiểm tra lớp hôm qua – nhưng chỉ khi lớp đang ở giữa trình độ. Xem „[Lớp hôm qua](student-support/taegliche-aufgaben#klassen-vortag)“."
         }
       ]
     },
@@ -82,20 +87,14 @@ const page: PageContent = {
         {
           de: "Die Lehrkraft meldet sich zuerst beim Zentrum",
           vi: "Giáo viên báo trung tâm trước",
-          body_de: "Nie direkt der Klasse ankündigen. Erst wenn klar ist, ob es Ersatz gibt, erfährt die Klasse davon.",
-          body_vi: "Không báo thẳng cho lớp. Chỉ khi đã rõ có giáo viên dạy thay hay không thì mới báo lớp."
+          body_de: "Nie direkt der Klasse ankündigen. Erst wenn klar ist, ob es Ersatz gibt, erfährt die Klasse davon. Wir lassen eine Klasse ungern ausfallen. Manche Schüler müssen bis zu einem festen Datum die B1-Prüfung schreiben. Verrutscht eine Stunde, starten die Kurse danach später.",
+          body_vi: "Không báo thẳng cho lớp. Chỉ khi đã rõ có giáo viên dạy thay hay không thì mới báo lớp. Mình cố không để một lớp bị huỷ. Một số học viên phải thi B1 trước một ngày cố định. Dời một buổi thì các khoá sau cũng bắt đầu muộn hơn."
         },
         {
           de: "Ersatz suchen",
           vi: "Tìm giáo viên dạy thay",
           body_de: "Ist es dringend (die Stunde ist morgen), nicht bis Montag warten: sofort über Zalo Bescheid geben und in Slack festhalten.",
           body_vi: "Nếu gấp (buổi học ngày mai), đừng đợi đến thứ Hai: nhắn Zalo ngay và ghi lại trên Slack."
-        },
-        {
-          de: "Der Klasse erklären",
-          vi: "Giải thích với lớp",
-          body_de: "Wechselt die Lehrkraft, sagen wir warum: „In der ersten Stunde unterrichtet … , weil …“. Ohne Erklärung denken die Schüler, wir hätten etwas versprochen und nicht gehalten.",
-          body_vi: "Đổi giáo viên thì nói rõ lý do: „Buổi 1 thầy/cô … dạy, vì …“. Không giải thích, học viên sẽ nghĩ trung tâm hứa một đằng làm một nẻo."
         },
         {
           de: "Kein Ersatz: Stunde verschieben",
@@ -186,7 +185,7 @@ const page: PageContent = {
     }
   ],
   quiz: {
-    version: 2,
+    version: 3,
     questions: [
       {
         question_de: "Was trägt die Lehrkraft nach jeder Stunde in die Excel-Liste ein?",
@@ -207,7 +206,7 @@ const page: PageContent = {
         options: [
           { de: "Nichts, sie trägt es schon nach", vi: "Không làm gì, giáo viên sẽ bổ sung" },
           { de: "Die Klasse informieren", vi: "Báo cho lớp" },
-          { de: "Im Tagesbericht im Backoffice notieren: Klasse, Tage, Abzug und Screenshot", vi: "Ghi vào báo cáo ngày trong Backoffice: lớp, ngày, số tiền trừ và ảnh chụp" },
+          { de: "Der Lehrkraft schreiben und sie bitten, es nachzutragen. Vom Geldabzug sagst du noch nichts – das erst beim dritten Mal", vi: "Nhắn giáo viên và nhờ điền bổ sung. Chưa nói đến trừ tiền – chỉ nói từ lần thứ ba" },
           { de: "Selbst für sie ausfüllen", vi: "Tự điền giúp" }
         ],
         correct: 2

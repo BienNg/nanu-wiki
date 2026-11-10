@@ -78,13 +78,12 @@ const page: PageContent = {
               body_vi: "Kiểm tra các lớp có buổi học hôm trước:",
               steps: [
                 { de: "Klassen von gestern finden", vi: "Tìm các lớp học hôm qua", body_de: "Im Google Kalender siehst du, welche Klassen gestern Unterricht hatten.", body_vi: "Xem Google Calendar để biết hôm qua lớp nào có buổi học." },
-                { de: "Excel-Listen prüfen", vi: "Kiểm tra file Excel", body_de: "Öffne die Excel-Liste jeder dieser Klassen. Prüf, ob die Lehrkraft die Stunde ausgefüllt hat: Anwesenheit und Feedback zu jedem Schüler. Fehlt etwas, erinnere die Lehrkraft daran – auch an Unterrichtsdatei und Hausaufgabe in der Gruppe.", body_vi: "Mở file Excel của từng lớp đó. Kiểm tra giáo viên đã điền buổi học chưa: điểm danh và nhận xét cho từng học viên. Thiếu gì thì nhắc giáo viên – cả việc gửi bài giảng và bài tập vào nhóm." },
+                { de: "Google-Sheet-Tabellen prüfen", vi: "Kiểm tra bảng Google Sheet", body_de: "Öffne die Google-Sheet-Tabelle jeder dieser Klassen. Prüf, ob die Lehrkraft die Stunde ausgefüllt hat: Anwesenheit und Feedback zu jedem Schüler. Fehlt etwas, erinnere die Lehrkraft daran – auch an Unterrichtsdatei und Hausaufgabe in der Gruppe.", body_vi: "Mở bảng Google Sheet của từng lớp đó. Kiểm tra giáo viên đã điền buổi học chưa: điểm danh và nhận xét cho từng học viên. Thiếu gì thì nhắc giáo viên – cả việc gửi bài giảng và bài tập vào nhóm." },
                 { de: "Wer gefehlt hat, persönlich anschreiben", vi: "Nhắn riêng cho học viên vắng", body_de: "Schreib jedem Schüler, der gefehlt hat, eine persönliche Nachricht.", body_vi: "Nhắn tin riêng cho từng học viên đã vắng buổi học." },
                 { de: "In NaNu Go nachsehen", vi: "Kiểm tra trên NaNu Go", body_de: "Prüf in der App NaNu Go, ob der Schüler die Aufgaben gemacht hat. Wenn nicht: Sag ihm, dass er die verpasste Lektion in NaNu Go nachholen soll. Sonst kann er dem Unterricht nicht mehr folgen.", body_vi: "Kiểm tra trên app NaNu Go xem học viên đã làm bài chưa. Nếu chưa: nhắn học viên học bù bài đã nghỉ trên NaNu Go. Nếu không, học viên sẽ không theo kịp lớp." }
               ]
             },
-            { de: "Montags", anchor: "lehrkraefte-montags", vi: "Thứ Hai", body_de: "Den Lehrkräften sagen, was in der neuen Woche ansteht.", body_vi: "Nhắc giáo viên về tuần mới." },
-            { de: "Mittwochs", anchor: "feedback-mittwochs", vi: "Thứ Tư", body_de: "Prüfen, ob alle Lehrkräfte das Feedback ausgefüllt haben.", body_vi: "Kiểm tra giáo viên đã điền nhận xét chưa." }
+            { de: "Montags", anchor: "lehrkraefte-montags", vi: "Thứ Hai", body_de: "Den Lehrkräften sagen, was in der neuen Woche ansteht.", body_vi: "Nhắc giáo viên về tuần mới." }
           ]
         },
         {

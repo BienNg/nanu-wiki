@@ -7,7 +7,7 @@ const page: PageContent = {
   kind: "process",
   section: "handbook",
   verified_until: null,
-  updated_at: "2026-10-27",
+  updated_at: "2026-11-04",
   body: [
     {
       type: "paragraph",
@@ -61,12 +61,12 @@ const page: PageContent = {
           vi: "Không vào được Classroom: chỉ cần vào thành công một lần là các lần sau vào được luôn. Trong lúc đó Classroom chỉ là phần làm thêm; bài tập trong nhóm lớp là đủ."
         },
         {
-          de: "Zoom-Link fehlt: Er steht in der Klassengruppe. Wer nicht in der Gruppe ist, bekommt ihn vor jeder Stunde persönlich.",
-          vi: "Không có link Zoom: link nằm trong nhóm lớp. Ai không ở trong nhóm thì nhận link riêng trước mỗi buổi."
+          de: "Zoom-Link fehlt: Er steht in der Klassengruppe und in der Begrüßungs-E-Mail, die jeder Schüler nach der Buchung bekommt. Wer nicht in der Gruppe ist, bekommt ihn vor jeder Stunde persönlich.",
+          vi: "Không có link Zoom: link nằm trong nhóm lớp và trong email chào mừng mà học viên nào cũng nhận sau khi đăng ký. Ai không ở trong nhóm thì nhận link riêng trước mỗi buổi."
         },
         {
-          de: "Frage nach etwas Einfacherem als Classroom: NaNu Go hat Wortschatz, Hörübungen und aufgezeichnete Lektionen. Login dort zuerst lösen – aber nur versprechen, was es schon gibt (siehe [unten](#nanu-go-stand)).",
-          vi: "Học viên hỏi có gì dễ dùng hơn Classroom không: NaNu Go có từ vựng, bài nghe và bài giảng quay sẵn. Ưu tiên giúp học viên vào được NaNu Go trước – nhưng chỉ hứa những gì app đã có (xem [bên dưới](#nanu-go-stand))."
+          de: "Classroom ist jemandem zu kompliziert: Zeig ihm NaNu Go. Dort übt er Wortschatz und Hören und sieht aufgezeichnete Lektionen. Hilf ihm zuerst beim Login. Versprich nur, was die App schon kann (siehe [unten](#nanu-go-stand)).",
+          vi: "Classroom quá phức tạp với học viên: chỉ NaNu Go. Ở đó học viên luyện từ vựng, luyện nghe và xem bài giảng quay sẵn. Giúp học viên đăng nhập trước. Chỉ hứa những gì app đã có (xem [bên dưới](#nanu-go-stand))."
         },
         {
           de: "Login im Zalo-Browser klappt nicht: Den Link in Chrome oder Safari öffnen, nicht direkt in Zalo.",
@@ -85,8 +85,8 @@ const page: PageContent = {
       type: "template",
       label_de: "Vorlage · NaNu Go freischalten",
       label_vi: "Mẫu · Gửi app NaNu Go",
-      text: "Trung tâm có ứng dụng NaNu Go được thiết kế riêng cho học viên NaNu NaNa. Trong app [chị/anh/bạn] có thể học từ vựng, luyện nghe và xem các bài giảng quay sẵn (hiện đã có 8 bài đầu của A1.1, các bài tiếp theo trung tâm đang cập nhật).\n[Chị/Anh/Bạn] tạo tài khoản bằng Gmail tại đây: [link]\nSau khi đăng ký, trung tâm sẽ mở quyền truy cập khóa A1.1 cho [chị/anh/bạn].\nLưu ý: mở link bằng Chrome hoặc Safari (không mở trực tiếp trong Zalo) để đăng nhập được nha.\nApp dùng song song với lớp học và bài tập về nhà. Có gì cần hỏi [chị/anh/bạn] cứ nhắn trung tâm nhé!",
-      translation_de: "„Wir haben eine eigene App für NaNu-NaNa-Schüler: NaNu Go. Darin kannst du Wortschatz lernen, Hören üben und aufgezeichnete Lektionen ansehen (bisher die ersten 8 Lektionen von A1.1, weitere folgen). Registriere dich hier mit deinem Gmail-Konto: [Link]. Danach schalten wir A1.1 für dich frei. Wichtig: Öffne den Link in Chrome oder Safari, nicht direkt in Zalo. Die App ergänzt Unterricht und Hausaufgaben. Bei Fragen einfach schreiben!“"
+      text: "Trung tâm có ứng dụng NaNu Go được thiết kế riêng cho học viên NaNu NaNa. Trong app [chị/anh/bạn] có thể học từ vựng, luyện nghe và xem các bài giảng quay sẵn (hiện đã có 8 bài đầu của A1.1, các bài tiếp theo trung tâm đang cập nhật).\n[Chị/Anh/Bạn] tạo tài khoản bằng Gmail tại đây: https://nanugo.app\nSau khi đăng ký, trung tâm sẽ mở quyền truy cập khóa A1.1 cho [chị/anh/bạn].\nLưu ý: mở link bằng Chrome hoặc Safari (không mở trực tiếp trong Zalo) để đăng nhập được nha.\nApp dùng song song với lớp học và bài tập về nhà. Có gì cần hỏi [chị/anh/bạn] cứ nhắn trung tâm nhé!",
+      translation_de: "„Wir haben eine eigene App für NaNu-NaNa-Schüler: NaNu Go. Darin kannst du Wortschatz lernen, Hören üben und aufgezeichnete Lektionen ansehen (bisher die ersten 8 Lektionen von A1.1, weitere folgen). Registriere dich hier mit deinem Gmail-Konto: https://nanugo.app. Danach schalten wir A1.1 für dich frei. Wichtig: Öffne den Link in Chrome oder Safari, nicht direkt in Zalo. Die App ergänzt Unterricht und Hausaufgaben. Bei Fragen einfach schreiben!“"
     },
     {
       type: "template",

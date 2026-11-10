@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { AREAS, dailyTasksFor, getDailyTasks } from "@/content";
+import { AREAS, dailyLeavesFor, getDailyTasks } from "@/content";
 import { Topbar } from "@/components/Topbar";
 import { Bi, Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
@@ -49,7 +49,7 @@ export default async function DailyTasksAdminPage({ searchParams }: { searchPara
   }
   const people = [...known.values()].sort((a, b) => (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email, "de"));
 
-  const due = days.map((d) => (d > today || d < FIRST_DAY ? [] : dailyTasksFor(area.slug, d)));
+  const due = days.map((d) => (d > today || d < FIRST_DAY ? [] : dailyLeavesFor(area.slug, d)));
   const allTasks = getDailyTasks(area.slug);
   const find = (pid: string | null, taskId: string, day: string) =>
     pid ? logs.find((l) => l.profile_id === pid && l.task_id === taskId && l.day === day) : logs.find((l) => l.done && l.task_id === taskId && l.day === day);
@@ -176,39 +176,53 @@ export default async function DailyTasksAdminPage({ searchParams }: { searchPara
                   </summary>
 
                   <div className="border-t border-line-soft bg-[#FAFAF9] px-3 py-2">
-                    {allTasks.map((t) => {
-                      const notes = days.flatMap((d) => {
-                        const l = r.id ? find(r.id, t.id, d) : null;
-                        return l?.note ? [{ d, note: l.note }] : [];
-                      });
-                      return (
-                        <div key={t.id} className="border-b border-line-soft py-1.5 last:border-b-0">
-                          <div className={cols}>
-                            <span className="min-w-0 pl-5 text-xs leading-snug text-ink">
+                    {allTasks.flatMap((t) => {
+                      const parts = t.subtasks?.length
+                        ? t.subtasks.map((s) => ({ id: s.id, label_de: s.label_de, label_vi: s.label_vi, days: t.days, indent: true }))
+                        : [{ id: t.id, label_de: t.label_de, label_vi: t.label_vi, days: t.days, indent: false }];
+                      return [
+                        t.subtasks?.length ? (
+                          <div key={t.id} className="pt-2 text-xs font-semibold leading-snug text-ink">
+                            <span className="pl-5">
                               <Bi de={t.label_de} vi={t.label_vi} />
                             </span>
-                            {days.map((d, i) => {
-                              const isDue = due[i].some((x) => x.id === t.id);
-                              const l = find(r.id, t.id, d);
-                              return (
-                                <span key={d} className="text-center text-[13px]" title={l?.note ?? undefined}>
-                                  {!isDue ? <span className="text-faint">·</span> : l?.done ? <span className="font-semibold text-ok">✓</span> : <span className="text-[#B42318]">✕</span>}
-                                  {l?.note && <span className="ml-0.5 align-super text-[9px] text-accent-dark">●</span>}
-                                </span>
-                              );
-                            })}
-                            <span />
                           </div>
-                          {notes.map((n) => (
-                            <p key={n.d} className="m-0 mt-1 pl-5 text-xs text-muted">
-                              <span className="font-medium text-ink">
-                                <Label de={WEEKDAYS[weekday(n.d) - 1].short_de} vi={WEEKDAYS[weekday(n.d) - 1].short_vi} /> {shortDate(n.d)}
-                              </span>{" "}
-                              {n.note}
-                            </p>
-                          ))}
-                        </div>
-                      );
+                        ) : null,
+                        ...parts.map((part) => {
+                          const notes = days.flatMap((d) => {
+                            const l = r.id ? find(r.id, part.id, d) : null;
+                            return l?.note ? [{ d, note: l.note }] : [];
+                          });
+                          return (
+                            <div key={part.id} className="border-b border-line-soft py-1.5 last:border-b-0">
+                              <div className={cols}>
+                                <span className={`min-w-0 text-xs leading-snug text-ink ${part.indent ? "pl-9" : "pl-5"}`}>
+                                  <Bi de={part.label_de} vi={part.label_vi} />
+                                </span>
+                                {days.map((d, i) => {
+                                  const isDue = due[i].some((x) => x.id === part.id);
+                                  const l = find(r.id, part.id, d);
+                                  return (
+                                    <span key={d} className="text-center text-[13px]" title={l?.note ?? undefined}>
+                                      {!isDue ? <span className="text-faint">·</span> : l?.done ? <span className="font-semibold text-ok">✓</span> : <span className="text-[#B42318]">✕</span>}
+                                      {l?.note && <span className="ml-0.5 align-super text-[9px] text-accent-dark">●</span>}
+                                    </span>
+                                  );
+                                })}
+                                <span />
+                              </div>
+                              {notes.map((n) => (
+                                <p key={n.d} className={`m-0 mt-1 text-xs text-muted ${part.indent ? "pl-9" : "pl-5"}`}>
+                                  <span className="font-medium text-ink">
+                                    <Label de={WEEKDAYS[weekday(n.d) - 1].short_de} vi={WEEKDAYS[weekday(n.d) - 1].short_vi} /> {shortDate(n.d)}
+                                  </span>{" "}
+                                  {n.note}
+                                </p>
+                              ))}
+                            </div>
+                          );
+                        }),
+                      ];
                     })}
                   </div>
                 </details>

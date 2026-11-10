@@ -29,8 +29,8 @@ export default async function PendingPage() {
       ),
     },
     {
-      de: "Danach startest du mit deinem Lernpfad. Woche 1 beginnt mit einer kurzen Seite: „Um Hilfe bitten“.",
-      vi: "Sau đó bạn bắt đầu lộ trình học. Tuần 1 mở đầu bằng một trang ngắn: „Nhờ giúp đỡ“.",
+      de: "Danach startest du mit deinem Lernpfad. Der erste Block heißt „Ankommen & Grundlagen“ und beginnt mit „Allgemeine Regeln“.",
+      vi: "Sau đó bạn bắt đầu lộ trình. Phần đầu tên là „Làm quen & nền tảng“ và mở đầu bằng „Quy định chung“.",
     },
   ];
 

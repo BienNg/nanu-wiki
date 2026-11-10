@@ -21,8 +21,10 @@ function config() {
   return { token, db };
 }
 
-async function notion<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
-  const { token } = config();
+/** Any Notion API call; only needs NOTION_TOKEN (the integration must be shared with what it reads or writes). */
+export async function notion<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
+  const token = process.env.NOTION_TOKEN;
+  if (!token) throw new Error("NOTION_TOKEN is not set");
   const res = await fetch(`${API}${path}`, {
     method: init?.method ?? "GET",
     headers: { Authorization: `Bearer ${token}`, "Notion-Version": VERSION, "Content-Type": "application/json" },
@@ -50,7 +52,7 @@ function timeFromName(name: string) {
   return m ? `${m[1]}:${m[2] ?? "00"}` : null;
 }
 
-const text = (p: any) => (p?.title ?? p?.rich_text ?? []).map((t: { plain_text: string }) => t.plain_text).join(""); // eslint-disable-line @typescript-eslint/no-explicit-any
+export const text = (p: any) => (p?.title ?? p?.rich_text ?? []).map((t: { plain_text: string }) => t.plain_text).join(""); // eslint-disable-line @typescript-eslint/no-explicit-any
 const files = (page: NotionPage): FileValue[] => page.properties["Files & media"]?.files ?? [];
 
 function toClass(page: NotionPage): UpcomingClass | null {

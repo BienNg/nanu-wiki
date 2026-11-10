@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Area, Profile } from "@/lib/types";
 import { hasRole } from "@/lib/auth";
+import { canUseAssistant } from "@/lib/assistant/access";
 import { Icon } from "./Icon";
 import { Label } from "./Bi";
 import { NavLink } from "./NavLink";
@@ -44,6 +45,14 @@ export function Sidebar({
                 <Icon name="layers" size={15} />
                 <span className="side-text min-w-0 truncate">
                   <Label de="Mein Onboarding" vi="Lộ trình của tôi" />
+                </span>
+              </NavLink>
+            )}
+            {canUseAssistant(profile) && (
+              <NavLink href="/assistent" title="Antwort-Assistent">
+                <Icon name="spark" size={15} />
+                <span className="side-text min-w-0 truncate">
+                  <Label de="Antwort-Assistent" vi="Trợ lý trả lời" />
                 </span>
               </NavLink>
             )}
