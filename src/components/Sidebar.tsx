@@ -79,6 +79,14 @@ export function Sidebar({
           </NavLink>
         )}
         {hasRole(profile.role, "admin") && (
+          <NavLink href="/admin/messenger" title="Messenger">
+            <Icon name="megaphone" size={15} />
+            <span className="side-text min-w-0 truncate">
+              <Label de="Messenger" vi="Messenger" />
+            </span>
+          </NavLink>
+        )}
+        {hasRole(profile.role, "admin") && (
           <NavLink href="/admin/aufgaben" title="Tägliche Aufgaben">
             <Icon name="check" size={15} />
             <span className="side-text min-w-0 truncate">
