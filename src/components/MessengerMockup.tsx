@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { initials } from "@/lib/format";
 import type { Conversation } from "@/lib/types";
 import {
   LEVELS,
@@ -17,6 +16,7 @@ import {
 } from "@/lib/dialogue";
 import { Bi, Label } from "./Bi";
 import { Icon } from "./Icon";
+import { MessengerHeader } from "./MessengerParts";
 import { ImageModal, copyImageToClipboard } from "./ImageModal";
 import { ClassPicker, useUpcomingClasses } from "./ClassPicker";
 import { fits, withClasses } from "@/lib/classes";
@@ -209,19 +209,15 @@ function ChatView({
     <div data-reveal className="flex flex-col gap-3">
       <div ref={wrapRef} className="relative">
         <figure className="m-0 overflow-hidden rounded-[14px] border border-line shadow-[0_6px_20px_rgba(16,24,40,.06)]">
-          <div className="flex items-center gap-2.5 border-b border-line bg-white px-3.5 py-2.5">
-            <span className="relative flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
-              {initials(block.customer)}
-              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#31A24C]" />
-            </span>
-            <span className="flex min-w-0 flex-col leading-tight">
-              <strong className="truncate text-sm font-semibold text-ink">{block.customer || "Kunde"}</strong>
-              <span className="text-xs text-muted">Messenger</span>
-            </span>
-            <span className="cap ml-auto rounded-full bg-chip px-2.5 py-1">
-              <Label de={block.label_de ?? "Beispiel"} vi={block.label_vi ?? "Ví dụ"} />
-            </span>
-          </div>
+          <MessengerHeader
+            name={block.customer}
+            status="Messenger"
+            actions={
+              <span className="cap rounded-full bg-chip px-2.5 py-1">
+                <Label de={block.label_de ?? "Beispiel"} vi={block.label_vi ?? "Ví dụ"} />
+              </span>
+            }
+          />
           {toolbar}
 
           <div ref={logRef} role="log" aria-label="Beispielchat" className="flex flex-col gap-1.5 bg-white px-3.5 py-4">

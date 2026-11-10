@@ -4,9 +4,9 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { submitChat } from "@/app/actions";
-import { initials } from "@/lib/format";
 import type { Block, ChatTurn } from "@/lib/types";
 import { Bi, Label } from "./Bi";
+import { ComposerField, MessengerHeader, SendIcon, TypingDots, bubbleClass, bubbleRowClass } from "./MessengerParts";
 
 type ChatBlock = Extract<Block, { type: "chat" }>;
 type Line = { from: "customer" | "me"; text: string; translation?: string };
@@ -104,18 +104,10 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
   }
 
   const header = (
-    <div className="flex items-center gap-2.5 border-b border-line bg-white px-3.5 py-2.5">
-      <span className="relative flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
-        {initials(block.customer)}
-        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#31A24C]" />
-      </span>
-      <span className="flex min-w-0 flex-col leading-tight">
-        <strong className="truncate text-sm font-semibold text-ink">{block.customer || "Kunde"}</strong>
-        <span className="text-xs text-muted">
-          {typing ? <Label de="schreibt …" vi="đang soạn tin …" /> : <Label de="Messenger · aktiv" vi="Messenger · đang hoạt động" />}
-        </span>
-      </span>
-    </div>
+    <MessengerHeader
+      name={block.customer}
+      status={typing ? <Label de="schreibt …" vi="đang soạn tin …" /> : <Label de="Messenger · aktiv" vi="Messenger · đang hoạt động" />}
+    />
   );
 
   if (sent) {
@@ -162,25 +154,13 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
               const mine = l.from === "me";
               const nextSame = lines[i + 1]?.from === l.from;
               return (
-                <div key={i} data-line className={`flex max-w-[78%] flex-col ${mine ? "items-end self-end" : "items-start self-start"} ${nextSame ? "" : "mb-2"}`}>
-                  <span
-                    className={`whitespace-pre-line rounded-[18px] px-3.5 py-2 text-[14px] leading-snug ${
-                      mine ? "bg-accent text-white" : "bg-[#F0F0F0] text-ink"
-                    }`}
-                  >
-                    {l.text}
-                  </span>
+                <div key={i} data-line className={bubbleRowClass(mine, !nextSame)}>
+                  <span className={bubbleClass(mine)}>{l.text}</span>
                   {l.translation && <span className="de mt-1 px-1 text-xs italic text-muted">{l.translation}</span>}
                 </div>
               );
             })}
-            {typing && (
-              <div className="flex items-center gap-1 self-start rounded-[18px] bg-[#F0F0F0] px-3.5 py-3" aria-label="schreibt">
-                {[0, 1, 2].map((k) => (
-                  <span key={k} className="h-1.5 w-1.5 animate-bounce rounded-full bg-faint" style={{ animationDelay: `${k * 0.15}s` }} />
-                ))}
-              </div>
-            )}
+            {typing && <TypingDots />}
           </>
         )}
       </div>
@@ -210,9 +190,8 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
               send();
             }}
           >
-            <textarea
+            <ComposerField
               ref={field}
-              rows={1}
               value={draft}
               maxLength={2000}
               onChange={(e) => setDraft(e.target.value)}
@@ -224,7 +203,6 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
               }}
               placeholder="Aa"
               aria-label="Deine Antwort"
-              className="max-h-32 min-h-[38px] flex-1 [field-sizing:content] resize-none rounded-[19px] bg-[#F0F2F5] px-3.5 py-2 text-sm text-ink outline-none focus:ring-2 focus:ring-accent-soft"
             />
             <button
               type="submit"
@@ -233,9 +211,7 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
               title={waitingSince === null ? "Warte auf die Nachricht · Chờ tin nhắn" : "Senden · Gửi"}
               className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full text-accent hover:bg-accent-soft disabled:text-faint disabled:hover:bg-transparent"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M3.4 20.4 21 12 3.4 3.6l-.01 6.53L15 12 3.39 13.87z" />
-              </svg>
+              <SendIcon />
             </button>
           </form>
         )
