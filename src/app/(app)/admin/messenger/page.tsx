@@ -81,7 +81,13 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   return (
     <>
       <AutoRefresh seconds={30} />
-      <Topbar>
+      <Topbar
+        actions={
+          <Link href="/admin/messenger/statistik" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
+            <Label de="Statistik" vi="Thống kê" />
+          </Link>
+        }
+      >
         <Icon name="chat" size={14} />
         <Label de="Messenger" vi="Messenger" />
       </Topbar>
