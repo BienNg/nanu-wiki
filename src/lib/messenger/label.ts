@@ -14,6 +14,7 @@ import {
   newestActivity,
   textRule,
 } from "./classify";
+import { mergePinned } from "./nextAction";
 import { LEVELS, LOSS_REASONS, OUTCOMES, type ChatLineRow, type LabelDraft, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
 const MODEL = "claude-haiku-5-5";
@@ -89,19 +90,28 @@ interest is keins when nothing fits. level and place are unklar when unknown.
 evidence: one short German sentence quoting a few of their words.`;
 }
 
-async function saveLabel(db: ReturnType<typeof createAdminClient>, fact: MessengerFact, draft: LabelDraft, tokens: { input: number; output: number }) {
+async function saveLabel(
+  db: ReturnType<typeof createAdminClient>,
+  fact: MessengerFact,
+  draft: LabelDraft,
+  tokens: { input: number; output: number },
+  previous?: StoredLabel,
+) {
+  const merged = mergePinned(draft, previous);
   const through = newestActivity(fact) ?? new Date().toISOString();
   const { error } = await db.from("messenger_labels").upsert({
     conversation_id: fact.id,
-    stage: draft.stage,
-    interest: draft.interest,
-    level: draft.level,
-    place: draft.place,
-    outcome: draft.outcome,
-    loss_reason: draft.loss_reason,
-    evidence: draft.evidence.slice(0, 500),
+    stage: merged.stage,
+    interest: merged.interest,
+    level: merged.level,
+    place: merged.place,
+    outcome: merged.outcome,
+    loss_reason: merged.loss_reason,
+    evidence: merged.evidence.slice(0, 500),
     labeled_through: through,
-    source: draft.source,
+    source: merged.source,
+    pinned: previous?.pinned ?? [],
+    resume_on: previous?.resume_on ?? null,
     input_tokens: tokens.input,
     output_tokens: tokens.output,
     updated_at: new Date().toISOString(),
@@ -128,6 +138,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
     const { data: factRows, error: factErr } = await db
       .from("messenger_facts")
       .select("*")
+      .eq("channel", "messenger")
       .gt("customer_msgs", 0)
       .gte("updated_time", since)
       .order("updated_time", { ascending: false })
@@ -140,7 +151,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
       const slice = facts.slice(i, i + 100).map((f) => f.id);
       const { data, error } = await db
         .from("messenger_labels")
-        .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source")
+        .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on")
         .in("conversation_id", slice);
       if (error) throw new Error(error.message);
       for (const row of (data ?? []) as StoredLabel[]) labels.set(row.conversation_id, row);
@@ -163,7 +174,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
         fact,
         now,
       );
-      await saveLabel(db, fact, draft, { input: 0, output: 0 });
+      await saveLabel(db, fact, draft, { input: 0, output: 0 }, label);
       result.rules++;
     }
 
@@ -210,7 +221,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
       const customers = lines.filter((l) => !l.from_page).map((l) => l.text ?? "");
       const ruled = textRule(customers, fact.last_from_page);
       if (ruled) {
-        await saveLabel(db, fact, applyGuards(ruled, fact, now), { input: 0, output: 0 });
+        await saveLabel(db, fact, applyGuards(ruled, fact, now), { input: 0, output: 0 }, labels.get(fact.id));
         result.rules++;
         continue;
       }
@@ -221,44 +232,67 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
       }
 
       const hours = fact.last_customer_at ? Math.round((now - new Date(fact.last_customer_at).getTime()) / 3_600_000) : 0;
-      const res = await client.messages.parse({
-        model: MODEL,
-        max_tokens: 2000,
-        output_config: { effort: "low", format: zodOutputFormat(LabelSchema) },
-        system: systemPrompt(),
-        messages: [
-          {
-            role: "user",
-            content: `Follow-up already sent: ${fact.followup_sent ? "yes" : "no"}\nLast message from: ${fact.last_from_page ? "page" : "customer"}\nHours since their last message: ${hours}\n\n<conversation>\n${transcript(lines)}\n</conversation>`,
-          },
-        ],
-      });
-      const usedIn = res.usage.input_tokens + (res.usage.cache_creation_input_tokens ?? 0) + (res.usage.cache_read_input_tokens ?? 0);
-      const usedOut = res.usage.output_tokens;
-      inputTokens += usedIn;
-      outputTokens += usedOut;
-      await db.from("messenger_label_budget").upsert({ month, input_tokens: inputTokens, output_tokens: outputTokens });
+      try {
+        const res = await client.messages.parse({
+          model: MODEL,
+          max_tokens: 2000,
+          output_config: { effort: "low", format: zodOutputFormat(LabelSchema) },
+          system: systemPrompt(),
+          messages: [
+            {
+              role: "user",
+              content: `Follow-up already sent: ${fact.followup_sent ? "yes" : "no"}\nLast message from: ${fact.last_from_page ? "page" : "customer"}\nHours since their last message: ${hours}\n\n<conversation>\n${transcript(lines)}\n</conversation>`,
+            },
+          ],
+        });
+        const usedIn = res.usage.input_tokens + (res.usage.cache_creation_input_tokens ?? 0) + (res.usage.cache_read_input_tokens ?? 0);
+        const usedOut = res.usage.output_tokens;
+        inputTokens += usedIn;
+        outputTokens += usedOut;
+        await db.from("messenger_label_budget").upsert({ month, input_tokens: inputTokens, output_tokens: outputTokens });
 
-      if (res.stop_reason === "max_tokens" || !res.parsed_output) {
-        throw new Error("Label-Antwort unvollständig");
+        if (res.stop_reason === "max_tokens" || !res.parsed_output) throw new Error("Label-Antwort unvollständig");
+        const parsed = res.parsed_output;
+        const draft: LabelDraft = applyGuards(
+          {
+            stage: parsed.stage,
+            interest: parsed.interest === "keins" ? null : parsed.interest,
+            level: parsed.level,
+            place: parsed.place.slice(0, 80),
+            outcome: parsed.outcome,
+            loss_reason: parsed.loss_reason,
+            evidence: parsed.evidence,
+            source: "model",
+          },
+          fact,
+          now,
+        );
+        await saveLabel(db, fact, draft, { input: usedIn, output: usedOut }, labels.get(fact.id));
+        result.model++;
+      } catch {
+        // One bad reply must not stop the run or block this chat forever.
+        await saveLabel(
+          db,
+          fact,
+          applyGuards(
+            {
+              stage: "unklar",
+              interest: null,
+              level: null,
+              place: null,
+              outcome: fact.last_from_page ? "wartet_auf_kunde" : "wartet_auf_uns",
+              loss_reason: null,
+              evidence: "Automatische Einordnung ist fehlgeschlagen.",
+              source: "rule",
+            },
+            fact,
+            now,
+          ),
+          { input: 0, output: 0 },
+          labels.get(fact.id),
+        );
+        result.rules++;
       }
-      const parsed = res.parsed_output;
-      const draft: LabelDraft = applyGuards(
-        {
-          stage: parsed.stage,
-          interest: parsed.interest === "keins" ? null : parsed.interest,
-          level: parsed.level,
-          place: parsed.place.slice(0, 80),
-          outcome: parsed.outcome,
-          loss_reason: parsed.loss_reason,
-          evidence: parsed.evidence,
-          source: "model",
-        },
-        fact,
-        now,
-      );
-      await saveLabel(db, fact, draft, { input: usedIn, output: usedOut });
-      result.model++;
     }
 
     await db.from("messenger_label_state").update({ last_error: null }).eq("id", 1);

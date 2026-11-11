@@ -117,12 +117,13 @@ export async function loadMessengerStats(
   const quietBefore = new Date(Date.now() - DAY_MS).toISOString();
 
   const [weekRes, inboundRes, waitingRes, quietRes, priceRes, consultRes, budgetRes, stateRes] = await Promise.all([
-    supabase.from("messenger_facts").select("*").gte("first_customer_at", startIso).lt("first_customer_at", endIso),
-    supabase.from("messenger_messages").select("id", { count: "exact", head: true }).eq("from_page", false).gte("created_time", startIso).lt("created_time", endIso),
-    supabase.from("messenger_facts").select("id, customer_name, last_customer_at, customer_msgs, last_from_page").eq("last_from_page", false).gt("customer_msgs", 0).order("last_customer_at", { ascending: true }).limit(80),
+    supabase.from("messenger_facts").select("*").eq("channel", "messenger").gte("first_customer_at", startIso).lt("first_customer_at", endIso),
+    supabase.from("messenger_messages").select("id", { count: "exact", head: true }).eq("channel", "messenger").eq("from_page", false).gte("created_time", startIso).lt("created_time", endIso),
+    supabase.from("messenger_facts").select("id, customer_name, last_customer_at, customer_msgs, last_from_page").eq("channel", "messenger").eq("last_from_page", false).gt("customer_msgs", 0).order("last_customer_at", { ascending: true }).limit(80),
     supabase
       .from("messenger_facts")
       .select("id, customer_name, last_customer_at, last_page_at, followup_sent, last_from_page, last_page_has_zalo, customer_msgs")
+      .eq("channel", "messenger")
       .eq("last_from_page", true)
       .eq("followup_sent", false)
       .eq("last_page_has_zalo", false)

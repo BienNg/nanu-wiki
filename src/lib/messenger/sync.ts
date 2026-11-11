@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Copies the Facebook Page's Messenger inbox into Supabase (read-only).
+ * WhatsApp Business chats are not in this poll; they arrive at /api/whatsapp/webhook.
  * Runs every minute from /api/cron/messenger-sync. Picks up both directions:
  * messages customers send and replies the Page sends (Business Suite, inbox, automations).
  *
@@ -105,6 +106,8 @@ export async function syncMessenger(opts: SyncOptions = {}): Promise<SyncResult>
     const customer = c.participants?.data.find((p) => p.id !== pageId);
     const { error: convErr } = await db.from("messenger_conversations").upsert({
       id: c.id,
+      channel: "messenger",
+      account_id: pageId,
       customer_psid: customer?.id ?? null,
       customer_name: customer?.name ?? null,
       message_count: c.message_count ?? null,
@@ -133,6 +136,7 @@ export async function syncMessenger(opts: SyncOptions = {}): Promise<SyncResult>
           fresh.map((m) => ({
             id: m.id,
             conversation_id: c.id,
+            channel: "messenger",
             from_id: m.from?.id ?? null,
             from_name: m.from?.name ?? null,
             from_page: m.from?.id === pageId,

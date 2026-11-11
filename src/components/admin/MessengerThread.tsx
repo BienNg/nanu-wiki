@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MessengerHeader, bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
 
@@ -54,11 +54,15 @@ export function MessengerThread({
   backHref,
   messages,
   totalCount,
+  banner,
+  status,
 }: {
   name: string;
   backHref: string;
   messages: ThreadMessage[];
   totalCount: number | null;
+  banner?: ReactNode;
+  status?: ReactNode;
 }) {
   // Jump to the newest message; scroll only the chat, not the page.
   const scroller = useRef<HTMLDivElement>(null);
@@ -79,10 +83,11 @@ export function MessengerThread({
         <div className="min-w-0 flex-1">
           <MessengerHeader
             name={name}
-            status={<Label de="Nur lesen · in der Business Suite antworten" vi="Chỉ đọc · trả lời trong Business Suite" />}
+            status={status ?? <Label de="Nur lesen · in der Business Suite antworten" vi="Chỉ đọc · trả lời trong Business Suite" />}
           />
         </div>
       </div>
+      {banner}
 
       <div ref={scroller} className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-4 py-4">
         {older > 0 && (

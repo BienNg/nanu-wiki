@@ -40,6 +40,7 @@ export type MessengerFact = {
   reply_seconds: number | null;
   last_from_page: boolean | null;
   followup_sent: boolean;
+  channel: string;
 };
 
 export type StoredLabel = {
@@ -52,7 +53,11 @@ export type StoredLabel = {
   loss_reason: LossReason | null;
   evidence: string | null;
   labeled_through: string;
-  source: "rule" | "model";
+  source: "rule" | "model" | "human";
+  /** Fields a person set. The cron keeps these and may refill the others. */
+  pinned?: string[];
+  /** Vietnam date (YYYY-MM-DD) when loss_reason is spaeter. */
+  resume_on?: string | null;
 };
 
 export type LabelDraft = {
@@ -63,7 +68,7 @@ export type LabelDraft = {
   outcome: Outcome;
   loss_reason: LossReason | null;
   evidence: string;
-  source: "rule" | "model";
+  source: "rule" | "model" | "human";
 };
 
 export type ChatLineRow = {
