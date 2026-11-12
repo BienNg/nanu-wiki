@@ -101,6 +101,14 @@ async function inChunks<T>(ids: string[], load: (slice: string[]) => PromiseLike
   return rows;
 }
 
+/** The wait badge shows a clock instead of "Warten · dann"; this is what follows it ("Interesse fragen"), or null. */
+function waitRest(de: string, vi: string): { de: string; vi: string } | null {
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const restDe = de.replace(/^Warten(\s*·\s*(dann\s+)?)?/, "");
+  const restVi = vi.replace(/^Chờ(\s*·\s*(sau đó\s+)?)?/, "");
+  return restDe ? { de: cap(restDe), vi: cap(restVi) } : null;
+}
+
 function formJudgment(outcome: Outcome | undefined) {
   if (outcome === "kein_lead" || outcome === "bestandskunde" || outcome === "weiter_auf_zalo" || outcome === "verloren") return outcome;
   return "auto";
@@ -269,6 +277,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               const preview = c.last_text ?? (c.last_has_attachment ? "📎 Anhang" : "");
               const view = viewById.get(c.id);
               const mark = channelMark(c);
+              const rawInterest = labelById.get(c.id)?.interest;
+              const interest = rawInterest && rawInterest !== "unklar" && rawInterest !== "keins" ? rawInterest : null;
               return (
                 <li key={c.id}>
                   <Link
@@ -282,8 +292,13 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                     </span>
                     <span className="flex min-w-0 flex-1 flex-col leading-tight">
                       <span className="flex items-baseline gap-2">
-                        <span className={`min-w-0 flex-1 truncate text-[14px] ${unanswered ? "font-semibold text-ink" : "text-ink"}`}>
-                          {c.customer_name ?? "Unbekannt"}
+                        <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
+                          <span className={`min-w-0 truncate text-[14px] ${unanswered ? "font-semibold text-ink" : "text-ink"}`}>
+                            {c.customer_name ?? "Unbekannt"}
+                          </span>
+                          {interest && (
+                            <span className="flex-none rounded-full bg-chip px-1.5 py-px text-[10.5px] font-medium text-muted">{interest}</span>
+                          )}
                         </span>
                         <span className="flex-none text-[11.5px] text-faint">{shortTime(c.last_time ?? c.updated_time)}</span>
                       </span>
@@ -303,11 +318,26 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                             <Label de={view.state.de} vi={view.state.vi} />
                           </span>
                           <span
-                            className={`mt-1 max-w-full self-start truncate rounded-full px-2 py-0.5 text-[11.5px] font-medium ${
+                            className={`mt-1 flex max-w-full items-center gap-1 self-start rounded-full px-2 py-0.5 text-[11.5px] font-medium ${
                               view.action.today ? "bg-accent-soft text-accent-dark" : "bg-chip text-muted"
                             }`}
                           >
-                            <Label de={view.action.de} vi={view.action.vi} />
+                            {view.action.id === "wait" ? (
+                              <>
+                                <span className="flex-none" title="Warten">
+                                  <Icon name="clock" size={12} />
+                                </span>
+                                {waitRest(view.action.de, view.action.vi) && (
+                                  <span className="truncate">
+                                    <Label {...waitRest(view.action.de, view.action.vi)!} />
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="truncate">
+                                <Label de={view.action.de} vi={view.action.vi} />
+                              </span>
+                            )}
                           </span>
                         </>
                       )}
