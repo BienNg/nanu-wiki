@@ -1,3 +1,4 @@
+import { processWebhook } from "@/lib/messenger/webhook-events";
 import { NextResponse, type NextRequest } from "next/server";
 import { ingestWhatsappPayload, whatsappSignatureOk } from "@/lib/messenger/whatsapp";
 
@@ -35,8 +36,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const messages = await ingestWhatsappPayload(body);
-    return NextResponse.json({ messages });
+    await processWebhook("whatsapp", body);
+    return NextResponse.json({ ok: true });
+  } catch (journalError) {
+    // Never let the new journal/status path block the existing inbound ingestion.
+    console.error("whatsapp webhook journal failed", journalError);
+  }
+  try {
+    // Inbound is saved (idempotent upserts); 500 makes Meta retry so status callbacks are not lost.
+    await ingestWhatsappPayload(body);
+    return NextResponse.json({ error: "journal" }, { status: 500 });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json({ error: message }, { status: 500 });
