@@ -5,8 +5,8 @@ import { LOSS_REASONS, OUTCOMES, type LabelDraft, type LossReason, type Messenge
 export const TZ = "Asia/Ho_Chi_Minh";
 const TZ_OFFSET_MS = 7 * 60 * 60 * 1000;
 
-export const WORK_HOUR_START = 8;
-export const WORK_HOUR_END = 21;
+export const WORK_HOUR_START = 9;
+export const WORK_HOUR_END = 18;
 
 /** Haiku 5.5, prompts under 100k tokens. €10 ≈ $10.80 at this fixed rate. */
 export const INPUT_USD_PER_TOKEN = 0.1 / 1_000_000;

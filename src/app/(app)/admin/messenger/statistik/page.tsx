@@ -170,16 +170,16 @@ export default async function MessengerStatsPage({ searchParams }: { searchParam
             vi="Tin trả lời đầu, trung vị"
             valueDe={median?.de ?? "–"}
             valueVi={median?.vi ?? "–"}
-            noteDe={median ? "Nur Leads, deren erste Nachricht zwischen 8 und 21 Uhr lag" : "Noch keine Antwort in der Arbeitszeit"}
-            noteVi={median ? "Chỉ khách mới nhắn trong khoảng 8–21 giờ" : "Chưa có trả lời trong giờ làm"}
+            noteDe={median ? "Nur Leads, deren erste Nachricht zwischen 9 und 18 Uhr lag" : "Noch keine Antwort in der Arbeitszeit"}
+            noteVi={median ? "Chỉ khách mới nhắn trong khoảng 9–18 giờ" : "Chưa có trả lời trong giờ làm"}
           />
           <Stat
             de="Unter 15 Minuten"
             vi="Dưới 15 phút"
             valueDe={within15 == null ? "–" : `${within15} %`}
             valueVi={within15 == null ? "–" : `${within15} %`}
-            noteDe={stats.workHourLeads ? `${stats.answeredWithin15} von ${stats.workHourLeads} in der Arbeitszeit (8–21 Uhr)` : "Keine neuen Leads in der Arbeitszeit"}
-            noteVi={stats.workHourLeads ? `${stats.answeredWithin15} / ${stats.workHourLeads} trong giờ làm (8–21h)` : "Không có khách mới trong giờ làm"}
+            noteDe={stats.workHourLeads ? `${stats.answeredWithin15} von ${stats.workHourLeads} in der Arbeitszeit (9–18 Uhr)` : "Keine neuen Leads in der Arbeitszeit"}
+            noteVi={stats.workHourLeads ? `${stats.answeredWithin15} / ${stats.workHourLeads} trong giờ làm (9–18h)` : "Không có khách mới trong giờ làm"}
           />
         </section>
 
