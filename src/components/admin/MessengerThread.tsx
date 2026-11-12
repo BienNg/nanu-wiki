@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MessengerHeader, bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
 
@@ -56,6 +56,8 @@ export function MessengerThread({
   totalCount,
   banner,
   status,
+  composer,
+  conversationId,
 }: {
   name: string;
   backHref: string;
@@ -63,13 +65,29 @@ export function MessengerThread({
   totalCount: number | null;
   banner?: ReactNode;
   status?: ReactNode;
+  composer?: ReactNode;
+  conversationId?: string;
 }) {
+  const [optimistic, setOptimistic] = useState<Array<{ conversation: string; id: string; text: string | null; attachment: string | null; created_time: string }>>([]);
+  useEffect(() => {
+    const onSent = (e: Event) => setOptimistic((o) => [...o, (e as CustomEvent).detail]);
+    window.addEventListener('inbox:sent', onSent);
+    return () => window.removeEventListener('inbox:sent', onSent);
+  }, []);
+  const known = new Set(messages.map((m) => m.id));
+  const extra: ThreadMessage[] = optimistic
+    .filter((o) => o.conversation === conversationId && !known.has(o.id))
+    .map((o) => ({ id: o.id, text: o.text ?? (o.attachment ? `📎 ${o.attachment}` : null), from_page: true, from_name: null, attachments: null, created_time: o.created_time }) as ThreadMessage);
+  if (extra.length) messages = [...messages, ...extra];
   // Jump to the newest message; scroll only the chat, not the page.
   const scroller = useRef<HTMLDivElement>(null);
+  const nearBottom = useRef(true);
+  const [newMessages, setNewMessages] = useState(false);
   const last = messages.at(-1)?.id;
   useEffect(() => {
     const el = scroller.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (el && nearBottom.current) el.scrollTop = el.scrollHeight;
+    else if (el) setNewMessages(true);
   }, [last]);
 
   const older = totalCount !== null && totalCount > messages.length ? totalCount - messages.length : 0;
@@ -89,7 +107,7 @@ export function MessengerThread({
       </div>
       {banner}
 
-      <div ref={scroller} className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-4 py-4">
+      <div onScroll={() => { const el = scroller.current; if (el) { nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100; if (nearBottom.current) setNewMessages(false); } }} ref={scroller} className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-4 py-4">
         {older > 0 && (
           <p className="m-0 mb-3 self-center rounded-full bg-chip px-3 py-1 text-[11.5px] text-muted">
             <Label de={`${older} ältere Nachrichten nicht geladen (nur die letzten 14 Tage)`} vi={`${older} tin cũ hơn chưa tải (chỉ 14 ngày gần nhất)`} />
@@ -117,6 +135,8 @@ export function MessengerThread({
           );
         })}
       </div>
+      {newMessages && <button className="bg-chip p-2 text-xs" onClick={() => { const el=scroller.current; if(el) el.scrollTop=el.scrollHeight; setNewMessages(false); }}>↓ <Label de="Neue Nachrichten" vi="Tin nhắn mới" /></button>}
+      {composer}
     </div>
   );
 }

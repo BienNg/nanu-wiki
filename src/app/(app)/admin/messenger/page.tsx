@@ -1,3 +1,5 @@
+import { MessageComposer, type Outgoing } from "@/components/admin/MessageComposer";
+import { enabled } from "@/lib/messenger/providers/meta";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -247,6 +249,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const selectedId = sp.c ?? null;
   let selected: { id: string; customer_name: string | null; message_count: number | null; channel: string | null; account_name: string | null } | null = null;
   let messages: ThreadMessage[] = [];
+  let attempts: Outgoing[] = [];
+  let lastInbound: string | null = null;
   if (selectedId) {
     const [{ data: conv }, { data: msgs }, { data: oneLabel, error: oneLabelErr }, { data: oneFact, error: oneFactErr }] = await Promise.all([
       supabase.from("messenger_conversations").select("id, customer_name, message_count, channel, account_name").eq("id", selectedId).maybeSingle(),
@@ -254,15 +258,21 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
         .from("messenger_messages")
         .select("id, text, from_page, from_name, attachments, created_time")
         .eq("conversation_id", selectedId)
-        .order("created_time", { ascending: true })
+        .order("created_time", { ascending: false })
         .limit(1000),
       supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", selectedId).maybeSingle(),
       supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", selectedId).maybeSingle(),
     ]);
     if (oneLabelErr) throw new Error(oneLabelErr.message);
     if (oneFactErr) throw new Error(oneFactErr.message);
+    const [outbox, inbound] = await Promise.all([
+      supabase.from("messenger_outbox").select("*").eq("conversation_id", selectedId).order("created_at", { ascending: false }).limit(20),
+      supabase.from("messenger_messages").select("created_time").eq("conversation_id", selectedId).eq("from_page", false).order("created_time", { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    attempts = (outbox.data ?? []).reverse() as Outgoing[];
+    lastInbound = inbound.data?.created_time ?? null;
     selected = conv;
-    messages = (msgs ?? []) as ThreadMessage[];
+    messages = (msgs ?? []).reverse() as ThreadMessage[];
     if (oneLabel) labelById.set(selectedId, oneLabel as InboxLabel);
     if (oneFact) factById.set(selectedId, oneFact as FactRow);
     const label = labelById.get(selectedId);
@@ -435,12 +445,14 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
         <section aria-label="Gespräch" className={`flex min-w-0 flex-1 flex-col ${selected ? "" : "max-md:hidden"}`}>
           {selected ? (
             <MessengerThread
+              conversationId={selected.id}
               key={selected.id}
               name={selected.customer_name ?? "Unbekannt"}
               backHref={href({ c: "" })}
               messages={messages}
               totalCount={selected.message_count}
-              status={<Label de={replyHint(selected.channel).de} vi={replyHint(selected.channel).vi} />}
+              status={<span>{selected.channel} · {selected.account_name || "NaNu NaNa"}</span>}
+              composer={selected.channel !== "zalo" ? <MessageComposer conversation={selected.id} channel={selected.channel || "messenger"} enabled={enabled(selected.channel || "messenger")} lastInbound={lastInbound} attempts={attempts} /> : <p className="p-3 text-xs">{replyHint("zalo").de}</p>}
               banner={
                 <>
                   {selectedView && (
@@ -476,8 +488,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               </p>
               <p className="m-0 max-w-[420px] text-[12.5px] text-faint">
                 <Label
-                  de="Nur lesen. Antworten bleiben in der Meta Business Suite, in WhatsApp Business oder im Zalo OA Manager. Neue Nachrichten erscheinen hier innerhalb von etwa einer Minute."
-                  vi="Chỉ để đọc. Vẫn trả lời trong Meta Business Suite, WhatsApp Business hoặc Zalo OA Manager. Tin nhắn mới hiện ở đây trong khoảng một phút."
+                  de="Facebook und WhatsApp lesen und beantworten. Zalo bleibt im OA Manager."
+                  vi="Đọc và trả lời Facebook, WhatsApp. Trả lời Zalo trong OA Manager."
                 />
               </p>
             </div>
