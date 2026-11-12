@@ -77,16 +77,6 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     <form action={action} className="flex flex-col gap-2 border-b border-line bg-[#FAFBFC] px-3 py-2.5">
       <input type="hidden" name="conversation_id" value={conversationId} />
       <div className="flex flex-wrap items-end gap-2">
-        <Field de="Stufe" vi="Bước" pinned={locked("stage")}>
-          <select name="stage" defaultValue={stage} className={control}>
-            <option value="unklar">Unklar · Chưa rõ</option>
-            {STAGES.map((id) => (
-              <option key={id} value={id}>
-                {STAGE_INFO[id as Stage].short_de} · {STAGE_INFO[id as Stage].short_vi}
-              </option>
-            ))}
-          </select>
-        </Field>
         <Field de="Interesse" vi="Nhu cầu" pinned={locked("interest")}>
           <select name="interest" defaultValue={interest} className={control}>
             <option value="">—</option>
@@ -108,6 +98,16 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         </Field>
         <Field de="Ort" vi="Nơi ở" pinned={locked("place")}>
           <input name="place" defaultValue={place} className={`${control} w-28`} />
+        </Field>
+        <Field de="Stufe" vi="Bước" pinned={locked("stage")}>
+          <select name="stage" defaultValue={stage} className={control}>
+            <option value="unklar">Unklar · Chưa rõ</option>
+            {STAGES.map((id) => (
+              <option key={id} value={id}>
+                {STAGE_INFO[id as Stage].short_de} · {STAGE_INFO[id as Stage].short_vi}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field de="Status" vi="Trạng thái" pinned={locked("outcome")}>
           <select name="judgment" value={status} onChange={(e) => setStatus(e.target.value)} className={control}>

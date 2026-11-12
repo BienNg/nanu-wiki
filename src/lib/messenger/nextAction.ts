@@ -133,22 +133,35 @@ function lostView(label: ActionLabel, now: number): ConversationView {
   return { state: text, action: CLOSED };
 }
 
+function isEarly(stage: Stage | "unklar" | null) {
+  return !stage || stage === "unklar" || stage === STAGES[0] || stage === STAGES[1];
+}
+
+/** Ask one thing at a time, in this order: Interesse, Niveau, Ort. Then send matching courses. */
+function infoStep(label: ActionLabel | undefined): { id: string; de: string; vi: string; rank: number } {
+  if (!known(label?.interest)) return { id: "ask_interest", de: "Interesse fragen", vi: "Hỏi nhu cầu", rank: 40 };
+  if (!known(label?.level)) return { id: "ask_level", de: "Niveau fragen", vi: "Hỏi trình độ", rank: 40 };
+  if (!known(label?.place)) return { id: "ask_place", de: "Wohnort fragen", vi: "Hỏi nơi ở", rank: 40 };
+  const detail = [label!.interest, label!.level, label!.place].join(", ");
+  return { id: "courses", de: `Passende Kurse schicken (${detail})`, vi: `Gửi khóa phù hợp (${detail})`, rank: 30 };
+}
+
 function replyAction(label: ActionLabel | undefined, stage: Stage | "unklar" | null): NextAction {
   if (stage === STAGES[3]) return act("pay", "Zahlungsdaten schicken und den Platz bestätigen", "Gửi thông tin chuyển khoản và xác nhận chỗ", 10);
   if (stage === STAGES[2]) return act("offer", "Preis schicken und fragen, ob wir den Platz reservieren", "Báo giá và hỏi giữ chỗ", 20);
   if (stage === STAGES[5]) return act("visa", "Fehlendes Dokument und das Datum nennen", "Nói giấy tờ còn thiếu và hạn nộp", 55);
   if (stage === STAGES[4]) return act("class", "Das Kursproblem lösen", "Giải quyết vấn đề của buổi học", 50);
+  if (!isEarly(stage)) return act("answer", "Antworten", "Trả lời", 40);
+  const step = infoStep(label);
+  return act(step.id, step.de, step.vi, step.rank);
+}
 
-  const early = !stage || stage === "unklar" || stage === STAGES[0] || stage === STAGES[1];
-  if (!early) return act("answer", "Antworten", "Trả lời", 40);
-  if (!label) return act("answer", "Antworten", "Trả lời", 40);
-  const place = known(label.place);
-  const level = known(label.level);
-  if (!place && !level) return act("ask_both", "Wohnort und Niveau fragen", "Hỏi nơi ở và trình độ", 40);
-  if (!place) return act("ask_place", "Wohnort fragen", "Hỏi nơi ở", 40);
-  if (!level) return act("ask_level", "Niveau fragen", "Hỏi trình độ", 40);
-  const detail = [label.level, label.place].filter(known).join(", ");
-  return act("courses", `Passende Kurse schicken (${detail})`, `Gửi khóa phù hợp (${detail})`, 30);
+/** While the person has the turn, still say what we ask next once they answer. */
+function waitAction(label: ActionLabel | undefined, stage: Stage | "unklar" | null): NextAction {
+  if (!isEarly(stage)) return WAIT;
+  const step = infoStep(label);
+  const de = step.id === "courses" ? step.de.replace(/^Passende/, "passende") : step.de;
+  return { ...WAIT, de: `Warten · dann ${de}`, vi: `Chờ · sau đó ${step.vi.charAt(0).toLowerCase()}${step.vi.slice(1)}` };
 }
 
 function followupAction(stage: Stage | "unklar" | null): NextAction {
@@ -193,5 +206,5 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
   if (ball) return { state, action: replyAction(label, stage) };
   if (silent) return { state, action: STOP };
   if (nudge) return { state, action: followupAction(stage) };
-  return { state, action: WAIT };
+  return { state, action: waitAction(label, stage) };
 }

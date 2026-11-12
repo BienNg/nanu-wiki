@@ -419,7 +419,11 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                           <span className="mt-1 truncate text-[11px] text-faint">
                             <Label de={view.state.de} vi={view.state.vi} />
                           </span>
-                          <span className={`truncate text-[12px] ${view.action.today ? "font-medium text-ink" : "text-muted"}`}>
+                          <span
+                            className={`mt-1 max-w-full self-start truncate rounded-full px-2 py-0.5 text-[11.5px] font-medium ${
+                              view.action.today ? "bg-accent-soft text-accent-dark" : "bg-chip text-muted"
+                            }`}
+                          >
                             <Label de={view.action.de} vi={view.action.vi} />
                           </span>
                         </>
