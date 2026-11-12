@@ -11,7 +11,7 @@ Implemented for admin users in `/admin/messenger`. Facebook/WhatsApp sending is 
 5. Enable `MESSENGER_SEND_ENABLED=true` and/or `WHATSAPP_SEND_ENABLED=true` after configuring the account. Use an explicitly designated test recipient for end-to-end sends.
 6. Validate text, JPG/PNG/PDF, template, out-of-window rejection, and delivery callbacks. Check callbacks under duplicate and delayed delivery.
 
-Set either flag false to stop that channel's outgoing messages while keeping reading available. Zalo remains read-only.
+Set either flag false to stop that channel's outgoing messages while keeping reading available.
 
 ## Behavior and supported scope
 

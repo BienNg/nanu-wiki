@@ -111,22 +111,15 @@ function formJudgment(outcome: Outcome | undefined) {
 
 function channelMark(row: InboxRow): { de: string; vi: string } | null {
   if (row.channel === "whatsapp") return { de: row.account_name ? `WhatsApp · ${row.account_name}` : "WhatsApp", vi: row.account_name ? `WhatsApp · ${row.account_name}` : "WhatsApp" };
-  if (row.channel === "zalo") return { de: row.account_name ? `Zalo · ${row.account_name}` : "Zalo", vi: row.account_name ? `Zalo · ${row.account_name}` : "Zalo" };
   return null;
 }
 
-function replyHint(channel: string | null | undefined) {
-  if (channel === "whatsapp") return { de: "Nur lesen · in WhatsApp Business antworten", vi: "Chỉ đọc · trả lời trong WhatsApp Business" };
-  if (channel === "zalo") return { de: "Nur lesen · im Zalo OA Manager antworten", vi: "Chỉ đọc · trả lời trong Zalo OA Manager" };
-  return { de: "Nur lesen · in der Business Suite antworten", vi: "Chỉ đọc · trả lời trong Business Suite" };
-}
-
-/** Read-only copy of Messenger, WhatsApp Business, and Zalo OA chats, with the next action for each chat. */
+/** Read-only copy of Messenger and WhatsApp Business chats, with the next action for each chat. */
 export default async function MessengerInboxPage({ searchParams }: { searchParams: Promise<Params> }) {
   await requireRole("admin");
   const sp = await searchParams;
   const filter = sp.filter === "offen" || sp.filter === "heute" ? sp.filter : "alle";
-  const channel = sp.ch === "whatsapp" || sp.ch === "zalo" || sp.ch === "messenger" ? sp.ch : "";
+  const channel = sp.ch === "whatsapp" || sp.ch === "messenger" ? sp.ch : "";
   const q = (sp.q ?? "").trim().slice(0, 80);
   const now = Date.now();
   const dayAgo = new Date(now - DAY_MS).toISOString();
@@ -289,7 +282,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const states = (stateRows ?? []) as SyncState[];
   const pageState =
     states.find((s) => s.page_id === process.env.META_PAGE_ID) ??
-    states.find((s) => !s.page_id.startsWith("wa:") && !s.page_id.startsWith("zalo")) ??
+    states.find((s) => !s.page_id.startsWith("wa:")) ??
     null;
   const syncError = pageState?.last_error ?? states.find((s) => s.last_error)?.last_error ?? null;
   const syncAgeMin = pageState?.last_run_at ? Math.round((Date.now() - new Date(pageState.last_run_at).getTime()) / 60_000) : null;
@@ -361,7 +354,6 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 { id: "", de: "Alle Kanäle", vi: "Mọi kênh" },
                 { id: "messenger", de: "Messenger", vi: "Messenger" },
                 { id: "whatsapp", de: "WhatsApp", vi: "WhatsApp" },
-                { id: "zalo", de: "Zalo", vi: "Zalo" },
               ].map((t) => (
                 <Link
                   key={t.id || "all"}
@@ -456,7 +448,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               messages={messages}
               totalCount={selected.message_count}
               status={<span>{selected.channel} · {selected.account_name || "NaNu NaNa"}</span>}
-              composer={selected.channel !== "zalo" ? <MessageComposer key="composer" conversation={selected.id} channel={selected.channel || "messenger"} enabled={enabled(selected.channel || "messenger")} lastInbound={lastInbound} attempts={attempts} /> : <p key="composer" className="p-3 text-xs">{replyHint("zalo").de}</p>}
+              composer={<MessageComposer key="composer" conversation={selected.id} channel={selected.channel || "messenger"} enabled={enabled(selected.channel || "messenger")} lastInbound={lastInbound} attempts={attempts} />}
               banner={
                 <>
                   {selectedView && (
@@ -492,8 +484,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               </p>
               <p className="m-0 max-w-[420px] text-[12.5px] text-faint">
                 <Label
-                  de="Facebook und WhatsApp lesen und beantworten. Zalo bleibt im OA Manager."
-                  vi="Đọc và trả lời Facebook, WhatsApp. Trả lời Zalo trong OA Manager."
+                  de="Facebook und WhatsApp lesen und beantworten."
+                  vi="Đọc và trả lời Facebook, WhatsApp."
                 />
               </p>
             </div>

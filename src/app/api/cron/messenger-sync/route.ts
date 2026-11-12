@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { recordSyncError, syncMessenger } from "@/lib/messenger/sync";
-import { syncZalo } from "@/lib/messenger/zalo";
 
 // Called every minute by Supabase pg_cron (pg_net) with `Authorization: Bearer <CRON_SECRET>`.
 // Optional `?backfillDays=30` widens how far back messages are loaded.
@@ -25,17 +24,8 @@ async function handle(request: NextRequest) {
     await recordSyncError(messengerError).catch(() => {});
   }
 
-  // Zalo is independent: a token error on one OA must not skip the Facebook sync.
-  let zalo: Awaited<ReturnType<typeof syncZalo>> | null = null;
-  let zaloError: string | null = null;
-  try {
-    zalo = await syncZalo({ backfillDays });
-  } catch (e) {
-    zaloError = e instanceof Error ? e.message : String(e);
-  }
-
   return NextResponse.json(
-    { ...messenger, messengerError, zalo, zaloError },
+    { ...messenger, messengerError },
     { status: messengerError ? 500 : 200 },
   );
 }

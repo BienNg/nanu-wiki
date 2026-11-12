@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type InboxChannel = "messenger" | "whatsapp" | "zalo";
+export type InboxChannel = "messenger" | "whatsapp";
 
 export type InboundMessage = {
   id: string;
