@@ -452,7 +452,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               messages={messages}
               totalCount={selected.message_count}
               status={<span>{selected.channel} · {selected.account_name || "NaNu NaNa"}</span>}
-              composer={selected.channel !== "zalo" ? <MessageComposer conversation={selected.id} channel={selected.channel || "messenger"} enabled={enabled(selected.channel || "messenger")} lastInbound={lastInbound} attempts={attempts} /> : <p className="p-3 text-xs">{replyHint("zalo").de}</p>}
+              composer={selected.channel !== "zalo" ? <MessageComposer key="composer" conversation={selected.id} channel={selected.channel || "messenger"} enabled={enabled(selected.channel || "messenger")} lastInbound={lastInbound} attempts={attempts} /> : <p key="composer" className="p-3 text-xs">{replyHint("zalo").de}</p>}
               banner={
                 <>
                   {selectedView && (
