@@ -191,11 +191,10 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
       const view = conversationView(label ? toActionLabel(label) : undefined, timing, now);
       const factChannel = factById.get(id)?.channel;
       if (channel && factChannel && factChannel !== channel) return null;
-      const wait = timing.last_customer_at ?? timing.last_page_at ?? "";
-      return { id, label, timing, view, wait };
+      return { id, label, timing, view };
     })
     .filter((item): item is NonNullable<typeof item> => !!item && item.view.action.today)
-    .sort((a, b) => a.view.action.rank - b.view.action.rank || a.wait.localeCompare(b.wait));
+    .sort((a, b) => a.view.action.rank - b.view.action.rank);
 
   let conversations: InboxRow[];
   const labelById = new Map<string, InboxLabel>(workLabels);
@@ -222,6 +221,12 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
       viewById.set(item.id, item.view);
       if (item.label) labelById.set(item.id, item.label);
     }
+    conversations.sort((a, b) => {
+      const rankA = viewById.get(a.id)?.action.rank ?? 999;
+      const rankB = viewById.get(b.id)?.action.rank ?? 999;
+      if (rankA !== rankB) return rankA - rankB;
+      return (b.last_time ?? b.updated_time).localeCompare(a.last_time ?? a.updated_time);
+    });
   } else {
     conversations = (inboxRows ?? []) as InboxRow[];
     if (conversations.length) {
