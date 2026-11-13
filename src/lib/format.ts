@@ -8,7 +8,9 @@ export function formatDate(value: string | null | undefined) {
 export function initials(name: string | null | undefined, email?: string) {
   const source = (name || email || "?").trim();
   const parts = source.split(/[\s@.]+/).filter(Boolean);
-  return ((parts[0]?.[0] ?? "?") + (parts[1]?.[0] ?? "")).toUpperCase();
+  // Whole characters, not UTF-16 halves: names like "𝐇𝐨𝐚" would otherwise render a broken "H�".
+  const first = (part: string | undefined) => (part ? Array.from(part.normalize("NFC"))[0] : "");
+  return ((first(parts[0]) || "?") + first(parts[1])).toUpperCase();
 }
 
 /** "Geprüft" if verified_until is today or later. */
