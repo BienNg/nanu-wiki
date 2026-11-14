@@ -31,23 +31,26 @@ function judgmentOf(outcome: Outcome | undefined): Judgment {
  * Saves a correction. Only fields that differ from the stored label are pinned.
  * Stufe: a step picked here is pinned; "auto" removes the pin. Without a pin the step follows
  * from Interesse, Niveau, Ort, "Kurse geschickt" and "Preis geschickt" (stepFor), so choosing Sprachkurs sets it at once.
+ *
+ * Several people work in the inbox at once. The form sends every field, plus what each field showed
+ * when the form was opened (base_…). A field this person did not touch keeps what is stored now,
+ * so a colleague's change to another field a moment ago is not put back.
  */
 export async function saveMessengerLabel(_prev: { error?: string } | null, formData: FormData): Promise<{ error?: string }> {
   await requireRole("admin");
   const id = field(formData, "conversation_id").slice(0, 200);
   if (!id) return { error: "Gespräch fehlt." };
 
-  const stagePick = field(formData, "stage") || "auto";
+  let stagePick = field(formData, "stage") || "auto";
   if (stagePick !== "auto" && !isStage(stagePick)) return { error: "Stufe ungültig." };
-  const interest = normInterest(field(formData, "interest"));
-  const level = normLevel(field(formData, "level"));
-  const place = placeOf(field(formData, "place"));
-  // Price sent means the courses went out too.
-  const priceSent = field(formData, "price_sent") === "ja";
-  const coursesSent = priceSent || field(formData, "courses_sent") === "ja";
+  let interest = normInterest(field(formData, "interest"));
+  let level = normLevel(field(formData, "level"));
+  let place = placeOf(field(formData, "place"));
+  let priceSent = field(formData, "price_sent") === "ja";
+  let coursesPick = field(formData, "courses_sent") === "ja";
   const judgmentRaw = field(formData, "judgment") || "auto";
   if (!(JUDGMENTS as readonly string[]).includes(judgmentRaw)) return { error: "Status ungültig." };
-  const judgment = judgmentRaw as Judgment;
+  let judgment = judgmentRaw as Judgment;
 
   let loss: LossReason | null = null;
   let resume: string | null = null;
@@ -82,6 +85,26 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
   const prevResume = prevLoss === "spaeter" ? (row?.resume_on?.slice(0, 10) ?? null) : null;
 
   const prevStage = stepOf(row) ?? "unklar";
+
+  // Fields this person left as the form showed them take the stored value (see above).
+  const base = (key: string) => (formData.has(`base_${key}`) ? field(formData, `base_${key}`) : null);
+  if (row) {
+    const was = { stage: base("stage"), interest: base("interest"), level: base("level"), place: base("place"), courses: base("courses_sent"), price: base("price_sent"), judgment: base("judgment") };
+    if (was.stage !== null && stagePick === was.stage) stagePick = prevStage;
+    if (was.interest !== null && interest === normInterest(was.interest)) interest = normInterest(row.interest);
+    if (was.level !== null && level === normLevel(was.level)) level = normLevel(row.level);
+    if (was.place !== null && place === placeOf(was.place)) place = placeOf(row.place);
+    if (was.courses !== null && coursesPick === (was.courses === "ja")) coursesPick = !!row.courses_sent;
+    if (was.price !== null && priceSent === (was.price === "ja")) priceSent = !!row.price_sent;
+    // Status, Grund and Datum belong together.
+    if (was.judgment !== null && judgmentRaw === was.judgment && field(formData, "loss_reason") === (base("loss_reason") ?? "") && field(formData, "resume_on") === (base("resume_on") ?? "")) {
+      judgment = prevJudgment;
+      loss = prevLoss;
+      resume = prevResume;
+    }
+  }
+  // Price sent means the courses went out too.
+  const coursesSent = priceSent || coursesPick;
   // A pin on something that is not a step comes from the old stage names: it no longer holds anything.
   if (stagePick === "auto" || (!isStep(row?.stage) && stagePick === prevStage)) pins.delete("stage");
   else if (stagePick !== prevStage) pins.add("stage");

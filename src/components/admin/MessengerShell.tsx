@@ -61,6 +61,20 @@ export function ChatLink({ id, href, className, children }: { id: string; href: 
   );
 }
 
+/**
+ * "Mehr laden" under the list. The server does not know which chat is open (opening one only changes
+ * the address bar), so the open chat is added here and stays open while the longer list loads.
+ */
+export function MoreLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
+  const open = useSearchParams().get("c");
+  const target = open ? `${href}${href.includes("?") ? "&" : "?"}c=${encodeURIComponent(open)}` : href;
+  return (
+    <Link href={target} scroll={false} data-filter="" className={className}>
+      {children}
+    </Link>
+  );
+}
+
 type FunnelStep = { id: string; de: string; vi: string; count: number; href: string };
 
 /**

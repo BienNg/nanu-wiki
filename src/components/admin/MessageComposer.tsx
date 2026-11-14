@@ -1,13 +1,12 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Label } from '@/components/Bi';
+import { checkInbox } from '@/components/admin/InboxLive';
 import { replyWindow } from '@/lib/messenger/policy';
 import { createClient } from '@/lib/supabase/client';
 import type { Template } from '@/lib/messenger/templates';
 export type Outgoing = { id: string; status: string; sender_name: string; provider_message_id: string | null; created_at: string; error: string | null; payload: { text?: string; displayText?: string } };
 export function MessageComposer({ conversation, channel, enabled, lastInbound, attempts }: { conversation: string; channel: string; enabled: boolean; lastInbound: string | null; attempts: Outgoing[] }) {
-  const router = useRouter();
   const [text, setText] = useState(''); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now()); const [catalog, setCatalog] = useState<Template[]>([]); const [choice, setChoice] = useState(''); const [values, setValues] = useState<string[]>([]); const [consent, setConsent] = useState(false);
   const [upload, setUpload] = useState<{id: string; name: string} | null>(null);
@@ -19,9 +18,9 @@ export function MessageComposer({ conversation, channel, enabled, lastInbound, a
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     const db = createClient();
-    const live = db.channel(`outbox:${conversation}`).on('postgres_changes', { event: '*', schema: 'public', table: 'messenger_outbox', filter: `conversation_id=eq.${conversation}` }, () => router.refresh()).subscribe();
+    const live = db.channel(`outbox:${conversation}`).on('postgres_changes', { event: '*', schema: 'public', table: 'messenger_outbox', filter: `conversation_id=eq.${conversation}` }, () => checkInbox()).subscribe();
     return () => { clearInterval(timer); void db.removeChannel(live); };
-  }, [conversation, router]);
+  }, [conversation]);
   const window = replyWindow(lastInbound, now);
   const template = catalog.find(t => `${t.name}:${t.language}` === choice);
   const unresolved = attempts.some(a => ['sending','unknown'].includes(a.status));
@@ -44,7 +43,8 @@ export function MessageComposer({ conversation, channel, enabled, lastInbound, a
         globalThis.dispatchEvent(new CustomEvent('inbox:sent', { detail: { conversation, id: data.messageId || request.id, text: text || null, attachment: upload?.name || null, created_time: new Date().toISOString() } }));
         setText(''); setUpload(null); setChoice(''); sessionStorage.removeItem(key); pending.current = null; }
       if (data.status === 'failed') { pending.current = null; setError('Nicht gesendet. Entwurf prüfen und erneut senden. · Gửi thất bại. Kiểm tra và gửi lại.'); }
-      router.refresh();
+      // The chat and the list load again only if the send changed something.
+      checkInbox();
     } catch(e) {
       if (pending.current) setUncertain(true);
       setError(e instanceof Error && e.message === 'window' ? 'Antwortzeit abgelaufen. Vorlage wählen. · Hết thời gian trả lời. Chọn mẫu.' : 'Senden nicht bestätigt. Verbindung und Status prüfen. · Chưa xác nhận gửi. Kiểm tra kết nối và trạng thái.');

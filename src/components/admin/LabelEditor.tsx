@@ -95,6 +95,22 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
   const [status, setStatus] = useState(judgment);
   const [reason, setReason] = useState(loss);
   const form = useRef<HTMLFormElement>(null);
+  const [base, setBase] = useState<Record<string, string>>({
+    stage: isStep(stage) ? stage : "unklar",
+    interest,
+    level: levelOf(level),
+    place: placeOf(place),
+    courses_sent: coursesSent ? "ja" : "nein",
+    price_sent: priceSent ? "ja" : "nein",
+    judgment,
+    loss_reason: judgment === "verloren" ? loss : "",
+    resume_on: judgment === "verloren" && loss === "spaeter" ? resume : "",
+  });
+  // Once a save went through, what was sent is what is stored: the next change is compared with that.
+  const sent = useRef<Record<string, string> | null>(null);
+  useEffect(() => {
+    if (state && !state.error && sent.current) setBase(sent.current);
+  }, [state]);
   const formId = useId();
   // Status and Stufe sit in the chat header, outside this form in the page; `form={formId}` keeps them part of the form.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -105,11 +121,33 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
   }, [statusSlot, stageSlot]);
   const locked = (field: string) => pinned.includes(field);
   // After the re-render, so the new value and fields that just appeared (Grund, Datum) are sent too.
-  const save = () => setTimeout(() => form.current?.requestSubmit(), 0);
+  const save = () =>
+    setTimeout(() => {
+      if (!form.current) return;
+      const data = new FormData(form.current);
+      const get = (name: string, missing = "") => String(data.get(name) ?? missing);
+      sent.current = {
+        stage: get("stage", "unklar"),
+        interest: get("interest"),
+        level: get("level"),
+        place: get("place"),
+        courses_sent: get("courses_sent"),
+        price_sent: get("price_sent"),
+        judgment: get("judgment"),
+        loss_reason: get("loss_reason"),
+        resume_on: get("resume_on"),
+      };
+      form.current.requestSubmit();
+    }, 0);
 
   return (
     <form ref={form} id={formId} action={action} className="flex min-w-0 flex-wrap items-center gap-2">
       <input type="hidden" name="conversation_id" value={conversationId} />
+      {/* What each field showed when this form opened (or was last saved). The server keeps the stored value of every field that still equals it,
+          so a change a colleague saved in the meantime is not put back. */}
+      {Object.entries(base).map(([name, value]) => (
+        <input key={name} type="hidden" name={`base_${name}`} value={value} />
+      ))}
       <MenuSelect
         name="interest"
         ariaLabel="Interesse / Nhu cầu"

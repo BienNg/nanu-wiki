@@ -6,14 +6,15 @@ import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { initials } from "@/lib/format";
 import { ActionChip } from "@/components/admin/ActionChip";
-import { AutoRefresh } from "@/components/admin/AutoRefresh";
 import { FilterDetails } from "@/components/admin/FilterDetails";
-import { ChatLink, FunnelNav, MessengerShell } from "@/components/admin/MessengerShell";
+import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
+import { ChatLink, FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
+import { inboxVersion } from "@/lib/messenger/version";
 
 export const metadata = { title: "Messenger" };
 
@@ -28,13 +29,14 @@ type InboxRow = {
   channel?: string | null;
   account_name?: string | null;
 };
-type Params = { c?: string; q?: string; ch?: string; i?: string; s?: string };
-type SyncState = { page_id: string; last_run_at: string | null; last_error: string | null };
+type Params = { c?: string; q?: string; ch?: string; i?: string; s?: string; n?: string };
 /** Just enough of a conversation to count it and to put it in order. */
 type ChatKey = { id: string; updated_time: string };
 
 const TZ = "Asia/Ho_Chi_Minh";
-const LIST_LIMIT = 200;
+/** Chats shown at first, and how many "Mehr laden" adds. Each one is rendered again whenever the list changes, so the list starts short. */
+const LIST_STEP = 60;
+const LIST_MAX = 300;
 const ALL_LIMIT = 5000;
 /** Rows per request when a whole table is read (the API returns at most 1000 at a time). */
 const PAGE = 1000;
@@ -93,7 +95,7 @@ async function allPages<T>(load: (from: number, to: number) => PromiseLike<{ dat
 }
 
 type Db = Awaited<ReturnType<typeof createClient>>;
-type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Step[] };
+type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Step[]; limit: number };
 /** Counts for the menus and the funnel, plus the ids of the chats to show. `labels` only when they were read anyway. */
 type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
 
@@ -109,7 +111,7 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
     p_interest: f.interest || null,
     p_stage: f.step && f.step !== "unklar" ? f.steps[stepNo - 1] : null,
     p_not_stages: f.step === "unklar" ? [...f.steps] : null,
-    p_limit: LIST_LIMIT,
+    p_limit: f.limit,
   });
   const found = data as { groups?: { interest: string; stage: string | null; n: number }[]; total?: number; ids?: string[] } | null;
   if (error || !found || !Array.isArray(found.groups) || !Array.isArray(found.ids) || typeof found.total !== "number") return null;
@@ -161,7 +163,7 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
     if (f.step && stepKey(label, f.steps) !== f.step) return false;
     return true;
   });
-  return { source: "app", interestCounts, stepCounts, total: matching.length, ids: matching.slice(0, LIST_LIMIT).map((c) => c.id), labels };
+  return { source: "app", interestCounts, stepCounts, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
 }
 
 /** WhatsApp or Messenger logo on the bottom-right of a chat's avatar, as in the Messenger app. */
@@ -240,25 +242,24 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
 
 /** Read-only copy of Messenger and WhatsApp Business chats, with the next action for each chat. */
 export default async function MessengerInboxPage({ searchParams }: { searchParams: Promise<Params> }) {
-  await requireRole("admin");
+  const supabase = await createClient();
+  // The version is read while the session is checked, and so before the list (see inboxVersion): never newer than what is shown.
+  const [version] = await Promise.all([inboxVersion(supabase), requireRole("admin")]);
   const sp = await searchParams;
   const channel = sp.ch === "whatsapp" || sp.ch === "messenger" ? sp.ch : "";
   const q = (sp.q ?? "").trim().slice(0, 80);
   const interestFilter = sp.i === NO_INTEREST || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
   const funnel = FUNNELS[interestFilter];
   const stepFilter = funnel && sp.s && (sp.s === "unklar" || (Number(sp.s) >= 1 && Number(sp.s) <= funnel.length)) ? sp.s : "";
+  const limit = Math.min(LIST_MAX, Math.max(LIST_STEP, Math.ceil((Number(sp.n) || 0) / LIST_STEP) * LIST_STEP));
   const now = Date.now();
 
-  const supabase = await createClient();
   const like = q ? `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%` : "";
 
   const funnelSteps = FUNNELS[FUNNEL_INTEREST]!;
-  const filter: IndexFilter = { channel, like, interest: interestFilter, step: funnel ? stepFilter : "", steps: funnel ?? [] };
-  const [index, { data: stateRows }] = await Promise.all([
-    // Counted and picked in the database; the app-side way only runs until the migration is applied.
-    indexFromDb(supabase, filter, funnelSteps).then((found) => found ?? indexFromRows(supabase, filter, funnelSteps)),
-    supabase.from("messenger_sync_state").select("page_id, last_run_at, last_error"),
-  ]);
+  const filter: IndexFilter = { channel, like, interest: interestFilter, step: funnel ? stepFilter : "", steps: funnel ?? [], limit };
+  // Counted and picked in the database; the app-side way only runs until the migration is applied.
+  const index = (await indexFromDb(supabase, filter, funnelSteps)) ?? (await indexFromRows(supabase, filter, funnelSteps));
   const { interestCounts, stepCounts, total, ids: shownIds } = index;
 
   // Full rows (newest message, label, facts) only for the chats that are shown.
@@ -284,17 +285,9 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
     return `/admin/messenger${qs.size ? `?${qs}` : ""}`;
   };
 
-  const states = (stateRows ?? []) as SyncState[];
-  const pageState =
-    states.find((s) => s.page_id === process.env.META_PAGE_ID) ??
-    states.find((s) => !s.page_id.startsWith("wa:")) ??
-    null;
-  const syncError = pageState?.last_error ?? states.find((s) => s.last_error)?.last_error ?? null;
-  const syncAgeMin = pageState?.last_run_at ? Math.round((Date.now() - new Date(pageState.last_run_at).getTime()) / 60_000) : null;
-  const syncOk = !syncError && syncAgeMin !== null && syncAgeMin <= 5;
   return (
     <>
-      <AutoRefresh seconds={30} />
+      <InboxLive version={version.inbox} stamp={now} />
       <Topbar
         actions={
           <Link href="/admin/messenger/statistik" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
@@ -312,16 +305,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               <h1 className="title-display m-0 text-[20px] leading-tight tracking-tight">
                 <Label de="Posteingang" vi="Hộp thư" />
               </h1>
-              <span className={`flex items-center gap-1.5 text-[11.5px] ${syncOk ? "text-faint" : "text-bad"}`} title={syncError ?? undefined}>
-                <span className={`h-1.5 w-1.5 rounded-full ${syncOk ? "bg-ok" : "bg-bad"}`} />
-                {syncError ? (
-                  <Label de="Sync-Fehler" vi="Lỗi đồng bộ" />
-                ) : syncAgeMin === null ? (
-                  <Label de="Noch nie synchronisiert" vi="Chưa đồng bộ" />
-                ) : (
-                  <Label de={`Sync vor ${syncAgeMin} Min.`} vi={`Đồng bộ ${syncAgeMin} phút trước`} />
-                )}
-              </span>
+              <SyncBadge at={version.syncAt} error={version.syncError} now={now} />
             </div>
             <div className="ml-auto flex flex-wrap items-center gap-2 max-md:ml-0 max-md:w-full">
               <form action="/admin/messenger" className="flex max-md:w-full">
@@ -405,7 +389,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 <li key={c.id}>
                   <ChatLink
                     id={c.id}
-                    href={href({ c: c.id })}
+                    href={href({ c: c.id, n: limit > LIST_STEP ? String(limit) : "" })}
                     className="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors duration-150 hover:bg-hover aria-[current=page]:bg-accent-soft"
                   >
                     <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
@@ -444,16 +428,26 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 </li>
               );
             })}
-            {total > LIST_LIMIT && (
+            {total > conversations.length && limit < LIST_MAX && (
+              <li className="px-3 py-2 text-center">
+                <MoreLink
+                  href={href({ n: String(limit + LIST_STEP) })}
+                  className="inline-flex h-8 items-center rounded-full border border-line px-3.5 text-[12.5px] font-medium text-body transition-colors duration-150 hover:bg-hover"
+                >
+                  <Label de={`Mehr laden (${conversations.length} von ${total})`} vi={`Tải thêm (${conversations.length} / ${total})`} />
+                </MoreLink>
+              </li>
+            )}
+            {total > conversations.length && limit >= LIST_MAX && (
               <li className="px-3 py-3 text-center text-[12px] text-faint">
-                <Label de={`Die neuesten ${LIST_LIMIT} – zum Finden älterer Gespräche den Namen suchen.`} vi={`${LIST_LIMIT} cuộc mới nhất – tìm theo tên để thấy cuộc cũ hơn.`} />
+                <Label de={`Die neuesten ${LIST_MAX} – zum Finden älterer Gespräche den Namen suchen.`} vi={`${LIST_MAX} cuộc mới nhất – tìm theo tên để thấy cuộc cũ hơn.`} />
               </li>
             )}
           </ul>
         </section>
 
         <section aria-label="Gespräch" className="flex min-w-0 flex-1 flex-col max-md:group-data-[chat=none]/shell:hidden">
-          <ThreadPane stamp={now} />
+          <ThreadPane />
         </section>
       </main>
       </MessengerShell>

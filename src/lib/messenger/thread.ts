@@ -88,7 +88,12 @@ export type ThreadData = {
   channel: string | null;
   account_name: string | null;
   message_count: number | null;
+  /** The newest THREAD_PAGE messages, oldest first. */
   messages: ThreadMessageRow[];
+  /** True when the database holds messages before the first one here (olderMessages loads them). */
+  hasOlder: boolean;
+  /** What the chat looked like when it was read (inboxVersion); the pane loads again when the current one differs. */
+  version: string;
   label: InboxLabel | null;
   /** The step right now (stepOf), null when the chat has none. */
   step: Step | null;
@@ -99,26 +104,44 @@ export type ThreadData = {
 
 type Db = Awaited<ReturnType<typeof createClient>>;
 
-/** One round trip: the six reads run side by side, each on an index (conversation id). */
-export async function loadThread(supabase: Db, id: string, now = Date.now()): Promise<ThreadData | null> {
-  const [conv, msgs, label, fact, outbox, inbound] = await Promise.all([
+/** Messages per load. A long chat opens with its newest ones; the rest comes when the reader asks for it. */
+export const THREAD_PAGE = 80;
+const MESSAGE_COLUMNS = "id, text, from_page, from_name, attachments, created_time";
+
+/** The newest messages of a chat (up to and including `before`), oldest first, and whether there are more before them. */
+async function messagePage(supabase: Db, id: string, before?: string) {
+  let query = supabase.from("messenger_messages").select(MESSAGE_COLUMNS).eq("conversation_id", id);
+  // Up to and including: two messages can share a second. The pane drops the ones it already has.
+  if (before) query = query.lte("created_time", before);
+  const { data, error } = await query.order("created_time", { ascending: false }).limit(THREAD_PAGE + 1);
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as ThreadMessageRow[];
+  return { messages: rows.slice(0, THREAD_PAGE).reverse(), hasOlder: rows.length > THREAD_PAGE };
+}
+
+/** The page of messages before `before` (the time of the oldest message the pane shows). */
+export function olderMessages(supabase: Db, id: string, before: string) {
+  return messagePage(supabase, id, before);
+}
+
+/**
+ * One round trip: the six reads run side by side, each on an index (conversation id).
+ * `version` is the chat's version (inboxVersion), read by the caller BEFORE this runs.
+ */
+export async function loadThread(supabase: Db, id: string, version: string | null, now = Date.now()): Promise<ThreadData | null> {
+  const [conv, page, label, fact, outbox, inbound] = await Promise.all([
     supabase.from("messenger_conversations").select("id, customer_name, message_count, channel, account_name").eq("id", id).maybeSingle(),
-    supabase
-      .from("messenger_messages")
-      .select("id, text, from_page, from_name, attachments, created_time")
-      .eq("conversation_id", id)
-      .order("created_time", { ascending: false })
-      .limit(1000),
+    messagePage(supabase, id),
     supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", id).maybeSingle(),
     supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
     supabase.from("messenger_outbox").select("*").eq("conversation_id", id).order("created_at", { ascending: false }).limit(20),
     supabase.from("messenger_messages").select("created_time").eq("conversation_id", id).eq("from_page", false).order("created_time", { ascending: false }).limit(1).maybeSingle(),
   ]);
-  const failed = conv.error ?? msgs.error ?? label.error ?? fact.error;
+  const failed = conv.error ?? label.error ?? fact.error;
   if (failed) throw new Error(failed.message);
   if (!conv.data) return null;
 
-  const messages = ((msgs.data ?? []) as ThreadMessageRow[]).reverse();
+  const { messages, hasOlder } = page;
   const labelRow = (label.data as InboxLabel | null) ?? null;
   const timing = toTiming((fact.data as FactRow | null) ?? undefined, messages.at(-1)?.from_page);
   return {
@@ -128,6 +151,8 @@ export async function loadThread(supabase: Db, id: string, now = Date.now()): Pr
     account_name: conv.data.account_name,
     message_count: conv.data.message_count,
     messages,
+    hasOlder,
+    version: version ?? "",
     label: labelRow,
     step: stepOf(labelRow),
     view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now),

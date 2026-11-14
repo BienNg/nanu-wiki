@@ -1,17 +1,18 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { ActionChip } from "@/components/admin/ActionChip";
+import { useThreadVersion } from "@/components/admin/InboxLive";
 import { LabelEditor } from "@/components/admin/LabelEditor";
 import { MessageComposer } from "@/components/admin/MessageComposer";
 import { ThreadSkeleton } from "@/components/admin/MessengerSkeleton";
 import { MessengerThread, type ThreadMessage } from "@/components/admin/MessengerThread";
 import type { NextAction } from "@/lib/messenger/nextAction";
 import { STEP_INFO, type Step } from "@/lib/messenger/steps";
-import type { ThreadData } from "@/lib/messenger/thread";
+import type { ThreadData, ThreadMessageRow } from "@/lib/messenger/thread";
 import type { Outcome } from "@/lib/messenger/types";
 
 type Loaded = ThreadData & { sendEnabled: boolean };
@@ -54,32 +55,80 @@ function formJudgment(outcome: Outcome | undefined) {
   return "auto";
 }
 
+/** Pages of older messages the reader asked for, kept while that chat stays open. */
+type Older = { id: string; messages: ThreadMessageRow[]; hasOlder: boolean };
+
 /**
  * The right pane: the chat named by `?c=`. It loads only that chat (api/messenger/thread), with a
- * skeleton the first time. `stamp` changes whenever the server page renders again (auto refresh,
- * a saved label, a sent message); then the open chat is fetched again quietly.
+ * skeleton the first time, and at first only its newest messages; "Ältere laden" adds a page.
+ * It loads again when the chat's version changes (<InboxLive> asks every few seconds): a new
+ * message, a saved label or a send status, from anyone. Nothing is fetched while nothing changes.
  */
-export function ThreadPane({ stamp }: { stamp: number }) {
+export function ThreadPane() {
   const params = useSearchParams();
   const id = params.get("c");
+  const latest = useThreadVersion(id);
   const [data, setData] = useState<Loaded | null>(null);
   const [failed, setFailed] = useState<number | null>(null);
+  const [older, setOlder] = useState<Older | null>(null);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [settled, setSettled] = useState(0);
+  /** The copy that is here: its chat, its version, and the newest version that was known when it was asked for. */
+  const have = useRef<{ id: string; version: string | null; asked: string | null } | null>(null);
+  /** The request on its way, if any. A check that comes in meanwhile waits for it instead of starting a second one. */
+  const flight = useRef<{ id: string; ctrl: AbortController } | null>(null);
 
   useEffect(() => {
     if (!id) return;
-    setFailed(null);
+    if (flight.current?.id === id) return;
+    // Same chat, and nothing newer is known than what is here (or than what was known when it was loaded): keep it.
+    if (have.current?.id === id && (latest === null || latest === have.current.version || latest === have.current.asked)) return;
+    flight.current?.ctrl.abort();
     const ctrl = new AbortController();
+    flight.current = { id, ctrl };
+    setFailed(null);
+    let again: ReturnType<typeof setTimeout> | undefined;
     fetch(`/api/messenger/thread?c=${encodeURIComponent(id)}`, { signal: ctrl.signal, cache: "no-store" })
       .then((r) => (r.ok ? (r.json() as Promise<Loaded>) : Promise.reject(r.status)))
       .then((next) => {
+        if (flight.current?.ctrl !== ctrl) return;
+        flight.current = null;
+        have.current = { id, version: next.version, asked: latest };
         remember(next);
         setData(next);
+        // Look again: the version may have moved on while this was loading.
+        setSettled((n) => n + 1);
       })
       .catch((e) => {
-        if (!ctrl.signal.aborted) setFailed(typeof e === "number" ? e : 0);
+        if (flight.current?.ctrl !== ctrl) return;
+        flight.current = null;
+        have.current = null;
+        setFailed(typeof e === "number" ? e : 0);
+        // A chat that exists but did not load (network, deploy) is tried again shortly.
+        if (e !== 404 && e !== 403) again = setTimeout(() => setRetry((n) => n + 1), 10_000);
       });
-    return () => ctrl.abort();
-  }, [id, stamp]);
+    return () => clearTimeout(again);
+  }, [id, latest, retry, settled]);
+  useEffect(
+    () => () => {
+      flight.current?.ctrl.abort();
+      flight.current = null;
+    },
+    [],
+  );
+
+  const head = data?.id === id ? data : id ? (recent.get(id) ?? null) : null;
+  const before = older?.id === id ? older.messages[0]?.created_time : head?.messages[0]?.created_time;
+  const loadOlder = useCallback(() => {
+    if (!id || !before) return;
+    setLoadingOlder(true);
+    fetch(`/api/messenger/thread?c=${encodeURIComponent(id)}&before=${encodeURIComponent(before)}`, { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ messages: ThreadMessageRow[]; hasOlder: boolean }>) : Promise.reject(r.status)))
+      .then((page) => setOlder((prev) => ({ id, messages: [...page.messages, ...(prev?.id === id ? prev.messages : [])], hasOlder: page.hasOlder })))
+      .catch(() => {})
+      .finally(() => setLoadingOlder(false));
+  }, [id, before]);
 
   if (!id) {
     return (
@@ -98,7 +147,7 @@ export function ThreadPane({ stamp }: { stamp: number }) {
   const back = new URLSearchParams(params);
   back.delete("c");
   const backHref = `/admin/messenger${back.size ? `?${back}` : ""}`;
-  const shown = data?.id === id ? data : recent.get(id) ?? null;
+  const shown = head;
 
   if (!shown) {
     if (failed === null) return <ThreadSkeleton />;
@@ -114,6 +163,11 @@ export function ThreadPane({ stamp }: { stamp: number }) {
     );
   }
 
+  // Older pages first, then the newest messages; a message that is in both is shown once.
+  const seen = new Set<string>();
+  const messages = [...(older?.id === id ? older.messages : []), ...shown.messages]
+    .filter((m) => !seen.has(m.id) && !!seen.add(m.id))
+    .sort((a, b) => Date.parse(a.created_time) - Date.parse(b.created_time));
   const label = shown.label;
   const channel = shown.channel || "messenger";
   return (
@@ -122,7 +176,10 @@ export function ThreadPane({ stamp }: { stamp: number }) {
         conversationId={shown.id}
         name={shown.name ?? "Unbekannt"}
         backHref={backHref}
-        messages={shown.messages as ThreadMessage[]}
+        messages={messages as ThreadMessage[]}
+        hasOlder={older?.id === id ? older.hasOlder : shown.hasOlder}
+        loadingOlder={loadingOlder}
+        onLoadOlder={loadOlder}
         totalCount={shown.message_count}
         wallpaper={channel === "whatsapp" ? "whatsapp" : undefined}
         status={

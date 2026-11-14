@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MessengerHeader, bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
 
@@ -53,6 +53,9 @@ export function MessengerThread({
   backHref,
   messages,
   totalCount,
+  hasOlder,
+  loadingOlder,
+  onLoadOlder,
   banner,
   status,
   below,
@@ -65,6 +68,10 @@ export function MessengerThread({
   backHref: string;
   messages: ThreadMessage[];
   totalCount: number | null;
+  /** The database holds messages before the first one shown; `onLoadOlder` fetches the next page of them. */
+  hasOlder?: boolean;
+  loadingOlder?: boolean;
+  onLoadOlder?: () => void;
   banner?: ReactNode;
   status?: ReactNode;
   /** Third line of the header, under the status. */
@@ -80,6 +87,9 @@ export function MessengerThread({
   // Messages that arrive while the chat is open pop in; the ones already there do not move.
   const initial = useRef<Set<string> | null>(null);
   if (!initial.current) initial.current = new Set(messages.map((m) => m.id));
+  // Older pages loaded later are not new messages: only what comes after the newest one at opening pops in.
+  const newestAtOpen = useRef(messages.at(-1)?.created_time ?? "");
+  const isNew = (m: ThreadMessage) => !initial.current!.has(m.id) && Date.parse(m.created_time) >= (Date.parse(newestAtOpen.current) || 0);
   const [optimistic, setOptimistic] = useState<Array<{ conversation: string; id: string; text: string | null; attachment: string | null; created_time: string }>>([]);
   useEffect(() => {
     const onSent = (e: Event) => setOptimistic((o) => [...o, (e as CustomEvent).detail]);
@@ -101,6 +111,15 @@ export function MessengerThread({
     if (el && nearBottom.current) el.scrollTop = el.scrollHeight;
     else if (el) setNewMessages(true);
   }, [last]);
+
+  // Older messages go in above: keep the message the reader was looking at where it is.
+  const heightBefore = useRef<number | null>(null);
+  const first = messages[0]?.id;
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (el && heightBefore.current !== null) el.scrollTop += el.scrollHeight - heightBefore.current;
+    heightBefore.current = null;
+  }, [first]);
 
   const older = totalCount !== null && totalCount > messages.length ? totalCount - messages.length : 0;
 
@@ -133,7 +152,20 @@ export function MessengerThread({
       {banner}
 
       <div onScroll={() => { const el = scroller.current; if (el) { nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100; if (nearBottom.current) setNewMessages(false); } }} ref={scroller} className={`flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-4 ${wa ? "bg-[#EFEAE2] bg-[url(/messenger/chat-doodle.svg)] bg-[length:260px_260px]" : "bg-white"}`}>
-        {older > 0 && (
+        {hasOlder && onLoadOlder && (
+          <button
+            type="button"
+            disabled={loadingOlder}
+            onClick={() => {
+              heightBefore.current = scroller.current?.scrollHeight ?? null;
+              onLoadOlder();
+            }}
+            className={`mb-3 self-center rounded-full px-3 py-1 text-[11.5px] font-medium text-accent transition-colors duration-150 hover:bg-hover disabled:opacity-50 ${wa ? "bg-white/90 shadow-sm" : "bg-chip"}`}
+          >
+            {loadingOlder ? <Label de="Lädt…" vi="Đang tải…" /> : <Label de="Ältere Nachrichten laden" vi="Tải tin cũ hơn" />}
+          </button>
+        )}
+        {!hasOlder && older > 0 && (
           <p className={`m-0 mb-3 self-center rounded-full px-3 py-1 text-[11.5px] text-muted ${wa ? "bg-white/90 shadow-sm" : "bg-chip"}`}>
             <Label de={`${older} ältere Nachrichten nicht geladen (nur die letzten 14 Tage)`} vi={`${older} tin cũ hơn chưa tải (chỉ 14 ngày gần nhất)`} />
           </p>
@@ -146,7 +178,7 @@ export function MessengerThread({
           return (
             <div key={m.id} className="contents">
               {newDay && <p className={`m-0 my-3 self-center text-[11.5px] font-medium ${wa ? "rounded-lg bg-white/90 px-2.5 py-1 text-muted shadow-sm" : "text-faint"}`}>{dayFmt.format(new Date(m.created_time))}</p>}
-              <div className={`${bubbleRowClass(m.from_page, lastOfRun)} mb-0.5 gap-0.5 ${initial.current!.has(m.id) ? "" : "anim-pop"}`} title={`${m.from_name ?? ""} · ${timeFmt.format(new Date(m.created_time))}`}>
+              <div className={`${bubbleRowClass(m.from_page, lastOfRun)} mb-0.5 gap-0.5 ${isNew(m) ? "anim-pop" : ""}`} title={`${m.from_name ?? ""} · ${timeFmt.format(new Date(m.created_time))}`}>
                 {m.text && <span className={`${bubbleClass(m.from_page)} ${wa && !m.from_page ? "!bg-white shadow-[0_1px_0.5px_rgba(11,20,26,0.13)]" : ""}`}>{m.text}</span>}
                 {m.attachments?.map((a, k) => <AttachmentView key={k} a={a} mine={m.from_page} />)}
                 {!m.text && !m.attachments?.length && (
