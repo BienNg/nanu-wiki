@@ -11,7 +11,7 @@ import { formatDuration, formatWhen, loadMessengerStats, type PersonRow, type St
 export const metadata = { title: "Messenger-Statistik" };
 export const dynamic = "force-dynamic";
 
-const LEVELS = ["A0", "A1", "A2", "B1", "B2", "C1"];
+const LEVELS = ["A1", "A2", "B1", "B2", "C1"];
 
 function href(stats: StatsSnapshot, patch: { w?: string; interesse?: string; niveau?: string }) {
   const interest = patch.interesse !== undefined ? patch.interesse : stats.interest;

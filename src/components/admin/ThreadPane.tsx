@@ -9,6 +9,8 @@ import { LabelEditor } from "@/components/admin/LabelEditor";
 import { MessageComposer } from "@/components/admin/MessageComposer";
 import { ThreadSkeleton } from "@/components/admin/MessengerSkeleton";
 import { MessengerThread, type ThreadMessage } from "@/components/admin/MessengerThread";
+import type { NextAction } from "@/lib/messenger/nextAction";
+import { STEP_INFO, type Step } from "@/lib/messenger/steps";
 import type { ThreadData } from "@/lib/messenger/thread";
 import type { Outcome } from "@/lib/messenger/types";
 
@@ -20,6 +22,31 @@ function remember(data: Loaded) {
   recent.delete(data.id);
   recent.set(data.id, data);
   if (recent.size > 20) recent.delete(recent.keys().next().value!);
+}
+
+/** Actions that mean "work on this step" (ours or, with the clock, once the lead answers). Follow-ups and closed chats keep their own text. */
+const STEP_TASKS = new Set(["ask_interest", "ask_level", "ask_place", "courses", "offer", "pay", "wait"]);
+
+/** In the open chat the chip shows the goal of the step instead of the single task. */
+function goalAction(action: NextAction, step: Step | null): NextAction {
+  if (!step || !STEP_TASKS.has(action.id)) return action;
+  const { aim_de, aim_vi } = STEP_INFO[step];
+  return action.id === "wait" ? { ...action, de: `Warten · dann ${aim_de}`, vi: `Chờ · sau đó ${aim_vi}` } : { ...action, de: aim_de, vi: aim_vi };
+}
+
+function goalTitle(data: Loaded) {
+  if (!data.step || !STEP_TASKS.has(data.view.action.id)) return data.view.state.de;
+  const task = data.view.action.de.replace(/^Warten(\s*·\s*(dann\s+)?)?/, "");
+  return [`${STEP_INFO[data.step].short_de}: ${STEP_INFO[data.step].goal_de}`, task && `Jetzt: ${task.charAt(0).toUpperCase()}${task.slice(1)}`].filter(Boolean).join("\n");
+}
+
+/** What Status "Automatisch" comes to: whose turn it is, taken from the last message ("Wartet auf uns"). */
+function autoText(data: Loaded) {
+  const turn = (text: string) => {
+    const part = text.split(" · ").at(-1) ?? text;
+    return part.charAt(0).toUpperCase() + part.slice(1);
+  };
+  return { de: turn(data.view.state.de), vi: turn(data.view.state.vi) };
 }
 
 function formJudgment(outcome: Outcome | undefined) {
@@ -103,21 +130,33 @@ export function ThreadPane({ stamp }: { stamp: number }) {
             {channel === "whatsapp" ? "WhatsApp" : "Messenger"} · {shown.account_name || "NaNu NaNa"}
           </span>
         }
-        actions={<ActionChip action={shown.view.action} title={shown.view.state.de} />}
+        below={<span id={`status-${shown.id}`} className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5" />}
+        actions={
+          // Stufe on top, its goal below. The Stufe menu itself comes from the label form (LabelEditor).
+          <span className="flex min-w-0 flex-col items-end gap-1">
+            <span id={`stage-${shown.id}`} className="flex min-w-0 max-w-full" />
+            <ActionChip action={goalAction(shown.view.action, shown.step)} title={goalTitle(shown)} />
+          </span>
+        }
         composer={<MessageComposer key="composer" conversation={shown.id} channel={channel} enabled={shown.sendEnabled} lastInbound={shown.lastInbound} attempts={shown.attempts} />}
         banner={
           <div className="relative z-10 border-b border-line bg-[#FAFBFC] px-3 py-2">
             <LabelEditor
               conversationId={shown.id}
               formKey={`${shown.id}:${label?.updated_at ?? "new"}`}
-              stage={label?.stage ?? "unklar"}
+              stage={shown.step ?? "unklar"}
               interest={label?.interest ?? ""}
               level={label?.level && label.level !== "unklar" ? label.level : "unklar"}
               place={label?.place && label.place !== "unklar" ? label.place : ""}
               judgment={formJudgment(label?.outcome)}
               loss={label?.loss_reason ?? "unklar"}
               resume={label?.resume_on?.slice(0, 10) ?? ""}
-              pinned={label?.pinned ?? []}
+              statusSlot={`status-${shown.id}`}
+              stageSlot={`stage-${shown.id}`}
+              coursesSent={!!label?.courses_sent}
+              priceSent={!!label?.price_sent}
+              autoText={autoText(shown)}
+              pinned={(label?.pinned ?? []).filter((field) => field !== "stage" || label?.stage === shown.step)}
             />
           </div>
         }

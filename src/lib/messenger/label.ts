@@ -2,7 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
-import { INTERESTS, STAGES, STAGE_INFO } from "@/lib/assistant/schema";
+import { INTERESTS } from "@/lib/assistant/schema";
 import { redact } from "@/lib/assistant/suggest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -15,6 +15,7 @@ import {
   textRule,
 } from "./classify";
 import { mergePinned } from "./nextAction";
+import { isStep, stepFor } from "./steps";
 import { LEVELS, LOSS_REASONS, OUTCOMES, PLACES, type ChatLineRow, type LabelDraft, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
 const MODEL = "claude-haiku-5-5";
@@ -27,7 +28,6 @@ const STATED = new Set(["preis", "zeit_passt_nicht", "spaeter", "andere_schule"]
 const SKIP_TIMEOUT = new Set<Outcome>(["kein_lead", "bestandskunde", "weiter_auf_zalo"]);
 
 const LabelSchema = z.object({
-  stage: z.enum([...STAGES, "unklar"]),
   interest: z.enum([...INTERESTS, "keins"]),
   level: z.enum(LEVELS),
   place: z.enum(PLACES),
@@ -69,12 +69,8 @@ function transcript(lines: ChatLineRow[]) {
 }
 
 function systemPrompt() {
-  const stages = [...STAGES.map((s) => `- ${s}: ${STAGE_INFO[s].desc}`), "- unklar: not a customer, or impossible to tell"].join("\n");
   return `You classify one Facebook Messenger thread for NaNu NaNa, a German language school for Vietnamese people.
 Return only the schema.
-
-Stages:
-${stages}
 
 outcome:
 - offen: in progress, last step unclear
@@ -86,7 +82,7 @@ outcome:
 - verloren: they stopped and named a reason, or ignored a follow-up
 
 loss_reason is null unless outcome is verloren. Use keine_antwort only when a follow-up was already sent. Do not invent a price objection they did not say.
-interest is keins when nothing fits. level and place are unklar when unknown.
+interest is keins when nothing fits. level and place are unklar when unknown. A beginner with no German is A1.
 place is where they would learn: Saigon or Hanoi when they live there (or want a class on site there), Online VN when they live elsewhere in Vietnam or want online from Vietnam, Online DE when they live in Germany.
 evidence: one short German sentence quoting a few of their words.`;
 }
@@ -99,6 +95,10 @@ async function saveLabel(
   previous?: StoredLabel,
 ) {
   const merged = mergePinned(draft, previous);
+  // The step follows from the fields unless a person picked it; "Kurse/Preis geschickt" stays.
+  // A pin only counts when it holds one of the steps (old stage names were pinned too).
+  const stagePinned = !!previous?.pinned?.includes("stage") && isStep(previous.stage);
+  if (!stagePinned) merged.stage = stepFor({ ...merged, courses_sent: previous?.courses_sent, price_sent: previous?.price_sent });
   const through = newestActivity(fact) ?? new Date().toISOString();
   const { error } = await db.from("messenger_labels").upsert({
     conversation_id: fact.id,
@@ -111,7 +111,7 @@ async function saveLabel(
     evidence: merged.evidence.slice(0, 500),
     labeled_through: through,
     source: merged.source,
-    pinned: previous?.pinned ?? [],
+    pinned: (previous?.pinned ?? []).filter((field) => field !== "stage" || stagePinned),
     resume_on: previous?.resume_on ?? null,
     input_tokens: tokens.input,
     output_tokens: tokens.output,
@@ -152,7 +152,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
       const slice = facts.slice(i, i + 100).map((f) => f.id);
       const { data, error } = await db
         .from("messenger_labels")
-        .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on")
+        .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent")
         .in("conversation_id", slice);
       if (error) throw new Error(error.message);
       for (const row of (data ?? []) as StoredLabel[]) labels.set(row.conversation_id, row);
@@ -256,7 +256,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
         const parsed = res.parsed_output;
         const draft: LabelDraft = applyGuards(
           {
-            stage: parsed.stage,
+            stage: "unklar",
             interest: parsed.interest === "keins" ? null : parsed.interest,
             level: parsed.level,
             place: parsed.place,

@@ -22,7 +22,13 @@ export const LOSS_REASONS = [
 ] as const;
 export type LossReason = (typeof LOSS_REASONS)[number];
 
-export const LEVELS = ["A0", "A1", "A2", "B1", "B2", "C1", "unklar"] as const;
+export const LEVELS = ["A1", "A2", "B1", "B2", "C1", "unklar"] as const;
+
+/** One of LEVELS. A0 no longer exists: a beginner is A1. */
+export function levelOf(value: string | null | undefined): (typeof LEVELS)[number] {
+  if (value === "A0") return "A1";
+  return LEVELS.find((l) => l === value) ?? "unklar";
+}
 
 /** Where the lead would learn: in class in Saigon or Hanoi, or online from Vietnam or from Germany. */
 export const PLACES = ["Saigon", "Hanoi", "Online VN", "Online DE", "unklar"] as const;
@@ -74,6 +80,9 @@ export type StoredLabel = {
   pinned?: string[];
   /** Vietnam date (YYYY-MM-DD) when loss_reason is spaeter. */
   resume_on?: string | null;
+  /** Set by staff only: the matching courses / the price went out. */
+  courses_sent?: boolean;
+  price_sent?: boolean;
 };
 
 export type LabelDraft = {

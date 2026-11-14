@@ -1,5 +1,6 @@
 import type { createClient } from "@/lib/supabase/server";
 import { conversationView, type ActionLabel, type ActionTiming, type ConversationView } from "./nextAction";
+import { stepOf, type Step } from "./steps";
 import type { LossReason, Outcome } from "./types";
 
 /** Rows and helpers shared by the inbox list (page) and the single chat (api/messenger/thread). */
@@ -15,6 +16,8 @@ export type InboxLabel = {
   labeled_through: string;
   resume_on: string | null;
   pinned: string[] | null;
+  courses_sent: boolean | null;
+  price_sent: boolean | null;
   updated_at: string | null;
 };
 
@@ -29,7 +32,7 @@ export type FactRow = {
   channel: string | null;
 };
 
-export const LABEL_COLUMNS = "conversation_id, stage, interest, level, place, outcome, loss_reason, labeled_through, resume_on, pinned, updated_at";
+export const LABEL_COLUMNS = "conversation_id, stage, interest, level, place, outcome, loss_reason, labeled_through, resume_on, pinned, courses_sent, price_sent, updated_at";
 export const FACT_COLUMNS = "id, customer_name, last_from_page, last_page_at, last_customer_at, followup_sent, last_page_has_zalo, channel";
 
 export function toActionLabel(row: InboxLabel): ActionLabel {
@@ -42,6 +45,9 @@ export function toActionLabel(row: InboxLabel): ActionLabel {
     loss_reason: row.loss_reason,
     labeled_through: row.labeled_through,
     resume_on: row.resume_on,
+    pinned: row.pinned,
+    courses_sent: row.courses_sent,
+    price_sent: row.price_sent,
   };
 }
 
@@ -84,6 +90,8 @@ export type ThreadData = {
   message_count: number | null;
   messages: ThreadMessageRow[];
   label: InboxLabel | null;
+  /** The step right now (stepOf), null when the chat has none. */
+  step: Step | null;
   view: ConversationView;
   attempts: OutboxRow[];
   lastInbound: string | null;
@@ -121,6 +129,7 @@ export async function loadThread(supabase: Db, id: string, now = Date.now()): Pr
     message_count: conv.data.message_count,
     messages,
     label: labelRow,
+    step: stepOf(labelRow),
     view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now),
     attempts: ((outbox.data ?? []) as OutboxRow[]).reverse(),
     lastInbound: inbound.data?.created_time ?? null,

@@ -5,19 +5,24 @@ import { initials } from "@/lib/format";
 
 /** Building blocks shared by the Messenger mockups (MessengerMockup, MessengerSim, ReplyAssistant). */
 
-/** Top bar of a Messenger chat: avatar with green "online" dot, name, a status line and optional actions on the right. */
-export function MessengerHeader({ name, status, actions }: { name: string; status: React.ReactNode; actions?: React.ReactNode }) {
+/**
+ * Top bar of a Messenger chat: avatar with green "online" dot, name, a status line and optional actions on the right.
+ * `below` is a third line under the status (the inbox puts the Status menu there). On a narrow pane the actions
+ * drop to their own line instead of squeezing the name.
+ */
+export function MessengerHeader({ name, status, actions, below }: { name: string; status: React.ReactNode; actions?: React.ReactNode; below?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2.5 border-b border-line bg-white px-3.5 py-2.5">
+    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-b border-line bg-white px-3.5 py-2.5">
       <span className="relative flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
         {initials(name)}
         <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#31A24C]" />
       </span>
-      <span className="flex min-w-0 flex-col leading-tight">
+      <span className="flex min-w-[9rem] flex-1 flex-col leading-tight">
         <strong className="truncate text-sm font-semibold text-ink">{name || "Kunde"}</strong>
         <span className="truncate text-xs text-muted">{status}</span>
+        {below}
       </span>
-      {actions && <span className="ml-auto flex min-w-0 max-w-[60%] items-center gap-1.5">{actions}</span>}
+      {actions && <span className="ml-auto flex min-w-0 max-w-full items-center gap-1.5">{actions}</span>}
     </div>
   );
 }

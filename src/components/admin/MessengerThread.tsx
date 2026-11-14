@@ -55,6 +55,7 @@ export function MessengerThread({
   totalCount,
   banner,
   status,
+  below,
   composer,
   conversationId,
   actions,
@@ -66,6 +67,8 @@ export function MessengerThread({
   totalCount: number | null;
   banner?: ReactNode;
   status?: ReactNode;
+  /** Third line of the header, under the status. */
+  below?: ReactNode;
   composer?: ReactNode;
   conversationId?: string;
   /** Shown on the right of the header. */
@@ -102,8 +105,9 @@ export function MessengerThread({
   const older = totalCount !== null && totalCount > messages.length ? totalCount - messages.length : 0;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      {/* Above the label bar, so the Status menu opens over it. */}
+      <div className="relative z-20 flex items-center">
         <a
           href={backHref}
           data-pane=""
@@ -122,6 +126,7 @@ export function MessengerThread({
             name={name}
             status={status ?? <Label de="Nur lesen · in der Business Suite antworten" vi="Chỉ đọc · trả lời trong Business Suite" />}
             actions={actions}
+            below={below}
           />
         </div>
       </div>

@@ -5,7 +5,8 @@ import { INTERESTS } from "@/lib/assistant/schema";
 import { requireRole } from "@/lib/auth";
 import { isLossReason, isStage } from "@/lib/messenger/classify";
 import { PIN_FIELDS, type PinField } from "@/lib/messenger/nextAction";
-import { LEVELS, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
+import { isStep, stepFor, stepOf } from "@/lib/messenger/steps";
+import { levelOf, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
 import { createClient } from "@/lib/supabase/server";
 
 const JUDGMENTS = ["auto", "kein_lead", "bestandskunde", "weiter_auf_zalo", "verloren"] as const;
@@ -15,9 +16,7 @@ function field(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function normLevel(value: string | null | undefined) {
-  return value && (LEVELS as readonly string[]).includes(value) ? value : "unklar";
-}
+const normLevel = levelOf;
 
 function normInterest(value: string | null | undefined) {
   return value && (INTERESTS as readonly string[]).includes(value) ? value : null;
@@ -28,17 +27,24 @@ function judgmentOf(outcome: Outcome | undefined): Judgment {
   return "auto";
 }
 
-/** Saves a correction. Only fields that differ from the stored label are pinned. */
+/**
+ * Saves a correction. Only fields that differ from the stored label are pinned.
+ * Stufe: a step picked here is pinned; "auto" removes the pin. Without a pin the step follows
+ * from Interesse, Niveau, Ort, "Kurse geschickt" and "Preis geschickt" (stepFor), so choosing Sprachkurs sets it at once.
+ */
 export async function saveMessengerLabel(_prev: { error?: string } | null, formData: FormData): Promise<{ error?: string }> {
   await requireRole("admin");
   const id = field(formData, "conversation_id").slice(0, 200);
   if (!id) return { error: "Gespräch fehlt." };
 
-  const stage = field(formData, "stage");
-  if (!isStage(stage)) return { error: "Stufe ungültig." };
+  const stagePick = field(formData, "stage") || "auto";
+  if (stagePick !== "auto" && !isStage(stagePick)) return { error: "Stufe ungültig." };
   const interest = normInterest(field(formData, "interest"));
   const level = normLevel(field(formData, "level"));
   const place = placeOf(field(formData, "place"));
+  // Price sent means the courses went out too.
+  const priceSent = field(formData, "price_sent") === "ja";
+  const coursesSent = priceSent || field(formData, "courses_sent") === "ja";
   const judgmentRaw = field(formData, "judgment") || "auto";
   if (!(JUDGMENTS as readonly string[]).includes(judgmentRaw)) return { error: "Status ungültig." };
   const judgment = judgmentRaw as Judgment;
@@ -61,7 +67,7 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
     supabase.from("messenger_conversations").select("id").eq("id", id).maybeSingle(),
     supabase
       .from("messenger_labels")
-      .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on")
+      .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent")
       .eq("conversation_id", id)
       .maybeSingle(),
     supabase.from("messenger_facts").select("last_from_page, last_customer_at, last_page_at").eq("id", id).maybeSingle(),
@@ -75,7 +81,10 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
   const prevLoss = prevJudgment === "verloren" ? (row?.loss_reason ?? null) : null;
   const prevResume = prevLoss === "spaeter" ? (row?.resume_on?.slice(0, 10) ?? null) : null;
 
-  if (stage !== (row?.stage ?? "unklar")) pins.add("stage");
+  const prevStage = stepOf(row) ?? "unklar";
+  // A pin on something that is not a step comes from the old stage names: it no longer holds anything.
+  if (stagePick === "auto" || (!isStep(row?.stage) && stagePick === prevStage)) pins.delete("stage");
+  else if (stagePick !== prevStage) pins.add("stage");
   if (interest !== normInterest(row?.interest)) pins.add("interest");
   if (level !== normLevel(row?.level)) pins.add("level");
   if (place !== placeOf(row?.place)) pins.add("place");
@@ -110,17 +119,23 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
     resume = row?.resume_on?.slice(0, 10) ?? null;
   }
 
+  // "Auto" judgment keeps a stored Schüler / Kein Lead until the next labeling, so the step looks at what is saved now.
+  const stage = pins.has("stage") ? (stagePick === "auto" ? prevStage : stagePick) : stepFor({ interest, level, place, outcome, courses_sent: coursesSent, price_sent: priceSent });
+
   const unchanged =
     !!row &&
     stage === row.stage &&
+    pins.has("stage") === !!row.pinned?.includes("stage") &&
     interest === normInterest(row.interest) &&
     level === normLevel(row.level) &&
     place === placeOf(row.place) &&
+    coursesSent === !!row.courses_sent &&
+    priceSent === !!row.price_sent &&
     judgment === prevJudgment &&
     loss === (row.loss_reason ?? null) &&
     resume === (row.resume_on ?? null);
   if (unchanged) return {};
-  if (!row && stage === "unklar" && !interest && level === "unklar" && place === "unklar" && judgment === "auto") return {};
+  if (!row && (stagePick === "auto" || stagePick === prevStage) && !interest && level === "unklar" && place === "unklar" && !coursesSent && judgment === "auto") return {};
 
   const times = [fact?.last_customer_at, fact?.last_page_at].filter((t): t is string => !!t);
   const labeledThrough = times.reduce((a, b) => (a > b ? a : b), new Date().toISOString());
@@ -138,6 +153,8 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
     source: pins.size ? "human" : (row?.source ?? "rule"),
     pinned: [...pins],
     resume_on: resume,
+    courses_sent: coursesSent,
+    price_sent: priceSent,
     updated_at: new Date().toISOString(),
   });
   if (error) return { error: error.message };

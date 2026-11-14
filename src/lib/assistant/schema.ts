@@ -87,7 +87,7 @@ export const SuggestionSchema = z.object({
   stage_reason_de: z.string().describe("One short German sentence: why this stage"),
   profile: z.object({
     interests: z.array(z.enum(INTERESTS)),
-    level: z.enum(["A0", "A1", "A2", "B1", "B2", "C1", "unklar"]).describe("Current German level"),
+    level: z.enum(["A1", "A2", "B1", "B2", "C1", "unklar"]).describe("Current German level; a beginner with no German is A1"),
     place: z.string().describe("Where they live or want to study (Sài Gòn, Hà Nội, other city, Germany) or 'unklar'"),
     pronoun: z.enum(PRONOUNS).describe("How we should address them in Vietnamese"),
     summary_de: z.string().describe("1–2 German sentences: who this person is and what they want"),

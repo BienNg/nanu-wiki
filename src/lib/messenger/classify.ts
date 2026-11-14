@@ -1,4 +1,4 @@
-import { STAGES, type Stage } from "@/lib/assistant/schema";
+import { isStep, type Step } from "./steps";
 import { LOSS_REASONS, OUTCOMES, type LabelDraft, type LossReason, type MessengerFact, type Outcome } from "./types";
 
 /** Vietnam has no daylight-saving time. */
@@ -82,8 +82,8 @@ export function isLossReason(value: string | null | undefined): value is LossRea
   return !!value && (LOSS_REASONS as readonly string[]).includes(value);
 }
 
-export function isStage(value: string): value is Stage | "unklar" {
-  return value === "unklar" || (STAGES as readonly string[]).includes(value);
+export function isStage(value: string): value is Step | "unklar" {
+  return value === "unklar" || isStep(value);
 }
 
 function blank(partial: Partial<LabelDraft> & Pick<LabelDraft, "outcome" | "evidence">): LabelDraft {
@@ -117,7 +117,6 @@ export function textRule(customerTexts: string[], lastFromPage: boolean | null):
   }
   if (!course && EXISTING_STUDENT.test(text)) {
     return blank({
-      stage: "🟢 5. During Class",
       outcome: "bestandskunde",
       evidence: "Es geht um Zoom, Aufgaben oder den laufenden Kurs, nicht um eine neue Anmeldung.",
     });

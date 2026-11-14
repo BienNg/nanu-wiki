@@ -1,5 +1,5 @@
-import { STAGE_INFO, STAGES, type Stage } from "@/lib/assistant/schema";
 import { followupIgnored, formatVnDate } from "./classify";
+import { STEP_INFO, stepOf, type Step } from "./steps";
 import { placeOf, type LabelDraft, type LossReason, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
 /** Fields a person can lock. The cron must not overwrite these. */
@@ -27,6 +27,9 @@ export type ActionLabel = {
   loss_reason: LossReason | null;
   labeled_through: string;
   resume_on: string | null;
+  pinned?: string[] | null;
+  courses_sent?: boolean | null;
+  price_sent?: boolean | null;
 };
 
 export type ActionTiming = {
@@ -65,12 +68,6 @@ function act(id: string, de: string, vi: string, rank: number, today = true): Ne
 
 function known(value: string | null | undefined) {
   return !!value && value !== "unklar" && value !== "keins";
-}
-
-function asStage(stage: string | undefined): Stage | "unklar" | null {
-  if (!stage) return null;
-  if (stage === "unklar") return "unklar";
-  return (STAGES as readonly string[]).includes(stage) ? (stage as Stage) : null;
 }
 
 function ourTurn(timing: ActionTiming) {
@@ -136,40 +133,38 @@ function lostView(label: ActionLabel, now: number): ConversationView {
   return { state: text, note: text, action: CLOSED };
 }
 
-function isEarly(stage: Stage | "unklar" | null) {
-  return !stage || stage === "unklar" || stage === STAGES[0] || stage === STAGES[1];
+/** What we do in this step when it is our turn. Without a step (other Interesse, not labeled yet): ask or answer. */
+function stepTask(label: ActionLabel | undefined, step: Step | null): { id: string; de: string; vi: string; rank: number } {
+  if (step === "anmeldung") return { id: "pay", de: "Anmeldung abschließen: Zahlungsdaten schicken", vi: "Chốt đăng ký: gửi thông tin chuyển khoản", rank: 10 };
+  if (step === "preis") return { id: "offer", de: "Preis und Pakete schicken", vi: "Gửi học phí và các gói", rank: 20 };
+  if (step === "kurse") {
+    const detail = [label!.level, placeOf(label!.place)].join(", ");
+    return { id: "courses", de: `Passende Kurse schicken (${detail})`, vi: `Gửi khóa phù hợp (${detail})`, rank: 30 };
+  }
+  if (step === "bedarf") {
+    if (!known(label?.level)) return { id: "ask_level", de: "Niveau fragen", vi: "Hỏi trình độ", rank: 40 };
+    return { id: "ask_place", de: "Ort fragen", vi: "Hỏi nơi học", rank: 40 };
+  }
+  if (step === "qualifizieren" || !known(label?.interest)) return { id: "ask_interest", de: "Interesse fragen", vi: "Hỏi nhu cầu", rank: 40 };
+  return { id: "answer", de: "Antworten", vi: "Trả lời", rank: 40 };
 }
 
-/** Ask one thing at a time, in this order: Interesse, Niveau, Ort. Then send matching courses. */
-function infoStep(label: ActionLabel | undefined): { id: string; de: string; vi: string; rank: number } {
-  if (!known(label?.interest)) return { id: "ask_interest", de: "Interesse fragen", vi: "Hỏi nhu cầu", rank: 40 };
-  if (!known(label?.level)) return { id: "ask_level", de: "Niveau fragen", vi: "Hỏi trình độ", rank: 40 };
-  if (placeOf(label?.place) === "unklar") return { id: "ask_place", de: "Wohnort fragen", vi: "Hỏi nơi ở", rank: 40 };
-  const detail = [label!.interest, label!.level, placeOf(label!.place)].join(", ");
-  return { id: "courses", de: `Passende Kurse schicken (${detail})`, vi: `Gửi khóa phù hợp (${detail})`, rank: 30 };
+function replyAction(label: ActionLabel | undefined, step: Step | null): NextAction {
+  const task = stepTask(label, step);
+  return act(task.id, task.de, task.vi, task.rank);
 }
 
-function replyAction(label: ActionLabel | undefined, stage: Stage | "unklar" | null): NextAction {
-  if (stage === STAGES[3]) return act("pay", "Zahlungsdaten schicken und den Platz bestätigen", "Gửi thông tin chuyển khoản và xác nhận chỗ", 10);
-  if (stage === STAGES[2]) return act("offer", "Preis schicken und fragen, ob wir den Platz reservieren", "Báo giá và hỏi giữ chỗ", 20);
-  if (stage === STAGES[5]) return act("visa", "Fehlendes Dokument und das Datum nennen", "Nói giấy tờ còn thiếu và hạn nộp", 55);
-  if (stage === STAGES[4]) return act("class", "Das Kursproblem lösen", "Giải quyết vấn đề của buổi học", 50);
-  if (!isEarly(stage)) return act("answer", "Antworten", "Trả lời", 40);
-  const step = infoStep(label);
-  return act(step.id, step.de, step.vi, step.rank);
+/** While the person has the turn, still say what we do next once they answer. */
+function waitAction(label: ActionLabel | undefined, step: Step | null): NextAction {
+  const task = stepTask(label, step);
+  if (task.id === "answer" || task.id === "pay") return WAIT;
+  const de = task.id === "courses" ? task.de.replace(/^Passende/, "passende") : task.de;
+  return { ...WAIT, de: `Warten · dann ${de}`, vi: `Chờ · sau đó ${task.vi.charAt(0).toLowerCase()}${task.vi.slice(1)}` };
 }
 
-/** While the person has the turn, still say what we ask next once they answer. */
-function waitAction(label: ActionLabel | undefined, stage: Stage | "unklar" | null): NextAction {
-  if (!isEarly(stage)) return WAIT;
-  const step = infoStep(label);
-  const de = step.id === "courses" ? step.de.replace(/^Passende/, "passende") : step.de;
-  return { ...WAIT, de: `Warten · dann ${de}`, vi: `Chờ · sau đó ${step.vi.charAt(0).toLowerCase()}${step.vi.slice(1)}` };
-}
-
-function followupAction(stage: Stage | "unklar" | null): NextAction {
-  if (stage === STAGES[3]) return act("nudge_pay", "Einmal nachfassen: Platz und Zahlung", "Nhắc một lần: giữ chỗ và đóng tiền", 70);
-  if (stage === STAGES[2]) return act("nudge_offer", "Einmal nachfassen, mit einem neuen Hinweis", "Nhắc một lần, kèm thông tin mới", 70);
+function followupAction(step: Step | null): NextAction {
+  if (step === "anmeldung") return act("nudge_pay", "Einmal nachfassen: Platz und Zahlung", "Nhắc một lần: giữ chỗ và đóng tiền", 70);
+  if (step === "preis") return act("nudge_offer", "Einmal nachfassen, mit einem neuen Hinweis", "Nhắc một lần, kèm thông tin mới", 70);
   return act("nudge", "Einmal nachfassen", "Nhắc một lần", 70);
 }
 
@@ -179,9 +174,9 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
   const ball = ourTurn(timing);
   const nudge = followupDue(timing, now);
   const silent = ignored(timing, now);
-  const stage = asStage(label?.stage);
-  const stageDe = stage && stage !== "unklar" ? STAGE_INFO[stage].short_de : "Unklar";
-  const stageVi = stage && stage !== "unklar" ? STAGE_INFO[stage].short_vi : "Chưa rõ";
+  const stage = stepOf(label);
+  const stageDe = stage ? STEP_INFO[stage].short_de : "Unklar";
+  const stageVi = stage ? STEP_INFO[stage].short_vi : "Chưa rõ";
   const turn = ball
     ? { de: "wartet auf uns", vi: "chờ mình" }
     : nudge
@@ -209,11 +204,12 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
   // Whose turn it is already shows in the chip, so the row only adds the step.
   const note = student
     ? { de: "Schüler", vi: "Học viên" }
-    : label && stage && stage !== "unklar"
+    : label && stage
       ? { de: stageDe, vi: stageVi }
       : null;
 
   if (student && !ball) return { state, note, action: CLOSED };
+  if (student) return { state, note, action: act("class", "Das Kursproblem lösen", "Giải quyết vấn đề của buổi học", 50) };
   if (ball) return { state, note, action: replyAction(label, stage) };
   if (silent) return { state, note, action: STOP };
   if (nudge) return { state, note, action: followupAction(stage) };

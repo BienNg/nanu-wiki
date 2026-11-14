@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
-export type MenuSelectOption = { value: string; label: ReactNode };
+/** `chip` is what the closed chip shows when it should differ from the menu line. */
+export type MenuSelectOption = { value: string; label: ReactNode; chip?: ReactNode };
 
 const check = "M5 12.5l4.5 4.5L19 7.5";
 const down = "M7 10l5 5 5-5";
@@ -33,6 +34,8 @@ export function MenuSelect({
   emptyValue,
   keepLabel,
   pinned,
+  form,
+  compact,
 }: {
   name: string;
   label: ReactNode;
@@ -45,6 +48,10 @@ export function MenuSelect({
   keepLabel?: boolean;
   /** A person set this field; it stays when the chat is labeled again. */
   pinned?: boolean;
+  /** Id of the <form> this belongs to, when it is rendered outside of it. */
+  form?: string;
+  /** Smaller chip for a header line. */
+  compact?: boolean;
 }) {
   const [value, setValue] = useState(defaultValue);
   const [open, setOpen] = useState(false);
@@ -99,7 +106,7 @@ export function MenuSelect({
 
   return (
     <div ref={root} className="relative min-w-0">
-      <input type="hidden" name={name} value={value} />
+      <input type="hidden" name={name} value={value} form={form} />
       <button
         type="button"
         role="combobox"
@@ -113,10 +120,10 @@ export function MenuSelect({
         onKeyUp={(e) => {
           if (open && e.key === " ") e.preventDefault(); // Space was already used to choose
         }}
-        className={`flex h-8 max-w-full items-center gap-1 rounded-full text-[13px] outline-none transition-[background-color,border-color,box-shadow,transform] duration-150 focus-visible:ring-2 focus-visible:ring-accent-soft active:scale-[0.97] ${
+        className={`flex max-w-full items-center gap-1 rounded-full outline-none ${compact ? "h-6 text-[12px]" : "h-8 text-[13px]"} transition-[background-color,border-color,box-shadow,transform] duration-150 focus-visible:ring-2 focus-visible:ring-accent-soft active:scale-[0.97] ${
           missing
             ? "border border-dashed border-accent/45 bg-white pl-2 pr-3 font-medium text-accent hover:border-solid hover:border-accent hover:bg-accent-soft/60"
-            : "border border-transparent bg-chip pl-3 pr-2 text-ink hover:bg-active"
+            : `border border-transparent bg-chip text-ink hover:bg-active ${compact ? "pl-2 pr-1.5" : "pl-3 pr-2"}`
         } ${open ? "ring-2 ring-accent-soft" : ""}`}
       >
         {missing ? (
@@ -128,7 +135,7 @@ export function MenuSelect({
           <>
             {pinned ? <span className="size-1.5 flex-none rounded-full bg-accent" title="Bleibt beim nächsten Einordnen" /> : null}
             {keepLabel ? <span className="flex-none text-[12px] text-muted">{label}</span> : null}
-            <span className="min-w-0 truncate font-medium">{options[chosen]?.label}</span>
+            <span className="min-w-0 truncate font-medium">{options[chosen]?.chip ?? options[chosen]?.label}</span>
             <span className="text-faint">
               <Glyph d={down} size={13} />
             </span>

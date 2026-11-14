@@ -12,7 +12,8 @@ import { ChatLink, FunnelNav, MessengerShell } from "@/components/admin/Messenge
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
-import { INTERESTS, STAGES, STAGE_INFO, type Stage } from "@/lib/assistant/schema";
+import { INTERESTS } from "@/lib/assistant/schema";
+import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
 
 export const metadata = { title: "Messenger" };
 
@@ -41,18 +42,20 @@ const PAGE = 1000;
 const BY_ID_MAX = 240;
 const NO_INTEREST = "ohne";
 
-/** Funnel steps per Interesse. Only Sprachkurs has its steps so far; the others get theirs later. */
-const FUNNELS: Partial<Record<string, readonly Stage[]>> = { Sprachkurs: STAGES };
-const FUNNEL_INTEREST = "Sprachkurs";
+/**
+ * Funnel steps per Interesse. Only Sprachkurs has its steps so far; the others get theirs later.
+ * Qualifizieren is not in the list: those chats have no Interesse yet, so the funnel links it to the "ohne" filter.
+ */
+const FUNNELS: Partial<Record<string, readonly Step[]>> = { [FUNNEL_INTEREST]: STEPS.filter((s) => s !== "qualifizieren") };
 
 function interestKey(label: InboxLabel | undefined) {
   const v = label?.interest;
   return v && v !== "unklar" && v !== "keins" ? v : NO_INTEREST;
 }
 
-/** "1".."6" for a known step of the interest's funnel, otherwise "unklar". */
-function stepKey(label: InboxLabel | undefined, steps: readonly Stage[]) {
-  const i = label ? steps.indexOf(label.stage as Stage) : -1;
+/** "1".."4" for a known step of the interest's funnel, otherwise "unklar". */
+function stepKey(label: InboxLabel | undefined, steps: readonly Step[]) {
+  const i = label ? steps.indexOf(label.stage as Step) : -1;
   return i >= 0 ? String(i + 1) : "unklar";
 }
 
@@ -90,7 +93,7 @@ async function allPages<T>(load: (from: number, to: number) => PromiseLike<{ dat
 }
 
 type Db = Awaited<ReturnType<typeof createClient>>;
-type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Stage[] };
+type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Step[] };
 /** Counts for the menus and the funnel, plus the ids of the chats to show. `labels` only when they were read anyway. */
 type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
 
@@ -98,7 +101,7 @@ type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; s
  * One request: the database counts and picks (migration 20261114090000_messenger_inbox_index).
  * Returns null when the function is not there yet or answers with something unexpected.
  */
-async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly Stage[]): Promise<InboxIndex | null> {
+async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly Step[]): Promise<InboxIndex | null> {
   const stepNo = Number(f.step);
   const { data, error } = await supabase.rpc("messenger_inbox_index", {
     p_channel: f.channel || null,
@@ -116,7 +119,7 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
   for (const g of found.groups) {
     interestCounts.set(g.interest, (interestCounts.get(g.interest) ?? 0) + g.n);
     if (g.interest === FUNNEL_INTEREST) {
-      const at = funnelSteps.indexOf(g.stage as Stage);
+      const at = funnelSteps.indexOf(g.stage as Step);
       const step = at >= 0 ? String(at + 1) : "unklar";
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + g.n);
     }
@@ -125,7 +128,7 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
 }
 
 /** The same result without the database function: read ids and labels, count here. */
-async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly Stage[]): Promise<InboxIndex> {
+async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly Step[]): Promise<InboxIndex> {
   // Every chat that matches Kanal + Name, but only id and time: enough to count and to sort.
   const everyChat = await allPages<ChatKey>((from, to) => {
     let keys = supabase.from("messenger_conversations").select("id, updated_time").order("updated_time", { ascending: false }).order("id");
@@ -354,17 +357,18 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
             </div>
           </div>
 
-          {!interestFilter || interestFilter === FUNNEL_INTEREST ? (
+          {!interestFilter || interestFilter === FUNNEL_INTEREST || interestFilter === NO_INTEREST ? (
             <nav aria-label={`Schritte ${FUNNEL_INTEREST}`} className="flex items-stretch gap-2">
               <span className="flex w-16 flex-none items-center text-[11px] font-medium leading-tight text-faint max-md:hidden">{FUNNEL_INTEREST}</span>
               <FunnelNav
                 stamp={now}
-                current={interestFilter === FUNNEL_INTEREST ? stepFilter : null}
+                current={interestFilter === FUNNEL_INTEREST ? stepFilter : interestFilter === NO_INTEREST ? "q" : null}
                 steps={[
                   { id: "", de: "Alle", vi: "Tất cả", count: interestCounts.get(FUNNEL_INTEREST) ?? 0 },
-                  ...funnelSteps.map((stage, i) => ({ id: String(i + 1), de: STAGE_INFO[stage].short_de, vi: STAGE_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 })),
+                  { id: "q", de: STEP_INFO.qualifizieren.short_de, vi: STEP_INFO.qualifizieren.short_vi, count: interestCounts.get(NO_INTEREST) ?? 0 },
+                  ...funnelSteps.map((stage, i) => ({ id: String(i + 1), de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 })),
                   ...(stepCounts.get("unklar") ? [{ id: "unklar", de: "Unklar", vi: "Chưa rõ", count: stepCounts.get("unklar")! }] : []),
-                ].map((step) => ({ ...step, href: href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
+                ].map((step) => ({ ...step, href: step.id === "q" ? href({ i: NO_INTEREST, s: "", c: "" }) : href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
               />
             </nav>
           ) : (

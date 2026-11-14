@@ -1,5 +1,6 @@
 import "server-only";
-import { STAGES, STAGE_INFO, INTERESTS } from "@/lib/assistant/schema";
+import { INTERESTS } from "@/lib/assistant/schema";
+import { STEPS, STEP_INFO } from "./steps";
 import { addDays, eurSpent, formatVnDate, inWorkHours, monthKey, parseWeekStart, LABEL_BUDGET_EUR } from "./classify";
 import type { LossReason, MessengerFact, Outcome, StoredLabel } from "./types";
 import { LOSS_REASONS, OUTCOMES } from "./types";
@@ -111,7 +112,7 @@ export async function loadMessengerStats(
   const end = addDays(start, 7);
   const current = parseWeekStart(undefined);
   const interest = INTERESTS.includes(opts.interest as (typeof INTERESTS)[number]) ? opts.interest! : "";
-  const level = ["A0", "A1", "A2", "B1", "B2", "C1"].includes(opts.level ?? "") ? opts.level! : "";
+  const level = ["A1", "A2", "B1", "B2", "C1"].includes(opts.level ?? "") ? opts.level! : "";
   const startIso = start.toISOString();
   const endIso = end.toISOString();
   const quietBefore = new Date(Date.now() - DAY_MS).toISOString();
@@ -132,7 +133,7 @@ export async function loadMessengerStats(
       .order("last_customer_at", { ascending: true })
       .limit(40),
     supabase.from("messenger_labels").select("conversation_id, stage, loss_reason, outcome, evidence").eq("loss_reason", "preis").limit(40),
-    supabase.from("messenger_labels").select("conversation_id, stage, loss_reason, outcome").eq("stage", STAGES[2]).limit(200),
+    supabase.from("messenger_labels").select("conversation_id, stage, loss_reason, outcome").eq("stage", "preis").limit(200),
     supabase.from("messenger_label_budget").select("input_tokens, output_tokens").eq("month", monthKey()).maybeSingle(),
     supabase.from("messenger_label_state").select("last_error").eq("id", 1).maybeSingle(),
   ]);
@@ -181,7 +182,7 @@ export async function loadMessengerStats(
   }
 
   const funnelIds = [
-    ...STAGES.map((stage) => ({ id: stage, de: STAGE_INFO[stage].short_de, vi: STAGE_INFO[stage].short_vi })),
+    ...STEPS.map((stage) => ({ id: stage as string, de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi })),
     { id: "unklar", de: "Unklar", vi: "Chưa rõ" },
     { id: "unlabeled", de: "Noch ohne Einordnung", vi: "Chưa gắn nhãn" },
   ];
