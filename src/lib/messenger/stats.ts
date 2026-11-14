@@ -188,7 +188,13 @@ export async function loadMessengerStats(
   ];
   const funnel = funnelIds.map((row) => ({
     ...row,
-    count: leads.filter(({ label }) => (row.id === "unlabeled" ? !label : label?.stage === row.id)).length,
+    // Schüler are no longer leads, so that step is counted on the whole week, not on the open leads.
+    count:
+      row.id === "unlabeled"
+        ? leads.filter(({ label }) => !label).length
+        : row.id === "schueler"
+          ? cohort.filter((f) => labels.get(f.id)?.stage === "schueler").length
+          : leads.filter(({ label }) => label?.stage === row.id).length,
   }));
 
   const outcomes = OUTCOMES.map((id) => ({

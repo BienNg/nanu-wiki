@@ -98,7 +98,7 @@ async function saveLabel(
   // The step follows from the fields unless a person picked it; "Kurse/Preis geschickt" stays.
   // A pin only counts when it holds one of the steps (old stage names were pinned too).
   const stagePinned = !!previous?.pinned?.includes("stage") && isStep(previous.stage);
-  if (!stagePinned) merged.stage = stepFor({ ...merged, courses_sent: previous?.courses_sent, price_sent: previous?.price_sent });
+  if (!stagePinned) merged.stage = stepFor({ ...merged, courses_sent: previous?.courses_sent, price_sent: previous?.price_sent, paid: previous?.paid });
   const through = newestActivity(fact) ?? new Date().toISOString();
   const { error } = await db.from("messenger_labels").upsert({
     conversation_id: fact.id,
@@ -152,7 +152,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
       const slice = facts.slice(i, i + 100).map((f) => f.id);
       const { data, error } = await db
         .from("messenger_labels")
-        .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent")
+        .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent, paid")
         .in("conversation_id", slice);
       if (error) throw new Error(error.message);
       for (const row of (data ?? []) as StoredLabel[]) labels.set(row.conversation_id, row);

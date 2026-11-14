@@ -18,28 +18,61 @@ type Entry = SavedLabel;
 const EMPTY: Entry[] = [];
 let entries: Entry[] = EMPTY;
 const listeners = new Set<() => void>();
+/** Chats whose label form still has a change waiting or in flight. A finished save must not replace that form. */
+const editing = new Set<string>();
+/** Newest write from this person, including one not shown yet because they kept editing. */
+const latestWrite = new Map<string, SavedLabel>();
 
 function emit(next: Entry[]) {
   entries = next;
   listeners.forEach((fn) => fn());
 }
 
-export function publishLabelSave(saved: SavedLabel) {
+export function setLabelEditing(id: string, on: boolean) {
+  if (on) editing.add(id);
+  else editing.delete(id);
+}
+
+export function isLabelEditing(id: string) {
+  return editing.has(id);
+}
+
+export function threadSeen(id: string) {
+  return latestWrite.get(id)?.thread;
+}
+
+export function latestLabelWrite(id: string) {
+  return latestWrite.get(id);
+}
+
+/**
+ * `paint` is false when the person has already changed the label again.
+ * The version is still remembered, so a check does not reload the old copy over the form.
+ */
+export function publishLabelSave(saved: SavedLabel, paint = true) {
   acknowledgeOwnInbox(saved.inbox);
+  latestWrite.set(saved.conversationId, saved);
+  if (!paint) {
+    applied.forEach((fn) => fn(saved, false));
+    return;
+  }
   const i = entries.findIndex((e) => e.conversationId === saved.conversationId);
   const next = entries.slice();
   if (i >= 0) next[i] = { ...saved, prev: next[i].prev };
   else next.push(saved);
   emit(next);
-  applied.forEach((fn) => fn(next.find((e) => e.conversationId === saved.conversationId) ?? saved));
+  const stored = next.find((e) => e.conversationId === saved.conversationId) ?? saved;
+  applied.forEach((fn) => fn(stored, true));
 }
 
-const applied = new Set<(saved: SavedLabel) => void>();
+const applied = new Set<(saved: SavedLabel, paint: boolean) => void>();
 
-/** Fires with the stored entry (its `prev` is still the place on the server-rendered list). */
-export function onLabelSave(fn: (saved: SavedLabel) => void) {
+/** Fires for every write. `paint` is false when a newer change is still on the form. */
+export function onLabelSave(fn: (saved: SavedLabel, paint: boolean) => void) {
   applied.add(fn);
-  return () => applied.delete(fn);
+  return () => {
+    applied.delete(fn);
+  };
 }
 
 export function labelSaveFor(id: string) {

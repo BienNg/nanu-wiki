@@ -19,7 +19,7 @@ import { inboxVersion } from "@/lib/messenger/version";
 
 export const metadata = { title: "Messenger" };
 
-type InboxRow = {
+type InboxDbRow = {
   id: string;
   customer_name: string | null;
   updated_time: string;
@@ -240,13 +240,13 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
 
   // Full rows (newest message, label, facts) only for the chats that are shown.
   const [inboxRows, factRows, labelRows] = await Promise.all([
-    inChunks<InboxRow>(shownIds, (slice) => supabase.from("messenger_inbox").select("*").in("id", slice)),
+    inChunks<InboxDbRow>(shownIds, (slice) => supabase.from("messenger_inbox").select("*").in("id", slice)),
     inChunks<FactRow>(shownIds, (slice) => supabase.from("messenger_facts").select(FACT_COLUMNS).in("id", slice)),
     index.labels ? [] : inChunks<InboxLabel>(shownIds, (slice) => supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", slice)),
   ]);
   const labelById = index.labels ?? new Map(labelRows.map((row) => [row.conversation_id, row]));
   const inboxById = new Map(inboxRows.map((row) => [row.id, row]));
-  const conversations = shownIds.map((id) => inboxById.get(id)).filter((row): row is InboxRow => !!row);
+  const conversations = shownIds.map((id) => inboxById.get(id)).filter((row): row is InboxDbRow => !!row);
 
   const factById = new Map(factRows.map((row) => [row.id, row]));
   const viewById = new Map<string, ConversationView>();

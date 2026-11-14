@@ -6,7 +6,7 @@ import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { ActionChip } from "@/components/admin/ActionChip";
 import { useThreadVersion } from "@/components/admin/InboxLive";
-import { labelSaveFor, onLabelSave } from "@/components/admin/labelPatch";
+import { isLabelEditing, labelSaveFor, latestLabelWrite, onLabelSave, threadSeen } from "@/components/admin/labelPatch";
 import { LabelEditor } from "@/components/admin/LabelEditor";
 import { MessageComposer } from "@/components/admin/MessageComposer";
 import { ThreadSkeleton } from "@/components/admin/MessengerSkeleton";
@@ -27,7 +27,7 @@ function remember(data: Loaded) {
 }
 
 /** Actions that mean "work on this step" (ours or, with the clock, once the lead answers). Follow-ups and closed chats keep their own text. */
-const STEP_TASKS = new Set(["ask_interest", "ask_level", "ask_place", "courses", "offer", "pay", "wait"]);
+const STEP_TASKS = new Set(["ask_interest", "ask_level", "ask_place", "courses", "offer", "pay", "class", "wait"]);
 
 /** In the open chat the chip shows the goal of the step instead of the single task. */
 function goalAction(action: NextAction, step: Step | null): NextAction {
@@ -83,6 +83,8 @@ export function ThreadPane() {
   useEffect(() => {
     if (!id) return;
     if (flight.current?.id === id) return;
+    // The person is still changing this label. A reload now would put the old fields back on the form.
+    if (isLabelEditing(id) && have.current?.id === id) return;
     // Same chat, and nothing newer is known than what is here (or than what was known when it was loaded): keep it.
     if (have.current?.id === id && (latest === null || latest === have.current.version || latest === have.current.asked)) return;
     flight.current?.ctrl.abort();
@@ -95,9 +97,19 @@ export function ThreadPane() {
       .then((next) => {
         if (flight.current?.ctrl !== ctrl) return;
         flight.current = null;
-        const saved = labelSaveFor(id);
-        const merged = saved ? { ...next, view: saved.view, step: saved.step } : next;
-        have.current = { id, version: saved?.thread ?? next.version, asked: latest };
+        const seen = threadSeen(id);
+        const wrote = latestLabelWrite(id);
+        if (isLabelEditing(id)) {
+          have.current = { id, version: seen ?? have.current?.version ?? next.version, asked: latest };
+          return;
+        }
+        const saved = labelSaveFor(id) ?? wrote;
+        // A slow reload that started earlier must not cover a label this person just stored.
+        const wroteAt = wrote?.label.updated_at ?? "";
+        const nextAt = next.label?.updated_at ?? "";
+        const label = wrote && nextAt < wroteAt ? wrote.label : (saved?.label ?? next.label);
+        const merged = { ...next, view: saved?.view ?? next.view, step: saved?.step ?? next.step, label };
+        have.current = { id, version: seen ?? saved?.thread ?? next.version, asked: latest };
         remember(merged);
         setData(merged);
         // Look again: the version may have moved on while this was loading.
@@ -114,10 +126,13 @@ export function ThreadPane() {
     return () => clearTimeout(again);
   }, [id, latest, retry, settled]);
   useEffect(() => {
-    return onLabelSave((saved) => {
+    return onLabelSave((saved, paint) => {
       if (saved.conversationId !== id) return;
       if (have.current?.id === id) have.current = { id, version: saved.thread, asked: saved.thread };
-      const apply = (d: Loaded): Loaded => (d.id === id ? { ...d, view: saved.view, step: saved.step } : d);
+      // An earlier save must not replace the fields the person has changed since.
+      // The label form keeps what they picked; only the chip follows the stored result.
+      if (!paint) return;
+      const apply = (d: Loaded): Loaded => (d.id === id ? { ...d, view: saved.view, step: saved.step, label: saved.label } : d);
       setData((d) => (d && d.id === id ? apply(d) : d));
       const remembered = recent.get(id);
       if (remembered) recent.set(id, apply(remembered));
@@ -225,6 +240,7 @@ export function ThreadPane() {
               stageSlot={`stage-${shown.id}`}
               coursesSent={!!label?.courses_sent}
               priceSent={!!label?.price_sent}
+              paid={!!label?.paid}
               autoText={autoText(shown)}
               pinned={(label?.pinned ?? []).filter((field) => field !== "stage" || label?.stage === shown.step)}
             />

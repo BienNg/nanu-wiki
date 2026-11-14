@@ -1,4 +1,4 @@
-import { FUNNEL_INTEREST, STEPS, type Step } from "./steps";
+import { FUNNEL_INTEREST, STEPS } from "./steps";
 
 /** Chats with no Interesse yet. */
 export const NO_INTEREST = "ohne";
@@ -9,7 +9,7 @@ const FUNNEL_STEPS = STEPS.filter((s) => s !== "qualifizieren");
 
 export type InboxPlace = {
   interestKey: string;
-  /** "1".."4" inside Sprachkurs, otherwise "unklar". */
+  /** "1".."5" inside Sprachkurs, otherwise "unklar". */
   stepKey: string;
   open: boolean;
 };
@@ -36,7 +36,8 @@ export function isOpen(label: PlaceLabel) {
 }
 
 export function stepKey(label: PlaceLabel) {
-  const i = label?.stage ? FUNNEL_STEPS.indexOf(label.stage as Step) : -1;
+  const stage = label?.stage ?? "";
+  const i = (FUNNEL_STEPS as readonly string[]).indexOf(stage);
   return i >= 0 ? String(i + 1) : "unklar";
 }
 

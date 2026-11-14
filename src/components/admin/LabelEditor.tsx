@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { saveMessengerLabel } from "@/app/(app)/admin/messenger/actions";
-import { publishLabelSave } from "@/components/admin/labelPatch";
+import { publishLabelSave, setLabelEditing } from "@/components/admin/labelPatch";
 import type { ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MenuSelect } from "@/components/admin/MenuSelect";
@@ -29,10 +29,11 @@ const JUDGMENTS = [
   { id: "verloren", de: "Verloren", vi: "Mất khách" },
 ] as const;
 
-/** The two things only staff can know. Each is a yes/no field, so a wrong click is taken back the same way. */
+/** Things only staff can know. Each is a yes/no field, so a wrong click is taken back the same way. */
 const SENT = [
   { name: "courses_sent", de: "Kurse geschickt", vi: "Đã gửi khóa" },
   { name: "price_sent", de: "Preis geschickt", vi: "Đã báo giá" },
+  { name: "paid", de: "Bezahlt", vi: "Đã đóng tiền" },
 ] as const;
 
 export type LabelFormValues = {
@@ -50,9 +51,11 @@ export type LabelFormValues = {
   statusSlot: string;
   /** Id of the element on the right of the chat header that takes the Stufe menu (above the goal). */
   stageSlot: string;
-  /** Staff set these two after the message went out; they move the chat to Preis and to Anmeldung. */
+  /** Staff set these after the message went out. They move the chat to Preis, to Anmeldung, and to Schüler. */
   coursesSent: boolean;
   priceSent: boolean;
+  /** The person paid for the course. The chat becomes Schüler. */
+  paid: boolean;
   /** What "Automatisch" comes to right now, e.g. "Wartet auf uns". */
   autoText: { de: string; vi: string };
 };
@@ -94,7 +97,7 @@ export function LabelEditor(props: LabelFormValues) {
 /** Correct the stored label. Several fields in a row are one save: the write waits until the person pauses. */
 const SAVE_PAUSE_MS = 1200;
 
-function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, resume, pinned, statusSlot, stageSlot, coursesSent, priceSent, autoText }: LabelFormValues) {
+function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, resume, pinned, statusSlot, stageSlot, coursesSent, priceSent, paid, autoText }: LabelFormValues) {
   const [status, setStatus] = useState(judgment);
   const [reason, setReason] = useState(loss);
   const [saving, setSaving] = useState(false);
@@ -107,6 +110,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     place: placeOf(place),
     courses_sent: coursesSent ? "ja" : "nein",
     price_sent: priceSent ? "ja" : "nein",
+    paid: paid ? "ja" : "nein",
     judgment,
     loss_reason: judgment === "verloren" ? loss : "",
     resume_on: judgment === "verloren" && loss === "spaeter" ? resume : "",
@@ -118,6 +122,8 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
   const pending = useRef(false);
   const afterFlight = useRef<FormData | null>(null);
   const mounted = useRef(true);
+  /** Each write gets a number. A response from an earlier write must not cover a later one. */
+  const epoch = useRef(0);
   // Once a save went through, what was sent is what is stored: the next change is compared with that.
   const sent = useRef<Record<string, string> | null>(null);
   const formId = useId();
@@ -140,6 +146,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
       place: get("place"),
       courses_sent: get("courses_sent"),
       price_sent: get("price_sent"),
+      paid: get("paid"),
       judgment: get("judgment"),
       loss_reason: get("loss_reason"),
       resume_on: get("resume_on"),
@@ -156,27 +163,35 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
       return;
     }
     const data = readForm();
-    if (!differs(data)) return;
+    if (!differs(data)) {
+      if (!wait.current && !pending.current) setLabelEditing(conversationId, false);
+      return;
+    }
+    const mine = ++epoch.current;
     flight.current = true;
+    setLabelEditing(conversationId, true);
     if (mounted.current) setSaving(true);
     const result = await saveMessengerLabel(null, data);
     flight.current = false;
-    if (mounted.current) {
+    const stale = mine !== epoch.current;
+    const more = !!wait.current || pending.current || !!afterFlight.current;
+    if (mounted.current && !stale && !more) {
       setSaving(false);
       if (result.error) setError(result.error);
       else {
         setError("");
         if (sent.current) setBase(sent.current);
       }
-    }
-    if (result.saved) publishLabelSave(result.saved);
+    } else if (mounted.current && !flight.current) setSaving(false);
+    // The version is always noted. The fields are replaced only when nothing newer is waiting.
+    if (result.saved) publishLabelSave(result.saved, !stale && !more);
+    if (!stale && !more && !wait.current && !pending.current) setLabelEditing(conversationId, false);
     if (afterFlight.current) {
       const latest = afterFlight.current;
       afterFlight.current = null;
-      const sentNow = sent.current;
       void saveMessengerLabel(null, latest).then((again) => {
-        if (again.saved) publishLabelSave(again.saved);
-        if (mounted.current && !again.error && sentNow) setBase(sentNow);
+        if (again.saved) publishLabelSave(again.saved, true);
+        setLabelEditing(conversationId, false);
       });
       return;
     }
@@ -188,6 +203,9 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
 
   // A new field resets the wait, so Interesse + Niveau + Ort become one write.
   const save = () => {
+    // This edit is newer than a write already on the way, so that write must not be shown.
+    if (flight.current) epoch.current += 1;
+    setLabelEditing(conversationId, true);
     if (wait.current) window.clearTimeout(wait.current);
     wait.current = window.setTimeout(() => {
       wait.current = undefined;
@@ -199,6 +217,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     mounted.current = true;
     return () => {
       mounted.current = false;
+      setLabelEditing(conversationId, false);
       if (!wait.current || !form.current) return;
       window.clearTimeout(wait.current);
       wait.current = undefined;
@@ -271,11 +290,17 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           ariaLabel={`${item.de} / ${item.vi}`}
           label={<Label de={item.de} vi={item.vi} />}
           emptyValue="nein"
-          defaultValue={(item.name === "courses_sent" ? coursesSent : priceSent) ? "ja" : "nein"}
-          onChange={save}
+          defaultValue={(item.name === "courses_sent" ? coursesSent : item.name === "price_sent" ? priceSent : paid) ? "ja" : "nein"}
+          onChange={(v) => {
+            if (item.name === "paid") {
+              if (v === "ja") setStatus("bestandskunde");
+              else if (status === "bestandskunde" && judgment !== "bestandskunde") setStatus("auto");
+            }
+            save();
+          }}
           options={[
             { value: "ja", label: both(item.de, item.vi), chip: <Label de={`✓ ${item.de}`} vi={`✓ ${item.vi}`} /> },
-            { value: "nein", label: both("Noch nicht", "Chưa gửi") },
+            { value: "nein", label: item.name === "paid" ? both("Noch nicht", "Chưa đóng") : both("Noch nicht", "Chưa gửi") },
           ]}
         />
       ))}
@@ -311,6 +336,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         createPortal(
           <>
             <MenuSelect
+              key={status}
               name="judgment"
               ariaLabel="Status / Trạng thái"
               label={<Label de="Status" vi="Trạng thái" />}

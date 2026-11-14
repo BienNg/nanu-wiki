@@ -30,6 +30,7 @@ export type ActionLabel = {
   pinned?: string[] | null;
   courses_sent?: boolean | null;
   price_sent?: boolean | null;
+  paid?: boolean | null;
 };
 
 export type ActionTiming = {
@@ -135,6 +136,7 @@ function lostView(label: ActionLabel, now: number): ConversationView {
 
 /** What we do in this step when it is our turn. Without a step (other Interesse, not labeled yet): ask or answer. */
 function stepTask(label: ActionLabel | undefined, step: Step | null): { id: string; de: string; vi: string; rank: number } {
+  if (step === "schueler") return { id: "class", de: "Das Kursproblem lösen", vi: "Giải quyết vấn đề của buổi học", rank: 50 };
   if (step === "anmeldung") return { id: "pay", de: "Anmeldung abschließen: Zahlungsdaten schicken", vi: "Chốt đăng ký: gửi thông tin chuyển khoản", rank: 10 };
   if (step === "preis") return { id: "offer", de: "Preis und Pakete schicken", vi: "Gửi học phí và các gói", rank: 20 };
   if (step === "kurse") {
@@ -163,6 +165,7 @@ function waitAction(label: ActionLabel | undefined, step: Step | null): NextActi
 }
 
 function followupAction(step: Step | null): NextAction {
+  if (step === "schueler") return CLOSED;
   if (step === "anmeldung") return act("nudge_pay", "Einmal nachfassen: Platz und Zahlung", "Nhắc một lần: giữ chỗ và đóng tiền", 70);
   if (step === "preis") return act("nudge_offer", "Einmal nachfassen, mit einem neuen Hinweis", "Nhắc một lần, kèm thông tin mới", 70);
   return act("nudge", "Einmal nachfassen", "Nhắc một lần", 70);
@@ -190,12 +193,13 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
     const state = { de: "Kein Lead", vi: "Không phải khách" };
     return { state, note: state, action: NOT_A_LEAD };
   }
-  if (closed && (label.outcome === "weiter_auf_zalo" || (timing.last_page_has_zalo && timing.last_from_page === true))) {
+  if (closed && label.outcome === "weiter_auf_zalo") {
     return { state: { de: "Weiter auf Zalo", vi: "Chuyển sang Zalo" }, note: null, action: ZALO };
   }
   if (closed && label.outcome === "verloren") return lostView(label, now);
 
-  const student = closed && label.outcome === "bestandskunde";
+  // A paid close stays Schüler after a new message. Kein Lead and Verloren can reopen.
+  const student = !!label && (label.outcome === "bestandskunde" || stage === "schueler");
   const state = {
     de: `${student ? "Schüler" : label ? stageDe : "Noch nicht eingeordnet"} · ${turn.de}`,
     vi: `${student ? "Học viên" : label ? stageVi : "Chưa phân loại"} · ${turn.vi}`,
@@ -210,6 +214,9 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
 
   if (student && !ball) return { state, note, action: CLOSED };
   if (student) return { state, note, action: act("class", "Das Kursproblem lösen", "Giải quyết vấn đề của buổi học", 50) };
+  if (closed && timing.last_page_has_zalo && timing.last_from_page === true) {
+    return { state: { de: "Weiter auf Zalo", vi: "Chuyển sang Zalo" }, note: null, action: ZALO };
+  }
   if (ball) return { state, note, action: replyAction(label, stage) };
   if (silent) return { state, note, action: STOP };
   if (nudge) return { state, note, action: followupAction(stage) };

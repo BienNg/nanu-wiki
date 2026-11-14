@@ -8,12 +8,14 @@ import { placeOf, type Outcome } from "./types";
  *   kurse          Niveau and Ort are known                      → send the courses that fit
  *   preis          staff set "Kurse geschickt"                   → send the price and our packages
  *   anmeldung      staff set "Preis geschickt"                   → close sign-up and payment
+ *   schueler       staff set "Bezahlt"                           → the person paid and is a Schüler
  *
- * All of it follows from the label fields (`stepFor`); "Kurse geschickt" and "Preis geschickt" are
- * two yes/no fields only staff set, and they can take them back. Other interests have no steps yet.
+ * All of it follows from the label fields (`stepFor`). "Kurse geschickt", "Preis geschickt" and
+ * "Bezahlt" are yes/no fields only staff set, and they can take them back. "Bezahlt" also sets the
+ * status to Schüler. Other interests have no steps yet.
  * The reply assistant keeps its own stages (src/lib/assistant/schema.ts).
  */
-export const STEPS = ["qualifizieren", "bedarf", "kurse", "preis", "anmeldung"] as const;
+export const STEPS = ["qualifizieren", "bedarf", "kurse", "preis", "anmeldung", "schueler"] as const;
 export type Step = (typeof STEPS)[number];
 
 export const FUNNEL_INTEREST = "Sprachkurs";
@@ -60,6 +62,14 @@ export const STEP_INFO: Record<Step, { short_de: string; short_vi: string; aim_d
     goal_de: "Anmeldung und Zahlung abschließen.",
     goal_vi: "Hoàn tất đăng ký và thanh toán.",
   },
+  schueler: {
+    short_de: "Schüler",
+    short_vi: "Học viên",
+    aim_de: "An Customer Success übergeben",
+    aim_vi: "Chuyển cho chăm sóc học viên",
+    goal_de: "Die Person hat den Kurs bezahlt und ist jetzt Schüler.",
+    goal_vi: "Khách đã đóng học phí và giờ là học viên.",
+  },
 };
 
 export function isStep(value: string | null | undefined): value is Step {
@@ -79,11 +89,16 @@ export type StepFields = {
   courses_sent?: boolean | null;
   /** Staff marked that the price and packages went out. */
   price_sent?: boolean | null;
+  /** Staff marked that the person paid for the course. */
+  paid?: boolean | null;
 };
 
 /** The step a chat is in when nobody picked one by hand: the first thing in the list that is still open. */
 export function stepFor(fields: StepFields): Step | "unklar" {
-  if (fields.outcome === "kein_lead" || fields.outcome === "bestandskunde") return "unklar";
+  if (fields.outcome === "kein_lead") return "unklar";
+  // Paid Sprachkurs chats stay on Schüler. An existing student who was not closed here has no step.
+  if (fields.paid && fields.interest === FUNNEL_INTEREST) return "schueler";
+  if (fields.outcome === "bestandskunde") return "unklar";
   if (!known(fields.interest)) return "qualifizieren";
   if (fields.interest !== FUNNEL_INTEREST) return "unklar";
   if (!known(fields.level) || placeOf(fields.place) === "unklar") return "bedarf";

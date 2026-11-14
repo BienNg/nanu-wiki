@@ -80,9 +80,10 @@ export type StoredLabel = {
   pinned?: string[];
   /** Vietnam date (YYYY-MM-DD) when loss_reason is spaeter. */
   resume_on?: string | null;
-  /** Set by staff only: the matching courses / the price went out. */
+  /** Set by staff only: the matching courses / the price went out, or the person paid. */
   courses_sent?: boolean;
   price_sent?: boolean;
+  paid?: boolean;
 };
 
 export type LabelDraft = {

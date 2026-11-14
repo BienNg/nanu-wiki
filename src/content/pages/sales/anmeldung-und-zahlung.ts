@@ -99,8 +99,8 @@ const page: PageContent = {
           vi: "Khách cần xuất hoá đơn VAT thì chỉ trong trường hợp này mới xin: họ tên, số căn cước công dân (CCCD), địa chỉ trên CCCD và email. Chỉ cần số – không cần chụp CCCD, không cần ngày sinh. Nhiều người ngại lộ thông tin cá nhân."
         },
         {
-          de: "Im Messenger-Postfach das Label auf „Kurs“ setzen, sobald die Person bezahlt hat.",
-          vi: "Học viên đóng tiền xong thì đổi nhãn trong hộp thư Messenger thành „Kurs“."
+          de: "Im Messenger-Postfach „Bezahlt“ setzen, sobald die Person bezahlt hat. Das Gespräch wird dann Schüler.",
+          vi: "Học viên đóng tiền xong thì bật „Đã đóng tiền“ trong hộp thư Messenger. Cuộc trò chuyện chuyển thành học viên."
         },
         {
           de: "Zahlungen am Wochenende in Slack melden (Name, E-Mail, Telefon, Klasse, Betrag, Beleg). Das Geld wird am nächsten Arbeitstag geprüft – der Person das so sagen, damit sie nicht wartet und nachfragt.",
