@@ -43,16 +43,23 @@ const PAGE = 1000;
 /** Up to this many chats, their labels are fetched by id; above it, reading the label table in pages needs fewer requests. */
 const BY_ID_MAX = 240;
 const NO_INTEREST = "ohne";
+/** The Qualifizieren step: no Interesse yet, and not marked Schüler or Kein Lead (those have no step). */
+const QUALIFY = "qualifizieren";
 
 /**
  * Funnel steps per Interesse. Only Sprachkurs has its steps so far; the others get theirs later.
- * Qualifizieren is not in the list: those chats have no Interesse yet, so the funnel links it to the "ohne" filter.
+ * Qualifizieren is not in the list: those chats have no Interesse yet, so the funnel links it to the QUALIFY filter.
  */
 const FUNNELS: Partial<Record<string, readonly Step[]>> = { [FUNNEL_INTEREST]: STEPS.filter((s) => s !== "qualifizieren") };
 
 function interestKey(label: InboxLabel | undefined) {
   const v = label?.interest;
   return v && v !== "unklar" && v !== "keins" ? v : NO_INTEREST;
+}
+
+/** False for Schüler and Kein Lead: they have no step, so they are not waiting to be qualified. */
+function isOpen(label: InboxLabel | undefined) {
+  return label?.outcome !== "kein_lead" && label?.outcome !== "bestandskunde";
 }
 
 /** "1".."4" for a known step of the interest's funnel, otherwise "unklar". */
@@ -97,11 +104,12 @@ async function allPages<T>(load: (from: number, to: number) => PromiseLike<{ dat
 type Db = Awaited<ReturnType<typeof createClient>>;
 type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Step[]; limit: number };
 /** Counts for the menus and the funnel, plus the ids of the chats to show. `labels` only when they were read anyway. */
-type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
+type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; qualify: number; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
 
 /**
- * One request: the database counts and picks (migration 20261114090000_messenger_inbox_index).
- * Returns null when the function is not there yet or answers with something unexpected.
+ * One request: the database counts and picks (migrations 20261114090000_messenger_inbox_index and
+ * 20261114170000_messenger_inbox_qualify). Returns null when the function is not there yet, is still
+ * the older one (groups without `open`), or answers with something unexpected.
  */
 async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly Step[]): Promise<InboxIndex | null> {
   const stepNo = Number(f.step);
@@ -113,20 +121,23 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
     p_not_stages: f.step === "unklar" ? [...f.steps] : null,
     p_limit: f.limit,
   });
-  const found = data as { groups?: { interest: string; stage: string | null; n: number }[]; total?: number; ids?: string[] } | null;
+  const found = data as { groups?: { interest: string; stage: string | null; open?: boolean; n: number }[]; total?: number; ids?: string[] } | null;
   if (error || !found || !Array.isArray(found.groups) || !Array.isArray(found.ids) || typeof found.total !== "number") return null;
+  if (found.groups.some((g) => typeof g.open !== "boolean")) return null;
 
   const interestCounts = new Map<string, number>();
   const stepCounts = new Map<string, number>();
+  let qualify = 0;
   for (const g of found.groups) {
     interestCounts.set(g.interest, (interestCounts.get(g.interest) ?? 0) + g.n);
+    if (g.interest === NO_INTEREST && g.open) qualify += g.n;
     if (g.interest === FUNNEL_INTEREST) {
       const at = funnelSteps.indexOf(g.stage as Step);
       const step = at >= 0 ? String(at + 1) : "unklar";
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + g.n);
     }
   }
-  return { source: "db", interestCounts, stepCounts, total: found.total, ids: found.ids };
+  return { source: "db", interestCounts, stepCounts, qualify, total: found.total, ids: found.ids };
 }
 
 /** The same result without the database function: read ids and labels, count here. */
@@ -149,9 +160,11 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
 
   const interestCounts = new Map<string, number>();
   const stepCounts = new Map<string, number>();
+  let qualify = 0;
   for (const c of everyChat) {
     const key = interestKey(labels.get(c.id));
     interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
+    if (key === NO_INTEREST && isOpen(labels.get(c.id))) qualify++;
     if (key === FUNNEL_INTEREST) {
       const step = stepKey(labels.get(c.id), funnelSteps);
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
@@ -159,11 +172,11 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
   }
   const matching = everyChat.filter((c) => {
     const label = labels.get(c.id);
-    if (f.interest && interestKey(label) !== f.interest) return false;
+    if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
     if (f.step && stepKey(label, f.steps) !== f.step) return false;
     return true;
   });
-  return { source: "app", interestCounts, stepCounts, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
+  return { source: "app", interestCounts, stepCounts, qualify, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
 }
 
 /** WhatsApp or Messenger logo on the bottom-right of a chat's avatar, as in the Messenger app. */
@@ -248,7 +261,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const sp = await searchParams;
   const channel = sp.ch === "whatsapp" || sp.ch === "messenger" ? sp.ch : "";
   const q = (sp.q ?? "").trim().slice(0, 80);
-  const interestFilter = sp.i === NO_INTEREST || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
+  const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
   const funnel = FUNNELS[interestFilter];
   const stepFilter = funnel && sp.s && (sp.s === "unklar" || (Number(sp.s) >= 1 && Number(sp.s) <= funnel.length)) ? sp.s : "";
   const limit = Math.min(LIST_MAX, Math.max(LIST_STEP, Math.ceil((Number(sp.n) || 0) / LIST_STEP) * LIST_STEP));
@@ -260,7 +273,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const filter: IndexFilter = { channel, like, interest: interestFilter, step: funnel ? stepFilter : "", steps: funnel ?? [], limit };
   // Counted and picked in the database; the app-side way only runs until the migration is applied.
   const index = (await indexFromDb(supabase, filter, funnelSteps)) ?? (await indexFromRows(supabase, filter, funnelSteps));
-  const { interestCounts, stepCounts, total, ids: shownIds } = index;
+  const { interestCounts, stepCounts, qualify, total, ids: shownIds } = index;
 
   // Full rows (newest message, label, facts) only for the chats that are shown.
   const [inboxRows, factRows, labelRows] = await Promise.all([
@@ -341,18 +354,18 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
             </div>
           </div>
 
-          {!interestFilter || interestFilter === FUNNEL_INTEREST || interestFilter === NO_INTEREST ? (
+          {!interestFilter || interestFilter === FUNNEL_INTEREST || interestFilter === QUALIFY ? (
             <nav aria-label={`Schritte ${FUNNEL_INTEREST}`} className="flex items-stretch gap-2">
               <span className="flex w-16 flex-none items-center text-[11px] font-medium leading-tight text-faint max-md:hidden">{FUNNEL_INTEREST}</span>
               <FunnelNav
                 stamp={now}
-                current={interestFilter === FUNNEL_INTEREST ? stepFilter : interestFilter === NO_INTEREST ? "q" : null}
+                current={interestFilter === FUNNEL_INTEREST ? stepFilter : interestFilter === QUALIFY ? "q" : null}
                 steps={[
                   { id: "", de: "Alle", vi: "Tất cả", count: interestCounts.get(FUNNEL_INTEREST) ?? 0 },
-                  { id: "q", de: STEP_INFO.qualifizieren.short_de, vi: STEP_INFO.qualifizieren.short_vi, count: interestCounts.get(NO_INTEREST) ?? 0 },
+                  { id: "q", de: STEP_INFO.qualifizieren.short_de, vi: STEP_INFO.qualifizieren.short_vi, count: qualify },
                   ...funnelSteps.map((stage, i) => ({ id: String(i + 1), de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 })),
                   ...(stepCounts.get("unklar") ? [{ id: "unklar", de: "Unklar", vi: "Chưa rõ", count: stepCounts.get("unklar")! }] : []),
-                ].map((step) => ({ ...step, href: step.id === "q" ? href({ i: NO_INTEREST, s: "", c: "" }) : href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
+                ].map((step) => ({ ...step, href: step.id === "q" ? href({ i: QUALIFY, s: "", c: "" }) : href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
               />
             </nav>
           ) : (
