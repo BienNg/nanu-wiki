@@ -15,9 +15,9 @@ export function MessengerHeader({ name, status, actions }: { name: string; statu
       </span>
       <span className="flex min-w-0 flex-col leading-tight">
         <strong className="truncate text-sm font-semibold text-ink">{name || "Kunde"}</strong>
-        <span className="text-xs text-muted">{status}</span>
+        <span className="truncate text-xs text-muted">{status}</span>
       </span>
-      {actions && <span className="ml-auto flex items-center gap-1.5">{actions}</span>}
+      {actions && <span className="ml-auto flex min-w-0 max-w-[60%] items-center gap-1.5">{actions}</span>}
     </div>
   );
 }

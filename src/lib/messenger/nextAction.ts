@@ -1,6 +1,6 @@
 import { STAGE_INFO, STAGES, type Stage } from "@/lib/assistant/schema";
 import { followupIgnored, formatVnDate } from "./classify";
-import type { LabelDraft, LossReason, MessengerFact, Outcome, StoredLabel } from "./types";
+import { placeOf, type LabelDraft, type LossReason, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
 /** Fields a person can lock. The cron must not overwrite these. */
 export const PIN_FIELDS = ["stage", "interest", "level", "place", "outcome", "loss_reason", "resume_on"] as const;
@@ -48,6 +48,8 @@ export type NextAction = {
 
 export type ConversationView = {
   state: { de: string; vi: string };
+  /** What the inbox row shows next to the action chip; null when the chip already says it all. */
+  note: { de: string; vi: string } | null;
   action: NextAction;
 };
 
@@ -118,6 +120,7 @@ function lostView(label: ActionLabel, now: number): ConversationView {
     if (!when) {
       return {
         state: { de: "Später · Datum fehlt", vi: "Để sau · thiếu ngày" },
+        note: { de: "Später", vi: "Để sau" },
         action: act("spaeter_date", "Datum eintragen", "Ghi ngày hẹn lại", 75),
       };
     }
@@ -125,12 +128,12 @@ function lostView(label: ActionLabel, now: number): ConversationView {
     const pretty = `${day.slice(8, 10)}.${day.slice(5, 7)}.`;
     const state = { de: `Später · ${pretty}`, vi: `Để sau · ${pretty}` };
     if (day <= formatVnDate(new Date(now))) {
-      return { state, action: act("spaeter_due", "Wieder schreiben", "Nhắn lại", 65) };
+      return { state, note: state, action: act("spaeter_due", "Wieder schreiben", "Nhắn lại", 65) };
     }
-    return { state, action: act("spaeter_wait", `Am ${pretty} wieder schreiben`, `Nhắn lại ngày ${pretty}`, 120, false) };
+    return { state, note: { de: "Später", vi: "Để sau" }, action: act("spaeter_wait", `Am ${pretty} wieder schreiben`, `Nhắn lại ngày ${pretty}`, 120, false) };
   }
   const text = LOSS_TEXT[label.loss_reason ?? "unklar"] ?? LOSS_TEXT.unklar;
-  return { state: text, action: CLOSED };
+  return { state: text, note: text, action: CLOSED };
 }
 
 function isEarly(stage: Stage | "unklar" | null) {
@@ -141,8 +144,8 @@ function isEarly(stage: Stage | "unklar" | null) {
 function infoStep(label: ActionLabel | undefined): { id: string; de: string; vi: string; rank: number } {
   if (!known(label?.interest)) return { id: "ask_interest", de: "Interesse fragen", vi: "Hỏi nhu cầu", rank: 40 };
   if (!known(label?.level)) return { id: "ask_level", de: "Niveau fragen", vi: "Hỏi trình độ", rank: 40 };
-  if (!known(label?.place)) return { id: "ask_place", de: "Wohnort fragen", vi: "Hỏi nơi ở", rank: 40 };
-  const detail = [label!.interest, label!.level, label!.place].join(", ");
+  if (placeOf(label?.place) === "unklar") return { id: "ask_place", de: "Wohnort fragen", vi: "Hỏi nơi ở", rank: 40 };
+  const detail = [label!.interest, label!.level, placeOf(label!.place)].join(", ");
   return { id: "courses", de: `Passende Kurse schicken (${detail})`, vi: `Gửi khóa phù hợp (${detail})`, rank: 30 };
 }
 
@@ -189,10 +192,11 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
 
   const closed = !!label && !stale;
   if (closed && label.outcome === "kein_lead") {
-    return { state: { de: "Kein Lead", vi: "Không phải khách" }, action: NOT_A_LEAD };
+    const state = { de: "Kein Lead", vi: "Không phải khách" };
+    return { state, note: state, action: NOT_A_LEAD };
   }
   if (closed && (label.outcome === "weiter_auf_zalo" || (timing.last_page_has_zalo && timing.last_from_page === true))) {
-    return { state: { de: "Weiter auf Zalo", vi: "Chuyển sang Zalo" }, action: ZALO };
+    return { state: { de: "Weiter auf Zalo", vi: "Chuyển sang Zalo" }, note: null, action: ZALO };
   }
   if (closed && label.outcome === "verloren") return lostView(label, now);
 
@@ -202,9 +206,16 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
     vi: `${student ? "Học viên" : label ? stageVi : "Chưa phân loại"} · ${turn.vi}`,
   };
 
-  if (student && !ball) return { state, action: CLOSED };
-  if (ball) return { state, action: replyAction(label, stage) };
-  if (silent) return { state, action: STOP };
-  if (nudge) return { state, action: followupAction(stage) };
-  return { state, action: waitAction(label, stage) };
+  // Whose turn it is already shows in the chip, so the row only adds the step.
+  const note = student
+    ? { de: "Schüler", vi: "Học viên" }
+    : label && stage && stage !== "unklar"
+      ? { de: stageDe, vi: stageVi }
+      : null;
+
+  if (student && !ball) return { state, note, action: CLOSED };
+  if (ball) return { state, note, action: replyAction(label, stage) };
+  if (silent) return { state, note, action: STOP };
+  if (nudge) return { state, note, action: followupAction(stage) };
+  return { state, note, action: waitAction(label, stage) };
 }

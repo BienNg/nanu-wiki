@@ -1,5 +1,3 @@
-import { MessageComposer, type Outgoing } from "@/components/admin/MessageComposer";
-import { enabled } from "@/lib/messenger/providers/meta";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -7,12 +5,13 @@ import { Topbar } from "@/components/Topbar";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { initials } from "@/lib/format";
+import { ActionChip } from "@/components/admin/ActionChip";
 import { AutoRefresh } from "@/components/admin/AutoRefresh";
 import { FilterDetails } from "@/components/admin/FilterDetails";
-import { LabelEditor } from "@/components/admin/LabelEditor";
-import { MessengerThread, type ThreadMessage } from "@/components/admin/MessengerThread";
-import { conversationView, type ActionLabel, type ActionTiming, type ConversationView } from "@/lib/messenger/nextAction";
-import type { LossReason, Outcome } from "@/lib/messenger/types";
+import { ChatLink, FunnelNav, MessengerShell } from "@/components/admin/MessengerShell";
+import { ThreadPane } from "@/components/admin/ThreadPane";
+import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
+import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS, STAGES, STAGE_INFO, type Stage } from "@/lib/assistant/schema";
 
 export const metadata = { title: "Messenger" };
@@ -30,35 +29,16 @@ type InboxRow = {
 };
 type Params = { c?: string; q?: string; ch?: string; i?: string; s?: string };
 type SyncState = { page_id: string; last_run_at: string | null; last_error: string | null };
-type InboxLabel = {
-  conversation_id: string;
-  stage: string;
-  interest: string | null;
-  level: string | null;
-  place: string | null;
-  outcome: Outcome;
-  loss_reason: LossReason | null;
-  labeled_through: string;
-  resume_on: string | null;
-  pinned: string[] | null;
-  updated_at: string | null;
-};
-type FactRow = {
-  id: string;
-  customer_name: string | null;
-  last_from_page: boolean | null;
-  last_page_at: string | null;
-  last_customer_at: string | null;
-  followup_sent: boolean | null;
-  last_page_has_zalo: boolean | null;
-  channel: string | null;
-};
+/** Just enough of a conversation to count it and to put it in order. */
+type ChatKey = { id: string; updated_time: string };
 
-const LABEL_COLUMNS = "conversation_id, stage, interest, level, place, outcome, loss_reason, labeled_through, resume_on, pinned, updated_at";
-const FACT_COLUMNS = "id, customer_name, last_from_page, last_page_at, last_customer_at, followup_sent, last_page_has_zalo, channel";
 const TZ = "Asia/Ho_Chi_Minh";
 const LIST_LIMIT = 200;
 const ALL_LIMIT = 5000;
+/** Rows per request when a whole table is read (the API returns at most 1000 at a time). */
+const PAGE = 1000;
+/** Up to this many chats, their labels are fetched by id; above it, reading the label table in pages needs fewer requests. */
+const BY_ID_MAX = 240;
 const NO_INTEREST = "ohne";
 
 /** Funnel steps per Interesse. Only Sprachkurs has its steps so far; the others get theirs later. */
@@ -84,29 +64,6 @@ function shortTime(value: string) {
   return sameYear ? day(d).slice(0, 6) : day(d);
 }
 
-function toActionLabel(row: InboxLabel): ActionLabel {
-  return {
-    stage: row.stage,
-    interest: row.interest,
-    level: row.level,
-    place: row.place,
-    outcome: row.outcome,
-    loss_reason: row.loss_reason,
-    labeled_through: row.labeled_through,
-    resume_on: row.resume_on,
-  };
-}
-
-function toTiming(row: FactRow | undefined, inbox: InboxRow | undefined): ActionTiming {
-  return {
-    last_from_page: row?.last_from_page ?? inbox?.last_from_page ?? null,
-    last_page_at: row?.last_page_at ?? null,
-    last_customer_at: row?.last_customer_at ?? null,
-    followup_sent: !!row?.followup_sent,
-    last_page_has_zalo: !!row?.last_page_has_zalo,
-  };
-}
-
 async function inChunks<T>(ids: string[], load: (slice: string[]) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) {
   if (!ids.length) return [];
   const slices: string[][] = [];
@@ -120,17 +77,88 @@ async function inChunks<T>(ids: string[], load: (slice: string[]) => PromiseLike
   return rows;
 }
 
-/** The wait badge shows a clock instead of "Warten · dann"; this is what follows it ("Interesse fragen"), or null. */
-function waitRest(de: string, vi: string): { de: string; vi: string } | null {
-  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-  const restDe = de.replace(/^Warten(\s*·\s*(dann\s+)?)?/, "");
-  const restVi = vi.replace(/^Chờ(\s*·\s*(sau đó\s+)?)?/, "");
-  return restDe ? { de: cap(restDe), vi: cap(restVi) } : null;
+/** Reads a whole result in pages of PAGE rows, one after the other, until a page comes back short. */
+async function allPages<T>(load: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) {
+  const rows: T[] = [];
+  for (let from = 0; from < ALL_LIMIT; from += PAGE) {
+    const { data, error } = await load(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    rows.push(...(data ?? []));
+    if ((data?.length ?? 0) < PAGE) break;
+  }
+  return rows;
 }
 
-function formJudgment(outcome: Outcome | undefined) {
-  if (outcome === "kein_lead" || outcome === "bestandskunde" || outcome === "weiter_auf_zalo" || outcome === "verloren") return outcome;
-  return "auto";
+type Db = Awaited<ReturnType<typeof createClient>>;
+type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Stage[] };
+/** Counts for the menus and the funnel, plus the ids of the chats to show. `labels` only when they were read anyway. */
+type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
+
+/**
+ * One request: the database counts and picks (migration 20261114090000_messenger_inbox_index).
+ * Returns null when the function is not there yet or answers with something unexpected.
+ */
+async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly Stage[]): Promise<InboxIndex | null> {
+  const stepNo = Number(f.step);
+  const { data, error } = await supabase.rpc("messenger_inbox_index", {
+    p_channel: f.channel || null,
+    p_name: f.like || null,
+    p_interest: f.interest || null,
+    p_stage: f.step && f.step !== "unklar" ? f.steps[stepNo - 1] : null,
+    p_not_stages: f.step === "unklar" ? [...f.steps] : null,
+    p_limit: LIST_LIMIT,
+  });
+  const found = data as { groups?: { interest: string; stage: string | null; n: number }[]; total?: number; ids?: string[] } | null;
+  if (error || !found || !Array.isArray(found.groups) || !Array.isArray(found.ids) || typeof found.total !== "number") return null;
+
+  const interestCounts = new Map<string, number>();
+  const stepCounts = new Map<string, number>();
+  for (const g of found.groups) {
+    interestCounts.set(g.interest, (interestCounts.get(g.interest) ?? 0) + g.n);
+    if (g.interest === FUNNEL_INTEREST) {
+      const at = funnelSteps.indexOf(g.stage as Stage);
+      const step = at >= 0 ? String(at + 1) : "unklar";
+      stepCounts.set(step, (stepCounts.get(step) ?? 0) + g.n);
+    }
+  }
+  return { source: "db", interestCounts, stepCounts, total: found.total, ids: found.ids };
+}
+
+/** The same result without the database function: read ids and labels, count here. */
+async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly Stage[]): Promise<InboxIndex> {
+  // Every chat that matches Kanal + Name, but only id and time: enough to count and to sort.
+  const everyChat = await allPages<ChatKey>((from, to) => {
+    let keys = supabase.from("messenger_conversations").select("id, updated_time").order("updated_time", { ascending: false }).order("id");
+    if (f.channel) keys = keys.eq("channel", f.channel);
+    if (f.like) keys = keys.ilike("customer_name", f.like);
+    return keys.range(from, to);
+  });
+
+  // Their labels: by id for a short list, otherwise the label table in a few big pages.
+  const labels = new Map<string, InboxLabel>();
+  const labelRows =
+    everyChat.length <= BY_ID_MAX
+      ? await inChunks<InboxLabel>(everyChat.map((c) => c.id), (slice) => supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", slice))
+      : await allPages<InboxLabel>((from, to) => supabase.from("messenger_labels").select(LABEL_COLUMNS).order("conversation_id").range(from, to));
+  for (const row of labelRows) labels.set(row.conversation_id, row);
+
+  const interestCounts = new Map<string, number>();
+  const stepCounts = new Map<string, number>();
+  for (const c of everyChat) {
+    const key = interestKey(labels.get(c.id));
+    interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
+    if (key === FUNNEL_INTEREST) {
+      const step = stepKey(labels.get(c.id), funnelSteps);
+      stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
+    }
+  }
+  const matching = everyChat.filter((c) => {
+    const label = labels.get(c.id);
+    if (f.interest && interestKey(label) !== f.interest) return false;
+    if (f.step && stepKey(label, f.steps) !== f.step) return false;
+    return true;
+  });
+  return { source: "app", interestCounts, stepCounts, total: matching.length, ids: matching.slice(0, LIST_LIMIT).map((c) => c.id), labels };
 }
 
 /** WhatsApp or Messenger logo on the bottom-right of a chat's avatar, as in the Messenger app. */
@@ -164,25 +192,31 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
     <div className="flex items-center">
       <FilterDetails className="group relative">
         <summary
-          className={`flex h-8 cursor-pointer list-none items-center gap-1.5 border px-3 text-[12.5px] font-medium [&::-webkit-details-marker]:hidden ${
+          className={`flex h-8 cursor-pointer list-none items-center gap-1.5 border px-3 text-[12.5px] font-medium transition-colors duration-150 [&::-webkit-details-marker]:hidden ${
             chosen ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line text-body hover:bg-hover"
           }`}
         >
           {chosen ? <Label de={chosen.de} vi={chosen.vi} /> : <Label de={label.de} vi={label.vi} />}
-          <span className="rotate-90 transition-transform group-open:-rotate-90">
+          <span className="rotate-90 transition-transform duration-200 group-open:-rotate-90">
             <Icon name="chevron" size={11} />
           </span>
         </summary>
-        <div className="absolute right-0 z-30 mt-1 w-56 rounded-xl border border-line bg-white p-1 shadow-lg max-md:left-0 max-md:right-auto">
+        <div className="menu-pop absolute right-0 z-30 mt-1.5 w-60 origin-top-right rounded-xl border border-black/[0.06] bg-white/85 p-1 shadow-[0_12px_40px_rgba(0,0,0,0.16),0_2px_6px_rgba(0,0,0,0.06)] backdrop-blur-xl max-md:left-0 max-md:right-auto max-md:origin-top-left">
           {options.map((o) => (
             <Link
               key={o.id}
               href={o.href}
+              data-filter=""
               aria-current={o.id === current ? "page" : undefined}
-              className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-ink hover:bg-hover aria-[current=page]:bg-accent-soft aria-[current=page]:text-accent-dark"
+              className="group/item flex items-center gap-1.5 rounded-[7px] px-1.5 py-[5px] text-[13px] text-ink hover:bg-accent hover:text-white"
             >
-              <Label de={o.de} vi={o.vi} />
-              {o.count !== undefined && <span className="tabular-nums text-[12px] text-faint">{o.count}</span>}
+              <svg aria-hidden="true" width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className={`flex-none ${o.id === current ? "" : "invisible"}`}>
+                <path d="M5 12.5l4.5 4.5L19 7.5" />
+              </svg>
+              <span className="min-w-0 flex-1 truncate">
+                <Label de={o.de} vi={o.vi} />
+              </span>
+              {o.count !== undefined && <span className="tabular-nums text-[12px] text-faint group-hover/item:text-white/80">{o.count}</span>}
             </Link>
           ))}
         </div>
@@ -190,8 +224,9 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
       {chosen && (
         <Link
           href={clearHref}
+          data-filter=""
           aria-label={`${label.de} zurücksetzen`}
-          className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1 pr-2.5 text-[13px] text-accent-dark hover:bg-[#d9e6ff]"
+          className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1 pr-2.5 text-[13px] text-accent-dark transition-colors duration-150 hover:bg-[#d9e6ff]"
         >
           ×
         </Link>
@@ -212,87 +247,36 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const now = Date.now();
 
   const supabase = await createClient();
-  let list = supabase.from("messenger_inbox").select("*").order("updated_time", { ascending: false }).limit(ALL_LIMIT);
-  if (channel) list = list.eq("channel", channel);
-  if (q) list = list.ilike("customer_name", `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
+  const like = q ? `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%` : "";
 
-  const [{ data: inboxRows, error: inboxErr }, { data: stateRows }] = await Promise.all([
-    list,
+  const funnelSteps = FUNNELS[FUNNEL_INTEREST]!;
+  const filter: IndexFilter = { channel, like, interest: interestFilter, step: funnel ? stepFilter : "", steps: funnel ?? [] };
+  const [index, { data: stateRows }] = await Promise.all([
+    // Counted and picked in the database; the app-side way only runs until the migration is applied.
+    indexFromDb(supabase, filter, funnelSteps).then((found) => found ?? indexFromRows(supabase, filter, funnelSteps)),
     supabase.from("messenger_sync_state").select("page_id, last_run_at, last_error"),
   ]);
-  if (inboxErr) throw new Error(inboxErr.message);
+  const { interestCounts, stepCounts, total, ids: shownIds } = index;
 
-  // Counts come from every chat that matches Kanal + Name; the list then narrows to Interesse + Schritt.
-  const everyChat = (inboxRows ?? []) as InboxRow[];
-  const labelById = new Map<string, InboxLabel>();
-  for (const row of await inChunks<InboxLabel>(everyChat.map((c) => c.id), (slice) => supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", slice))) {
-    labelById.set(row.conversation_id, row);
-  }
-  const interestCounts = new Map<string, number>();
-  const stepCounts = new Map<string, number>();
-  const funnelSteps = FUNNELS[FUNNEL_INTEREST]!;
-  for (const c of everyChat) {
-    const key = interestKey(labelById.get(c.id));
-    interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
-    if (key === FUNNEL_INTEREST) {
-      const step = stepKey(labelById.get(c.id), funnelSteps);
-      stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
-    }
-  }
-  const matching = everyChat.filter((c) => {
-    const label = labelById.get(c.id);
-    if (interestFilter && interestKey(label) !== interestFilter) return false;
-    if (funnel && stepFilter && stepKey(label, funnel) !== stepFilter) return false;
-    return true;
-  });
-  const conversations = matching.slice(0, LIST_LIMIT);
+  // Full rows (newest message, label, facts) only for the chats that are shown.
+  const [inboxRows, factRows, labelRows] = await Promise.all([
+    inChunks<InboxRow>(shownIds, (slice) => supabase.from("messenger_inbox").select("*").in("id", slice)),
+    inChunks<FactRow>(shownIds, (slice) => supabase.from("messenger_facts").select(FACT_COLUMNS).in("id", slice)),
+    index.labels ? [] : inChunks<InboxLabel>(shownIds, (slice) => supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", slice)),
+  ]);
+  const labelById = index.labels ?? new Map(labelRows.map((row) => [row.conversation_id, row]));
+  const inboxById = new Map(inboxRows.map((row) => [row.id, row]));
+  const conversations = shownIds.map((id) => inboxById.get(id)).filter((row): row is InboxRow => !!row);
 
-  const factById = new Map<string, FactRow>();
+  const factById = new Map(factRows.map((row) => [row.id, row]));
   const viewById = new Map<string, ConversationView>();
-  for (const row of await inChunks<FactRow>(conversations.map((c) => c.id), (slice) => supabase.from("messenger_facts").select(FACT_COLUMNS).in("id", slice))) {
-    factById.set(row.id, row);
-  }
   for (const row of conversations) {
     const label = labelById.get(row.id);
-    viewById.set(row.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(factById.get(row.id), row), now));
-  }
-
-  const selectedId = sp.c ?? null;
-  let selected: { id: string; customer_name: string | null; message_count: number | null; channel: string | null; account_name: string | null } | null = null;
-  let messages: ThreadMessage[] = [];
-  let attempts: Outgoing[] = [];
-  let lastInbound: string | null = null;
-  if (selectedId) {
-    const [{ data: conv }, { data: msgs }, { data: oneLabel, error: oneLabelErr }, { data: oneFact, error: oneFactErr }] = await Promise.all([
-      supabase.from("messenger_conversations").select("id, customer_name, message_count, channel, account_name").eq("id", selectedId).maybeSingle(),
-      supabase
-        .from("messenger_messages")
-        .select("id, text, from_page, from_name, attachments, created_time")
-        .eq("conversation_id", selectedId)
-        .order("created_time", { ascending: false })
-        .limit(1000),
-      supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", selectedId).maybeSingle(),
-      supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", selectedId).maybeSingle(),
-    ]);
-    if (oneLabelErr) throw new Error(oneLabelErr.message);
-    if (oneFactErr) throw new Error(oneFactErr.message);
-    const [outbox, inbound] = await Promise.all([
-      supabase.from("messenger_outbox").select("*").eq("conversation_id", selectedId).order("created_at", { ascending: false }).limit(20),
-      supabase.from("messenger_messages").select("created_time").eq("conversation_id", selectedId).eq("from_page", false).order("created_time", { ascending: false }).limit(1).maybeSingle(),
-    ]);
-    attempts = (outbox.data ?? []).reverse() as Outgoing[];
-    lastInbound = inbound.data?.created_time ?? null;
-    selected = conv;
-    messages = (msgs ?? []).reverse() as ThreadMessage[];
-    if (oneLabel) labelById.set(selectedId, oneLabel as InboxLabel);
-    if (oneFact) factById.set(selectedId, oneFact as FactRow);
-    const label = labelById.get(selectedId);
-    const inboxRow = conversations.find((row) => row.id === selectedId);
-    viewById.set(selectedId, conversationView(label ? toActionLabel(label) : undefined, toTiming(factById.get(selectedId), inboxRow), now));
+    viewById.set(row.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(factById.get(row.id), row.last_from_page), now));
   }
 
   const href = (patch: Partial<Params>) => {
-    const next = { c: selectedId ?? "", ch: channel, i: interestFilter, s: stepFilter, q, ...patch };
+    const next = { ch: channel, i: interestFilter, s: stepFilter, q, ...patch };
     const qs = new URLSearchParams(Object.entries(next).filter(([, v]) => v) as [string, string][]);
     return `/admin/messenger${qs.size ? `?${qs}` : ""}`;
   };
@@ -305,9 +289,6 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const syncError = pageState?.last_error ?? states.find((s) => s.last_error)?.last_error ?? null;
   const syncAgeMin = pageState?.last_run_at ? Math.round((Date.now() - new Date(pageState.last_run_at).getTime()) / 60_000) : null;
   const syncOk = !syncError && syncAgeMin !== null && syncAgeMin <= 5;
-  const selectedLabel = selectedId ? labelById.get(selectedId) : undefined;
-  const selectedView = selectedId ? viewById.get(selectedId) : undefined;
-
   return (
     <>
       <AutoRefresh seconds={30} />
@@ -321,8 +302,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
         <Icon name="chat" size={14} />
         <Label de="Messenger" vi="Messenger" />
       </Topbar>
-      <div className="flex h-[calc(100dvh-48px)] w-full flex-col border-t border-line max-md:h-[calc(100dvh-96px)]">
-        <header className={`flex flex-none flex-col gap-3 border-b border-line px-4 pb-3 pt-3 ${selected ? "max-md:hidden" : ""}`}>
+      <MessengerShell stamp={now} className="flex h-[calc(100dvh-48px)] w-full flex-col border-t border-line max-md:h-[calc(100dvh-96px)]">
+        <header className="flex flex-none flex-col gap-3 border-b border-line px-4 pb-3 pt-3 max-md:group-data-[chat=open]/shell:hidden">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-baseline gap-3">
               <h1 className="title-display m-0 text-[20px] leading-tight tracking-tight">
@@ -349,7 +330,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                   name="q"
                   defaultValue={q}
                   placeholder="Name suchen · Tìm tên"
-                  className="h-8 w-60 rounded-full bg-[#F0F2F5] px-3.5 text-[13px] text-ink outline-none focus:ring-2 focus:ring-accent-soft max-md:w-full"
+                  className="h-8 w-60 rounded-full bg-[#F0F2F5] px-3.5 text-[13px] text-ink outline-none transition-shadow duration-150 focus:ring-2 focus:ring-accent-soft max-md:w-full"
                 />
               </form>
               <FilterMenu
@@ -376,36 +357,15 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
           {!interestFilter || interestFilter === FUNNEL_INTEREST ? (
             <nav aria-label={`Schritte ${FUNNEL_INTEREST}`} className="flex items-stretch gap-2">
               <span className="flex w-16 flex-none items-center text-[11px] font-medium leading-tight text-faint max-md:hidden">{FUNNEL_INTEREST}</span>
-              <div className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto">
-                {[
+              <FunnelNav
+                stamp={now}
+                current={interestFilter === FUNNEL_INTEREST ? stepFilter : null}
+                steps={[
                   { id: "", de: "Alle", vi: "Tất cả", count: interestCounts.get(FUNNEL_INTEREST) ?? 0 },
                   ...funnelSteps.map((stage, i) => ({ id: String(i + 1), de: STAGE_INFO[stage].short_de, vi: STAGE_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 })),
                   ...(stepCounts.get("unklar") ? [{ id: "unklar", de: "Unklar", vi: "Chưa rõ", count: stepCounts.get("unklar")! }] : []),
-                ].map((step, i) => {
-                  const active = interestFilter === FUNNEL_INTEREST && stepFilter === step.id;
-                  return (
-                    <Link
-                      key={step.id || "all"}
-                      href={href({ i: FUNNEL_INTEREST, s: step.id, c: "" })}
-                      aria-current={active ? "page" : undefined}
-                      style={{
-                        clipPath:
-                          i === 0
-                            ? "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)"
-                            : "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%)",
-                      }}
-                      className={`flex min-w-[92px] flex-1 flex-col py-1.5 leading-tight ${i === 0 ? "rounded-l-lg pl-3" : "pl-5"} pr-4 ${
-                        active ? "bg-accent-soft text-accent-dark" : "bg-[#F0F2F5] text-muted hover:bg-[#E4E6EB]"
-                      }`}
-                    >
-                      <span className={`text-[17px] font-semibold tabular-nums ${active ? "text-accent-dark" : "text-ink"}`}>{step.count}</span>
-                      <span className="truncate text-[11.5px]">
-                        <Label de={step.de} vi={step.vi} />
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
+                ].map((step) => ({ ...step, href: href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
+              />
             </nav>
           ) : (
             <p className="m-0 text-[12px] text-faint">
@@ -419,8 +379,13 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
         </header>
 
       <main className="flex min-h-0 w-full flex-1">
-        <section aria-label="Gespräche" className={`flex w-[340px] flex-none flex-col border-r border-line max-md:w-full ${selected ? "max-md:hidden" : ""}`}>
-          <ul className="m-0 min-h-0 flex-1 list-none overflow-y-auto p-1.5">
+        <section aria-label="Gespräche" data-index={index.source} className="flex w-[340px] flex-none flex-col border-r border-line max-md:w-full max-md:group-data-[chat=open]/shell:hidden">
+          {/* While a filter loads, the old list stays and dims under a thin progress line; the new one fades in. */}
+          <div aria-hidden="true" className="load-bar invisible h-0.5 flex-none group-data-[busy=true]/shell:visible" />
+          <ul
+            key={`${channel}|${interestFilter}|${stepFilter}|${q}`}
+            className="anim-fade m-0 min-h-0 flex-1 list-none overflow-y-auto p-1.5 transition-opacity duration-200 group-data-[busy=true]/shell:pointer-events-none group-data-[busy=true]/shell:opacity-40"
+          >
             {conversations.length === 0 && (
               <li className="px-3 py-8 text-center text-[13px] text-muted">
                 <Label de="Keine Gespräche gefunden." vi="Không tìm thấy cuộc trò chuyện." />
@@ -434,10 +399,10 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               const interest = rawInterest && rawInterest !== "unklar" && rawInterest !== "keins" ? rawInterest : null;
               return (
                 <li key={c.id}>
-                  <Link
+                  <ChatLink
+                    id={c.id}
                     href={href({ c: c.id })}
-                    aria-current={c.id === selectedId ? "page" : undefined}
-                    className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-hover aria-[current=page]:bg-accent-soft"
+                    className="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors duration-150 hover:bg-hover aria-[current=page]:bg-accent-soft"
                   >
                     <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
                       {initials(c.customer_name)}
@@ -461,40 +426,21 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                         {preview}
                       </span>
                       {view && (
-                        <>
-                          <span className="mt-1 truncate text-[11px] text-faint">
-                            <Label de={view.state.de} vi={view.state.vi} />
-                          </span>
-                          <span
-                            className={`mt-1 flex max-w-full items-center gap-1 self-start rounded-full px-2 py-0.5 text-[11.5px] font-medium ${
-                              view.action.today ? "bg-accent-soft text-accent-dark" : "bg-chip text-muted"
-                            }`}
-                          >
-                            {view.action.id === "wait" ? (
-                              <>
-                                <span className="flex-none" title="Warten">
-                                  <Icon name="clock" size={12} />
-                                </span>
-                                {waitRest(view.action.de, view.action.vi) && (
-                                  <span className="truncate">
-                                    <Label {...waitRest(view.action.de, view.action.vi)!} />
-                                  </span>
-                                )}
-                              </>
-                            ) : (
-                              <span className="truncate">
-                                <Label de={view.action.de} vi={view.action.vi} />
-                              </span>
-                            )}
-                          </span>
-                        </>
+                        <span className="mt-1 flex min-w-0 items-center gap-1.5" title={view.state.de}>
+                          <ActionChip action={view.action} />
+                          {view.note && (
+                            <span className="flex-none text-[11px] text-faint">
+                              <Label de={view.note.de} vi={view.note.vi} />
+                            </span>
+                          )}
+                        </span>
                       )}
                     </span>
-                  </Link>
+                  </ChatLink>
                 </li>
               );
             })}
-            {matching.length > LIST_LIMIT && (
+            {total > LIST_LIMIT && (
               <li className="px-3 py-3 text-center text-[12px] text-faint">
                 <Label de={`Die neuesten ${LIST_LIMIT} – zum Finden älterer Gespräche den Namen suchen.`} vi={`${LIST_LIMIT} cuộc mới nhất – tìm theo tên để thấy cuộc cũ hơn.`} />
               </li>
@@ -502,61 +448,11 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
           </ul>
         </section>
 
-        <section aria-label="Gespräch" className={`flex min-w-0 flex-1 flex-col ${selected ? "" : "max-md:hidden"}`}>
-          {selected ? (
-            <MessengerThread
-              conversationId={selected.id}
-              key={selected.id}
-              name={selected.customer_name ?? "Unbekannt"}
-              backHref={href({ c: "" })}
-              messages={messages}
-              totalCount={selected.message_count}
-              status={<span>{selected.channel} · {selected.account_name || "NaNu NaNa"}</span>}
-              composer={<MessageComposer key="composer" conversation={selected.id} channel={selected.channel || "messenger"} enabled={enabled(selected.channel || "messenger")} lastInbound={lastInbound} attempts={attempts} />}
-              banner={
-                <>
-                  {selectedView && (
-                    <div className="border-b border-line px-4 py-2">
-                      <p className="m-0 text-[12px] text-faint">
-                        <Label de={selectedView.state.de} vi={selectedView.state.vi} />
-                      </p>
-                      <p className="m-0 text-[14px] font-medium text-ink">
-                        <Label de={selectedView.action.de} vi={selectedView.action.vi} />
-                      </p>
-                    </div>
-                  )}
-                  <LabelEditor
-                    conversationId={selected.id}
-                    formKey={`${selected.id}:${selectedLabel?.updated_at ?? "new"}`}
-                    stage={selectedLabel?.stage ?? "unklar"}
-                    interest={selectedLabel?.interest ?? ""}
-                    level={selectedLabel?.level && selectedLabel.level !== "unklar" ? selectedLabel.level : "unklar"}
-                    place={selectedLabel?.place && selectedLabel.place !== "unklar" ? selectedLabel.place : ""}
-                    judgment={formJudgment(selectedLabel?.outcome)}
-                    loss={selectedLabel?.loss_reason ?? "unklar"}
-                    resume={selectedLabel?.resume_on?.slice(0, 10) ?? ""}
-                    pinned={selectedLabel?.pinned ?? []}
-                  />
-                </>
-              }
-            />
-          ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center text-muted">
-              <Icon name="chat" size={28} />
-              <p className="m-0 text-[14px]">
-                <Label de="Wähle links ein Gespräch." vi="Chọn một cuộc trò chuyện bên trái." />
-              </p>
-              <p className="m-0 max-w-[420px] text-[12.5px] text-faint">
-                <Label
-                  de="Facebook und WhatsApp lesen und beantworten."
-                  vi="Đọc và trả lời Facebook, WhatsApp."
-                />
-              </p>
-            </div>
-          )}
+        <section aria-label="Gespräch" className="flex min-w-0 flex-1 flex-col max-md:group-data-[chat=none]/shell:hidden">
+          <ThreadPane stamp={now} />
         </section>
       </main>
-      </div>
+      </MessengerShell>
     </>
   );
 }

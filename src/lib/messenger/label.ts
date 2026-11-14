@@ -15,7 +15,7 @@ import {
   textRule,
 } from "./classify";
 import { mergePinned } from "./nextAction";
-import { LEVELS, LOSS_REASONS, OUTCOMES, type ChatLineRow, type LabelDraft, type MessengerFact, type Outcome, type StoredLabel } from "./types";
+import { LEVELS, LOSS_REASONS, OUTCOMES, PLACES, type ChatLineRow, type LabelDraft, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
 const MODEL = "claude-haiku-5-5";
 const MAX_MODEL = 8;
@@ -30,7 +30,7 @@ const LabelSchema = z.object({
   stage: z.enum([...STAGES, "unklar"]),
   interest: z.enum([...INTERESTS, "keins"]),
   level: z.enum(LEVELS),
-  place: z.string(),
+  place: z.enum(PLACES),
   outcome: z.enum(OUTCOMES),
   loss_reason: z.enum(LOSS_REASONS).nullable(),
   evidence: z.string(),
@@ -87,6 +87,7 @@ outcome:
 
 loss_reason is null unless outcome is verloren. Use keine_antwort only when a follow-up was already sent. Do not invent a price objection they did not say.
 interest is keins when nothing fits. level and place are unklar when unknown.
+place is where they would learn: Saigon or Hanoi when they live there (or want a class on site there), Online VN when they live elsewhere in Vietnam or want online from Vietnam, Online DE when they live in Germany.
 evidence: one short German sentence quoting a few of their words.`;
 }
 
@@ -258,7 +259,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
             stage: parsed.stage,
             interest: parsed.interest === "keins" ? null : parsed.interest,
             level: parsed.level,
-            place: parsed.place.slice(0, 80),
+            place: parsed.place,
             outcome: parsed.outcome,
             loss_reason: parsed.loss_reason,
             evidence: parsed.evidence,

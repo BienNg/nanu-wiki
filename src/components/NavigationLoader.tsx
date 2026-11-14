@@ -8,6 +8,7 @@ import PageLoading from "@/app/(app)/bereich/[slug]/[page]/loading";
 import SearchLoading from "@/app/(app)/suche/loading";
 import QuizLoading from "@/app/(app)/quiz/[id]/loading";
 import UsersLoading from "@/app/(app)/admin/benutzer/loading";
+import MessengerLoading from "@/app/(app)/admin/messenger/loading";
 
 /** The route's own loading.tsx, so the instant skeleton and Next's one are identical. */
 function loaderFor(pathname: string): React.ComponentType | null {
@@ -17,6 +18,7 @@ function loaderFor(pathname: string): React.ComponentType | null {
   if (pathname === "/suche") return SearchLoading;
   if (/^\/quiz\/[^/]+$/.test(pathname)) return QuizLoading;
   if (pathname === "/admin/benutzer") return UsersLoading;
+  if (pathname === "/admin/messenger") return MessengerLoading;
   return null;
 }
 
@@ -73,6 +75,7 @@ export function NavigationLoader({ children }: { children: React.ReactNode }) {
       if (!(a instanceof HTMLAnchorElement)) return;
       if ((a.target && a.target !== "_self") || a.hasAttribute("download")) return;
       if (a.hasAttribute("data-pane")) return; // side pane: the list stays on screen (see PaneLink)
+      if (a.hasAttribute("data-filter")) return; // a filter of the page you are on: the page shows its own progress
       start(a.href);
     }
     function onSubmit(e: SubmitEvent) {

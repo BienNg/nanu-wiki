@@ -24,6 +24,22 @@ export type LossReason = (typeof LOSS_REASONS)[number];
 
 export const LEVELS = ["A0", "A1", "A2", "B1", "B2", "C1", "unklar"] as const;
 
+/** Where the lead would learn: in class in Saigon or Hanoi, or online from Vietnam or from Germany. */
+export const PLACES = ["Saigon", "Hanoi", "Online VN", "Online DE", "unklar"] as const;
+export type MessengerPlace = (typeof PLACES)[number];
+
+/** One of PLACES. Also reads the free text stored before Ort became a fixed list ("Hà Nội", "TP.HCM", "Đức"). */
+export function placeOf(value: string | null | undefined): MessengerPlace {
+  const v = (value ?? "").trim();
+  const exact = PLACES.find((p) => p.toLowerCase() === v.toLowerCase());
+  if (exact) return exact;
+  const plain = v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase();
+  if (/ha\s*noi/.test(plain)) return "Hanoi";
+  if (/sai\s*gon|hcm|ho chi minh/.test(plain)) return "Saigon";
+  if (/\b(duc|deutschland|germany)\b/.test(plain)) return "Online DE";
+  return "unklar";
+}
+
 export type MessengerFact = {
   id: string;
   customer_name: string | null;

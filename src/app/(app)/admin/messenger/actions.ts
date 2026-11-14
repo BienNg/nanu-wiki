@@ -5,7 +5,7 @@ import { INTERESTS } from "@/lib/assistant/schema";
 import { requireRole } from "@/lib/auth";
 import { isLossReason, isStage } from "@/lib/messenger/classify";
 import { PIN_FIELDS, type PinField } from "@/lib/messenger/nextAction";
-import { LEVELS, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
+import { LEVELS, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
 import { createClient } from "@/lib/supabase/server";
 
 const JUDGMENTS = ["auto", "kein_lead", "bestandskunde", "weiter_auf_zalo", "verloren"] as const;
@@ -17,12 +17,6 @@ function field(formData: FormData, key: string) {
 
 function normLevel(value: string | null | undefined) {
   return value && (LEVELS as readonly string[]).includes(value) ? value : "unklar";
-}
-
-function normPlace(value: string | null | undefined) {
-  const v = (value ?? "").trim();
-  if (!v || v === "unklar") return "unklar";
-  return v.slice(0, 80);
 }
 
 function normInterest(value: string | null | undefined) {
@@ -44,7 +38,7 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
   if (!isStage(stage)) return { error: "Stufe ungültig." };
   const interest = normInterest(field(formData, "interest"));
   const level = normLevel(field(formData, "level"));
-  const place = normPlace(field(formData, "place"));
+  const place = placeOf(field(formData, "place"));
   const judgmentRaw = field(formData, "judgment") || "auto";
   if (!(JUDGMENTS as readonly string[]).includes(judgmentRaw)) return { error: "Status ungültig." };
   const judgment = judgmentRaw as Judgment;
@@ -84,7 +78,7 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
   if (stage !== (row?.stage ?? "unklar")) pins.add("stage");
   if (interest !== normInterest(row?.interest)) pins.add("interest");
   if (level !== normLevel(row?.level)) pins.add("level");
-  if (place !== normPlace(row?.place)) pins.add("place");
+  if (place !== placeOf(row?.place)) pins.add("place");
 
   const ball: Outcome = fact?.last_from_page ? "wartet_auf_kunde" : "wartet_auf_uns";
   let outcome: Outcome = row?.outcome ?? ball;
@@ -121,7 +115,7 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
     stage === row.stage &&
     interest === normInterest(row.interest) &&
     level === normLevel(row.level) &&
-    place === normPlace(row.place) &&
+    place === placeOf(row.place) &&
     judgment === prevJudgment &&
     loss === (row.loss_reason ?? null) &&
     resume === (row.resume_on ?? null);
