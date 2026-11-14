@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-
 /** `chip` is what the closed chip shows when it should differ from the menu line. */
 export type MenuSelectOption = { value: string; label: ReactNode; chip?: ReactNode };
 
@@ -36,6 +35,7 @@ export function MenuSelect({
   pinned,
   form,
   compact,
+  saving,
 }: {
   name: string;
   label: ReactNode;
@@ -52,6 +52,8 @@ export function MenuSelect({
   form?: string;
   /** Smaller chip for a header line. */
   compact?: boolean;
+  /** This field's change is not stored yet. The chip stays usable. */
+  saving?: boolean;
 }) {
   const [value, setValue] = useState(defaultValue);
   const [open, setOpen] = useState(false);
@@ -124,7 +126,7 @@ export function MenuSelect({
           missing
             ? "border border-dashed border-accent/45 bg-white pl-2 pr-3 font-medium text-accent hover:border-solid hover:border-accent hover:bg-accent-soft/60"
             : `border border-transparent bg-chip text-ink hover:bg-active ${compact ? "pl-2 pr-1.5" : "pl-3 pr-2"}`
-        } ${open ? "ring-2 ring-accent-soft" : ""}`}
+        } ${open || saving ? "ring-2 ring-accent-soft" : ""} ${saving ? "field-saving" : ""}`}
       >
         {missing ? (
           <>

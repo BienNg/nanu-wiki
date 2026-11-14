@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { saveMessengerLabel } from "@/app/(app)/admin/messenger/actions";
-import { publishLabelSave, setLabelEditing } from "@/components/admin/labelPatch";
+import { publishLabelSave, setLabelEditing, setLabelSaving } from "@/components/admin/labelPatch";
 import type { ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MenuSelect } from "@/components/admin/MenuSelect";
@@ -71,9 +71,13 @@ function Name({ de, vi, pinned }: { de: string; vi: string; pinned: boolean }) {
 }
 
 /** Same chip as the compact <MenuSelect>, for the typed field (Datum). */
-function Field({ de, vi, pinned, children }: { de: string; vi: string; pinned: boolean; children: ReactNode }) {
+function Field({ de, vi, pinned, saving, children }: { de: string; vi: string; pinned: boolean; saving?: boolean; children: ReactNode }) {
   return (
-    <label className="flex h-6 min-w-0 items-center gap-1.5 rounded-full bg-chip pl-2 pr-1.5 text-[11.5px] text-muted transition-shadow duration-150 focus-within:ring-2 focus-within:ring-accent-soft">
+    <label
+      className={`flex h-6 min-w-0 items-center gap-1.5 rounded-full bg-chip pl-2 pr-1.5 text-[11.5px] text-muted transition-shadow duration-150 focus-within:ring-2 focus-within:ring-accent-soft ${
+        saving ? "field-saving ring-2 ring-accent-soft" : ""
+      }`}
+    >
       <span className="flex-none">
         <Name de={de} vi={vi} pinned={pinned} />
       </span>
@@ -100,7 +104,8 @@ const SAVE_PAUSE_MS = 1200;
 function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, resume, pinned, statusSlot, stageSlot, coursesSent, priceSent, paid, autoText }: LabelFormValues) {
   const [status, setStatus] = useState(judgment);
   const [reason, setReason] = useState(loss);
-  const [saving, setSaving] = useState(false);
+  /** Fields changed since the last finished save. Their chips show that they are still saving. */
+  const [dirty, setDirty] = useState<ReadonlySet<string>>(() => new Set());
   const [error, setError] = useState("");
   const form = useRef<HTMLFormElement>(null);
   const [base, setBase] = useState<Record<string, string>>({
@@ -156,6 +161,11 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
 
   const differs = (data: FormData) => Object.entries(baseRef.current).some(([name, value]) => String(data.get(name) ?? "") !== value);
 
+  const finish = () => {
+    setLabelSaving(conversationId, false);
+    if (mounted.current) setDirty(new Set());
+  };
+
   const flush = async () => {
     if (!form.current) return;
     if (flight.current) {
@@ -164,34 +174,39 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     }
     const data = readForm();
     if (!differs(data)) {
-      if (!wait.current && !pending.current) setLabelEditing(conversationId, false);
+      if (!wait.current && !pending.current) {
+        setLabelEditing(conversationId, false);
+        finish();
+      }
       return;
     }
     const mine = ++epoch.current;
     flight.current = true;
     setLabelEditing(conversationId, true);
-    if (mounted.current) setSaving(true);
     const result = await saveMessengerLabel(null, data);
     flight.current = false;
     const stale = mine !== epoch.current;
     const more = !!wait.current || pending.current || !!afterFlight.current;
     if (mounted.current && !stale && !more) {
-      setSaving(false);
       if (result.error) setError(result.error);
       else {
         setError("");
         if (sent.current) setBase(sent.current);
       }
-    } else if (mounted.current && !flight.current) setSaving(false);
+    }
     // The version is always noted. The fields are replaced only when nothing newer is waiting.
     if (result.saved) publishLabelSave(result.saved, !stale && !more);
-    if (!stale && !more && !wait.current && !pending.current) setLabelEditing(conversationId, false);
+    if (!stale && !more && !wait.current && !pending.current) {
+      setLabelEditing(conversationId, false);
+      finish();
+    }
     if (afterFlight.current) {
       const latest = afterFlight.current;
       afterFlight.current = null;
       void saveMessengerLabel(null, latest).then((again) => {
         if (again.saved) publishLabelSave(again.saved, true);
         setLabelEditing(conversationId, false);
+        setLabelSaving(conversationId, false);
       });
       return;
     }
@@ -202,7 +217,9 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
   };
 
   // A new field resets the wait, so Interesse + Niveau + Ort become one write.
-  const save = () => {
+  const save = (field: string) => {
+    setDirty((d) => (d.has(field) ? d : new Set(d).add(field)));
+    setLabelSaving(conversationId, true);
     // This edit is newer than a write already on the way, so that write must not be shown.
     if (flight.current) epoch.current += 1;
     setLabelEditing(conversationId, true);
@@ -218,14 +235,21 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     return () => {
       mounted.current = false;
       setLabelEditing(conversationId, false);
-      if (!wait.current || !form.current) return;
+      if (!wait.current || !form.current) {
+        if (!flight.current) setLabelSaving(conversationId, false);
+        return;
+      }
       window.clearTimeout(wait.current);
       wait.current = undefined;
       const data = readForm();
-      if (!differs(data)) return;
+      if (!differs(data)) {
+        if (!flight.current) setLabelSaving(conversationId, false);
+        return;
+      }
       const send = () => {
         void saveMessengerLabel(null, data).then((result) => {
           if (result.saved) publishLabelSave(result.saved);
+          setLabelSaving(conversationId, false);
         });
       };
       if (flight.current) afterFlight.current = data;
@@ -255,48 +279,57 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
       ))}
       <MenuSelect
         name="interest"
+        saving={dirty.has("interest")}
         ariaLabel="Interesse / Nhu cầu"
         label={<Label de="Interesse" vi="Nhu cầu" />}
         emptyValue=""
         pinned={locked("interest")}
         defaultValue={interest}
-        onChange={save}
+        onChange={() => save("interest")}
         options={[{ value: "", label: "—" }, ...INTERESTS.map((id) => ({ value: id as string, label: id }))]}
       />
       <MenuSelect
         name="level"
+        saving={dirty.has("level")}
         ariaLabel="Niveau / Trình độ"
         label={<Label de="Niveau" vi="Trình độ" />}
         emptyValue="unklar"
         pinned={locked("level")}
         defaultValue={levelOf(level)}
-        onChange={save}
+        onChange={() => save("level")}
         options={LEVELS.map((id) => ({ value: id as string, label: id === "unklar" ? "—" : id }))}
       />
       <MenuSelect
         name="place"
+        saving={dirty.has("place")}
         ariaLabel="Ort / Nơi học"
         label={<Label de="Ort" vi="Nơi học" />}
         emptyValue="unklar"
         pinned={locked("place")}
         defaultValue={placeOf(place)}
-        onChange={save}
+        onChange={() => save("place")}
         options={PLACES.map((id) => ({ value: id as string, label: id === "unklar" ? "—" : id }))}
       />
       {SENT.map((item) => (
         <MenuSelect
           key={item.name}
           name={item.name}
+          saving={dirty.has(item.name)}
           ariaLabel={`${item.de} / ${item.vi}`}
           label={<Label de={item.de} vi={item.vi} />}
           emptyValue="nein"
           defaultValue={(item.name === "courses_sent" ? coursesSent : item.name === "price_sent" ? priceSent : paid) ? "ja" : "nein"}
           onChange={(v) => {
             if (item.name === "paid") {
-              if (v === "ja") setStatus("bestandskunde");
-              else if (status === "bestandskunde" && judgment !== "bestandskunde") setStatus("auto");
+              if (v === "ja") {
+                setStatus("bestandskunde");
+                save("judgment");
+              } else if (status === "bestandskunde" && judgment !== "bestandskunde") {
+                setStatus("auto");
+                save("judgment");
+              }
             }
-            save();
+            save(item.name);
           }}
           options={[
             { value: "ja", label: both(item.de, item.vi), chip: <Label de={`✓ ${item.de}`} vi={`✓ ${item.vi}`} /> },
@@ -304,11 +337,9 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           ]}
         />
       ))}
-      {saving && (
-        <span className="anim-fade text-[11px] text-faint">
-          <Label de="Speichert…" vi="Đang lưu…" />
-        </span>
-      )}
+      <span role="status" className="sr-only">
+        {dirty.size > 0 ? <Label de="Speichert…" vi="Đang lưu…" /> : null}
+      </span>
       {error ? <p className="m-0 w-full text-[12px] text-bad">{error}</p> : null}
       {/* Steps exist for Sprachkurs only; before the Interesse is known the step is Qualifizieren. */}
       {stageEl &&
@@ -316,6 +347,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         createPortal(
         <MenuSelect
           name="stage"
+          saving={dirty.has("stage")}
           ariaLabel="Stufe / Bước"
           label={<Label de="Stufe" vi="Bước" />}
           emptyValue="unklar"
@@ -323,7 +355,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           form={formId}
           pinned={locked("stage")}
           defaultValue={isStep(stage) ? stage : "unklar"}
-          onChange={save}
+          onChange={() => save("stage")}
           options={[
             ...(locked("stage") ? [{ value: "auto", label: both("Automatisch", "Tự động") }] : []),
             ...STEPS.map((id) => ({ value: id as string, label: both(STEP_INFO[id].short_de, STEP_INFO[id].short_vi) })),
@@ -338,6 +370,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
             <MenuSelect
               key={status}
               name="judgment"
+              saving={dirty.has("judgment")}
               ariaLabel="Status / Trạng thái"
               label={<Label de="Status" vi="Trạng thái" />}
               compact
@@ -346,13 +379,14 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
               defaultValue={status}
               onChange={(v) => {
                 setStatus(v);
-                save();
+                save("judgment");
               }}
               options={JUDGMENTS.map((item) => ({ value: item.id as string, label: both(item.de, item.vi), chip: item.id === "auto" ? <Label de={autoText.de} vi={autoText.vi} /> : undefined }))}
             />
             {status === "verloren" && (
               <MenuSelect
                 name="loss_reason"
+                saving={dirty.has("loss_reason")}
                 ariaLabel="Grund / Lý do"
                 label={<Label de="Grund" vi="Lý do" />}
                 emptyValue="unklar"
@@ -362,14 +396,14 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
                 defaultValue={reason}
                 onChange={(v) => {
                   setReason(v);
-                  save();
+                  save("loss_reason");
                 }}
                 options={LOSS_REASONS.map((id) => ({ value: id as string, label: both(LOSS_TEXT[id].de, LOSS_TEXT[id].vi) }))}
               />
             )}
             {status === "verloren" && reason === "spaeter" && (
-              <Field de="Datum" vi="Ngày" pinned={locked("resume_on")}>
-                <input name="resume_on" type="date" form={formId} defaultValue={resume} onChange={save} className={typed} />
+              <Field de="Datum" vi="Ngày" pinned={locked("resume_on")} saving={dirty.has("resume_on")}>
+                <input name="resume_on" type="date" form={formId} defaultValue={resume} onChange={() => save("resume_on")} className={typed} />
               </Field>
             )}
           </>,

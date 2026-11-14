@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { ActionChip } from "@/components/admin/ActionChip";
 import { useThreadVersion } from "@/components/admin/InboxLive";
-import { isLabelEditing, labelSaveFor, latestLabelWrite, onLabelSave, threadSeen } from "@/components/admin/labelPatch";
+import { isLabelEditing, labelSaveFor, latestLabelWrite, onLabelSave, threadSeen, useLabelSaving } from "@/components/admin/labelPatch";
 import { LabelEditor } from "@/components/admin/LabelEditor";
 import { MessageComposer } from "@/components/admin/MessageComposer";
 import { ThreadSkeleton } from "@/components/admin/MessengerSkeleton";
@@ -34,6 +34,12 @@ function goalAction(action: NextAction, step: Step | null): NextAction {
   if (!step || !STEP_TASKS.has(action.id)) return action;
   const { aim_de, aim_vi } = STEP_INFO[step];
   return action.id === "wait" ? { ...action, de: `Warten · dann ${aim_de}`, vi: `Chờ · sau đó ${aim_vi}` } : { ...action, de: aim_de, vi: aim_vi };
+}
+
+/** The goal follows the label, so it pulses while a label change is saving. */
+function GoalChip({ id, children }: { id: string; children: ReactNode }) {
+  const saving = useLabelSaving(id);
+  return <span className={`flex items-center gap-1.5 ${saving ? "label-saving" : ""}`}>{children}</span>;
 }
 
 function goalTitle(data: Loaded) {
@@ -220,7 +226,9 @@ export function ThreadPane() {
           // Stufe on top, its goal below. The Stufe menu itself comes from the label form (LabelEditor).
           <span className="flex min-w-0 flex-col items-end gap-1">
             <span id={`stage-${shown.id}`} className="flex min-w-0 max-w-full" />
-            <ActionChip action={goalAction(shown.view.action, shown.step)} title={goalTitle(shown)} />
+            <GoalChip id={shown.id}>
+              <ActionChip action={goalAction(shown.view.action, shown.step)} title={goalTitle(shown)} />
+            </GoalChip>
           </span>
         }
         composer={<MessageComposer key="composer" conversation={shown.id} channel={channel} enabled={shown.sendEnabled} lastInbound={shown.lastInbound} attempts={shown.attempts} />}

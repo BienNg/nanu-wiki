@@ -37,6 +37,40 @@ export function isLabelEditing(id: string) {
   return editing.has(id);
 }
 
+/** Chats with a label change not yet stored: from the first change, through the pause, until the server answers. */
+let savingIds: ReadonlySet<string> = new Set();
+const savingListeners = new Set<() => void>();
+
+export function setLabelSaving(id: string, on: boolean) {
+  if (savingIds.has(id) === on) return;
+  const next = new Set(savingIds);
+  if (on) next.add(id);
+  else next.delete(id);
+  savingIds = next;
+  savingListeners.forEach((fn) => fn());
+}
+
+export function useLabelSaving(id: string) {
+  return useSyncExternalStore(
+    (fn) => {
+      savingListeners.add(fn);
+      return () => savingListeners.delete(fn);
+    },
+    () => savingIds.has(id),
+    () => false,
+  );
+}
+
+/** Small ring that turns while a label is saving. */
+export function SavingSpinner({ size = 12 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" className="flex-none animate-spin text-accent">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.2" strokeWidth="3" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function threadSeen(id: string) {
   return latestWrite.get(id)?.thread;
 }

@@ -266,7 +266,24 @@ html.lang-vi .vs::before { content: none; }
 .row-leave { display: grid; pointer-events: none; animation: row-collapse 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0.24s both; }
 .row-leave > div { min-height: 0; overflow: hidden; }
 .row-leave > div > a { animation: row-swipe 0.26s cubic-bezier(0.4, 0, 1, 1) both; }
+/* A label change not stored yet: a light sweep runs over the changed chip; what follows from the label pulses. */
+.field-saving {
+  background-image: linear-gradient(100deg, transparent 30%, rgba(44, 110, 203, 0.16) 50%, transparent 70%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: field-saving 1.1s linear infinite;
+}
+@keyframes field-saving {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+.label-saving { animation: label-saving 1.2s ease-in-out infinite; }
+@keyframes label-saving {
+  50% { opacity: 0.45; }
+}
 @media (prefers-reduced-motion: reduce) {
+  .field-saving, .label-saving { animation: none; }
+  .label-saving { opacity: 0.6; }
   .row-leave, .row-leave > div > a { animation-duration: 1ms; animation-delay: 0s; }
   .anim-pop, .anim-rise, .menu-pop, .anim-fade { animation: none; }
   .load-bar { animation: none; background-size: 100% 100%; opacity: 0.35; }

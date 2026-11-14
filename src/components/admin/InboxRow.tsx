@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ActionChip } from "@/components/admin/ActionChip";
 import { ChatLink } from "@/components/admin/MessengerShell";
-import { useLabelSave } from "@/components/admin/labelPatch";
+import { SavingSpinner, useLabelSave, useLabelSaving } from "@/components/admin/labelPatch";
 import { initials } from "@/lib/format";
 import { matchesInboxFilter, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { ConversationView } from "@/lib/messenger/nextAction";
@@ -53,6 +53,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const interestFilter = sp.get("i") ?? "";
   const stepFilter = interestFilter === FUNNEL_INTEREST ? (sp.get("s") ?? "") : "";
   const saved = useLabelSave(row.id);
+  const saving = useLabelSaving(row.id);
   const place = saved?.next ?? row.place;
   const matches = matchesInboxFilter(place, interestFilter, stepFilter);
   const [gone, setGone] = useState(!matches);
@@ -84,7 +85,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
           </span>
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
             {chips.length > 0 && (
-              <span className="mb-0.5 flex min-w-0 items-center gap-1">
+              <span className={`mb-0.5 flex min-w-0 items-center gap-1 ${saving ? "label-saving" : ""}`}>
                 {chips.map((chip) => (
                   <span key={chip} className="flex-none rounded-full bg-chip px-1.5 py-px text-[10.5px] font-medium text-muted">
                     {chip}
@@ -94,14 +95,17 @@ export function InboxRow({ row }: { row: InboxRowData }) {
             )}
             <span className="flex items-baseline gap-2">
               <span className={`min-w-0 flex-1 truncate text-[14px] ${row.unanswered ? "font-semibold text-ink" : "text-ink"}`}>{row.name}</span>
-              <span className="flex-none text-[11.5px] text-faint">{row.time}</span>
+              <span className="flex flex-none items-center gap-1 text-[11.5px] text-faint">
+                {saving ? <SavingSpinner size={11} /> : null}
+                {row.time}
+              </span>
             </span>
             <span className={`truncate text-[12.5px] ${row.unanswered ? "font-medium text-body" : "text-muted"}`}>
               {row.fromPage ? "Du: " : ""}
               {row.preview}
             </span>
             {view && (
-              <span className="mt-1 flex min-w-0 items-center" title={view.state.de}>
+              <span className={`mt-1 flex min-w-0 items-center ${saving ? "label-saving" : ""}`} title={view.state.de}>
                 <ActionChip action={view.action} />
               </span>
             )}
