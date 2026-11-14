@@ -6,6 +6,7 @@ import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { ActionChip } from "@/components/admin/ActionChip";
 import { useThreadVersion } from "@/components/admin/InboxLive";
+import { labelSaveFor, onLabelSave } from "@/components/admin/labelPatch";
 import { LabelEditor } from "@/components/admin/LabelEditor";
 import { MessageComposer } from "@/components/admin/MessageComposer";
 import { ThreadSkeleton } from "@/components/admin/MessengerSkeleton";
@@ -94,9 +95,11 @@ export function ThreadPane() {
       .then((next) => {
         if (flight.current?.ctrl !== ctrl) return;
         flight.current = null;
-        have.current = { id, version: next.version, asked: latest };
-        remember(next);
-        setData(next);
+        const saved = labelSaveFor(id);
+        const merged = saved ? { ...next, view: saved.view, step: saved.step } : next;
+        have.current = { id, version: saved?.thread ?? next.version, asked: latest };
+        remember(merged);
+        setData(merged);
         // Look again: the version may have moved on while this was loading.
         setSettled((n) => n + 1);
       })
@@ -110,6 +113,16 @@ export function ThreadPane() {
       });
     return () => clearTimeout(again);
   }, [id, latest, retry, settled]);
+  useEffect(() => {
+    return onLabelSave((saved) => {
+      if (saved.conversationId !== id) return;
+      if (have.current?.id === id) have.current = { id, version: saved.thread, asked: saved.thread };
+      const apply = (d: Loaded): Loaded => (d.id === id ? { ...d, view: saved.view, step: saved.step } : d);
+      setData((d) => (d && d.id === id ? apply(d) : d));
+      const remembered = recent.get(id);
+      if (remembered) recent.set(id, apply(remembered));
+    });
+  }, [id]);
   useEffect(
     () => () => {
       flight.current?.ctrl.abort();

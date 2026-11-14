@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
+import { useLabelAdjust } from "@/components/admin/labelPatch";
+import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
 
 /**
  * Frame of the inbox. Tells its children through data attributes
  *  - whether a chat is open (`data-chat`), which only matters on phones, and
- *  - whether a filter or search is loading (`data-busy`), so the list can show its skeleton.
+ *  - whether a filter, search, or "Mehr laden" is loading (`data-busy`). A label save does not.
  * `stamp` changes with every server render; that is the sign that the new list has arrived.
  */
 export function MessengerShell({ stamp, className, children }: { stamp: number; className?: string; children: ReactNode }) {
@@ -31,7 +33,9 @@ export function MessengerShell({ stamp, className, children }: { stamp: number; 
         const a = (e.target as Element).closest?.("a[data-filter]");
         if (a && a.getAttribute("aria-current") !== "page") setBusy(true);
       }}
-      onSubmitCapture={() => setBusy(true)}
+      onSubmitCapture={(e) => {
+        if ((e.target as HTMLElement).closest?.("form[data-inbox-search]")) setBusy(true);
+      }}
     >
       {children}
     </div>
@@ -84,8 +88,11 @@ type FunnelStep = { id: string; de: string; vi: string; count: number; href: str
  */
 export function FunnelNav({ steps, current, stamp }: { steps: FunnelStep[]; current: string | null; stamp: number }) {
   const [picked, setPicked] = useState<string | null>(null);
+  const adjust = useLabelAdjust();
   useEffect(() => setPicked(null), [current, stamp]);
   const shown = picked ?? current;
+  const countOf = (step: FunnelStep) =>
+    step.count + (step.id === "q" ? adjust.qualify : step.id === "" ? (adjust.interest[FUNNEL_INTEREST] ?? 0) : (adjust.step[step.id] ?? 0));
   return (
     <div className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto">
       {steps.map((step, i) => {
@@ -110,7 +117,7 @@ export function FunnelNav({ steps, current, stamp }: { steps: FunnelStep[]; curr
               active ? "bg-accent-soft text-accent-dark" : "bg-[#F0F2F5] text-muted hover:bg-[#E4E6EB]"
             }`}
           >
-            <span className={`text-[17px] font-semibold tabular-nums transition-colors duration-300 ease-out ${active ? "text-accent-dark" : "text-ink"}`}>{step.count}</span>
+            <span className={`text-[17px] font-semibold tabular-nums transition-colors duration-300 ease-out ${active ? "text-accent-dark" : "text-ink"}`}>{countOf(step)}</span>
             <span className="truncate text-[11.5px]">
               <Label de={step.de} vi={step.vi} />
             </span>

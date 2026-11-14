@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { saveMessengerLabel } from "@/app/(app)/admin/messenger/actions";
+import { publishLabelSave } from "@/components/admin/labelPatch";
 import type { ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MenuSelect } from "@/components/admin/MenuSelect";
@@ -90,10 +91,14 @@ export function LabelEditor(props: LabelFormValues) {
   return <LabelEditorForm key={props.formKey} {...props} />;
 }
 
+/** Correct the stored label. Several fields in a row are one save: the write waits until the person pauses. */
+const SAVE_PAUSE_MS = 1200;
+
 function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, resume, pinned, statusSlot, stageSlot, coursesSent, priceSent, autoText }: LabelFormValues) {
-  const [state, action, saving] = useActionState(saveMessengerLabel, null);
   const [status, setStatus] = useState(judgment);
   const [reason, setReason] = useState(loss);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const form = useRef<HTMLFormElement>(null);
   const [base, setBase] = useState<Record<string, string>>({
     stage: isStep(stage) ? stage : "unklar",
@@ -106,11 +111,15 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     loss_reason: judgment === "verloren" ? loss : "",
     resume_on: judgment === "verloren" && loss === "spaeter" ? resume : "",
   });
+  const baseRef = useRef(base);
+  baseRef.current = base;
+  const wait = useRef<number | undefined>(undefined);
+  const flight = useRef(false);
+  const pending = useRef(false);
+  const afterFlight = useRef<FormData | null>(null);
+  const mounted = useRef(true);
   // Once a save went through, what was sent is what is stored: the next change is compared with that.
   const sent = useRef<Record<string, string> | null>(null);
-  useEffect(() => {
-    if (state && !state.error && sent.current) setBase(sent.current);
-  }, [state]);
   const formId = useId();
   // Status and Stufe sit in the chat header, outside this form in the page; `form={formId}` keeps them part of the form.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -120,28 +129,105 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     setStageEl(document.getElementById(stageSlot));
   }, [statusSlot, stageSlot]);
   const locked = (field: string) => pinned.includes(field);
-  // After the re-render, so the new value and fields that just appeared (Grund, Datum) are sent too.
-  const save = () =>
-    setTimeout(() => {
-      if (!form.current) return;
-      const data = new FormData(form.current);
-      const get = (name: string, missing = "") => String(data.get(name) ?? missing);
-      sent.current = {
-        stage: get("stage", "unklar"),
-        interest: get("interest"),
-        level: get("level"),
-        place: get("place"),
-        courses_sent: get("courses_sent"),
-        price_sent: get("price_sent"),
-        judgment: get("judgment"),
-        loss_reason: get("loss_reason"),
-        resume_on: get("resume_on"),
+
+  const readForm = () => {
+    const data = new FormData(form.current!);
+    const get = (name: string, missing = "") => String(data.get(name) ?? missing);
+    sent.current = {
+      stage: get("stage", "unklar"),
+      interest: get("interest"),
+      level: get("level"),
+      place: get("place"),
+      courses_sent: get("courses_sent"),
+      price_sent: get("price_sent"),
+      judgment: get("judgment"),
+      loss_reason: get("loss_reason"),
+      resume_on: get("resume_on"),
+    };
+    return data;
+  };
+
+  const differs = (data: FormData) => Object.entries(baseRef.current).some(([name, value]) => String(data.get(name) ?? "") !== value);
+
+  const flush = async () => {
+    if (!form.current) return;
+    if (flight.current) {
+      pending.current = true;
+      return;
+    }
+    const data = readForm();
+    if (!differs(data)) return;
+    flight.current = true;
+    if (mounted.current) setSaving(true);
+    const result = await saveMessengerLabel(null, data);
+    flight.current = false;
+    if (mounted.current) {
+      setSaving(false);
+      if (result.error) setError(result.error);
+      else {
+        setError("");
+        if (sent.current) setBase(sent.current);
+      }
+    }
+    if (result.saved) publishLabelSave(result.saved);
+    if (afterFlight.current) {
+      const latest = afterFlight.current;
+      afterFlight.current = null;
+      const sentNow = sent.current;
+      void saveMessengerLabel(null, latest).then((again) => {
+        if (again.saved) publishLabelSave(again.saved);
+        if (mounted.current && !again.error && sentNow) setBase(sentNow);
+      });
+      return;
+    }
+    if (pending.current) {
+      pending.current = false;
+      if (!wait.current) void flush();
+    }
+  };
+
+  // A new field resets the wait, so Interesse + Niveau + Ort become one write.
+  const save = () => {
+    if (wait.current) window.clearTimeout(wait.current);
+    wait.current = window.setTimeout(() => {
+      wait.current = undefined;
+      void flush();
+    }, SAVE_PAUSE_MS);
+  };
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (!wait.current || !form.current) return;
+      window.clearTimeout(wait.current);
+      wait.current = undefined;
+      const data = readForm();
+      if (!differs(data)) return;
+      const send = () => {
+        void saveMessengerLabel(null, data).then((result) => {
+          if (result.saved) publishLabelSave(result.saved);
+        });
       };
-      form.current.requestSubmit();
-    }, 0);
+      if (flight.current) afterFlight.current = data;
+      else send();
+    };
+    // The form closes: send whatever is still waiting. `differs` reads the base from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <form ref={form} id={formId} action={action} className="flex min-w-0 flex-wrap items-center gap-2">
+    <form
+      ref={form}
+      id={formId}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (wait.current) window.clearTimeout(wait.current);
+        wait.current = undefined;
+        void flush();
+      }}
+      className="flex min-w-0 flex-wrap items-center gap-2"
+    >
       <input type="hidden" name="conversation_id" value={conversationId} />
       {/* What each field showed when this form opened (or was last saved). The server keeps the stored value of every field that still equals it,
           so a change a colleague saved in the meantime is not put back. */}
@@ -198,7 +284,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           <Label de="Speichert…" vi="Đang lưu…" />
         </span>
       )}
-      {state?.error ? <p className="m-0 w-full text-[12px] text-bad">{state.error}</p> : null}
+      {error ? <p className="m-0 w-full text-[12px] text-bad">{error}</p> : null}
       {/* Steps exist for Sprachkurs only; before the Interesse is known the step is Qualifizieren. */}
       {stageEl &&
         (!interest || interest === FUNNEL_INTEREST || isStep(stage)) &&

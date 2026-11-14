@@ -1,12 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { requireRole } from "@/lib/auth";
 import { isLossReason, isStage } from "@/lib/messenger/classify";
-import { PIN_FIELDS, type PinField } from "@/lib/messenger/nextAction";
+import { conversationView, PIN_FIELDS, type PinField } from "@/lib/messenger/nextAction";
+import { inboxPlace, labelChips } from "@/lib/messenger/inboxPlace";
+import type { LabelSaveResult } from "@/lib/messenger/labelSave";
 import { isStep, stepFor, stepOf } from "@/lib/messenger/steps";
+import { FACT_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { levelOf, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
+import { inboxVersion } from "@/lib/messenger/version";
 import { createClient } from "@/lib/supabase/server";
 
 const JUDGMENTS = ["auto", "kein_lead", "bestandskunde", "weiter_auf_zalo", "verloren"] as const;
@@ -36,7 +39,7 @@ function judgmentOf(outcome: Outcome | undefined): Judgment {
  * when the form was opened (base_…). A field this person did not touch keeps what is stored now,
  * so a colleague's change to another field a moment ago is not put back.
  */
-export async function saveMessengerLabel(_prev: { error?: string } | null, formData: FormData): Promise<{ error?: string }> {
+export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData: FormData): Promise<LabelSaveResult> {
   await requireRole("admin");
   const id = field(formData, "conversation_id").slice(0, 200);
   if (!id) return { error: "Gespräch fehlt." };
@@ -73,7 +76,7 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
       .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent")
       .eq("conversation_id", id)
       .maybeSingle(),
-    supabase.from("messenger_facts").select("last_from_page, last_customer_at, last_page_at").eq("id", id).maybeSingle(),
+    supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
   ]);
   if (convErr || labelErr || factErr) return { error: (convErr ?? labelErr ?? factErr)!.message };
   if (!conv) return { error: "Gespräch nicht gefunden." };
@@ -163,6 +166,22 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
   const times = [fact?.last_customer_at, fact?.last_page_at].filter((t): t is string => !!t);
   const labeledThrough = times.reduce((a, b) => (a > b ? a : b), new Date().toISOString());
 
+  const updatedAt = new Date().toISOString();
+  const savedRow: InboxLabel = {
+    conversation_id: id,
+    stage,
+    interest,
+    level,
+    place,
+    outcome,
+    loss_reason: loss,
+    labeled_through: labeledThrough,
+    resume_on: resume,
+    pinned: [...pins],
+    courses_sent: coursesSent,
+    price_sent: priceSent,
+    updated_at: updatedAt,
+  };
   const { error } = await supabase.from("messenger_labels").upsert({
     conversation_id: id,
     stage,
@@ -178,10 +197,22 @@ export async function saveMessengerLabel(_prev: { error?: string } | null, formD
     resume_on: resume,
     courses_sent: coursesSent,
     price_sent: priceSent,
-    updated_at: new Date().toISOString(),
+    updated_at: updatedAt,
   });
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/messenger");
-  return {};
+  const factRow = (fact as FactRow | null) ?? undefined;
+  const version = await inboxVersion(supabase, id);
+  return {
+    saved: {
+      conversationId: id,
+      chips: labelChips(savedRow),
+      view: conversationView(toActionLabel(savedRow), toTiming(factRow, factRow?.last_from_page)),
+      step: stepOf(savedRow),
+      prev: inboxPlace(row),
+      next: inboxPlace(savedRow),
+      inbox: version.inbox,
+      thread: version.thread,
+    },
+  };
 }

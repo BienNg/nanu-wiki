@@ -4,13 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { Topbar } from "@/components/Topbar";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
-import { initials } from "@/lib/format";
-import { ActionChip } from "@/components/admin/ActionChip";
 import { FilterDetails } from "@/components/admin/FilterDetails";
 import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
-import { ChatLink, FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
+import { FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
+import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore } from "@/components/admin/labelPatch";
+import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
+import { inboxPlace, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, stepKey } from "@/lib/messenger/inboxPlace";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
@@ -42,31 +43,11 @@ const ALL_LIMIT = 5000;
 const PAGE = 1000;
 /** Up to this many chats, their labels are fetched by id; above it, reading the label table in pages needs fewer requests. */
 const BY_ID_MAX = 240;
-const NO_INTEREST = "ohne";
-/** The Qualifizieren step: no Interesse yet, and not marked Schüler or Kein Lead (those have no step). */
-const QUALIFY = "qualifizieren";
-
 /**
  * Funnel steps per Interesse. Only Sprachkurs has its steps so far; the others get theirs later.
  * Qualifizieren is not in the list: those chats have no Interesse yet, so the funnel links it to the QUALIFY filter.
  */
 const FUNNELS: Partial<Record<string, readonly Step[]>> = { [FUNNEL_INTEREST]: STEPS.filter((s) => s !== "qualifizieren") };
-
-function interestKey(label: InboxLabel | undefined) {
-  const v = label?.interest;
-  return v && v !== "unklar" && v !== "keins" ? v : NO_INTEREST;
-}
-
-/** False for Schüler and Kein Lead: they have no step, so they are not waiting to be qualified. */
-function isOpen(label: InboxLabel | undefined) {
-  return label?.outcome !== "kein_lead" && label?.outcome !== "bestandskunde";
-}
-
-/** "1".."4" for a known step of the interest's funnel, otherwise "unklar". */
-function stepKey(label: InboxLabel | undefined, steps: readonly Step[]) {
-  const i = label ? steps.indexOf(label.stage as Step) : -1;
-  return i >= 0 ? String(i + 1) : "unklar";
-}
 
 function shortTime(value: string) {
   const d = new Date(value);
@@ -166,39 +147,17 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
     interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
     if (key === NO_INTEREST && isOpen(labels.get(c.id))) qualify++;
     if (key === FUNNEL_INTEREST) {
-      const step = stepKey(labels.get(c.id), funnelSteps);
+      const step = stepKey(labels.get(c.id));
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
     }
   }
   const matching = everyChat.filter((c) => {
     const label = labels.get(c.id);
     if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
-    if (f.step && stepKey(label, f.steps) !== f.step) return false;
+    if (f.step && stepKey(label) !== f.step) return false;
     return true;
   });
   return { source: "app", interestCounts, stepCounts, qualify, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
-}
-
-/** WhatsApp or Messenger logo on the bottom-right of a chat's avatar, as in the Messenger app. */
-function ChannelBadge({ channel, account }: { channel: string | null | undefined; account: string | null | undefined }) {
-  const whatsapp = channel === "whatsapp";
-  const name = whatsapp ? "WhatsApp" : "Messenger";
-  return (
-    <span
-      title={account ? `${name} · ${account}` : name}
-      className={`absolute -bottom-0.5 -right-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full border-2 border-white ${
-        whatsapp ? "bg-[#25D366]" : "bg-[#0866FF]"
-      }`}
-    >
-      <svg viewBox="0 0 24 24" width={whatsapp ? 10 : 9} height={whatsapp ? 10 : 9} fill="#fff" aria-label={name} role="img">
-        {whatsapp ? (
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-        ) : (
-          <path d="M.001 11.639C.001 4.949 5.241 0 12.001 0S24 4.95 24 11.639c0 6.689-5.24 11.638-12 11.638-1.21 0-2.38-.16-3.47-.46a.96.96 0 00-.64.05l-2.39 1.05a.96.96 0 01-1.35-.85l-.07-2.14a.97.97 0 00-.32-.68A11.39 11.389 0 01.002 11.64zm8.32-2.19l-3.52 5.6c-.35.53.32 1.139.82.75l3.79-2.87c.26-.2.6-.2.87 0l2.8 2.1c.84.63 2.04.4 2.6-.48l3.52-5.6c.35-.53-.32-1.13-.82-.75l-3.79 2.87c-.25.2-.6.2-.86 0l-2.8-2.1a1.8 1.8 0 00-2.61.48z" />
-        )}
-      </svg>
-    </span>
-  );
 }
 
 type MenuOption = { id: string; de: string; vi: string; href: string; count?: number };
@@ -234,7 +193,11 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
               <span className="min-w-0 flex-1 truncate">
                 <Label de={o.de} vi={o.vi} />
               </span>
-              {o.count !== undefined && <span className="tabular-nums text-[12px] text-faint group-hover/item:text-white/80">{o.count}</span>}
+              {o.count !== undefined && (
+                <span className="tabular-nums text-[12px] text-faint group-hover/item:text-white/80">
+                  <InboxCount id={o.id} count={o.count} />
+                </span>
+              )}
             </Link>
           ))}
         </div>
@@ -301,6 +264,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   return (
     <>
       <InboxLive version={version.inbox} stamp={now} />
+      <ClearLabelPatches stamp={now} />
       <Topbar
         actions={
           <Link href="/admin/messenger/statistik" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
@@ -321,7 +285,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               <SyncBadge at={version.syncAt} error={version.syncError} now={now} />
             </div>
             <div className="ml-auto flex flex-wrap items-center gap-2 max-md:ml-0 max-md:w-full">
-              <form action="/admin/messenger" className="flex max-md:w-full">
+              <form action="/admin/messenger" data-inbox-search="" className="flex max-md:w-full">
                 {channel && <input type="hidden" name="ch" value={channel} />}
                 {interestFilter && <input type="hidden" name="i" value={interestFilter} />}
                 {stepFilter && <input type="hidden" name="s" value={stepFilter} />}
@@ -356,7 +320,6 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
 
           {!interestFilter || interestFilter === FUNNEL_INTEREST || interestFilter === QUALIFY ? (
             <nav aria-label={`Schritte ${FUNNEL_INTEREST}`} className="flex items-stretch gap-2">
-              <span className="flex w-16 flex-none items-center text-[11px] font-medium leading-tight text-faint max-md:hidden">{FUNNEL_INTEREST}</span>
               <FunnelNav
                 stamp={now}
                 current={interestFilter === FUNNEL_INTEREST ? stepFilter : interestFilter === QUALIFY ? "q" : null}
@@ -392,53 +355,27 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 <Label de="Keine Gespräche gefunden." vi="Không tìm thấy cuộc trò chuyện." />
               </li>
             )}
+            <InboxEmpty shown={conversations.length} listedIds={conversations.map((c) => c.id)} />
             {conversations.map((c) => {
-              const unanswered = c.last_from_page === false;
-              const preview = c.last_text ?? (c.last_has_attachment ? "📎 Anhang" : "");
-              const view = viewById.get(c.id);
-              const rawInterest = labelById.get(c.id)?.interest;
-              const interest = rawInterest && rawInterest !== "unklar" && rawInterest !== "keins" ? rawInterest : null;
+              const label = labelById.get(c.id);
               return (
-                <li key={c.id}>
-                  <ChatLink
-                    id={c.id}
-                    href={href({ c: c.id, n: limit > LIST_STEP ? String(limit) : "" })}
-                    className="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors duration-150 hover:bg-hover aria-[current=page]:bg-accent-soft"
-                  >
-                    <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
-                      {initials(c.customer_name)}
-                      {unanswered && <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-accent" />}
-                      <ChannelBadge channel={c.channel} account={c.account_name} />
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col leading-tight">
-                      <span className="flex items-baseline gap-2">
-                        <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-                          <span className={`min-w-0 truncate text-[14px] ${unanswered ? "font-semibold text-ink" : "text-ink"}`}>
-                            {c.customer_name ?? "Unbekannt"}
-                          </span>
-                          {interest && (
-                            <span className="flex-none rounded-full bg-chip px-1.5 py-px text-[10.5px] font-medium text-muted">{interest}</span>
-                          )}
-                        </span>
-                        <span className="flex-none text-[11.5px] text-faint">{shortTime(c.last_time ?? c.updated_time)}</span>
-                      </span>
-                      <span className={`truncate text-[12.5px] ${unanswered ? "font-medium text-body" : "text-muted"}`}>
-                        {c.last_from_page ? "Du: " : ""}
-                        {preview}
-                      </span>
-                      {view && (
-                        <span className="mt-1 flex min-w-0 items-center gap-1.5" title={view.state.de}>
-                          <ActionChip action={view.action} />
-                          {view.note && (
-                            <span className="flex-none text-[11px] text-faint">
-                              <Label de={view.note.de} vi={view.note.vi} />
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </span>
-                  </ChatLink>
-                </li>
+                <InboxRow
+                  key={c.id}
+                  row={{
+                    id: c.id,
+                    href: href({ c: c.id, n: limit > LIST_STEP ? String(limit) : "" }),
+                    name: c.customer_name ?? "Unbekannt",
+                    time: shortTime(c.last_time ?? c.updated_time),
+                    preview: c.last_text ?? (c.last_has_attachment ? "📎 Anhang" : ""),
+                    fromPage: !!c.last_from_page,
+                    unanswered: c.last_from_page === false,
+                    channel: c.channel ?? null,
+                    account: c.account_name ?? null,
+                    chips: labelChips(label),
+                    view: viewById.get(c.id) ?? null,
+                    place: inboxPlace(label),
+                  }}
+                />
               );
             })}
             {total > conversations.length && limit < LIST_MAX && (
@@ -447,7 +384,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                   href={href({ n: String(limit + LIST_STEP) })}
                   className="inline-flex h-8 items-center rounded-full border border-line px-3.5 text-[12.5px] font-medium text-body transition-colors duration-150 hover:bg-hover"
                 >
-                  <Label de={`Mehr laden (${conversations.length} von ${total})`} vi={`Tải thêm (${conversations.length} / ${total})`} />
+                  <InboxMore shown={conversations.length} total={total} listedIds={conversations.map((c) => c.id)} />
                 </MoreLink>
               </li>
             )}

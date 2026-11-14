@@ -14,6 +14,14 @@ const LIST_MAX_AGE_MS = 5 * 60_000;
 type Sync = { at: string | null; error: string | null; checked: number };
 type State = { threadId: string | null; thread: string | null; sync: Sync | null };
 
+/** Set when this person just saved a label, so that version does not reload the whole list. */
+let adoptedInbox: string | null = null;
+
+/** The inbox version `inbox` is already shown (one chat was patched). A later, different version still reloads the list. */
+export function acknowledgeOwnInbox(inbox: string) {
+  adoptedInbox = inbox;
+}
+
 let state: State = { threadId: null, thread: null, sync: null };
 const listeners = new Set<() => void>();
 const subscribe = (fn: () => void) => {
@@ -69,7 +77,7 @@ export function InboxLive({ version, stamp }: { version: string; stamp: number }
         if (stopped || typeof now.inbox !== "string") return;
         publish({ threadId: chat, thread: chat ? (now.thread ?? null) : null, sync: { at: now.syncAt ?? null, error: now.syncError ?? null, checked: Date.now() } });
 
-        const changed = now.inbox !== shown.current.version;
+        const changed = now.inbox !== shown.current.version && now.inbox !== adoptedInbox;
         const old = Date.now() - shown.current.at > LIST_MAX_AGE_MS;
         if ((changed || old) && (own || Date.now() - refreshed.current > LIST_GAP_MS)) {
           refreshed.current = Date.now();
@@ -104,6 +112,8 @@ export function InboxLive({ version, stamp }: { version: string; stamp: number }
   // The server rendered again (a saved label, a filter): see at once whether the open chat changed too.
   useEffect(() => {
     shown.current.at = Date.now();
+    // The server rendered the list again, so the patched rows and this version are no longer needed.
+    adoptedInbox = null;
     window.dispatchEvent(new CustomEvent("inbox:check", { detail: { own: false } }));
   }, [stamp]);
 
