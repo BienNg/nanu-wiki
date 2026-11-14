@@ -1,0 +1,21 @@
+---
+description: A single messenger label save updates one chat, not the whole inbox
+globs: "{src/app/(app)/admin/messenger/**,src/lib/messenger/**,src/components/admin/**}"
+alwaysApply: false
+---
+
+# One label save updates one chat
+
+Saving a label on one conversation writes that row and updates only that chat.
+
+Apply the server's saved result (it keeps a colleague's edit on fields this person did not touch):
+
+- The action chip in the open chat, and that list row: its chips (Interesse, Niveau, Ort) and its action chip. The row stays in place.
+- Funnel and Interesse counts, by the difference between the old label and the saved one.
+- If the chat no longer matches the open filter, remove that row and drop its count by one.
+
+Leave every other row as it is: no dim, no fade, no scroll jump, no refetch of the inbox index or the visible rows. The dimmed list is only for search, a filter, and "Mehr laden".
+
+Several fields changed in a row are one save. The fields update at once; the write waits about a second after the last change, then saves once. Leaving the chat saves immediately.
+
+A failed save changes nothing in the list. After a successful save, treat this inbox version as already shown so the next poll does not rebuild the list. Other people still get the change on the slow poll. A new message, a filter change, or the periodic refresh still rebuilds the list.

@@ -254,7 +254,20 @@ html.lang-vi .vs::before { content: none; }
 }
 .menu-pop { animation: menu-pop 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .anim-fade { animation: anim-fade 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* A chat that no longer matches the inbox filter: it swipes out, then its space closes so the rows below move up.
+   InboxRow removes the row when the collapse ends. */
+@keyframes row-swipe {
+  to { transform: translateX(-100%); opacity: 0; }
+}
+@keyframes row-collapse {
+  from { grid-template-rows: 1fr; }
+  to { grid-template-rows: 0fr; }
+}
+.row-leave { display: grid; pointer-events: none; animation: row-collapse 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0.24s both; }
+.row-leave > div { min-height: 0; overflow: hidden; }
+.row-leave > div > a { animation: row-swipe 0.26s cubic-bezier(0.4, 0, 1, 1) both; }
 @media (prefers-reduced-motion: reduce) {
+  .row-leave, .row-leave > div > a { animation-duration: 1ms; animation-delay: 0s; }
   .anim-pop, .anim-rise, .menu-pop, .anim-fade { animation: none; }
   .load-bar { animation: none; background-size: 100% 100%; opacity: 0.35; }
 }

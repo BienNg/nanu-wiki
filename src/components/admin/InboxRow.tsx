@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ActionChip } from "@/components/admin/ActionChip";
 import { ChatLink } from "@/components/admin/MessengerShell";
 import { useLabelSave } from "@/components/admin/labelPatch";
@@ -53,46 +54,60 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const stepFilter = interestFilter === FUNNEL_INTEREST ? (sp.get("s") ?? "") : "";
   const saved = useLabelSave(row.id);
   const place = saved?.next ?? row.place;
-  if (!matchesInboxFilter(place, interestFilter, stepFilter)) return null;
+  const matches = matchesInboxFilter(place, interestFilter, stepFilter);
+  const [gone, setGone] = useState(!matches);
+  useEffect(() => {
+    if (matches) setGone(false);
+  }, [matches]);
+  if (!matches && gone) return null;
+  const leaving = !matches;
   const chips = saved ? saved.chips : row.chips;
   const view = saved?.view ?? row.view;
   return (
-    <li>
-      <ChatLink
-        id={row.id}
-        href={row.href}
-        className="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors duration-150 hover:bg-hover aria-[current=page]:bg-accent-soft"
-      >
-        <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
-          {initials(row.name)}
-          {row.unanswered && <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-accent" />}
-          <ChannelBadge channel={row.channel} account={row.account} />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col leading-tight">
-          {chips.length > 0 && (
-            <span className="mb-0.5 flex min-w-0 items-center gap-1">
-              {chips.map((chip) => (
-                <span key={chip} className="flex-none rounded-full bg-chip px-1.5 py-px text-[10.5px] font-medium text-muted">
-                  {chip}
-                </span>
-              ))}
-            </span>
-          )}
-          <span className="flex items-baseline gap-2">
-            <span className={`min-w-0 flex-1 truncate text-[14px] ${row.unanswered ? "font-semibold text-ink" : "text-ink"}`}>{row.name}</span>
-            <span className="flex-none text-[11.5px] text-faint">{row.time}</span>
+    <li
+      className={leaving ? "row-leave" : undefined}
+      aria-hidden={leaving || undefined}
+      onAnimationEnd={(e) => {
+        if (leaving && e.target === e.currentTarget) setGone(true);
+      }}
+    >
+      <div>
+        <ChatLink
+          id={row.id}
+          href={row.href}
+          className="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors duration-150 hover:bg-hover aria-[current=page]:bg-accent-soft"
+        >
+          <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
+            {initials(row.name)}
+            {row.unanswered && <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-accent" />}
+            <ChannelBadge channel={row.channel} account={row.account} />
           </span>
-          <span className={`truncate text-[12.5px] ${row.unanswered ? "font-medium text-body" : "text-muted"}`}>
-            {row.fromPage ? "Du: " : ""}
-            {row.preview}
-          </span>
-          {view && (
-            <span className="mt-1 flex min-w-0 items-center" title={view.state.de}>
-              <ActionChip action={view.action} />
+          <span className="flex min-w-0 flex-1 flex-col leading-tight">
+            {chips.length > 0 && (
+              <span className="mb-0.5 flex min-w-0 items-center gap-1">
+                {chips.map((chip) => (
+                  <span key={chip} className="flex-none rounded-full bg-chip px-1.5 py-px text-[10.5px] font-medium text-muted">
+                    {chip}
+                  </span>
+                ))}
+              </span>
+            )}
+            <span className="flex items-baseline gap-2">
+              <span className={`min-w-0 flex-1 truncate text-[14px] ${row.unanswered ? "font-semibold text-ink" : "text-ink"}`}>{row.name}</span>
+              <span className="flex-none text-[11.5px] text-faint">{row.time}</span>
             </span>
-          )}
-        </span>
-      </ChatLink>
+            <span className={`truncate text-[12.5px] ${row.unanswered ? "font-medium text-body" : "text-muted"}`}>
+              {row.fromPage ? "Du: " : ""}
+              {row.preview}
+            </span>
+            {view && (
+              <span className="mt-1 flex min-w-0 items-center" title={view.state.de}>
+                <ActionChip action={view.action} />
+              </span>
+            )}
+          </span>
+        </ChatLink>
+      </div>
     </li>
   );
 }
