@@ -36,6 +36,7 @@ export function MenuSelect({
   form,
   compact,
   saving,
+  closedLabel,
 }: {
   name: string;
   label: ReactNode;
@@ -54,6 +55,8 @@ export function MenuSelect({
   compact?: boolean;
   /** This field's change is not stored yet. The chip stays usable. */
   saving?: boolean;
+  /** Closed chip when the stored value is not one of `options`. */
+  closedLabel?: ReactNode;
 }) {
   const [value, setValue] = useState(defaultValue);
   const [open, setOpen] = useState(false);
@@ -61,7 +64,7 @@ export function MenuSelect({
   const [alignRight, setAlignRight] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const listId = useId();
-  const chosen = Math.max(0, options.findIndex((o) => o.value === value));
+  const chosen = options.findIndex((o) => o.value === value);
   const missing = emptyValue !== undefined && value === emptyValue;
 
   useEffect(() => {
@@ -76,7 +79,7 @@ export function MenuSelect({
   function show() {
     const box = root.current?.getBoundingClientRect();
     setAlignRight(!!box && box.left + 230 > window.innerWidth);
-    setActive(chosen);
+    setActive(Math.max(0, chosen));
     setOpen(true);
   }
 
@@ -137,7 +140,7 @@ export function MenuSelect({
           <>
             {pinned ? <span className="size-1.5 flex-none rounded-full bg-accent" title="Bleibt beim nächsten Einordnen" /> : null}
             {keepLabel ? <span className="flex-none text-[12px] text-muted">{label}</span> : null}
-            <span className="min-w-0 truncate font-medium">{options[chosen]?.chip ?? options[chosen]?.label}</span>
+            <span className="min-w-0 truncate font-medium">{chosen >= 0 ? (options[chosen]?.chip ?? options[chosen]?.label) : closedLabel}</span>
             <span className="text-faint">
               <Glyph d={down} size={13} />
             </span>
@@ -167,7 +170,7 @@ export function MenuSelect({
               onClick={() => pick(i)}
               className={`flex cursor-default items-center gap-1.5 whitespace-nowrap rounded-[7px] px-1.5 py-[5px] text-[13px] ${i === active ? "bg-accent text-white" : "text-ink"}`}
             >
-              <span className={`flex w-3.5 flex-none ${i === chosen && !missing ? "" : "invisible"}`}>
+              <span className={`flex w-3.5 flex-none ${chosen >= 0 && i === chosen && !missing ? "" : "invisible"}`}>
                 <Glyph d={check} size={13} />
               </span>
               {o.label}

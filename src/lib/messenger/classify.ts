@@ -1,4 +1,4 @@
-import { isStep, type Step } from "./steps";
+import { FUNNEL_INTEREST, isStep, type Step } from "./steps";
 import { LOSS_REASONS, OUTCOMES, type LabelDraft, type LossReason, type MessengerFact, type Outcome } from "./types";
 
 /** Vietnam has no daylight-saving time. */
@@ -118,6 +118,7 @@ export function textRule(customerTexts: string[], lastFromPage: boolean | null):
   if (!course && EXISTING_STUDENT.test(text)) {
     return blank({
       outcome: "bestandskunde",
+      interest: FUNNEL_INTEREST,
       evidence: "Es geht um Zoom, Aufgaben oder den laufenden Kurs, nicht um eine neue Anmeldung.",
     });
   }
@@ -129,6 +130,7 @@ export function applyGuards(draft: LabelDraft, fact: MessengerFact, now = Date.n
   const next: LabelDraft = { ...draft };
   if (next.outcome === "kein_lead" || next.outcome === "bestandskunde") {
     next.loss_reason = null;
+    if (next.outcome === "bestandskunde") next.interest = FUNNEL_INTEREST;
     return next;
   }
   if (fact.last_page_has_zalo && fact.last_from_page) {

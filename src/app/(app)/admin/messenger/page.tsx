@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 import { FilterDetails } from "@/components/admin/FilterDetails";
 import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
 import { FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
-import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore } from "@/components/admin/labelPatch";
+import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StepCount } from "@/components/admin/labelPatch";
 import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
@@ -226,7 +226,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const q = (sp.q ?? "").trim().slice(0, 80);
   const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
   const funnel = FUNNELS[interestFilter];
-  const stepFilter = funnel && sp.s && (sp.s === "unklar" || (Number(sp.s) >= 1 && Number(sp.s) <= funnel.length)) ? sp.s : "";
+  const stepFilter = funnel && sp.s && Number(sp.s) >= 1 && Number(sp.s) <= funnel.length ? sp.s : "";
   const limit = Math.min(LIST_MAX, Math.max(LIST_STEP, Math.ceil((Number(sp.n) || 0) / LIST_STEP) * LIST_STEP));
   const now = Date.now();
 
@@ -254,6 +254,9 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
     const label = labelById.get(row.id);
     viewById.set(row.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(factById.get(row.id), row.last_from_page), now));
   }
+
+  const schuelerKey = String(funnelSteps.indexOf("schueler") + 1);
+  const schuelerOn = interestFilter === FUNNEL_INTEREST && stepFilter === schuelerKey;
 
   const href = (patch: Partial<Params>) => {
     const next = { ch: channel, i: interestFilter, s: stepFilter, q, ...patch };
@@ -315,6 +318,31 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                   { id: "whatsapp", de: "WhatsApp", vi: "WhatsApp" },
                 ].map((o) => ({ ...o, href: href({ ch: o.id, c: "" }) }))}
               />
+              <div className="flex items-center">
+                <Link
+                  href={href({ i: FUNNEL_INTEREST, s: schuelerKey, c: "" })}
+                  data-filter=""
+                  aria-current={schuelerOn ? "page" : undefined}
+                  className={`flex h-8 items-center gap-1.5 border px-3 text-[12.5px] font-medium transition-colors duration-150 ${
+                    schuelerOn ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line text-body hover:bg-hover"
+                  }`}
+                >
+                  <Label de="Schüler" vi="Học viên" />
+                  <span className="tabular-nums text-[12px] text-faint">
+                    <StepCount id={schuelerKey} count={stepCounts.get(schuelerKey) ?? 0} />
+                  </span>
+                </Link>
+                {schuelerOn && (
+                  <Link
+                    href={href({ i: FUNNEL_INTEREST, s: "", c: "" })}
+                    data-filter=""
+                    aria-label="Schüler zurücksetzen"
+                    className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1 pr-2.5 text-[13px] text-accent-dark transition-colors duration-150 hover:bg-[#d9e6ff]"
+                  >
+                    ×
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 
@@ -326,8 +354,9 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 steps={[
                   { id: "", de: "Alle", vi: "Tất cả", count: interestCounts.get(FUNNEL_INTEREST) ?? 0 },
                   { id: "q", de: STEP_INFO.qualifizieren.short_de, vi: STEP_INFO.qualifizieren.short_vi, count: qualify },
-                  ...funnelSteps.map((stage, i) => ({ id: String(i + 1), de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 })),
-                  ...(stepCounts.get("unklar") ? [{ id: "unklar", de: "Unklar", vi: "Chưa rõ", count: stepCounts.get("unklar")! }] : []),
+                  ...funnelSteps.flatMap((stage, i) =>
+                    stage === "schueler" ? [] : [{ id: String(i + 1), de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 }],
+                  ),
                 ].map((step) => ({ ...step, href: step.id === "q" ? href({ i: QUALIFY, s: "", c: "" }) : href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
               />
             </nav>

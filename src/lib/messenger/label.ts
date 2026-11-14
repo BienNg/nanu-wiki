@@ -97,6 +97,7 @@ async function saveLabel(
   const merged = mergePinned(draft, previous);
   // The step follows from the fields unless a person picked it; "Kurse/Preis geschickt" stays.
   // A pin only counts when it holds one of the steps (old stage names were pinned too).
+  if (merged.outcome === "bestandskunde") merged.interest = "Sprachkurs";
   const stagePinned = !!previous?.pinned?.includes("stage") && isStep(previous.stage);
   if (!stagePinned) merged.stage = stepFor({ ...merged, courses_sent: previous?.courses_sent, price_sent: previous?.price_sent, paid: previous?.paid });
   const through = newestActivity(fact) ?? new Date().toISOString();

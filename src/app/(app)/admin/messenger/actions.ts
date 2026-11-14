@@ -6,7 +6,7 @@ import { isLossReason, isStage } from "@/lib/messenger/classify";
 import { conversationView, PIN_FIELDS, type PinField } from "@/lib/messenger/nextAction";
 import { inboxPlace, labelChips } from "@/lib/messenger/inboxPlace";
 import type { LabelSaveResult } from "@/lib/messenger/labelSave";
-import { isStep, stepFor, stepOf } from "@/lib/messenger/steps";
+import { FUNNEL_INTEREST, isStep, stepFor, stepOf } from "@/lib/messenger/steps";
 import { FACT_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { levelOf, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
 import { inboxVersion } from "@/lib/messenger/version";
@@ -116,6 +116,8 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   // Taking Bezahlt back, without picking another status, leaves the sale open again.
   if (row?.paid && !paid && judgment === "bestandskunde" && judgment === prevJudgment) judgment = "auto";
   if (paid && (judgment === "auto" || judgment === "bestandskunde")) judgment = "bestandskunde";
+  // A Schüler is a Sprachkurs chat. The Interesse follows the status.
+  if (judgment === "bestandskunde" || (row?.outcome === "bestandskunde" && judgment === prevJudgment)) interest = FUNNEL_INTEREST;
   // Paid means the price and the courses went out too.
   priceSent = paid || priceSent;
   const coursesSent = priceSent || coursesPick;

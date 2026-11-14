@@ -278,13 +278,14 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         <input key={name} type="hidden" name={`base_${name}`} value={value} />
       ))}
       <MenuSelect
+        key={status === "bestandskunde" ? FUNNEL_INTEREST : interest}
         name="interest"
         saving={dirty.has("interest")}
         ariaLabel="Interesse / Nhu cầu"
         label={<Label de="Interesse" vi="Nhu cầu" />}
         emptyValue=""
         pinned={locked("interest")}
-        defaultValue={interest}
+        defaultValue={status === "bestandskunde" ? FUNNEL_INTEREST : interest}
         onChange={() => save("interest")}
         options={[{ value: "", label: "—" }, ...INTERESTS.map((id) => ({ value: id as string, label: id }))]}
       />
@@ -377,11 +378,12 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
               form={formId}
               pinned={locked("outcome")}
               defaultValue={status}
+              closedLabel={status === "kein_lead" ? both("Kein Lead", "Không phải khách") : undefined}
               onChange={(v) => {
                 setStatus(v);
                 save("judgment");
               }}
-              options={JUDGMENTS.map((item) => ({ value: item.id as string, label: both(item.de, item.vi), chip: item.id === "auto" ? <Label de={autoText.de} vi={autoText.vi} /> : undefined }))}
+              options={JUDGMENTS.filter((item) => item.id !== "kein_lead").map((item) => ({ value: item.id as string, label: both(item.de, item.vi), chip: item.id === "auto" ? <Label de={autoText.de} vi={autoText.vi} /> : undefined }))}
             />
             {status === "verloren" && (
               <MenuSelect

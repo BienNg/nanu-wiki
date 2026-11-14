@@ -168,6 +168,12 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
   return { interest: interestDelta, step: stepDelta, qualify, total, hidden };
 }
 
+/** One funnel step's count, plus the saves since this list was rendered. */
+export function StepCount({ id, count }: { id: string; count: number }) {
+  const adjust = useLabelAdjust();
+  return <>{count + (adjust.step[id] ?? 0)}</>;
+}
+
 /** Interesse menu count, plus the saves since this list was rendered. */
 export function InboxCount({ id, count }: { id: string; count: number }) {
   const adjust = useLabelAdjust();

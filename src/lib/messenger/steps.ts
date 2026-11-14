@@ -8,7 +8,7 @@ import { placeOf, type Outcome } from "./types";
  *   kurse          Niveau and Ort are known                      → send the courses that fit
  *   preis          staff set "Kurse geschickt"                   → send the price and our packages
  *   anmeldung      staff set "Preis geschickt"                   → close sign-up and payment
- *   schueler       staff set "Bezahlt"                           → the person paid and is a Schüler
+ *   schueler       staff set "Bezahlt" or the status Schüler      → Sprachkurs, the person is a Schüler
  *
  * All of it follows from the label fields (`stepFor`). "Kurse geschickt", "Preis geschickt" and
  * "Bezahlt" are yes/no fields only staff set, and they can take them back. "Bezahlt" also sets the
@@ -96,9 +96,8 @@ export type StepFields = {
 /** The step a chat is in when nobody picked one by hand: the first thing in the list that is still open. */
 export function stepFor(fields: StepFields): Step | "unklar" {
   if (fields.outcome === "kein_lead") return "unklar";
-  // Paid Sprachkurs chats stay on Schüler. An existing student who was not closed here has no step.
-  if (fields.paid && fields.interest === FUNNEL_INTEREST) return "schueler";
-  if (fields.outcome === "bestandskunde") return "unklar";
+  // A Schüler is always a Sprachkurs student, on this step.
+  if (fields.outcome === "bestandskunde" || fields.paid) return "schueler";
   if (!known(fields.interest)) return "qualifizieren";
   if (fields.interest !== FUNNEL_INTEREST) return "unklar";
   if (!known(fields.level) || placeOf(fields.place) === "unklar") return "bedarf";

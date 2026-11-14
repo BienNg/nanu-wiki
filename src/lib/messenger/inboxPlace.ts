@@ -21,6 +21,7 @@ type PlaceLabel = {
 } | null | undefined;
 
 export function interestKey(label: PlaceLabel) {
+  if (label?.outcome === "bestandskunde") return FUNNEL_INTEREST;
   const v = label?.interest;
   return v && v !== "unklar" && v !== "keins" ? v : NO_INTEREST;
 }
@@ -36,7 +37,7 @@ export function isOpen(label: PlaceLabel) {
 }
 
 export function stepKey(label: PlaceLabel) {
-  const stage = label?.stage ?? "";
+  const stage = label?.outcome === "bestandskunde" ? "schueler" : (label?.stage ?? "");
   const i = (FUNNEL_STEPS as readonly string[]).indexOf(stage);
   return i >= 0 ? String(i + 1) : "unklar";
 }
