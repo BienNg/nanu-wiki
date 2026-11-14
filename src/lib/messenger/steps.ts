@@ -6,13 +6,14 @@ import { placeOf, type Outcome } from "./types";
  *   qualifizieren  Interesse is not known yet                    → ask what they want
  *   bedarf         Sprachkurs, but Niveau or Ort is missing      → ask for them
  *   kurse          Niveau and Ort are known                      → send the courses that fit
- *   preis          staff set "Kurse geschickt"                   → send the price and our packages
- *   anmeldung      staff set "Preis geschickt"                   → close sign-up and payment
+ *   preis          "Kurse geschickt"                             → send the price and our packages
+ *   anmeldung      "Preis geschickt"                             → close sign-up and payment
  *   schueler       staff set "Bezahlt" or the status Schüler      → Sprachkurs, the person is a Schüler
  *
- * All of it follows from the label fields (`stepFor`). "Kurse geschickt", "Preis geschickt" and
- * "Bezahlt" are yes/no fields only staff set, and they can take them back. "Bezahlt" also sets the
- * status to Schüler. Other interests have no steps yet.
+ * All of it follows from the label fields (`stepFor`). The labeler may set Interesse, Niveau, Ort,
+ * "Kurse geschickt" and "Preis geschickt". Status and "Bezahlt" are only set by hand. A person can
+ * take "Kurse geschickt", "Preis geschickt" and "Bezahlt" back. "Bezahlt" also sets the status to
+ * Schüler. Other interests have no steps yet.
  * The reply assistant keeps its own stages (src/lib/assistant/schema.ts).
  */
 export const STEPS = ["qualifizieren", "bedarf", "kurse", "preis", "anmeldung", "schueler"] as const;
@@ -85,9 +86,9 @@ export type StepFields = {
   level: string | null;
   place: string | null;
   outcome?: Outcome | null;
-  /** Staff marked that the matching courses went out. */
+  /** The matching courses went out. */
   courses_sent?: boolean | null;
-  /** Staff marked that the price and packages went out. */
+  /** The price and packages went out. */
   price_sent?: boolean | null;
   /** Staff marked that the person paid for the course. */
   paid?: boolean | null;

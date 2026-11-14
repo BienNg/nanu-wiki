@@ -29,7 +29,7 @@ const JUDGMENTS = [
   { id: "verloren", de: "Verloren", vi: "Mất khách" },
 ] as const;
 
-/** Things only staff can know. Each is a yes/no field, so a wrong click is taken back the same way. */
+/** Yes/no fields. Kurse and Preis may also be filled in by the labeler; Bezahlt is only set here. A wrong click is taken back the same way. */
 const SENT = [
   { name: "courses_sent", de: "Kurse geschickt", vi: "Đã gửi khóa" },
   { name: "price_sent", de: "Preis geschickt", vi: "Đã báo giá" },
@@ -319,6 +319,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           ariaLabel={`${item.de} / ${item.vi}`}
           label={<Label de={item.de} vi={item.vi} />}
           emptyValue="nein"
+          pinned={item.name === "paid" ? undefined : locked(item.name)}
           defaultValue={(item.name === "courses_sent" ? coursesSent : item.name === "price_sent" ? priceSent : paid) ? "ja" : "nein"}
           onChange={(v) => {
             if (item.name === "paid") {
@@ -378,12 +379,11 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
               form={formId}
               pinned={locked("outcome")}
               defaultValue={status}
-              closedLabel={status === "kein_lead" ? both("Kein Lead", "Không phải khách") : undefined}
               onChange={(v) => {
                 setStatus(v);
                 save("judgment");
               }}
-              options={JUDGMENTS.filter((item) => item.id !== "kein_lead").map((item) => ({ value: item.id as string, label: both(item.de, item.vi), chip: item.id === "auto" ? <Label de={autoText.de} vi={autoText.vi} /> : undefined }))}
+              options={JUDGMENTS.map((item) => ({ value: item.id as string, label: both(item.de, item.vi), chip: item.id === "auto" ? <Label de={autoText.de} vi={autoText.vi} /> : undefined }))}
             />
             {status === "verloren" && (
               <MenuSelect

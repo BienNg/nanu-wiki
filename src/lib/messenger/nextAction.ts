@@ -2,8 +2,8 @@ import { followupIgnored, formatVnDate } from "./classify";
 import { STEP_INFO, stepOf, type Step } from "./steps";
 import { placeOf, type LabelDraft, type LossReason, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
-/** Fields a person can lock. The cron must not overwrite these. */
-export const PIN_FIELDS = ["stage", "interest", "level", "place", "outcome", "loss_reason", "resume_on"] as const;
+/** Fields a person can lock. The cron must not overwrite these. Status is never written by the cron, pin or not. */
+export const PIN_FIELDS = ["stage", "interest", "level", "place", "outcome", "loss_reason", "resume_on", "courses_sent", "price_sent"] as const;
 export type PinField = (typeof PIN_FIELDS)[number];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -96,19 +96,25 @@ function ignored(timing: ActionTiming, now: number) {
   return followupIgnored(fact, now);
 }
 
-/** Keep pinned fields when the cron writes a new draft. */
-export function mergePinned(draft: LabelDraft, previous: Pick<StoredLabel, "stage" | "interest" | "level" | "place" | "outcome" | "loss_reason" | "pinned"> | undefined): LabelDraft {
-  if (!previous?.pinned?.length) return draft;
-  const pins = new Set(previous.pinned);
+/** Keep a person's fields when the cron writes a new draft. Status always stays as stored. */
+export function mergePinned(
+  draft: LabelDraft,
+  previous: Pick<StoredLabel, "stage" | "interest" | "level" | "place" | "outcome" | "loss_reason" | "pinned" | "courses_sent" | "price_sent"> | undefined,
+): LabelDraft {
+  const pins = new Set(previous?.pinned ?? []);
+  const priceSent = pins.has("price_sent") ? !!previous?.price_sent : !!draft.price_sent;
+  const coursesSent = pins.has("courses_sent") ? !!previous?.courses_sent : priceSent || !!draft.courses_sent;
   return {
     ...draft,
-    stage: pins.has("stage") ? previous.stage : draft.stage,
-    interest: pins.has("interest") ? previous.interest : draft.interest,
-    level: pins.has("level") ? previous.level : draft.level,
-    place: pins.has("place") ? previous.place : draft.place,
-    outcome: pins.has("outcome") ? previous.outcome : draft.outcome,
-    loss_reason: pins.has("loss_reason") ? previous.loss_reason : draft.loss_reason,
-    source: "human",
+    stage: pins.has("stage") ? (previous?.stage ?? draft.stage) : draft.stage,
+    interest: pins.has("interest") ? (previous?.interest ?? null) : draft.interest,
+    level: pins.has("level") ? (previous?.level ?? null) : draft.level,
+    place: pins.has("place") ? (previous?.place ?? null) : draft.place,
+    outcome: pins.has("outcome") ? (previous?.outcome ?? "offen") : "offen",
+    loss_reason: pins.has("outcome") ? (previous?.loss_reason ?? null) : null,
+    courses_sent: coursesSent,
+    price_sent: priceSent,
+    source: pins.size ? "human" : draft.source,
   };
 }
 

@@ -76,13 +76,15 @@ export type StoredLabel = {
   evidence: string | null;
   labeled_through: string;
   source: "rule" | "model" | "human";
-  /** Fields a person set. The cron keeps these and may refill the others. */
+  /** Fields a person set. The cron keeps these and may refill the others. Status is never refilled. */
   pinned?: string[];
   /** Vietnam date (YYYY-MM-DD) when loss_reason is spaeter. */
   resume_on?: string | null;
-  /** Set by staff only: the matching courses / the price went out, or the person paid. */
+  /** The labeler or staff: the matching courses went out. A pin keeps a hand correction. */
   courses_sent?: boolean;
+  /** The labeler or staff: the price went out. A pin keeps a hand correction. */
   price_sent?: boolean;
+  /** Staff only: the person paid for the course. */
   paid?: boolean;
 };
 
@@ -93,6 +95,10 @@ export type LabelDraft = {
   place: string | null;
   outcome: Outcome;
   loss_reason: LossReason | null;
+  /** The Page already offered concrete courses. The labeler may set this; status it may not. */
+  courses_sent?: boolean;
+  /** The Page already stated a price. The labeler may set this; status it may not. */
+  price_sent?: boolean;
   evidence: string;
   source: "rule" | "model" | "human";
 };

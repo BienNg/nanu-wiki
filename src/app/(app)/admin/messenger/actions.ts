@@ -130,6 +130,8 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   if (interest !== normInterest(row?.interest)) pins.add("interest");
   if (level !== normLevel(row?.level)) pins.add("level");
   if (place !== placeOf(row?.place)) pins.add("place");
+  if (coursesSent !== !!row?.courses_sent) pins.add("courses_sent");
+  if (priceSent !== !!row?.price_sent) pins.add("price_sent");
 
   const ball: Outcome = fact?.last_from_page ? "wartet_auf_kunde" : "wartet_auf_uns";
   let outcome: Outcome = row?.outcome ?? ball;
@@ -161,7 +163,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
     resume = row?.resume_on?.slice(0, 10) ?? null;
   }
 
-  // "Auto" judgment keeps a stored Schüler / Kein Lead until the next labeling, so the step looks at what is saved now.
+  // Status stays as stored until a person changes it. The step looks at that status.
   const stage = pins.has("stage") ? (stagePick === "auto" ? prevStage : stagePick) : stepFor({ interest, level, place, outcome, courses_sent: coursesSent, price_sent: priceSent, paid });
 
   const unchanged =

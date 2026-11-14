@@ -5,18 +5,10 @@ import { z } from "zod";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { redact } from "@/lib/assistant/suggest";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  LABEL_BUDGET_EUR,
-  applyGuards,
-  eurSpent,
-  followupIgnored,
-  monthKey,
-  newestActivity,
-  textRule,
-} from "./classify";
+import { LABEL_BUDGET_EUR, eurSpent, monthKey, newestActivity } from "./classify";
 import { mergePinned } from "./nextAction";
 import { isStep, stepFor } from "./steps";
-import { LEVELS, LOSS_REASONS, OUTCOMES, PLACES, type ChatLineRow, type LabelDraft, type MessengerFact, type Outcome, type StoredLabel } from "./types";
+import { LEVELS, PLACES, type ChatLineRow, type LabelDraft, type MessengerFact, type StoredLabel } from "./types";
 
 const MODEL = "claude-haiku-5-5";
 const MAX_MODEL = 8;
@@ -24,15 +16,12 @@ const BATCH = 40;
 const TRANSCRIPT_CHARS = 8000;
 const LOOKBACK_MS = 21 * 24 * 60 * 60 * 1000;
 
-const STATED = new Set(["preis", "zeit_passt_nicht", "spaeter", "andere_schule"]);
-const SKIP_TIMEOUT = new Set<Outcome>(["kein_lead", "bestandskunde", "weiter_auf_zalo"]);
-
 const LabelSchema = z.object({
   interest: z.enum([...INTERESTS, "keins"]),
   level: z.enum(LEVELS),
   place: z.enum(PLACES),
-  outcome: z.enum(OUTCOMES),
-  loss_reason: z.enum(LOSS_REASONS).nullable(),
+  courses_sent: z.boolean(),
+  price_sent: z.boolean(),
   evidence: z.string(),
 });
 
@@ -49,14 +38,6 @@ function hasNewMessages(fact: MessengerFact, label: StoredLabel | undefined) {
   return !!newest && new Date(newest) > new Date(label.labeled_through);
 }
 
-function needsTimeoutPatch(fact: MessengerFact, label: StoredLabel | undefined) {
-  if (!label || hasNewMessages(fact, label) || !followupIgnored(fact)) return false;
-  if (SKIP_TIMEOUT.has(label.outcome)) return false;
-  if (label.outcome === "verloren" && label.loss_reason === "keine_antwort") return false;
-  if (label.loss_reason && STATED.has(label.loss_reason)) return false;
-  return true;
-}
-
 function transcript(lines: ChatLineRow[]) {
   const body = lines
     .map((m) => {
@@ -69,21 +50,13 @@ function transcript(lines: ChatLineRow[]) {
 }
 
 function systemPrompt() {
-  return `You classify one Facebook Messenger thread for NaNu NaNa, a German language school for Vietnamese people.
-Return only the schema.
+  return `You fill in fields for one Facebook Messenger thread for NaNu NaNa, a German language school for Vietnamese people.
+Return only the schema. Do not decide the sales status (Kein Lead, Schüler, Zalo, Verloren, whose turn it is). A person sets that.
 
-outcome:
-- offen: in progress, last step unclear
-- wartet_auf_uns: the person wrote last
-- wartet_auf_kunde: the Page wrote last
-- weiter_auf_zalo: the Page moved the chat to Zalo and the person stopped here
-- bestandskunde: existing student (class, Zoom, homework), not a new enrollment
-- kein_lead: job, partner, spam, or not a course inquiry
-- verloren: they stopped and named a reason, or ignored a follow-up
-
-loss_reason is null unless outcome is verloren. Use keine_antwort only when a follow-up was already sent. Do not invent a price objection they did not say.
 interest is keins when nothing fits. level and place are unklar when unknown. A beginner with no German is A1.
 place is where they would learn: Saigon or Hanoi when they live there (or want a class on site there), Online VN when they live elsewhere in Vietnam or want online from Vietnam, Online DE when they live in Germany.
+courses_sent is true only when a WIR message already offered concrete courses (a course name, a schedule, or a link). Asking what they want is not enough.
+price_sent is true only when a WIR message already stated a price, tuition, or package price. The person asking about the price is not enough. If price_sent is true, courses_sent is true too.
 evidence: one short German sentence quoting a few of their words.`;
 }
 
@@ -95,11 +68,11 @@ async function saveLabel(
   previous?: StoredLabel,
 ) {
   const merged = mergePinned(draft, previous);
-  // The step follows from the fields unless a person picked it; "Kurse/Preis geschickt" stays.
+  // A Schüler stays a Sprachkurs chat. The step follows from the fields unless a person picked it.
   // A pin only counts when it holds one of the steps (old stage names were pinned too).
   if (merged.outcome === "bestandskunde") merged.interest = "Sprachkurs";
   const stagePinned = !!previous?.pinned?.includes("stage") && isStep(previous.stage);
-  if (!stagePinned) merged.stage = stepFor({ ...merged, courses_sent: previous?.courses_sent, price_sent: previous?.price_sent, paid: previous?.paid });
+  if (!stagePinned) merged.stage = stepFor({ ...merged, paid: previous?.paid });
   const through = newestActivity(fact) ?? new Date().toISOString();
   const { error } = await db.from("messenger_labels").upsert({
     conversation_id: fact.id,
@@ -113,7 +86,9 @@ async function saveLabel(
     labeled_through: through,
     source: merged.source,
     pinned: (previous?.pinned ?? []).filter((field) => field !== "stage" || stagePinned),
-    resume_on: previous?.resume_on ?? null,
+    resume_on: previous?.pinned?.includes("outcome") ? (previous.resume_on ?? null) : null,
+    courses_sent: !!merged.courses_sent,
+    price_sent: !!merged.price_sent,
     input_tokens: tokens.input,
     output_tokens: tokens.output,
     updated_at: new Date().toISOString(),
@@ -121,7 +96,7 @@ async function saveLabel(
   if (error) throw new Error(error.message);
 }
 
-/** Label threads that changed, plus quiet threads whose follow-up was ignored. At most 8 model calls. */
+/** Label threads that changed. At most 8 model calls. Status is left as a person set it. */
 export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
   const db = createAdminClient();
   const result: LabelRun = { rules: 0, model: 0, skipped: null };
@@ -157,27 +132,6 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
         .in("conversation_id", slice);
       if (error) throw new Error(error.message);
       for (const row of (data ?? []) as StoredLabel[]) labels.set(row.conversation_id, row);
-    }
-
-    for (const fact of facts) {
-      const label = labels.get(fact.id);
-      if (!needsTimeoutPatch(fact, label) || !label) continue;
-      const draft = applyGuards(
-        {
-          stage: label.stage,
-          interest: label.interest,
-          level: label.level,
-          place: label.place,
-          outcome: "verloren",
-          loss_reason: "keine_antwort",
-          evidence: "Nach der Nachfrage ist einen Tag lang keine Antwort gekommen.",
-          source: "rule",
-        },
-        fact,
-        now,
-      );
-      await saveLabel(db, fact, draft, { input: 0, output: 0 }, label);
-      result.rules++;
     }
 
     const fresh = facts
@@ -220,20 +174,13 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
 
     for (const fact of fresh) {
       const lines = byId.get(fact.id) ?? [];
-      const customers = lines.filter((l) => !l.from_page).map((l) => l.text ?? "");
-      const ruled = textRule(customers, fact.last_from_page);
-      if (ruled) {
-        await saveLabel(db, fact, applyGuards(ruled, fact, now), { input: 0, output: 0 }, labels.get(fact.id));
-        result.rules++;
-        continue;
-      }
+      const previous = labels.get(fact.id);
       if (!client || result.model >= MAX_MODEL) continue;
       if (eurSpent(inputTokens, outputTokens) >= LABEL_BUDGET_EUR) {
         result.skipped = "cap";
         continue;
       }
 
-      const hours = fact.last_customer_at ? Math.round((now - new Date(fact.last_customer_at).getTime()) / 3_600_000) : 0;
       try {
         const res = await client.messages.parse({
           model: MODEL,
@@ -243,7 +190,7 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
           messages: [
             {
               role: "user",
-              content: `Follow-up already sent: ${fact.followup_sent ? "yes" : "no"}\nLast message from: ${fact.last_from_page ? "page" : "customer"}\nHours since their last message: ${hours}\n\n<conversation>\n${transcript(lines)}\n</conversation>`,
+              content: `<conversation>\n${transcript(lines)}\n</conversation>`,
             },
           ],
         });
@@ -255,43 +202,39 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
 
         if (res.stop_reason === "max_tokens" || !res.parsed_output) throw new Error("Label-Antwort unvollständig");
         const parsed = res.parsed_output;
-        const draft: LabelDraft = applyGuards(
-          {
-            stage: "unklar",
-            interest: parsed.interest === "keins" ? null : parsed.interest,
-            level: parsed.level,
-            place: parsed.place,
-            outcome: parsed.outcome,
-            loss_reason: parsed.loss_reason,
-            evidence: parsed.evidence,
-            source: "model",
-          },
-          fact,
-          now,
-        );
-        await saveLabel(db, fact, draft, { input: usedIn, output: usedOut }, labels.get(fact.id));
+        const draft: LabelDraft = {
+          stage: "unklar",
+          interest: parsed.interest === "keins" ? null : parsed.interest,
+          level: parsed.level,
+          place: parsed.place,
+          outcome: "offen",
+          loss_reason: null,
+          courses_sent: parsed.price_sent || parsed.courses_sent,
+          price_sent: parsed.price_sent,
+          evidence: parsed.evidence,
+          source: "model",
+        };
+        await saveLabel(db, fact, draft, { input: usedIn, output: usedOut }, previous);
         result.model++;
       } catch {
-        // One bad reply must not stop the run or block this chat forever.
+        // One bad reply must not stop the run, wipe the fields, or block this chat forever.
         await saveLabel(
           db,
           fact,
-          applyGuards(
-            {
-              stage: "unklar",
-              interest: null,
-              level: null,
-              place: null,
-              outcome: fact.last_from_page ? "wartet_auf_kunde" : "wartet_auf_uns",
-              loss_reason: null,
-              evidence: "Automatische Einordnung ist fehlgeschlagen.",
-              source: "rule",
-            },
-            fact,
-            now,
-          ),
+          {
+            stage: previous?.stage ?? "unklar",
+            interest: previous?.interest ?? null,
+            level: previous?.level ?? null,
+            place: previous?.place ?? null,
+            outcome: "offen",
+            loss_reason: null,
+            courses_sent: !!previous?.courses_sent,
+            price_sent: !!previous?.price_sent,
+            evidence: previous?.evidence || "Automatische Einordnung ist fehlgeschlagen.",
+            source: "rule",
+          },
           { input: 0, output: 0 },
-          labels.get(fact.id),
+          previous,
         );
         result.rules++;
       }
