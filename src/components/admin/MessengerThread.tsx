@@ -27,6 +27,16 @@ const timeFmt = new Intl.DateTimeFormat("de-DE", { timeZone: TZ, hour: "2-digit"
 
 /** Image/video/file of a message. Meta's links expire after a while; then the image shows as broken. */
 function AttachmentView({ a, mine }: { a: Attachment; mine: boolean }) {
+  if (a.mime_type === "application/x-sent-elsewhere") {
+    return (
+      <span className={`${bubbleClass(mine)} italic`}>
+        <Label
+          de="Antwort aus der Meta Business Suite gesendet. Meta gibt den Text nicht weiter. Bitte dort nachlesen."
+          vi="Tin trả lời gửi từ Meta Business Suite. Meta không chuyển nội dung sang đây. Hãy xem ở đó."
+        />
+      </span>
+    );
+  }
   const img = a.image_data?.url ?? a.image_data?.preview_url;
   if (img) {
     return (

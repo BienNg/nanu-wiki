@@ -45,7 +45,7 @@ function mergeThreads(threads: InboundThread[]): InboundThread[] {
 }
 
 /** Insert conversations and messages. Existing rows keep an older updated_time only when the new batch is newer. */
-export async function upsertThreads(db: SupabaseClient, threads: InboundThread[]): Promise<number> {
+export async function upsertThreads(db: SupabaseClient, threads: InboundThread[], opts: { keepExisting?: boolean } = {}): Promise<number> {
   const merged = mergeThreads(threads).filter((t) => t.messages.length);
   if (!merged.length) return 0;
 
@@ -93,7 +93,10 @@ export async function upsertThreads(db: SupabaseClient, threads: InboundThread[]
   );
 
   for (let i = 0; i < rows.length; i += CHUNK) {
-    const { error } = await db.from("messenger_messages").upsert(rows.slice(i, i + CHUNK));
+    const { error } = await db
+      .from("messenger_messages")
+      // keepExisting: a stand-in row must never replace a message that already has its text.
+      .upsert(rows.slice(i, i + CHUNK), opts.keepExisting ? { onConflict: "id", ignoreDuplicates: true } : undefined);
     if (error) throw error;
   }
   return rows.length;

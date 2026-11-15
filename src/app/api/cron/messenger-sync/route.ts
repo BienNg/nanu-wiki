@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { recordSyncError, syncMessenger } from "@/lib/messenger/sync";
+import { replayUnprocessed } from "@/lib/messenger/webhook-events";
 
 // Called every minute by Supabase pg_cron (pg_net) with `Authorization: Bearer <CRON_SECRET>`.
 // Optional `?backfillDays=30` widens how far back messages are loaded.
@@ -24,9 +25,18 @@ async function handle(request: NextRequest) {
     await recordSyncError(messengerError).catch(() => {});
   }
 
+  // WhatsApp and Messenger callbacks that were stored but not finished get a second run here.
+  let replay: Awaited<ReturnType<typeof replayUnprocessed>> | null = null;
+  let replayError: string | null = null;
+  try {
+    replay = await replayUnprocessed();
+  } catch (e) {
+    replayError = e instanceof Error ? e.message : String(e);
+  }
+
   return NextResponse.json(
-    { ...messenger, messengerError },
-    { status: messengerError ? 500 : 200 },
+    { ...messenger, messengerError, replay, replayError },
+    { status: messengerError || replayError || replay?.failed ? 500 : 200 },
   );
 }
 

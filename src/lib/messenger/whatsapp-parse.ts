@@ -21,6 +21,8 @@ export type WaBatch = {
   phoneNumberId: string | null;
   displayPhone: string | null;
   messages: WaMessage[];
+  /** Our replies that Meta only reported as sent/delivered/read, without their text (sent from Meta Business Suite). */
+  sentElsewhere: WaMessage[];
   edits: WaEdit[];
   revokes: string[];
   contacts: WaContact[];
@@ -35,6 +37,9 @@ function rec(v: unknown): Rec | null {
 function str(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
+
+/** Marks a reply whose text Meta never gave us. The thread shows a notice in its place. */
+export const SENT_ELSEWHERE_MIME = "application/x-sent-elsewhere";
 
 /** Digits only, or null when this is a BSUID / display name rather than a phone number. */
 export function phoneDigits(v: unknown): string | null {
@@ -218,6 +223,35 @@ function readChange(change: Rec, batch: WaBatch) {
     }
   }
 
+  // A status for a reply we did not send ourselves (ours carry biz_opaque_callback_data).
+  // Meta sends no text for replies typed in Meta Business Suite, only these receipts,
+  // so the receipt is the only proof the reply exists. Keep it, or the chat shows a hole.
+  if (Array.isArray(value.statuses)) {
+    for (const item of value.statuses) {
+      const status = rec(item);
+      const id = str(status?.id);
+      if (!status || !id || status.biz_opaque_callback_data) continue;
+      // Only `sent` carries the real send time. A late `delivered`/`read` would date the reply
+      // after the customer's newest message and make an open chat look answered.
+      if (str(status.status) !== "sent") continue;
+      const phone = phoneDigits(status.recipient_id);
+      const userId = str(status.recipient_user_id) ?? (phone ? null : str(status.recipient_id));
+      if (!phone && !userId) continue;
+      const created_time = unixToIso(status.timestamp);
+      if (batch.sentElsewhere.some((m) => m.id === id)) continue;
+      batch.sentElsewhere.push({
+        id,
+        phone,
+        userId,
+        fromPage: true,
+        name: (userId && maps.byUser.get(userId)) || (phone && maps.byPhone.get(phone)) || null,
+        text: null,
+        attachments: [{ mime_type: SENT_ELSEWHERE_MIME, name: "Meta Business Suite" }],
+        created_time,
+      });
+    }
+  }
+
   if (Array.isArray(value.history)) {
     for (const block of value.history) {
       const threads = rec(block)?.threads;
@@ -261,9 +295,9 @@ export function parseWhatsAppWebhook(body: unknown): WaBatch[] {
     for (const change of changes) {
       const node = rec(change);
       if (!node) continue;
-      const batch: WaBatch = { phoneNumberId: null, displayPhone: null, messages: [], edits: [], revokes: [], contacts: [] };
+      const batch: WaBatch = { phoneNumberId: null, displayPhone: null, messages: [], sentElsewhere: [], edits: [], revokes: [], contacts: [] };
       readChange(node, batch);
-      if (batch.messages.length || batch.edits.length || batch.revokes.length || batch.contacts.length) batches.push(batch);
+      if (batch.messages.length || batch.sentElsewhere.length || batch.edits.length || batch.revokes.length || batch.contacts.length) batches.push(batch);
     }
   }
   return batches;

@@ -11,12 +11,43 @@ export async function processWebhook(channel: 'whatsapp' | 'messenger', body: un
   if (stored.error) throw stored.error;
   const prior = await db.from('messenger_webhook_events').select('processed_at').eq('id', id).single();
   if (prior.data?.processed_at) return;
+  await handleEvent(id, channel, body);
+}
+async function handleEvent(id: string, channel: 'whatsapp' | 'messenger', body: unknown) {
+  const db = createAdminClient();
   if (channel === 'whatsapp') await ingestWhatsappPayload(body);
   await applyStatuses(channel, body);
   // Delivery/read/echo callbacks do not need a full conversation sync.
   if (channel === 'messenger' && hasInboundMessage(body)) await syncMessenger({ timeBudgetMs: 20000 });
   const done = await db.from('messenger_webhook_events').update({ processed_at: new Date().toISOString() }).eq('id', id);
   if (done.error) throw done.error;
+}
+/**
+ * Safety net: run journal events again that were stored but never finished
+ * (crash, timeout, database error). Every write is an upsert, so a second run is harmless.
+ */
+export async function replayUnprocessed(limit = 25) {
+  const db = createAdminClient();
+  const { data, error } = await db
+    .from('messenger_webhook_events')
+    .select('id, channel, payload')
+    .is('processed_at', null)
+    .lt('created_at', new Date(Date.now() - 2 * 60_000).toISOString())
+    .order('created_at', { ascending: true })
+    .limit(limit);
+  if (error) throw error;
+  let replayed = 0;
+  let failed = 0;
+  for (const event of data ?? []) {
+    try {
+      await handleEvent(event.id, event.channel === 'whatsapp' ? 'whatsapp' : 'messenger', event.payload);
+      replayed++;
+    } catch (e) {
+      failed++;
+      console.error('webhook replay failed', event.id, e);
+    }
+  }
+  return { replayed, failed };
 }
 export async function applyStatuses(channel: string, body: unknown) {
   const db = createAdminClient();

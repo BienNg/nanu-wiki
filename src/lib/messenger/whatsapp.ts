@@ -66,7 +66,7 @@ async function loadExisting(db: Admin, batches: WaBatch[]) {
   const userIds = new Set<string>();
   for (const batch of batches) {
     const accountId = batch.phoneNumberId!;
-    for (const message of batch.messages) {
+    for (const message of [...batch.messages, ...batch.sentElsewhere]) {
       if (message.phone) ids.add(`wa:${accountId}:${message.phone}`);
       if (message.userId) userIds.add(message.userId);
     }
@@ -156,6 +156,37 @@ function applyContactNames(batches: WaBatch[], byPhone: Map<string, InboundThrea
   return pending;
 }
 
+/**
+ * Replies Meta only reported by receipt (typed in Meta Business Suite): no text ever arrives.
+ * Each gets a stand-in row, so the reply shows in the thread and the chat counts as answered.
+ * Skipped when the message is already stored or is one of our own sends.
+ */
+async function writeSentElsewhere(db: Admin, batches: WaBatch[], existing: Map<string, Existing>) {
+  const ids = [...new Set(batches.flatMap((batch) => batch.sentElsewhere.map((m) => m.id)))];
+  if (!ids.length) return { count: 0, userIds: [] as { id: string; userId: string }[] };
+
+  const known = new Set<string>();
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const part = ids.slice(i, i + CHUNK);
+    const stored = await db.from("messenger_messages").select("id").in("id", part);
+    if (stored.error) throw new Error(stored.error.message);
+    for (const row of stored.data ?? []) known.add(row.id as string);
+    const ours = await db.from("messenger_outbox").select("provider_message_id").in("provider_message_id", part);
+    if (ours.error) throw new Error(ours.error.message);
+    for (const row of ours.data ?? []) known.add(row.provider_message_id as string);
+  }
+
+  const missing = batches
+    .map((batch) => ({ ...batch, messages: batch.sentElsewhere.filter((m) => !known.has(m.id)) }))
+    .filter((batch) => batch.messages.length);
+  if (!missing.length) return { count: 0, userIds: [] };
+
+  const { threads, userIds } = threadsFrom(missing, existing);
+  let count = 0;
+  for (let i = 0; i < threads.length; i += CHUNK) count += await upsertThreads(db, threads.slice(i, i + CHUNK), { keepExisting: true });
+  return { count, userIds };
+}
+
 async function writeBatches(db: Admin, batches: WaBatch[]): Promise<number> {
   const existing = await loadExisting(db, batches);
   const { threads, byPhone, userIds } = threadsFrom(batches, existing);
@@ -163,6 +194,10 @@ async function writeBatches(db: Admin, batches: WaBatch[]): Promise<number> {
 
   let count = 0;
   for (let i = 0; i < threads.length; i += CHUNK) count += await upsertThreads(db, threads.slice(i, i + CHUNK));
+
+  const sent = await writeSentElsewhere(db, batches, existing);
+  count += sent.count;
+  userIds.push(...sent.userIds);
 
   const seenUsers = new Set<string>();
   for (const row of userIds) {
