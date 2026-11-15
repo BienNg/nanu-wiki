@@ -7,11 +7,11 @@ import { Icon } from "@/components/Icon";
 import { FilterDetails } from "@/components/admin/FilterDetails";
 import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
 import { FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
-import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StepCount } from "@/components/admin/labelPatch";
+import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, StepCount } from "@/components/admin/labelPatch";
 import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
-import { inboxPlace, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, stepKey } from "@/lib/messenger/inboxPlace";
+import { inboxPlace, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey } from "@/lib/messenger/inboxPlace";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
@@ -85,12 +85,12 @@ async function allPages<T>(load: (from: number, to: number) => PromiseLike<{ dat
 type Db = Awaited<ReturnType<typeof createClient>>;
 type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Step[]; limit: number };
 /** Counts for the menus and the funnel, plus the ids of the chats to show. `labels` only when they were read anyway. */
-type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; qualify: number; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
+type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; qualify: number; statuses: Record<string, number>; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
 
 /**
  * One request: the database counts and picks (migrations 20261114090000_messenger_inbox_index and
  * 20261114170000_messenger_inbox_qualify). Returns null when the function is not there yet, is still
- * the older one (groups without `open`), or answers with something unexpected.
+ * the older one (groups without `open`, or no `statuses` counts), or answers with something unexpected.
  */
 async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly Step[]): Promise<InboxIndex | null> {
   const stepNo = Number(f.step);
@@ -102,9 +102,9 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
     p_not_stages: f.step === "unklar" ? [...f.steps] : null,
     p_limit: f.limit,
   });
-  const found = data as { groups?: { interest: string; stage: string | null; open?: boolean; n: number }[]; total?: number; ids?: string[] } | null;
+  const found = data as { groups?: { interest: string; stage: string | null; open?: boolean; n: number }[]; total?: number; ids?: string[]; statuses?: Record<string, number> } | null;
   if (error || !found || !Array.isArray(found.groups) || !Array.isArray(found.ids) || typeof found.total !== "number") return null;
-  if (found.groups.some((g) => typeof g.open !== "boolean")) return null;
+  if (found.groups.some((g) => typeof g.open !== "boolean") || !found.statuses || typeof found.statuses.auto !== "number") return null;
 
   const interestCounts = new Map<string, number>();
   const stepCounts = new Map<string, number>();
@@ -118,7 +118,7 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + g.n);
     }
   }
-  return { source: "db", interestCounts, stepCounts, qualify, total: found.total, ids: found.ids };
+  return { source: "db", interestCounts, stepCounts, qualify, statuses: found.statuses, total: found.total, ids: found.ids };
 }
 
 /** The same result without the database function: read ids and labels, count here. */
@@ -142,10 +142,14 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
   const interestCounts = new Map<string, number>();
   const stepCounts = new Map<string, number>();
   let qualify = 0;
+  const statuses: Record<string, number> = {};
   for (const c of everyChat) {
-    const key = interestKey(labels.get(c.id));
+    const label = labels.get(c.id);
+    const key = interestKey(label);
     interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
-    if (key === NO_INTEREST && isOpen(labels.get(c.id))) qualify++;
+    const status = statusOf(label);
+    statuses[status] = (statuses[status] ?? 0) + 1;
+    if (key === NO_INTEREST && isOpen(label)) qualify++;
     if (key === FUNNEL_INTEREST) {
       const step = stepKey(labels.get(c.id));
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
@@ -153,11 +157,12 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
   }
   const matching = everyChat.filter((c) => {
     const label = labels.get(c.id);
+    if ((STATUS_FILTERS as readonly string[]).includes(f.interest)) return statusOf(label) === f.interest;
     if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
     if (f.step && stepKey(label) !== f.step) return false;
     return true;
   });
-  return { source: "app", interestCounts, stepCounts, qualify, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
+  return { source: "app", interestCounts, stepCounts, qualify, statuses, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
 }
 
 type MenuOption = { id: string; de: string; vi: string; href: string; count?: number };
@@ -224,7 +229,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const sp = await searchParams;
   const channel = sp.ch === "whatsapp" || sp.ch === "messenger" ? sp.ch : "";
   const q = (sp.q ?? "").trim().slice(0, 80);
-  const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
+  const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || (STATUS_FILTERS as readonly string[]).includes(sp.i ?? "") || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
   const funnel = FUNNELS[interestFilter];
   const stepFilter = funnel && sp.s && Number(sp.s) >= 1 && Number(sp.s) <= funnel.length ? sp.s : "";
   const limit = Math.min(LIST_MAX, Math.max(LIST_STEP, Math.ceil((Number(sp.n) || 0) / LIST_STEP) * LIST_STEP));
@@ -236,7 +241,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const filter: IndexFilter = { channel, like, interest: interestFilter, step: funnel ? stepFilter : "", steps: funnel ?? [], limit };
   // Counted and picked in the database; the app-side way only runs until the migration is applied.
   const index = (await indexFromDb(supabase, filter, funnelSteps)) ?? (await indexFromRows(supabase, filter, funnelSteps));
-  const { interestCounts, stepCounts, qualify, total, ids: shownIds } = index;
+  const { interestCounts, stepCounts, qualify, statuses, total, ids: shownIds } = index;
 
   // Full rows (newest message, label, facts) only for the chats that are shown.
   const [inboxRows, factRows, labelRows] = await Promise.all([
@@ -257,6 +262,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
 
   const schuelerKey = String(funnelSteps.indexOf("schueler") + 1);
   const schuelerOn = interestFilter === FUNNEL_INTEREST && stepFilter === schuelerKey;
+  const statusId = schuelerOn ? "schueler" : (STATUS_FILTERS as readonly string[]).includes(interestFilter) ? interestFilter : "";
+  const statusOn = STATUSES.find((s) => s.id === statusId);
 
   const href = (patch: Partial<Params>) => {
     const next = { ch: channel, i: interestFilter, s: stepFilter, q, ...patch };
@@ -319,24 +326,52 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 ].map((o) => ({ ...o, href: href({ ch: o.id, c: "" }) }))}
               />
               <div className="flex items-center">
-                <Link
-                  href={href({ i: FUNNEL_INTEREST, s: schuelerKey, c: "" })}
-                  data-filter=""
-                  aria-current={schuelerOn ? "page" : undefined}
-                  className={`flex h-8 items-center gap-1.5 border px-3 text-[12.5px] font-medium transition-colors duration-150 ${
-                    schuelerOn ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line text-body hover:bg-hover"
-                  }`}
-                >
-                  <Label de="Schüler" vi="Học viên" />
-                  <span className="tabular-nums text-[12px] text-faint">
-                    <StepCount id={schuelerKey} count={stepCounts.get(schuelerKey) ?? 0} />
-                  </span>
-                </Link>
-                {schuelerOn && (
+                <FilterDetails className="group relative">
+                  <summary
+                    className={`flex h-8 cursor-pointer list-none items-center gap-1.5 border px-3 text-[12.5px] font-medium transition-colors duration-150 [&::-webkit-details-marker]:hidden ${
+                      statusOn ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line text-body hover:bg-hover"
+                    }`}
+                  >
+                    {statusOn ? <Label de={statusOn.de} vi={statusOn.vi} /> : <Label de="Status" vi="Trạng thái" />}
+                    {statusOn && (
+                      <span className="tabular-nums text-[12px] text-faint">
+                        {statusOn.id === "schueler" ? <StepCount id={schuelerKey} count={stepCounts.get(schuelerKey) ?? 0} /> : <StatusCount id={statusOn.id} count={statuses[statusOn.id] ?? 0} />}
+                      </span>
+                    )}
+                    <span className="rotate-90 transition-transform duration-200 group-open:-rotate-90">
+                      <Icon name="chevron" size={11} />
+                    </span>
+                  </summary>
+                  <div className="menu-pop absolute right-0 z-30 mt-1.5 w-56 origin-top-right rounded-xl border border-black/[0.06] bg-white/85 p-1 shadow-[0_12px_40px_rgba(0,0,0,0.16),0_2px_6px_rgba(0,0,0,0.06)] backdrop-blur-xl max-md:left-0 max-md:right-auto max-md:origin-top-left">
+                    {STATUSES.map((o) => {
+                      const on = o.id === statusId;
+                      const hrefFor = o.id === "schueler" ? href({ i: FUNNEL_INTEREST, s: schuelerKey, c: "" }) : href({ i: o.id, s: "", c: "" });
+                      const count = o.id === "schueler" ? <StepCount id={schuelerKey} count={stepCounts.get(schuelerKey) ?? 0} /> : <StatusCount id={o.id} count={statuses[o.id] ?? 0} />;
+                      return (
+                        <Link
+                          key={o.id}
+                          href={hrefFor}
+                          data-filter=""
+                          aria-current={on ? "page" : undefined}
+                          className="group/item flex items-center gap-1.5 rounded-[7px] px-1.5 py-[5px] text-[13px] text-ink hover:bg-accent hover:text-white"
+                        >
+                          <svg aria-hidden="true" width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className={`flex-none ${on ? "" : "invisible"}`}>
+                            <path d="M5 12.5l4.5 4.5L19 7.5" />
+                          </svg>
+                          <span className="min-w-0 flex-1 truncate">
+                            <Label de={o.de} vi={o.vi} />
+                          </span>
+                          <span className="tabular-nums text-[12px] text-faint group-hover/item:text-white/80">{count}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </FilterDetails>
+                {statusOn && (
                   <Link
                     href={href({ i: FUNNEL_INTEREST, s: "", c: "" })}
                     data-filter=""
-                    aria-label="Schüler zurücksetzen"
+                    aria-label="Status zurücksetzen"
                     className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1 pr-2.5 text-[13px] text-accent-dark transition-colors duration-150 hover:bg-[#d9e6ff]"
                   >
                     ×
@@ -346,7 +381,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
             </div>
           </div>
 
-          {!interestFilter || interestFilter === FUNNEL_INTEREST || interestFilter === QUALIFY ? (
+          {!interestFilter || interestFilter === FUNNEL_INTEREST || interestFilter === QUALIFY || (STATUS_FILTERS as readonly string[]).includes(interestFilter) ? (
             <nav aria-label={`Schritte ${FUNNEL_INTEREST}`} className="flex items-stretch gap-2">
               <FunnelNav
                 stamp={now}

@@ -142,6 +142,7 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
   const interestDelta: Record<string, number> = {};
   const stepDelta: Record<string, number> = {};
   let qualify = 0;
+  const status: Record<string, number> = {};
   let total = 0;
   let hidden = 0;
   const add = (map: Record<string, number>, key: string, n: number) => {
@@ -160,18 +161,28 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
       if (nextStep) add(stepDelta, nextStep, 1);
     }
     qualify += (qualifyOf(e.next) ? 1 : 0) - (qualifyOf(e.prev) ? 1 : 0);
+    if (e.prev.status !== e.next.status) {
+      add(status, e.prev.status, -1);
+      add(status, e.next.status, 1);
+    }
     const was = matchesInboxFilter(e.prev, interest, step);
     const now = matchesInboxFilter(e.next, interest, step);
     total += (now ? 1 : 0) - (was ? 1 : 0);
     if (listedIds?.includes(e.conversationId) && !now) hidden += 1;
   }
-  return { interest: interestDelta, step: stepDelta, qualify, total, hidden };
+  return { interest: interestDelta, step: stepDelta, qualify, status, total, hidden };
 }
 
 /** One funnel step's count, plus the saves since this list was rendered. */
 export function StepCount({ id, count }: { id: string; count: number }) {
   const adjust = useLabelAdjust();
   return <>{count + (adjust.step[id] ?? 0)}</>;
+}
+
+/** One Status filter's count, plus the saves since this list was rendered. */
+export function StatusCount({ id, count }: { id: string; count: number }) {
+  const adjust = useLabelAdjust();
+  return <>{count + (adjust.status[id] ?? 0)}</>;
 }
 
 /** Interesse menu count, plus the saves since this list was rendered. */
