@@ -140,6 +140,8 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     setStageEl(document.getElementById(stageSlot));
   }, [statusSlot, stageSlot]);
   const locked = (field: string) => pinned.includes(field);
+  // A filled field without a pin came from the labeler: every change a person saves pins that field.
+  // MenuSelect shows no dot on an empty chip, so `labeled` only needs the missing pin.
 
   const readForm = () => {
     const data = new FormData(form.current!);
@@ -285,6 +287,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         label={<Label de="Interesse" vi="Nhu cầu" />}
         emptyValue=""
         pinned={locked("interest")}
+        labeled={!locked("interest")}
         defaultValue={status === "bestandskunde" ? FUNNEL_INTEREST : interest}
         onChange={() => save("interest")}
         options={[{ value: "", label: "—" }, ...INTERESTS.map((id) => ({ value: id as string, label: id }))]}
@@ -296,6 +299,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         label={<Label de="Niveau" vi="Trình độ" />}
         emptyValue="unklar"
         pinned={locked("level")}
+        labeled={!locked("level")}
         defaultValue={levelOf(level)}
         onChange={() => save("level")}
         options={LEVELS.map((id) => ({ value: id as string, label: id === "unklar" ? "—" : id }))}
@@ -307,6 +311,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         label={<Label de="Ort" vi="Nơi học" />}
         emptyValue="unklar"
         pinned={locked("place")}
+        labeled={!locked("place")}
         defaultValue={placeOf(place)}
         onChange={() => save("place")}
         options={PLACES.map((id) => ({ value: id as string, label: id === "unklar" ? "—" : id }))}
@@ -320,6 +325,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           label={<Label de={item.de} vi={item.vi} />}
           emptyValue="nein"
           pinned={item.name === "paid" ? undefined : locked(item.name)}
+          labeled={item.name !== "paid" && !locked(item.name)}
           defaultValue={(item.name === "courses_sent" ? coursesSent : item.name === "price_sent" ? priceSent : paid) ? "ja" : "nein"}
           onChange={(v) => {
             if (item.name === "paid") {

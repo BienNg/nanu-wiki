@@ -33,6 +33,7 @@ export function MenuSelect({
   emptyValue,
   keepLabel,
   pinned,
+  labeled,
   form,
   compact,
   saving,
@@ -49,6 +50,8 @@ export function MenuSelect({
   keepLabel?: boolean;
   /** A person set this field; it stays when the chat is labeled again. */
   pinned?: boolean;
+  /** The labeler filled this field. A person's pin wins over it. */
+  labeled?: boolean;
   /** Id of the <form> this belongs to, when it is rendered outside of it. */
   form?: string;
   /** Smaller chip for a header line. */
@@ -138,7 +141,11 @@ export function MenuSelect({
           </>
         ) : (
           <>
-            {pinned ? <span className="size-1.5 flex-none rounded-full bg-accent" title="Bleibt beim nächsten Einordnen" /> : null}
+            {pinned ? (
+              <span className="size-1.5 flex-none rounded-full bg-accent" title="Von Hand gesetzt · bleibt beim nächsten Einordnen" />
+            ) : labeled ? (
+              <span className="size-1.5 flex-none rounded-full bg-[#a855f7]" title="Vom Labeler gesetzt · kann sich beim nächsten Einordnen ändern" />
+            ) : null}
             {keepLabel ? <span className="flex-none text-[12px] text-muted">{label}</span> : null}
             <span className="min-w-0 truncate font-medium">{chosen >= 0 ? (options[chosen]?.chip ?? options[chosen]?.label) : closedLabel}</span>
             <span className="text-faint">
