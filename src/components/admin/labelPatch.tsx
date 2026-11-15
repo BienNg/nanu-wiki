@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/Bi";
 import { acknowledgeOwnInbox } from "@/components/admin/InboxLive";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
-import { matchesInboxFilter, NO_INTEREST, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { inFunnelStep, matchesInboxFilter, NO_INTEREST, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { SavedLabel } from "@/lib/messenger/labelSave";
 
 /**
@@ -154,8 +154,8 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
       add(interestDelta, e.prev.interestKey, -1);
       add(interestDelta, e.next.interestKey, 1);
     }
-    const prevStep = e.prev.interestKey === FUNNEL_INTEREST ? e.prev.stepKey : null;
-    const nextStep = e.next.interestKey === FUNNEL_INTEREST ? e.next.stepKey : null;
+    const prevStep = e.prev.interestKey === FUNNEL_INTEREST && inFunnelStep(e.prev.status) ? e.prev.stepKey : null;
+    const nextStep = e.next.interestKey === FUNNEL_INTEREST && inFunnelStep(e.next.status) ? e.next.stepKey : null;
     if (prevStep !== nextStep) {
       if (prevStep) add(stepDelta, prevStep, -1);
       if (nextStep) add(stepDelta, nextStep, 1);

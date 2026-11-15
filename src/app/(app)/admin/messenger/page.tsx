@@ -11,7 +11,7 @@ import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, Step
 import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
-import { inboxPlace, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey } from "@/lib/messenger/inboxPlace";
+import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
@@ -90,7 +90,7 @@ type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; s
 /**
  * One request: the database counts and picks (migrations 20261114090000_messenger_inbox_index and
  * 20261114170000_messenger_inbox_qualify). Returns null when the function is not there yet, is still
- * the older one (groups without `open`, or no `statuses` counts), or answers with something unexpected.
+ * the older one (groups without `open` and `status`, or no `statuses` counts), or answers with something unexpected.
  */
 async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly Step[]): Promise<InboxIndex | null> {
   const stepNo = Number(f.step);
@@ -102,9 +102,9 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
     p_not_stages: f.step === "unklar" ? [...f.steps] : null,
     p_limit: f.limit,
   });
-  const found = data as { groups?: { interest: string; stage: string | null; open?: boolean; n: number }[]; total?: number; ids?: string[]; statuses?: Record<string, number> } | null;
+  const found = data as { groups?: { interest: string; stage: string | null; open?: boolean; status?: string; n: number }[]; total?: number; ids?: string[]; statuses?: Record<string, number> } | null;
   if (error || !found || !Array.isArray(found.groups) || !Array.isArray(found.ids) || typeof found.total !== "number") return null;
-  if (found.groups.some((g) => typeof g.open !== "boolean") || !found.statuses || typeof found.statuses.auto !== "number") return null;
+  if (found.groups.some((g) => typeof g.open !== "boolean" || typeof g.status !== "string") || !found.statuses || typeof found.statuses.auto !== "number") return null;
 
   const interestCounts = new Map<string, number>();
   const stepCounts = new Map<string, number>();
@@ -112,7 +112,7 @@ async function indexFromDb(supabase: Db, f: IndexFilter, funnelSteps: readonly S
   for (const g of found.groups) {
     interestCounts.set(g.interest, (interestCounts.get(g.interest) ?? 0) + g.n);
     if (g.interest === NO_INTEREST && g.open) qualify += g.n;
-    if (g.interest === FUNNEL_INTEREST) {
+    if (g.interest === FUNNEL_INTEREST && inFunnelStep(g.status as InboxPlace["status"])) {
       const at = funnelSteps.indexOf(g.stage as Step);
       const step = at >= 0 ? String(at + 1) : "unklar";
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + g.n);
@@ -150,7 +150,7 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
     const status = statusOf(label);
     statuses[status] = (statuses[status] ?? 0) + 1;
     if (key === NO_INTEREST && isOpen(label)) qualify++;
-    if (key === FUNNEL_INTEREST) {
+    if (key === FUNNEL_INTEREST && inFunnelStep(status)) {
       const step = stepKey(labels.get(c.id));
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
     }
@@ -159,7 +159,7 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
     const label = labels.get(c.id);
     if ((STATUS_FILTERS as readonly string[]).includes(f.interest)) return statusOf(label) === f.interest;
     if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
-    if (f.step && stepKey(label) !== f.step) return false;
+    if (f.step && (!inFunnelStep(statusOf(label)) || stepKey(label) !== f.step)) return false;
     return true;
   });
   return { source: "app", interestCounts, stepCounts, qualify, statuses, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };

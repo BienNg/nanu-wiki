@@ -52,6 +52,11 @@ export function isOpen(label: PlaceLabel) {
   return label?.outcome !== "kein_lead" && label?.outcome !== "bestandskunde" && label?.outcome !== "weiter_auf_zalo";
 }
 
+/** Status Zalo and Verloren are not part of a Sprachkurs step. Zalo continues there; Verloren is closed. */
+export function inFunnelStep(status: InboxPlace["status"]) {
+  return status !== "zalo" && status !== "verloren";
+}
+
 export function statusOf(label: PlaceLabel): InboxPlace["status"] {
   if (label?.outcome === "bestandskunde") return "schueler";
   if (label?.outcome === "weiter_auf_zalo") return "zalo";
@@ -72,12 +77,12 @@ export function inboxPlace(label: PlaceLabel): InboxPlace {
 
 /**
  * Whether a chat belongs in the list the reader is looking at.
- * A status id other than Schüler matches that status. `stepFilter` applies only inside Sprachkurs. An empty interest filter is the whole inbox.
+ * A status id other than Schüler matches that status. `stepFilter` applies only inside Sprachkurs, and Status Zalo and Verloren are left out of that step. An empty interest filter is the whole inbox.
  */
 export function matchesInboxFilter(place: InboxPlace, interestFilter: string, stepFilter: string) {
   if ((STATUS_FILTERS as readonly string[]).includes(interestFilter)) return place.status === interestFilter;
   if (interestFilter === QUALIFY) return place.interestKey === NO_INTEREST && place.open;
   if (interestFilter && place.interestKey !== interestFilter) return false;
-  if (interestFilter === FUNNEL_INTEREST && stepFilter && place.stepKey !== stepFilter) return false;
+  if (interestFilter === FUNNEL_INTEREST && stepFilter && (!inFunnelStep(place.status) || place.stepKey !== stepFilter)) return false;
   return true;
 }
