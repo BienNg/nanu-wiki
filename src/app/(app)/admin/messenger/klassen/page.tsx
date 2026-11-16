@@ -4,8 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Topbar, Crumb } from "@/components/Topbar";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
-import { MODE_SHORT, shortDate } from "@/lib/classes";
-import { hasStarted, type AssignableClass } from "@/lib/messenger/classes";
+import { KlassenList, ProspectList, type ProspectItem } from "@/components/admin/KlassenView";
+import { type AssignableClass } from "@/lib/messenger/classes";
 import { STEP_INFO, stepOf } from "@/lib/messenger/steps";
 import { toActionLabel, LABEL_COLUMNS, type InboxLabel } from "@/lib/messenger/thread";
 import { assignableClassById, assignableClasses } from "@/lib/notion";
@@ -28,15 +28,11 @@ function stateChip(label: InboxLabel | null) {
   return step ? { de: STEP_INFO[step].short_de, vi: STEP_INFO[step].short_vi } : { de: "Unklar", vi: "Chưa rõ" };
 }
 
-function Badge({ tone, children }: { tone: "muted" | "warn"; children: React.ReactNode }) {
-  const cls = tone === "warn" ? "bg-[#FDF1E2] text-[#9A5B13]" : "bg-[#F1F2F4] text-muted";
-  return <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${cls}`}>{children}</span>;
-}
-
 /**
  * Upcoming classes and the Messenger chats assigned to them, for reaching out to every prospect of
  * a class. Classes come live from Notion (the assignable pool plus assigned classes fetched by id
- * until their End date passes); the assignments live in Supabase. Rows open the chat in the inbox.
+ * until their End date passes); the assignments live in Supabase. A chat opens as a read-only
+ * preview; from there it opens in the inbox.
  */
 export default async function MessengerKlassenPage({ searchParams }: { searchParams: Promise<{ k?: string }> }) {
   await requireRole("admin");
@@ -67,7 +63,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
   });
 
   const selected = classes.find((c) => c.id === sp.k) ?? null;
-  let prospects: { conv: ConversationRow; label: InboxLabel | null }[] = [];
+  let prospects: ProspectItem[] = [];
   if (selected) {
     const ids = byClass.get(selected.id) ?? [];
     if (ids.length) {
@@ -78,8 +74,18 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
       if (convErr || labelErr) throw new Error(convErr?.message ?? labelErr?.message);
       const labelById = new Map((labels ?? []).map((l) => [l.conversation_id, l as InboxLabel]));
       prospects = ((convs ?? []) as ConversationRow[])
-        .map((conv) => ({ conv, label: labelById.get(conv.id) ?? null }))
-        .sort((a, b) => (a.conv.updated_time < b.conv.updated_time ? 1 : -1));
+        .sort((a, b) => (a.updated_time < b.updated_time ? 1 : -1))
+        .map((conv) => {
+          const chip = stateChip(labelById.get(conv.id) ?? null);
+          return {
+            id: conv.id,
+            name: conv.customer_name ?? "Unbekannt",
+            channel: conv.channel,
+            chipDe: chip.de,
+            chipVi: chip.vi,
+            time: dayFmt.format(new Date(conv.updated_time)),
+          };
+        });
     }
   }
 
@@ -112,57 +118,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
           </p>
         </header>
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-6 max-md:grid-cols-1">
-          <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-            {classes.map((c) => {
-              const count = byClass.get(c.id)?.length ?? 0;
-              const current = selected?.id === c.id;
-              const when = c.begin ? shortDate(c.begin) : null;
-              return (
-                <li key={c.id}>
-                  <Link
-                    href={current ? "/admin/messenger/klassen" : `/admin/messenger/klassen?k=${c.id}`}
-                    aria-current={current ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-xl border px-4 py-2.5 transition-colors ${current ? "border-accent bg-accent-soft" : "border-line bg-white hover:bg-hover"}`}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="m-0 truncate text-[13.5px] font-medium" title={c.name}>
-                        {c.name}
-                      </p>
-                      <p className="m-0 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted">
-                        {c.mode && <span>{MODE_SHORT[c.mode]}</span>}
-                        {when ? (
-                          <span>
-                            <Label de={`ab ${when.de}`} vi={`từ ${when.vi}`} />
-                            {c.time ? ` · ${c.time}` : ""}
-                          </span>
-                        ) : (
-                          <Badge tone="muted">
-                            <Label de="Start offen" vi="Chưa có ngày" />
-                          </Badge>
-                        )}
-                        {c.full && (
-                          <Badge tone="warn">
-                            <Label de="Voll" vi="Đã đầy" />
-                          </Badge>
-                        )}
-                        {hasStarted(c) && (
-                          <Badge tone="muted">
-                            <Label de="Läuft" vi="Đang học" />
-                          </Badge>
-                        )}
-                      </p>
-                    </div>
-                    <span className={`flex-none rounded-full px-2 py-0.5 text-[12px] font-medium ${count ? "bg-accent-soft text-accent" : "bg-[#F1F2F4] text-faint"}`}>{count}</span>
-                  </Link>
-                </li>
-              );
-            })}
-            {classes.length === 0 && (
-              <li className="rounded-xl border border-line bg-white px-4 py-3 text-[13px] text-muted">
-                <Label de="Keine kommenden Klassen in Notion gefunden." vi="Không tìm thấy lớp sắp mở trong Notion." />
-              </li>
-            )}
-          </ul>
+          <KlassenList items={classes.map((c) => ({ c, count: byClass.get(c.id)?.length ?? 0 }))} selectedId={selected?.id ?? null} />
           <section>
             {!selected ? (
               <p className="m-0 rounded-xl border border-dashed border-line px-4 py-8 text-center text-[13px] text-muted">
@@ -185,25 +141,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
                     <Label de="Diesem Kurs ist noch kein Chat zugeordnet." vi="Chưa có cuộc trò chuyện nào được gán cho lớp này." />
                   </p>
                 ) : (
-                  <ul className="m-0 list-none p-0">
-                    {prospects.map(({ conv, label }) => {
-                      const chip = stateChip(label);
-                      return (
-                        <li key={conv.id} className="border-b border-line last:border-b-0">
-                          <Link href={`/admin/messenger?c=${encodeURIComponent(conv.id)}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-hover">
-                            <div className="min-w-0 flex-1">
-                              <p className="m-0 truncate text-[13.5px] font-medium">{conv.customer_name ?? "Unbekannt"}</p>
-                              <p className="m-0 mt-0.5 text-[12px] text-muted">{conv.channel === "whatsapp" ? "WhatsApp" : "Messenger"}</p>
-                            </div>
-                            <span className="flex-none rounded-full bg-[#F1F2F4] px-2 py-0.5 text-[11.5px] font-medium text-muted">
-                              <Label de={chip.de} vi={chip.vi} />
-                            </span>
-                            <span className="flex-none text-[12px] text-faint">{dayFmt.format(new Date(conv.updated_time))}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <ProspectList items={prospects} />
                 )}
               </div>
             )}

@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
 import { MessengerHeader, bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
+import { CopyName } from "@/components/admin/CopyName";
 
 type Attachment = {
   mime_type?: string;
@@ -153,6 +154,7 @@ export function MessengerThread({
         <div className="min-w-0 flex-1">
           <MessengerHeader
             name={name}
+            nameActions={<CopyName name={name} />}
             status={status ?? <Label de="Nur lesen · in der Business Suite antworten" vi="Chỉ đọc · trả lời trong Business Suite" />}
             actions={actions}
             below={below}

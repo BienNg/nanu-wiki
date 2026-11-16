@@ -10,7 +10,20 @@ import { initials } from "@/lib/format";
  * `below` is a third line under the status (the inbox puts the Status menu there). On a narrow pane the actions
  * drop to their own line instead of squeezing the name.
  */
-export function MessengerHeader({ name, status, actions, below }: { name: string; status: React.ReactNode; actions?: React.ReactNode; below?: React.ReactNode }) {
+export function MessengerHeader({
+  name,
+  status,
+  actions,
+  below,
+  nameActions,
+}: {
+  name: string;
+  status: React.ReactNode;
+  actions?: React.ReactNode;
+  below?: React.ReactNode;
+  /** Small controls right beside the name (the inbox puts a copy button there). */
+  nameActions?: React.ReactNode;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-b border-line bg-white px-3.5 py-2.5">
       <span className="relative flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#E4E6EB] text-[13px] font-semibold text-ink">
@@ -18,7 +31,10 @@ export function MessengerHeader({ name, status, actions, below }: { name: string
         <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#31A24C]" />
       </span>
       <span className="flex min-w-[9rem] flex-1 flex-col leading-tight">
-        <strong className="truncate text-sm font-semibold text-ink">{name || "Kunde"}</strong>
+        <span className="flex min-w-0 items-center gap-1">
+          <strong className="truncate text-sm font-semibold text-ink">{name || "Kunde"}</strong>
+          {nameActions}
+        </span>
         <span className="truncate text-xs text-muted">{status}</span>
         {below}
       </span>

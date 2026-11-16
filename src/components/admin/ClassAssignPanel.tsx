@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Label } from "@/components/Bi";
 import { MODE_SHORT, shortDate } from "@/lib/classes";
 import { hasStarted, matchScore, rankClasses, type AssignableClass } from "@/lib/messenger/classes";
@@ -11,6 +12,22 @@ type State = ({ id: string } & Data) | { id: string; error: true } | null;
 /** Chats whose classes were loaded in this tab; going back shows them at once. */
 const recent = new Map<string, Data>();
 const COLLAPSED_KEY = "messenger-classes-panel";
+
+/** Rows get a view-transition name, so moving between Zugeordnet and Vorschläge animates where the browser supports it. */
+function animated(apply: () => void) {
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+  if (doc.startViewTransition) doc.startViewTransition(() => flushSync(apply));
+  else apply();
+}
+
+function matchesQuery(c: AssignableClass, q: string) {
+  if (!q) return true;
+  const hay = [c.name, c.level ?? "", c.mode ? MODE_SHORT[c.mode] : "", c.time ?? "", c.begin ?? ""].join(" ").toLowerCase();
+  return q
+    .toLowerCase()
+    .split(/\s+/)
+    .every((part) => hay.includes(part));
+}
 
 function Badge({ tone, children }: { tone: "accent" | "muted" | "warn"; children: React.ReactNode }) {
   const cls =
@@ -26,7 +43,7 @@ function Badge({ tone, children }: { tone: "accent" | "muted" | "warn"; children
 function ClassRow({ c, score, busy, actionLabel, onAction }: { c: AssignableClass; score: number; busy: boolean; actionLabel: "add" | "remove"; onAction: () => void }) {
   const when = c.begin ? shortDate(c.begin) : null;
   return (
-    <li className="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-hover">
+    <li style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }} className="flex items-start gap-2 rounded-lg bg-[#FAFBFC] px-2 py-1.5 hover:bg-hover">
       <div className="min-w-0 flex-1">
         <p className="m-0 truncate text-[12.5px] font-medium leading-snug" title={c.name}>
           {c.name}
@@ -87,6 +104,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     return cached ? { id: conversationId, ...cached } : null;
   });
   const [collapsed, setCollapsed] = useState(false);
+  const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const flight = useRef<AbortController | null>(null);
@@ -131,7 +149,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     const assigned = remove ? before.filter((k) => k !== classId) : [...before, classId];
     const next = { classes: state.classes, assigned };
     recent.set(conversationId, next);
-    setState({ id: conversationId, ...next });
+    animated(() => setState({ id: conversationId, ...next }));
     setBusy(classId);
     fetch("/api/messenger/classes", {
       method: "POST",
@@ -142,7 +160,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
       .catch(() => {
         const rolled = { classes: next.classes, assigned: before };
         recent.set(conversationId, rolled);
-        setState((s) => (s && !("error" in s) && s.id === conversationId ? { id: conversationId, ...rolled } : s));
+        animated(() => setState((s) => (s && !("error" in s) && s.id === conversationId ? { id: conversationId, ...rolled } : s)));
       })
       .finally(() => setBusy((b) => (b === classId ? null : b)));
   };
@@ -167,7 +185,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
   }
 
   const ready = state && !("error" in state) ? state : null;
-  const suggestions = ready ? rankClasses(ready.classes.filter((c) => !ready.assigned.includes(c.id)), level, place) : [];
+  const suggestions = ready ? rankClasses(ready.classes.filter((c) => !ready.assigned.includes(c.id) && matchesQuery(c, query)), level, place) : [];
   const assignedClasses = ready ? ready.assigned.map((k) => ready.classes.find((c) => c.id === k)).filter((c): c is AssignableClass => !!c) : [];
   const canSuggest = !!level && level !== "unklar" && !!place && place !== "unklar";
 
@@ -181,6 +199,15 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
           ›
         </button>
       </header>
+      <div className="flex-none border-b border-line px-2 py-1.5">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Kurs suchen · Tìm lớp"
+          className="w-full rounded-lg border border-line bg-white px-2.5 py-1 text-[12.5px] outline-none placeholder:text-faint focus:border-accent"
+        />
+      </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-1.5 py-2">
         {!state && <p className="m-0 px-2 text-[12px] text-faint">…</p>}
         {state && "error" in state && (
@@ -220,6 +247,11 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
                 <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="add" onAction={() => save(c.id, false)} />
               ))}
             </ul>
+            {suggestions.length === 0 && !!query && (
+              <p className="m-0 px-2 text-[12px] text-faint">
+                <Label de="Keine Kurse gefunden." vi="Không tìm thấy lớp nào." />
+              </p>
+            )}
           </>
         )}
       </div>
