@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Label } from "@/components/Bi";
+import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
 import { MODE_SHORT, shortDate } from "@/lib/classes";
 import { hasStarted, matchScore, rankClasses, type AssignableClass } from "@/lib/messenger/classes";
 
@@ -39,12 +40,26 @@ function Badge({ tone, children }: { tone: "accent" | "muted" | "warn"; children
   return <span className={`rounded-full px-1.5 py-px text-[10.5px] font-medium ${cls}`}>{children}</span>;
 }
 
-/** Name, when and where of one class, plus an add or remove button. */
-function ClassRow({ c, score, busy, actionLabel, onAction }: { c: AssignableClass; score: number; busy: boolean; actionLabel: "add" | "remove"; onAction: () => void }) {
+/** Name, when and where of one class (a click opens the class info), plus an add or remove button. */
+function ClassRow({
+  c,
+  score,
+  busy,
+  actionLabel,
+  onAction,
+  onInfo,
+}: {
+  c: AssignableClass;
+  score: number;
+  busy: boolean;
+  actionLabel: "add" | "remove";
+  onAction: () => void;
+  onInfo: () => void;
+}) {
   const when = c.begin ? shortDate(c.begin) : null;
   return (
     <li style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }} className="flex items-start gap-2 rounded-lg bg-[#FAFBFC] px-2 py-1.5 hover:bg-hover">
-      <div className="min-w-0 flex-1">
+      <button type="button" onClick={onInfo} title="Infos zum Kurs / Thông tin lớp" className="min-w-0 flex-1 text-left">
         <p className="m-0 truncate text-[12.5px] font-medium leading-snug" title={c.name}>
           {c.name}
         </p>
@@ -76,7 +91,7 @@ function ClassRow({ c, score, busy, actionLabel, onAction }: { c: AssignableClas
             </Badge>
           )}
         </p>
-      </div>
+      </button>
       <button
         type="button"
         disabled={busy}
@@ -105,6 +120,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
   });
   const [collapsed, setCollapsed] = useState(false);
   const [query, setQuery] = useState("");
+  const [info, setInfo] = useState<AssignableClass | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const flight = useRef<AbortController | null>(null);
@@ -230,7 +246,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
             ) : (
               <ul className="m-0 list-none p-0 pb-2">
                 {assignedClasses.map((c) => (
-                  <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="remove" onAction={() => save(c.id, true)} />
+                  <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="remove" onAction={() => save(c.id, true)} onInfo={() => setInfo(c)} />
                 ))}
               </ul>
             )}
@@ -244,7 +260,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
             )}
             <ul className="m-0 list-none p-0">
               {suggestions.map((c) => (
-                <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="add" onAction={() => save(c.id, false)} />
+                <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="add" onAction={() => save(c.id, false)} onInfo={() => setInfo(c)} />
               ))}
             </ul>
             {suggestions.length === 0 && !!query && (
@@ -255,6 +271,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
           </>
         )}
       </div>
+      {info && <ClassInfoModal c={info} onClose={() => setInfo(null)} />}
     </aside>
   );
 }

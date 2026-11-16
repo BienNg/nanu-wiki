@@ -103,7 +103,7 @@ export function ClassPicker({
                 >
                   <input type="checkbox" checked={on} onChange={() => toggle(c.id)} className="accent-[var(--color-accent)]" />
                   {c.hasImage ? (
-                    <img src={imageSrc(c)} alt="" loading="lazy" className="h-8 w-8 flex-none rounded object-cover" />
+                    <img src={`${imageSrc(c)}?w=96`} alt="" loading="lazy" className="h-8 w-8 flex-none rounded object-cover" />
                   ) : (
                     <span className="flex h-8 w-8 flex-none items-center justify-center rounded bg-chip text-center text-[9px] leading-tight text-faint">
                       <Label de="kein Bild" vi="chưa có hình" />

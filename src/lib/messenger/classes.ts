@@ -20,6 +20,12 @@ export type AssignableClass = {
   begin: string | null;
   end: string | null;
   full: boolean;
+  /** Whether the class page holds a marketing image (served through /api/classes/{id}/image). */
+  hasImage: boolean;
+  /** The "#Students" formula (signed-up students), null when Notion returns none. */
+  students: number | null;
+  /** The class page in Notion. */
+  notionUrl: string | null;
 };
 
 /** Which modes fit where the lead wants to learn (label field Ort). */

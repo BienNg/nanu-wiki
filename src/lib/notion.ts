@@ -11,6 +11,7 @@ const VERSION = "2025-09-03";
 type FileValue = { name: string; type: "file"; file: { url: string } } | { name: string; type: "external"; external: { url: string } };
 type NotionPage = {
   id: string;
+  url?: string;
   parent: { type: string; data_source_id?: string };
   properties: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
@@ -114,6 +115,8 @@ function toAssignable(page: NotionPage): AssignableClass | null {
   const level = select ?? name.match(/\b([ABC][12]\.[12])\b/)?.[1] ?? null;
   const begin: string | null = p.Begin?.date?.start?.slice(0, 10) ?? null;
   const end: string | null = p.End?.date?.start?.slice(0, 10) ?? null;
+  const f = p["#Students"]?.formula;
+  const students: number | null = typeof f?.number === "number" ? f.number : typeof f?.string === "string" && /^\d+$/.test(f.string) ? Number(f.string) : null;
   return {
     id: page.id,
     name,
@@ -123,6 +126,9 @@ function toAssignable(page: NotionPage): AssignableClass | null {
     begin,
     end,
     full: !!p["🔵 Class full"]?.checkbox,
+    hasImage: files(page).length > 0,
+    students,
+    notionUrl: page.url ?? null,
   };
 }
 
@@ -156,11 +162,11 @@ async function loadAssignable(): Promise<AssignableClass[]> {
     pages.push(...res.results);
     cursor = res.has_more ? (res.next_cursor ?? undefined) : undefined;
   } while (cursor);
-  return pages.map(toAssignable).filter((c): c is AssignableClass => !!c);
+  return pages.map(toAssignable).filter((c): c is AssignableClass => !!c && !hasEnded(c, today));
 }
 
 /** Assignable classes, read from Notion at most every 5 minutes. */
-export const assignableClasses = unstable_cache(loadAssignable, ["notion-assignable-classes"], { revalidate: 300 });
+export const assignableClasses = unstable_cache(loadAssignable, ["notion-assignable-classes", "v4"], { revalidate: 300 });
 
 /**
  * One assigned class read live by its Notion page id, for assignments whose class fell out of the

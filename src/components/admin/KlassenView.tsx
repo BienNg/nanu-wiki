@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Label } from "@/components/Bi";
+import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
 import { CopyName } from "@/components/admin/CopyName";
 import { bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
 import { MODE_SHORT, shortDate } from "@/lib/classes";
@@ -94,7 +95,24 @@ export function KlassenList({ items, selectedId }: { items: KlassenItem[]; selec
   );
 }
 
-export type ProspectItem = { id: string; name: string; channel: string | null; chipDe: string; chipVi: string; time: string };
+/** "Infos" in the header of the selected class: opens the class info (image, dates, students, Notion link). */
+export function ClassInfoButton({ c }: { c: AssignableClass }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex-none rounded-full border border-line px-2.5 py-1 text-[12px] font-medium text-accent transition-colors hover:bg-accent-soft"
+      >
+        <Label de="Infos" vi="Thông tin" />
+      </button>
+      {open && <ClassInfoModal c={c} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+export type ProspectItem ={ id: string; name: string; channel: string | null; chipDe: string; chipVi: string; time: string };
 
 type PreviewState = { messages: ThreadMessageRow[]; hasOlder: boolean } | { error: true } | null;
 

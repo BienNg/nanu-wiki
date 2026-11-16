@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Topbar, Crumb } from "@/components/Topbar";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
-import { KlassenList, ProspectList, type ProspectItem } from "@/components/admin/KlassenView";
+import { ClassInfoButton, KlassenList, ProspectList, type ProspectItem } from "@/components/admin/KlassenView";
 import { type AssignableClass } from "@/lib/messenger/classes";
 import { STEP_INFO, stepOf } from "@/lib/messenger/steps";
 import { toActionLabel, LABEL_COLUMNS, type InboxLabel } from "@/lib/messenger/thread";
@@ -126,15 +126,18 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
               </p>
             ) : (
               <div className="rounded-xl border border-line bg-white">
-                <header className="border-b border-line px-4 py-3">
-                  <h2 className="m-0 text-[15px] font-semibold">{selected.name}</h2>
-                  <p className="m-0 mt-0.5 text-[12px] text-muted">
-                    {prospects.length === 1 ? (
-                      <Label de="1 Interessent" vi="1 khách quan tâm" />
-                    ) : (
-                      <Label de={`${prospects.length} Interessenten`} vi={`${prospects.length} khách quan tâm`} />
-                    )}
-                  </p>
+                <header className="flex items-start gap-3 border-b border-line px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="m-0 text-[15px] font-semibold">{selected.name}</h2>
+                    <p className="m-0 mt-0.5 text-[12px] text-muted">
+                      {prospects.length === 1 ? (
+                        <Label de="1 Interessent" vi="1 khách quan tâm" />
+                      ) : (
+                        <Label de={`${prospects.length} Interessenten`} vi={`${prospects.length} khách quan tâm`} />
+                      )}
+                    </p>
+                  </div>
+                  <ClassInfoButton c={selected} />
                 </header>
                 {prospects.length === 0 ? (
                   <p className="m-0 px-4 py-6 text-[13px] text-muted">
