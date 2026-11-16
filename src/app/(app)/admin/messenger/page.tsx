@@ -422,10 +422,10 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 stamp={now}
                 current={interestFilter === FUNNEL_INTEREST ? stepFilter : interestFilter === QUALIFY ? "q" : null}
                 steps={[
-                  { id: "", de: "Alle", vi: "Tất cả", count: interestCounts.get(FUNNEL_INTEREST) ?? 0 },
-                  { id: "q", de: STEP_INFO.qualifizieren.short_de, vi: STEP_INFO.qualifizieren.short_vi, count: qualify },
+                  { id: "", de: "Alle", vi: "Tất cả", aim_de: `Alle Chats mit Interesse ${FUNNEL_INTEREST}`, count: interestCounts.get(FUNNEL_INTEREST) ?? 0 },
+                  { id: "q", de: STEP_INFO.qualifizieren.short_de, vi: STEP_INFO.qualifizieren.short_vi, aim_de: STEP_INFO.qualifizieren.aim_de, aim_vi: STEP_INFO.qualifizieren.aim_vi, count: qualify },
                   ...funnelSteps.flatMap((stage, i) =>
-                    stage === "schueler" ? [] : [{ id: String(i + 1), de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi, count: stepCounts.get(String(i + 1)) ?? 0 }],
+                    stage === "schueler" ? [] : [{ id: String(i + 1), de: STEP_INFO[stage].short_de, vi: STEP_INFO[stage].short_vi, aim_de: STEP_INFO[stage].aim_de, aim_vi: STEP_INFO[stage].aim_vi, count: stepCounts.get(String(i + 1)) ?? 0 }],
                   ),
                 ].map((step) => ({ ...step, href: step.id === "q" ? href({ i: QUALIFY, s: "", c: "" }) : href({ i: FUNNEL_INTEREST, s: step.id, c: "" }) }))}
               />

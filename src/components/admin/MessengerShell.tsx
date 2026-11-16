@@ -79,12 +79,11 @@ export function MoreLink({ href, className, children }: { href: string; classNam
   );
 }
 
-type FunnelStep = { id: string; de: string; vi: string; count: number; href: string };
+type FunnelStep = { id: string; de: string; vi: string; count: number; href: string; aim_de?: string; aim_vi?: string };
 
 /**
- * The step funnel. The step you click lights up at once (before the server has answered), so the
- * click feels immediate; the list below dims and then fades to the new result.
- * `current` is the step the server rendered (null: no step of this funnel is chosen).
+ * "Alle" is a total, not a step, so it gets its own tile on the left. The steps follow as one
+ * numbered chevron pipeline; each shows its count big, its name and, below, what to do in it.
  */
 export function FunnelNav({ steps, current, stamp }: { steps: FunnelStep[]; current: string | null; stamp: number }) {
   const [picked, setPicked] = useState<string | null>(null);
@@ -93,37 +92,80 @@ export function FunnelNav({ steps, current, stamp }: { steps: FunnelStep[]; curr
   const shown = picked ?? current;
   const countOf = (step: FunnelStep) =>
     step.count + (step.id === "q" ? adjust.qualify : step.id === "" ? (adjust.interest[FUNNEL_INTEREST] ?? 0) : (adjust.step[step.id] ?? 0));
+  const onPick = (id: string) => (e: React.MouseEvent) => {
+    if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) setPicked(id);
+  };
+  const all = steps.find((s) => s.id === "");
+  const stages = steps.filter((s) => s.id !== "");
   return (
-    <div className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto">
-      {steps.map((step, i) => {
-        const active = shown === step.id;
-        return (
-          <Link
-            key={step.id || "all"}
-            href={step.href}
-            scroll={false}
-            data-filter=""
-            aria-current={active ? "page" : undefined}
-            onClick={(e) => {
-              if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) setPicked(step.id);
-            }}
-            style={{
-              clipPath:
-                i === 0
-                  ? "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)"
-                  : "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%)",
-            }}
-            className={`flex min-w-[92px] flex-1 flex-col py-1.5 leading-tight transition-colors duration-300 ease-out ${i === 0 ? "rounded-l-lg pl-3" : "pl-5"} pr-4 ${
-              active ? "bg-accent-soft text-accent-dark" : "bg-[#F0F2F5] text-muted hover:bg-[#E4E6EB]"
-            }`}
-          >
-            <span className={`text-[17px] font-semibold tabular-nums transition-colors duration-300 ease-out ${active ? "text-accent-dark" : "text-ink"}`}>{countOf(step)}</span>
-            <span className="truncate text-[11.5px]">
-              <Label de={step.de} vi={step.vi} />
-            </span>
-          </Link>
-        );
-      })}
+    <div className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto">
+      {all && (
+        <Link
+          href={all.href}
+          scroll={false}
+          data-filter=""
+          aria-current={shown === "" ? "page" : undefined}
+          onClick={onPick("")}
+          title={all.aim_de}
+          className={`flex w-[108px] flex-none flex-col justify-center rounded-xl border px-3.5 py-2 leading-tight transition-colors duration-200 ease-out ${
+            shown === "" ? "border-accent bg-accent text-white" : "border-line bg-white text-muted hover:bg-hover"
+          }`}
+        >
+          <span className="text-[11.5px] font-medium">
+            <Label de={all.de} vi={all.vi} />
+          </span>
+          <span className={`mt-0.5 text-[22px] font-semibold tabular-nums ${shown === "" ? "text-white" : "text-ink"}`}>{countOf(all)}</span>
+        </Link>
+      )}
+      <ol className="m-0 flex min-w-0 flex-1 list-none gap-0.5 p-0">
+        {stages.map((step, i) => {
+          const active = shown === step.id;
+          const n = countOf(step);
+          const first = i === 0;
+          const last = i === stages.length - 1;
+          return (
+            <li key={step.id} className="flex min-w-[132px] flex-1">
+              <Link
+                href={step.href}
+                scroll={false}
+                data-filter=""
+                aria-current={active ? "page" : undefined}
+                onClick={onPick(step.id)}
+                title={step.aim_de ? `${step.aim_de} · ${step.aim_vi ?? ""}` : undefined}
+                style={{
+                  clipPath: first
+                    ? "polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)"
+                    : last
+                      ? "polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)"
+                      : "polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)",
+                }}
+                className={`flex min-w-0 flex-1 flex-col justify-center py-2 leading-tight transition-colors duration-200 ease-out ${first ? "rounded-l-xl pl-3.5" : "pl-6"} ${last ? "rounded-r-xl pr-3.5" : "pr-5"} ${
+                  active ? "bg-accent text-white" : "bg-[#F0F2F5] text-muted hover:bg-[#E4E6EB]"
+                }`}
+              >
+                <span className="flex items-center gap-1.5 text-[12px] font-medium">
+                  <span
+                    className={`flex h-4 w-4 flex-none items-center justify-center rounded-full text-[10px] font-semibold tabular-nums ${
+                      active ? "bg-white/25 text-white" : "bg-white text-muted"
+                    }`}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className={`truncate ${active ? "text-white" : "text-body"}`}>
+                    <Label de={step.de} vi={step.vi} />
+                  </span>
+                </span>
+                <span className={`mt-0.5 text-[22px] font-semibold tabular-nums ${active ? "text-white" : n === 0 ? "text-faint" : "text-ink"}`}>{n}</span>
+                {step.aim_de && (
+                  <span className={`truncate text-[11px] ${active ? "text-white/80" : "text-faint"}`}>
+                    <Label de={step.aim_de} vi={step.aim_vi ?? step.aim_de} />
+                  </span>
+                )}
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
