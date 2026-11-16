@@ -126,14 +126,23 @@ export function ClassInfoModal({ c, onClose }: { c: AssignableClass; onClose: ()
             )}
           </div>
           {c.notionUrl && (
-            <a
-              href={c.notionUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 flex items-center justify-center gap-1.5 rounded-lg bg-accent-soft px-3 py-1.5 text-[12.5px] font-medium text-accent hover:opacity-90"
-            >
-              <Label de="In Notion öffnen" vi="Mở trong Notion" /> ↗
-            </a>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-[12.5px] font-medium">
+              {/* The notion:// scheme hands the page to the Notion desktop app; without the app installed it does nothing. */}
+              <a
+                href={`notion://www.notion.so/${c.id.replace(/-/g, "")}`}
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-accent-soft px-3 py-1.5 text-accent hover:opacity-90"
+              >
+                <Label de="In Notion-App öffnen" vi="Mở bằng app Notion" />
+              </a>
+              <a
+                href={c.notionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-ink hover:bg-hover"
+              >
+                <Label de="Im Browser öffnen" vi="Mở trên trình duyệt" /> ↗
+              </a>
+            </div>
           )}
         </div>
       </div>
