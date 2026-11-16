@@ -6,6 +6,7 @@ import type { Area } from "@/lib/types";
 import { Icon } from "./Icon";
 import { SearchOverlay } from "./SearchOverlay";
 import { ScrollMemory } from "./DocLink";
+import { tip } from "@/components/Bi";
 
 const WIDTH_KEY = "nanu.sidebar.width";
 const COLLAPSED_KEY = "nanu.sidebar.collapsed";
@@ -33,7 +34,7 @@ export function useShell() {
 export function SearchTrigger({ className }: { className?: string }) {
   const { openSearch } = useShell();
   return (
-    <button type="button" onClick={openSearch} title="Suchen" className={className}>
+    <button type="button" onClick={openSearch} {...tip("Suchen", "Tìm kiếm")} className={className}>
       <Icon name="search" size={14} strokeWidth={2} />
       <span className="side-text min-w-0 flex-1 text-left">
         <span className="dx">Suchen …</span>
@@ -73,7 +74,7 @@ export function CollapseSidebarButton() {
       onClick={toggleCollapsed}
       aria-expanded={!collapsed}
       aria-label={collapsed ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"}
-      title={collapsed ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"}
+      {...(collapsed ? tip("Seitenleiste ausklappen", "Mở thanh bên") : tip("Seitenleiste einklappen", "Thu gọn thanh bên"))}
       className="hidden h-7 w-7 flex-none items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink md:flex"
       >
         <PanelIcon />

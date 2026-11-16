@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { submitChat } from "@/app/actions";
 import type { Block, ChatTurn } from "@/lib/types";
-import { Bi, Label } from "./Bi";
+import { Bi, Label, tip } from "./Bi";
 import { ComposerField, MessengerHeader, SendIcon, TypingDots, bubbleClass, bubbleRowClass } from "./MessengerParts";
 
 type ChatBlock = Extract<Block, { type: "chat" }>;
@@ -208,7 +208,7 @@ export function MessengerSim({ block, pageId, done = false }: { block: ChatBlock
               type="submit"
               disabled={!canSend}
               aria-label="Senden"
-              title={waitingSince === null ? "Warte auf die Nachricht · Chờ tin nhắn" : "Senden · Gửi"}
+              {...(waitingSince === null ? tip("Warte auf die Nachricht", "Chờ tin nhắn") : tip("Senden", "Gửi"))}
               className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full text-accent hover:bg-accent-soft disabled:text-faint disabled:hover:bg-transparent"
             >
               <SendIcon />

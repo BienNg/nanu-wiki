@@ -6,7 +6,7 @@ import { INTERESTS } from "@/lib/assistant/schema";
 import { saveMessengerLabel } from "@/app/(app)/admin/messenger/actions";
 import { publishLabelSave, setLabelEditing, setLabelSaving } from "@/components/admin/labelPatch";
 import type { ReactNode } from "react";
-import { Bi, Label } from "@/components/Bi";
+import { Bi, Label, tip } from "@/components/Bi";
 import { MenuSelect } from "@/components/admin/MenuSelect";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, isStep } from "@/lib/messenger/steps";
 import { LEVELS, LOSS_REASONS, PLACES, levelOf, placeOf, type LossReason } from "@/lib/messenger/types";
@@ -65,7 +65,7 @@ function Name({ de, vi, pinned }: { de: string; vi: string; pinned: boolean }) {
   return (
     <>
       <Label de={de} vi={vi} />
-      {pinned ? <span className="text-accent" title="Bleibt beim nächsten Einordnen"> ●</span> : null}
+      {pinned ? <span className="text-accent" {...tip("Bleibt beim nächsten Einordnen", "Giữ nguyên khi phân loại lại")}> ●</span> : null}
     </>
   );
 }

@@ -46,6 +46,21 @@ function Linked({ text }: { text: string }) {
   );
 }
 
+/** Tooltip text: one language (a name, a note) or German plus Vietnamese. */
+export type TipText = string | { de: string; vi?: string | null };
+
+/**
+ * Tooltip attributes, spread onto any element: `<button {...tip("Entfernen", "Bỏ gán")}>`.
+ * German plus Vietnamese becomes data-tip-de / data-tip-vi, and the TooltipLayer shows the language
+ * picked in the DE+VI / DE / VI toggle (both on two lines in DE+VI). One language stays a plain title.
+ */
+export function tip(text: TipText | null | undefined, vi?: string | null): { title?: string; "data-tip-de"?: string; "data-tip-vi"?: string } {
+  if (text == null) return {};
+  const de = typeof text === "string" ? text : text.de;
+  const viText = typeof text === "string" ? vi : text.vi;
+  return viText ? { "data-tip-de": de, "data-tip-vi": viText } : { title: de };
+}
+
 /** For short UI labels: shows only one language (DE in DE+VI mode). */
 export function Label({ de, vi }: { de: string; vi: string }) {
   return (

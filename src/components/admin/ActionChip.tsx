@@ -1,4 +1,4 @@
-import { Label } from "@/components/Bi";
+import { Label, tip, type TipText } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import type { NextAction } from "@/lib/messenger/nextAction";
 
@@ -18,9 +18,9 @@ const SHORT: Record<string, Text> = {
   offer: { de: "Preis schicken", vi: "Gửi học phí" },
   courses: { de: "Kurse schicken", vi: "Gửi khóa học" },
   class: { de: "Kursproblem", vi: "Vấn đề lớp" },
-  nudge: { de: "Nachfassen", vi: "Nhắc lại" },
-  nudge_offer: { de: "Nachfassen", vi: "Nhắc lại" },
-  nudge_pay: { de: "Nachfassen", vi: "Nhắc lại" },
+  nudge: { de: "Follow up", vi: "Nhắc lại" },
+  nudge_offer: { de: "Follow up", vi: "Nhắc lại" },
+  nudge_pay: { de: "Follow up", vi: "Nhắc lại" },
   spaeter_date: { de: "Datum fehlt", vi: "Thiếu ngày" },
   stop: { de: "Nicht schreiben", vi: "Đừng nhắn" },
   zalo: { de: "Zalo", vi: "Zalo" },
@@ -58,18 +58,18 @@ export function ActionChipShort({ action, note }: { action: NextAction; note?: T
 }
 
 /** The next step for a chat: blue when we act today, grey with a clock while we wait. */
-export function ActionChip({ action, title }: { action: NextAction; title?: string }) {
+export function ActionChip({ action, title }: { action: NextAction; title?: TipText }) {
   const rest = action.id === "wait" ? waitRest(action.de, action.vi) : null;
   return (
     <span
-      title={title}
+      {...tip(title)}
       className={`flex min-w-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium transition-colors duration-150 group-aria-[current=page]:bg-white ${
         action.today ? "bg-accent-soft text-accent-dark" : "bg-chip text-muted"
       }`}
     >
       {action.id === "wait" ? (
         <>
-          <span className="flex-none" title="Warten">
+          <span className="flex-none" {...tip("Warten", "Chờ")}>
             <Icon name="clock" size={12} />
           </span>
           {rest && (

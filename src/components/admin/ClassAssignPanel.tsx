@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { Label } from "@/components/Bi";
+import { Label, tip } from "@/components/Bi";
 import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
-import { Icon, type AnyIcon } from "@/components/Icon";
-import { MODE_SHORT, shortDate, type ClassMode } from "@/lib/classes";
+import { Chip, ClassWhen, Fact, SectionHead } from "@/components/admin/classParts";
+import { Icon } from "@/components/Icon";
+import { MODE_SHORT } from "@/lib/classes";
 import { setRowClasses } from "@/components/admin/classPatch";
-import { classCode, classToday, hasStarted, matchScore, MODE_TONE, rankClasses, rowClass, type AssignableClass } from "@/lib/messenger/classes";
+import { classCode, isLevelStart, matchScore,MODE_TONE, rankClasses, rowClass, sortByLevel, type AssignableClass } from "@/lib/messenger/classes";
 
 type Data = { classes: AssignableClass[]; assigned: string[] };
 type State = ({ id: string } & Data) | { id: string; error: true } | null;
@@ -44,27 +45,6 @@ function matchesQuery(c: AssignableClass, q: string) {
     .every((part) => hay.includes(part));
 }
 
-const WEEKDAY = { de: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"], vi: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] };
-
-/** Whole days from today (class timezone) to an ISO date; negative once it has passed. */
-function daysUntil(iso: string) {
-  const ms = Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${classToday()}T00:00:00Z`);
-  return Math.round(ms / 86_400_000);
-}
-
-function Chip({ className, children }: { className: string; children: React.ReactNode }) {
-  return <span className={`inline-flex items-center rounded-md px-1.5 py-px text-[11px] font-semibold leading-[18px] ${className}`}>{children}</span>;
-}
-
-function Fact({ icon, children, title }: { icon: AnyIcon; children: React.ReactNode; title?: string }) {
-  return (
-    <span className="inline-flex min-w-0 items-center gap-1" title={title}>
-      <Icon name={icon} size={13} strokeWidth={2} className="flex-none text-faint" />
-      {children}
-    </span>
-  );
-}
-
 /** One class as a card: code, level and place first, then start, time and seats. A click opens the class info; the round button adds or removes it. */
 function ClassCard({
   c,
@@ -79,10 +59,6 @@ function ClassCard({
   onAction: () => void;
   onInfo: () => void;
 }) {
-  const when = c.begin ? shortDate(c.begin) : null;
-  const days = c.begin ? daysUntil(c.begin) : null;
-  const wd = c.begin ? new Date(`${c.begin}T00:00:00Z`).getUTCDay() : 0;
-  const running = hasStarted(c);
   const code = classCode(c.name);
   return (
     <li
@@ -91,44 +67,22 @@ function ClassCard({
         assigned ? "border-accent/40 bg-accent-soft/40" : "border-line bg-white hover:border-[#CBD0D8] hover:shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
       } ${busy ? "opacity-60" : ""}`}
     >
-      <button type="button" onClick={onInfo} title={`${c.name} – Infos / Thông tin lớp`} className="block w-full rounded-xl px-3 pb-2.5 pt-2 pr-11 text-left">
+      <button type="button" onClick={onInfo} {...tip(`${c.name} – Infos`, `${c.name} – Thông tin lớp`)} className="block w-full rounded-xl px-3 pb-2.5 pt-2 pr-11 text-left">
         <span className="flex min-w-0 flex-wrap items-center gap-1.5">
           <span className="truncate text-[13.5px] font-semibold leading-6 text-ink">{code}</span>
           {c.level && <Chip className="bg-[#EEF0F3] text-[#3A3F47]">{c.level}</Chip>}
           {c.mode && <Chip className={MODE_TONE[c.mode]}>{MODE_SHORT[c.mode]}</Chip>}
         </span>
         <span className="mt-1.5 flex flex-col gap-1 text-[12px] text-[#3A3F47]">
-          <Fact icon="calendar" title="Start / Khai giảng">
-            {when ? (
-              <span className="truncate">
-                <span className="font-medium">
-                  <Label de={`${WEEKDAY.de[wd]}, ${when.de}`} vi={`${WEEKDAY.vi[wd]}, ${when.vi}`} />
-                </span>
-                <span className="text-faint">
-                  {" · "}
-                  {days === 0 ? (
-                    <Label de="heute" vi="hôm nay" />
-                  ) : running ? (
-                    <Label de={`läuft seit ${-days!} T.`} vi={`đã học ${-days!} ngày`} />
-                  ) : days === 1 ? (
-                    <Label de="morgen" vi="ngày mai" />
-                  ) : (
-                    <Label de={`in ${days} Tagen`} vi={`còn ${days} ngày`} />
-                  )}
-                </span>
-              </span>
-            ) : (
-              <span className="text-faint">
-                <Label de="Start noch offen" vi="Chưa có ngày khai giảng" />
-              </span>
-            )}
+          <Fact icon="calendar" title={{ de: "Start", vi: "Khai giảng" }}>
+            <ClassWhen c={c} />
           </Fact>
           <span className="flex items-center gap-3">
-            <Fact icon="clock" title="Uhrzeit / Giờ học">
+            <Fact icon="clock" title={{ de: "Uhrzeit", vi: "Giờ học" }}>
               {c.time ?? <span className="text-faint">–</span>}
             </Fact>
             {c.students != null && (
-              <Fact icon="users" title="Angemeldete Schüler / Học viên đã đăng ký">
+              <Fact icon="users" title={{ de: "Angemeldete Schüler", vi: "Học viên đã đăng ký" }}>
                 <span>
                   {c.students} <Label de="Schüler" vi="học viên" />
                 </span>
@@ -149,7 +103,7 @@ function ClassCard({
         disabled={busy}
         onClick={onAction}
         aria-label={assigned ? "Entfernen" : "Zuordnen"}
-        title={assigned ? "Entfernen / Bỏ gán" : "Zuordnen / Gán lớp"}
+        {...(assigned ? tip("Entfernen", "Bỏ gán") : tip("Zuordnen", "Gán lớp"))}
         className={`absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full transition-colors disabled:cursor-wait ${
           assigned
             ? "text-faint hover:bg-[#FBEAEA] hover:text-[#B3362B]"
@@ -159,15 +113,6 @@ function ClassCard({
         <Icon name={assigned ? "close" : "plus"} size={14} strokeWidth={2.4} />
       </button>
     </li>
-  );
-}
-
-function SectionHead({ children, count }: { children: React.ReactNode; count?: number }) {
-  return (
-    <h3 className="sticky top-0 z-[1] m-0 flex items-center gap-1.5 bg-[#F6F7F9]/95 px-1 pb-1.5 pt-3 text-[11.5px] font-semibold text-muted backdrop-blur first:pt-1">
-      {children}
-      {count != null && <span className="rounded-full bg-[#E6E8EC] px-1.5 text-[10.5px] font-semibold leading-4 text-muted">{count}</span>}
-    </h3>
   );
 }
 
@@ -252,7 +197,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
       <button
         type="button"
         onClick={toggle}
-        title="Kurse zuordnen / Gán lớp"
+        {...tip("Kurse zuordnen", "Gán lớp")}
         className="flex w-10 flex-none flex-col items-center gap-2 border-l border-line bg-[#F6F7F9] pt-3 text-muted transition-colors hover:bg-hover max-lg:hidden"
       >
         <Icon name="chevron" size={14} className="rotate-180" />
@@ -271,8 +216,10 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
   const suggestions = ready ? rankClasses(ready.classes.filter((c) => !ready.assigned.includes(c.id) && matchesQuery(c, query)), level, place) : [];
   const assignedClasses = ready ? ready.assigned.map((k) => ready.classes.find((c) => c.id === k)).filter((c): c is AssignableClass => !!c) : [];
   const canSuggest = !!level && level !== "unklar" && !!place && place !== "unklar";
-  const best = canSuggest ? suggestions.filter((c) => matchScore(c, level, place) === 2) : [];
-  const rest = canSuggest ? suggestions.filter((c) => matchScore(c, level, place) < 2) : suggestions;
+  // Only first-half classes (A1.1, A2.1 …) count as a fit; second halves stay reachable under Weitere Kurse.
+  const isBest = (c: AssignableClass) => matchScore(c, level, place) === 2 && isLevelStart(c);
+  const best = canSuggest ? suggestions.filter(isBest) : [];
+  const rest = sortByLevel(canSuggest ? suggestions.filter((c) => !isBest(c)) : suggestions);
   const card = (c: AssignableClass, assigned: boolean) => (
     <ClassCard key={c.id} c={c} assigned={assigned} busy={busy === c.id} onAction={() => save(c.id, assigned)} onInfo={() => setInfo(c)} />
   );
@@ -284,7 +231,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
         <h2 className="m-0 flex-1 text-[13.5px] font-semibold text-ink">
           <Label de="Kurse" vi="Lớp học" />
         </h2>
-        <button type="button" onClick={toggle} aria-label="Einklappen" title="Einklappen / Thu gọn" className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-hover">
+        <button type="button" onClick={toggle} aria-label="Einklappen" {...tip("Einklappen", "Thu gọn")} className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-hover">
           <Icon name="chevron" size={14} />
         </button>
       </header>

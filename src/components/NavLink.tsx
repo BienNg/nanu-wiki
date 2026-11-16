@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { tip, type TipText } from "@/components/Bi";
 
 export function NavLink({
   href,
@@ -14,7 +15,7 @@ export function NavLink({
   children: React.ReactNode;
   exact?: boolean;
   matchPrefix?: string;
-  title?: string;
+  title?: TipText;
 }) {
   const pathname = usePathname();
   const base = matchPrefix ?? href.split("?")[0];
@@ -23,7 +24,7 @@ export function NavLink({
   return (
     <Link
       href={href}
-      title={title}
+      {...tip(title)}
       aria-current={active ? "page" : undefined}
       className="flex min-h-9 items-center gap-2 rounded-md px-2 text-[13px] text-body hover:bg-hover hover:text-[#1F2125] aria-[current=page]:bg-active aria-[current=page]:font-medium aria-[current=page]:text-[#1F2125]"
     >

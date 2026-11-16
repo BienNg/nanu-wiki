@@ -12,6 +12,7 @@ import { MODE_TONE, type RowClass } from "@/lib/messenger/classes";
 import { matchesInboxFilter, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { ConversationView } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
+import { tip } from "@/components/Bi";
 
 /** WhatsApp or Messenger logo on the bottom-right of a chat's avatar, as in the Messenger app. */
 function ChannelBadge({ channel, account }: { channel: string | null | undefined; account: string | null | undefined }) {
@@ -109,7 +110,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
             {(view || classes.length > 0 || chips.length > 0) && (
               <span className={`mt-px flex min-w-0 items-center gap-1 ${saving ? "label-saving" : ""}`}>
                 {view && (
-                  <span className="flex min-w-0 flex-none" title={`${view.action.de} – ${view.state.de} / ${view.action.vi} – ${view.state.vi}`}>
+                  <span className="flex min-w-0 flex-none" {...tip(`${view.action.de} – ${view.state.de}`, `${view.action.vi} – ${view.state.vi}`)}>
                     <ActionChipShort action={view.action} note={view.note} />
                   </span>
                 )}

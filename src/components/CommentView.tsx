@@ -6,7 +6,7 @@ import { pinTopEdge } from "./AppShell";
 import { COMMENT_STATUSES, tagInfo } from "@/lib/comments";
 import { formatDate } from "@/lib/format";
 import type { PageComment } from "@/lib/types";
-import { Label } from "./Bi";
+import { Label, tip as tipAttrs } from "./Bi";
 import { Icon } from "./Icon";
 import { CommentActions } from "./admin/CommentActions";
 import { caretAt, rangeForAnchor, revealAnchor } from "./commentDom";
@@ -276,7 +276,7 @@ export function CommentView({
             showTip(g.ids, { top: r.top, left: r.left - 320 + r.width, width: r.width, height: r.height });
             focusCard(g.ids[0]);
           }}
-          title={`${g.ids.length} Kommentar(e)`}
+          {...tipAttrs(`${g.ids.length} Kommentar(e)`, `${g.ids.length} bình luận`)}
           className={`absolute -right-11 flex h-6 items-center gap-1 rounded-full border px-1.5 text-[11px] font-semibold text-[#7a5a00] ${
             g.ids.includes(active ?? "") ? "border-[#e0b42f] bg-[#f2c94c]" : "border-[#f2c94c] bg-[#fdf0b8] hover:bg-[#f2c94c]"
           }`}
@@ -332,7 +332,7 @@ export function CommentView({
             type="button"
             onClick={() => setCommentView(false)}
             aria-label="Kommentare ausblenden · Ẩn bình luận"
-            title="Normale Ansicht · Chế độ đọc"
+            {...tipAttrs("Normale Ansicht", "Chế độ đọc")}
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink"
           >
             ✕
@@ -515,7 +515,7 @@ export function CommentToggle({ open }: { open: number }) {
         type="button"
         aria-pressed={on}
         onClick={() => setCommentView(!on)}
-        title={on ? "Normale Ansicht · Chế độ đọc" : "Kommentare anzeigen · Hiện bình luận"}
+        {...(on ? tipAttrs("Normale Ansicht", "Chế độ đọc") : tipAttrs("Kommentare anzeigen", "Hiện bình luận"))}
         className={`${look} transition-shadow duration-200 ease-out motion-reduce:transition-none ${
           stuck ? "fixed z-30 shadow-[0_1px_2px_rgba(20,24,32,0.06),0_8px_20px_rgba(20,24,32,0.1)]" : "absolute inset-y-0 right-0"
         }`}

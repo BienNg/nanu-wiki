@@ -9,7 +9,8 @@ const REPEAT_MS = 400;
 
 /**
  * One tooltip for the whole app: every element with a `title` (or `data-tip`) gets a black tooltip with
- * white text that opens fast, instead of the browser's slow grey one. Nothing to change where a title is set.
+ * white text that opens fast, instead of the browser's slow grey one. Nothing to change where a title is set;
+ * for German plus Vietnamese use tip() from components/Bi, which shows the language picked in the toggle.
  * The title moves to `data-tip` on first hover so the browser's own tooltip does not show as well;
  * an element whose name was only its title keeps it as `aria-label`.
  */
@@ -24,6 +25,15 @@ export function TooltipLayer() {
     let hiddenAt = 0;
 
     const textOf = (el: Element) => {
+      // Bilingual tooltips (tip() in components/Bi): the language picked in the toggle, both in DE+VI.
+      const de = el.getAttribute("data-tip-de");
+      if (de !== null) {
+        const vi = el.getAttribute("data-tip-vi");
+        if (!el.hasAttribute("aria-label") && !el.textContent?.trim()) el.setAttribute("aria-label", de);
+        const lang = document.documentElement.classList;
+        if (!vi || lang.contains("lang-de")) return de;
+        return lang.contains("lang-vi") ? vi : `${de}\n${vi}`;
+      }
       const title = el.getAttribute("title");
       if (title) {
         el.setAttribute("data-tip", title);
@@ -60,7 +70,7 @@ export function TooltipLayer() {
       else timer = setTimeout(open, DELAY_MS);
     };
 
-    const find = (target: EventTarget | null) => (target instanceof Element ? target.closest("[title], [data-tip]") : null);
+    const find = (target: EventTarget | null) => (target instanceof Element ? target.closest("[title], [data-tip], [data-tip-de]") : null);
 
     const onOver = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return;

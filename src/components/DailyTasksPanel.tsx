@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { saveDailyTask } from "@/app/actions";
 import { AnimatedBar } from "./Reveal";
-import { Bi, Label } from "./Bi";
+import { Bi, Label, tip } from "./Bi";
 import { Icon } from "./Icon";
 import { ARRIVE, showSection, store } from "./DocLink";
 import { PANE_QUERY, PaneLink } from "./PaneLink";
@@ -262,7 +262,7 @@ function TaskLine({
             type="button"
             onClick={onNote}
             aria-expanded={editing}
-            title="Notiz · Ghi chú"
+            {...tip("Notiz", "Ghi chú")}
             className={`flex h-7 flex-none items-center gap-1 rounded-md px-1.5 text-xs hover:bg-hover ${entry.note ? "text-accent-dark" : "text-muted"}`}
           >
             <Icon name="edit" size={13} />

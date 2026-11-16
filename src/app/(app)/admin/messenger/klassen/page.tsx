@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Topbar, Crumb } from "@/components/Topbar";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
-import { ClassInfoButton, KlassenList, ProspectList, type ProspectItem } from "@/components/admin/KlassenView";
+import { KlassenDetail, KlassenList, type ProspectItem, type ProspectTone } from "@/components/admin/KlassenView";
 import { type AssignableClass } from "@/lib/messenger/classes";
 import { STEP_INFO, stepOf } from "@/lib/messenger/steps";
 import { toActionLabel, LABEL_COLUMNS, type InboxLabel } from "@/lib/messenger/thread";
@@ -19,13 +19,13 @@ const dayFmt = new Intl.DateTimeFormat("de-DE", { timeZone: TZ, day: "2-digit", 
 type ConversationRow = { id: string; customer_name: string | null; updated_time: string; channel: string | null };
 
 /** Status next to the lead's name: the outcome if the chat is closed, else the funnel step. */
-function stateChip(label: InboxLabel | null) {
-  if (label?.outcome === "verloren") return { de: "Verloren", vi: "Đã mất" };
-  if (label?.outcome === "kein_lead") return { de: "Kein Lead", vi: "Không phải khách" };
-  if (label?.outcome === "weiter_auf_zalo") return { de: "Zalo", vi: "Zalo" };
-  if (label?.outcome === "bestandskunde") return { de: "Schüler", vi: "Học viên" };
+function stateChip(label: InboxLabel | null): { de: string; vi: string; tone: ProspectTone } {
+  if (label?.outcome === "verloren") return { de: "Verloren", vi: "Đã mất", tone: "closed" };
+  if (label?.outcome === "kein_lead") return { de: "Kein Lead", vi: "Không phải khách", tone: "closed" };
+  if (label?.outcome === "weiter_auf_zalo") return { de: "Zalo", vi: "Zalo", tone: "zalo" };
+  if (label?.outcome === "bestandskunde") return { de: "Schüler", vi: "Học viên", tone: "student" };
   const step = stepOf(label ? toActionLabel(label) : null);
-  return step ? { de: STEP_INFO[step].short_de, vi: STEP_INFO[step].short_vi } : { de: "Unklar", vi: "Chưa rõ" };
+  return step ? { de: STEP_INFO[step].short_de, vi: STEP_INFO[step].short_vi, tone: "open" } : { de: "Unklar", vi: "Chưa rõ", tone: "closed" };
 }
 
 /**
@@ -64,6 +64,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
   });
 
   const selected = classes.find((c) => c.id === sp.k) ?? null;
+  const withProspects = classes.filter((c) => (byClass.get(c.id)?.length ?? 0) > 0).length;
   let prospects: ProspectItem[] = [];
   if (selected) {
     const ids = byClass.get(selected.id) ?? [];
@@ -84,6 +85,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
             channel: conv.channel,
             chipDe: chip.de,
             chipVi: chip.vi,
+            tone: chip.tone,
             time: dayFmt.format(new Date(conv.updated_time)),
           };
         });
@@ -117,38 +119,21 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
               vi="Các lớp sắp mở từ Notion và các cuộc trò chuyện đã gán. Mở một lớp để nhắn cho từng khách quan tâm."
             />
           </p>
+          <p className="m-0 mt-3 flex flex-wrap gap-2 text-[12.5px]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F2F4] px-2.5 py-1 font-medium text-[#3A3F47]">
+              <Icon name="cap" size={13} className="text-muted" />
+              <Label de={`${classes.length} Klassen`} vi={`${classes.length} lớp`} />
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F2F4] px-2.5 py-1 font-medium text-[#3A3F47]">
+              <Icon name="users" size={13} className="text-muted" />
+              <Label de={`${withProspects} mit Interessenten`} vi={`${withProspects} lớp có khách quan tâm`} />
+            </span>
+          </p>
         </header>
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-6 max-md:grid-cols-1">
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] items-start gap-6 max-md:grid-cols-1">
           <KlassenList items={classes.map((c) => ({ c, count: byClass.get(c.id)?.length ?? 0 }))} selectedId={selected?.id ?? null} />
-          <section>
-            {!selected ? (
-              <p className="m-0 rounded-xl border border-dashed border-line px-4 py-8 text-center text-[13px] text-muted">
-                <Label de="Links eine Klasse wählen." vi="Chọn một lớp bên trái." />
-              </p>
-            ) : (
-              <div className="rounded-xl border border-line bg-white">
-                <header className="flex items-start gap-3 border-b border-line px-4 py-3">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="m-0 text-[15px] font-semibold">{selected.name}</h2>
-                    <p className="m-0 mt-0.5 text-[12px] text-muted">
-                      {prospects.length === 1 ? (
-                        <Label de="1 Interessent" vi="1 khách quan tâm" />
-                      ) : (
-                        <Label de={`${prospects.length} Interessenten`} vi={`${prospects.length} khách quan tâm`} />
-                      )}
-                    </p>
-                  </div>
-                  <ClassInfoButton c={selected} />
-                </header>
-                {prospects.length === 0 ? (
-                  <p className="m-0 px-4 py-6 text-[13px] text-muted">
-                    <Label de="Diesem Kurs ist noch kein Chat zugeordnet." vi="Chưa có cuộc trò chuyện nào được gán cho lớp này." />
-                  </p>
-                ) : (
-                  <ProspectList items={prospects} />
-                )}
-              </div>
-            )}
+          <section className="sticky top-4 max-md:static">
+            <KlassenDetail key={selected?.id ?? "none"} c={selected} items={prospects} />
           </section>
         </div>
       </main>

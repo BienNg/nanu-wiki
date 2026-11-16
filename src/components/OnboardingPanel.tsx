@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { toggleChecklistItem } from "@/app/actions";
 import { AnimatedBar } from "./Reveal";
-import { Bi, Label } from "./Bi";
+import { Bi, Label, tip, type TipText } from "./Bi";
 import { Icon } from "./Icon";
 import { PaneLink } from "./PaneLink";
 import type { OnboardingCheck } from "@/lib/types";
@@ -175,7 +175,7 @@ function LeafRow({ item, checked, onToggle }: { item: RowItem; checked: boolean;
       <Box
         checked={checked}
         disabled={!!item.quiz}
-        title={item.quiz ? "Wird abgehakt, sobald das Quiz bestanden ist · Tự đánh dấu khi qua quiz" : undefined}
+        title={item.quiz ? { de: "Wird abgehakt, sobald das Quiz bestanden ist", vi: "Tự đánh dấu khi qua quiz" } : undefined}
         onChange={(value) => onToggle([item.id], value)}
       />
       <span className="flex min-w-0 flex-col items-start gap-1">
@@ -256,7 +256,7 @@ function Box({
   checked: boolean;
   indeterminate?: boolean;
   disabled?: boolean;
-  title?: string;
+  title?: TipText;
   onChange: (value: boolean) => void;
 }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -269,7 +269,7 @@ function Box({
       type="checkbox"
       checked={checked}
       disabled={disabled}
-      title={title}
+      {...tip(title)}
       onChange={(e) => onChange(e.target.checked)}
       className="mt-0.5 h-[15px] w-[15px] flex-none accent-accent"
     />

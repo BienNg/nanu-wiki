@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { getSuggestion, saveAsExample } from "@/app/(app)/assistent/actions";
 import type { ChatLine, Suggestion } from "@/lib/assistant/schema";
 import type { SourceRef } from "@/lib/assistant/suggest";
-import { Bi, Label } from "./Bi";
+import { Bi, Label, tip } from "./Bi";
 import { Icon } from "./Icon";
 import { chatBubbles } from "./MessengerSim";
 import { ComposerField, MessengerHeader, SendIcon, TypingDots, bubbleClass, bubbleRowClass } from "./MessengerParts";
@@ -140,7 +140,7 @@ export function ReplyAssistant({ stages }: { stages: StageOption[] }) {
           }
           actions={
             (lines.length > 0 || result) && (
-              <button type="button" onClick={reset} className={`${pill} text-accent hover:bg-accent-soft`} title="Neues Gespräch">
+              <button type="button" onClick={reset} className={`${pill} text-accent hover:bg-accent-soft`} {...tip("Neues Gespräch", "Cuộc trò chuyện mới")}>
                 <Icon name="plus" size={14} strokeWidth={2.2} />
                 <Label de="Neu" vi="Mới" />
               </button>
@@ -528,7 +528,7 @@ function FunnelCard({ stages, index, loading, reason, unclear }: { stages: Stage
         {stages.map((st, i) => {
           const state = i < shown ? "done" : i === shown ? "now" : "todo";
           return (
-            <li key={st.id} className="flex min-w-0 flex-col gap-1.5" title={`${st.id} · ${st.de}`} aria-current={state === "now" ? "step" : undefined}>
+            <li key={st.id} className="flex min-w-0 flex-col gap-1.5" {...tip(`${st.id} · ${st.de}`, `${st.id} · ${st.vi}`)} aria-current={state === "now" ? "step" : undefined}>
               <span className={`relative h-1.5 overflow-hidden rounded-full bg-[#EDEEF1] ${loading ? "animate-pulse" : ""}`}>
                 <span
                   className={`absolute inset-y-0 left-0 rounded-full transition-[width] duration-700 ease-[cubic-bezier(.22,1,.36,1)] ${state === "now" ? "bg-accent" : "bg-accent/40"}`}

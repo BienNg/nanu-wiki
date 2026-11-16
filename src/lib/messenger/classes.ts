@@ -47,6 +47,12 @@ function levelMatches(c: AssignableClass, level: string | null | undefined) {
   return c.level.startsWith(level);
 }
 
+/** New leads start a level at its first half: "A1.1" yes, "A1.2" no. Levels without a half ("Ôn thi A1", "Kommunikation") count as a start. */
+export function isLevelStart(c: AssignableClass) {
+  const half = c.level?.match(/\.(\d+)$/);
+  return !half || half[1] === "1";
+}
+
 /**
  * How well a class fits the label: +1 for the level, +1 for the place. The panel sorts by this
  * score, so with Niveau and Ort unknown every class scores 0 and the list is just by date.
@@ -75,13 +81,25 @@ export function rankClasses(classes: AssignableClass[], level: string | null | u
   });
 }
 
+/** Sort key for a level: A1.1, A1.2, A2.1 … C2.2 first, then other levels (Ôn thi, Kommunikation …) A–Z, classes without level last. */
+function levelKey(level: string | null) {
+  if (!level) return "2";
+  const cefr = level.match(/^([ABC][12])(?:\.(\d+))?$/i);
+  return cefr ? `0${cefr[1].toUpperCase()}.${cefr[2] ?? "0"}` : `1${level.toLowerCase()}`;
+}
+
+/** Sorted by level only (A1.1 → B2.2, then the rest); classes on the same level keep their incoming order. */
+export function sortByLevel(classes: AssignableClass[]) {
+  return [...classes].sort((a, b) => levelKey(a.level).localeCompare(levelKey(b.level)));
+}
+
 /** Today in the class timezone (Vietnam), as an ISO date. */
 export function classToday() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
 }
 
 /** A class whose Begin has passed is running; views mark it, they do not hide it (End does that). */
-export function hasStarted(c: AssignableClass, today = classToday()) {
+export function hasStarted(c: Pick<AssignableClass, "begin">, today = classToday()) {
   return !!c.begin && c.begin < today;
 }
 

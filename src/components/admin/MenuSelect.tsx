@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { tip } from "@/components/Bi";
 /** `chip` is what the closed chip shows when it should differ from the menu line. */
 export type MenuSelectOption = { value: string; label: ReactNode; chip?: ReactNode };
 
@@ -142,9 +143,9 @@ export function MenuSelect({
         ) : (
           <>
             {pinned ? (
-              <span className="size-1.5 flex-none rounded-full bg-accent" title="Von Hand gesetzt · bleibt beim nächsten Einordnen" />
+              <span className="size-1.5 flex-none rounded-full bg-accent" {...tip("Von Hand gesetzt · bleibt beim nächsten Einordnen", "Đặt thủ công · giữ nguyên khi phân loại lại")} />
             ) : labeled ? (
-              <span className="size-1.5 flex-none rounded-full bg-[#a855f7]" title="Vom Labeler gesetzt · kann sich beim nächsten Einordnen ändern" />
+              <span className="size-1.5 flex-none rounded-full bg-[#a855f7]" {...tip("Vom Labeler gesetzt · kann sich beim nächsten Einordnen ändern", "Do Labeler đặt · có thể đổi khi phân loại lại")} />
             ) : null}
             {keepLabel ? <span className="flex-none text-[12px] text-muted">{label}</span> : null}
             <span className="min-w-0 truncate font-medium">{chosen >= 0 ? (options[chosen]?.chip ?? options[chosen]?.label) : closedLabel}</span>

@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AREAS, getPageById } from "@/content";
 import { Topbar } from "@/components/Topbar";
-import { Label } from "@/components/Bi";
+import { Label, tip } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { CopyButton } from "@/components/CopyButton";
 import { CommentActions } from "@/components/admin/CommentActions";
@@ -100,7 +100,7 @@ export default async function CommentsPage({ searchParams }: { searchParams: Pro
             <Label de="Kommentare" vi="Bình luận" />
           </h1>
           <span
-            title={"Inhalt in src/content anpassen, dann auf „Erledigt“ – die Person bekommt ein Danke auf Slack.\nSửa nội dung trong src/content, rồi bấm „Đã xong“ – người góp ý nhận lời cảm ơn qua Slack."}
+            {...tip("Inhalt in src/content anpassen, dann auf „Erledigt“ – die Person bekommt ein Danke auf Slack.", "Sửa nội dung trong src/content, rồi bấm „Đã xong“ – người góp ý nhận lời cảm ơn qua Slack.")}
             className="mt-1 flex h-5 w-5 cursor-help items-center justify-center rounded-full border border-line text-[11px] font-semibold text-muted"
           >
             i
@@ -265,7 +265,7 @@ function CommentRow({ c, page, detached }: { c: Row; page?: PageWithMeta; detach
           c.page_version &&
           c.page_version !== page.updated_at && (
             // Comments remember the page's updated_at: a newer version may already have handled this.
-            <span className="rounded bg-chip px-1.5 py-0.5" title={`Kommentar zu Version ${formatDate(c.page_version)}`}>
+            <span className="rounded bg-chip px-1.5 py-0.5" {...tip(`Kommentar zu Version ${formatDate(c.page_version)}`, `Bình luận cho phiên bản ${formatDate(c.page_version)}`)}>
               <Label de={`Seite seit dem Kommentar geändert (${formatDate(page.updated_at)})`} vi={`Trang đã sửa sau bình luận (${formatDate(page.updated_at)})`} />
             </span>
           )

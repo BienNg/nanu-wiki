@@ -2,20 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Label } from "@/components/Bi";
+import { createPortal } from "react-dom";
+import { Label, tip } from "@/components/Bi";
 import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
 import { CopyName } from "@/components/admin/CopyName";
+import { Chip, ClassWhen, Fact, SectionHead } from "@/components/admin/classParts";
+import { Icon } from "@/components/Icon";
 import { bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
-import { MODE_SHORT, shortDate } from "@/lib/classes";
-import { hasStarted, type AssignableClass } from "@/lib/messenger/classes";
+import { MODE_SHORT } from "@/lib/classes";
+import { classCode, hasStarted, MODE_TONE, type AssignableClass } from "@/lib/messenger/classes";
 import type { ThreadMessageRow } from "@/lib/messenger/thread";
 
-/** Client pieces of /admin/messenger/klassen: the searchable class list and the prospect list with its preview. */
-
-function Badge({ tone, children }: { tone: "muted" | "warn"; children: React.ReactNode }) {
-  const cls = tone === "warn" ? "bg-[#FDF1E2] text-[#9A5B13]" : "bg-[#F1F2F4] text-muted";
-  return <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${cls}`}>{children}</span>;
-}
+/** Client pieces of /admin/messenger/klassen: the searchable class list, the selected class with its prospects, and the chat preview. */
 
 function matchesQuery(c: AssignableClass, q: string) {
   if (!q) return true;
@@ -26,85 +24,143 @@ function matchesQuery(c: AssignableClass, q: string) {
     .every((part) => hay.includes(part));
 }
 
+/** Level and place chips, the same as on the Kurse panel cards. */
+function ClassChips({ c }: { c: AssignableClass }) {
+  return (
+    <>
+      {c.level && <Chip className="bg-[#EEF0F3] text-[#3A3F47]">{c.level}</Chip>}
+      {c.mode && <Chip className={MODE_TONE[c.mode]}>{MODE_SHORT[c.mode]}</Chip>}
+    </>
+  );
+}
+
+/** Start, time and signed-up students in one line. */
+function ClassFacts({ c }: { c: AssignableClass }) {
+  return (
+    <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#3A3F47]">
+      <Fact icon="calendar" title={{ de: "Start", vi: "Khai giảng" }}>
+        <ClassWhen c={c} />
+      </Fact>
+      {c.time && (
+        <Fact icon="clock" title={{ de: "Uhrzeit", vi: "Giờ học" }}>
+          {c.time}
+        </Fact>
+      )}
+      {c.students != null && (
+        <Fact icon="cap" title={{ de: "Angemeldete Schüler", vi: "Học viên đã đăng ký" }}>
+          <span>
+            {c.students} <Label de="Schüler" vi="học viên" />
+          </span>
+        </Fact>
+      )}
+    </span>
+  );
+}
+
+function FullChip() {
+  return (
+    <Chip className="bg-[#FDECEC] text-[#B3362B]">
+      <Label de="Kurs ist voll" vi="Lớp đã đầy" />
+    </Chip>
+  );
+}
+
 export type KlassenItem = { c: AssignableClass; count: number };
 
-/** The left column: every class with its prospect count, filtered by the search box. */
+/** One class in the left list: code and chips, then start/time/students; the prospect count sits on the right. */
+function ClassRow({ c, count, current }: KlassenItem & { current: boolean }) {
+  return (
+    <li style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }}>
+      <Link
+        href={current ? "/admin/messenger/klassen" : `/admin/messenger/klassen?k=${c.id}`}
+        aria-current={current ? "page" : undefined}
+        title={c.name}
+        className={`flex items-start gap-3 rounded-xl border px-3.5 py-2.5 transition-[border-color,box-shadow,background-color] ${
+          current
+            ? "border-accent bg-accent-soft/60 ring-[3px] ring-accent/10"
+            : "border-line bg-white hover:border-[#CBD0D8] hover:shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
+        }`}
+      >
+        <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <span className="flex min-w-0 flex-wrap items-center gap-1.5">
+            <span className="truncate text-[14px] font-semibold leading-6 text-ink">{classCode(c.name)}</span>
+            <ClassChips c={c} />
+          </span>
+          <ClassFacts c={c} />
+          {c.full && (
+            <span className="flex">
+              <FullChip />
+            </span>
+          )}
+        </span>
+        <span
+          {...tip(`${count} Interessenten`, `${count} khách quan tâm`)}
+          className={`mt-0.5 inline-flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-semibold ${
+            count ? "bg-accent text-white" : "bg-[#F1F2F4] text-faint"
+          }`}
+        >
+          <Icon name="users" size={12} strokeWidth={2.2} />
+          {count}
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+/** The left column: every class with its prospect count, grouped into running, upcoming and undated, filtered by the search box. */
 export function KlassenList({ items, selectedId }: { items: KlassenItem[]; selectedId: string | null }) {
   const [query, setQuery] = useState("");
   const shown = items.filter(({ c }) => matchesQuery(c, query));
+  const groups = [
+    { key: "running", de: "Läuft (erste Woche)", vi: "Đang học (tuần đầu)", items: shown.filter(({ c }) => hasStarted(c)) },
+    { key: "upcoming", de: "Kommend", vi: "Sắp khai giảng", items: shown.filter(({ c }) => !!c.begin && !hasStarted(c)) },
+    { key: "open", de: "Start noch offen", vi: "Chưa có ngày", items: shown.filter(({ c }) => !c.begin) },
+  ].filter((g) => g.items.length > 0);
+
   return (
-    <div className="flex flex-col gap-2.5">
-      <input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Kurs suchen · Tìm lớp"
-        className="w-full rounded-xl border border-line bg-white px-3.5 py-2 text-[13px] outline-none placeholder:text-faint focus:border-accent"
-      />
-      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-        {shown.map(({ c, count }) => {
-          const current = selectedId === c.id;
-          const when = c.begin ? shortDate(c.begin) : null;
-          return (
-            <li key={c.id} style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }}>
-              <Link
-                href={current ? "/admin/messenger/klassen" : `/admin/messenger/klassen?k=${c.id}`}
-                aria-current={current ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-2.5 transition-colors ${current ? "border-accent bg-accent-soft" : "border-line bg-white hover:bg-hover"}`}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="m-0 truncate text-[13.5px] font-medium" title={c.name}>
-                    {c.name}
-                  </p>
-                  <p className="m-0 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted">
-                    {c.mode && <span>{MODE_SHORT[c.mode]}</span>}
-                    {when ? (
-                      <span>
-                        <Label de={`ab ${when.de}`} vi={`từ ${when.vi}`} />
-                        {c.time ? ` · ${c.time}` : ""}
-                      </span>
-                    ) : (
-                      <Badge tone="muted">
-                        <Label de="Start offen" vi="Chưa có ngày" />
-                      </Badge>
-                    )}
-                    {c.full && (
-                      <Badge tone="warn">
-                        <Label de="Voll" vi="Đã đầy" />
-                      </Badge>
-                    )}
-                    {hasStarted(c) && (
-                      <Badge tone="muted">
-                        <Label de="Läuft" vi="Đang học" />
-                      </Badge>
-                    )}
-                  </p>
-                </div>
-                <span className={`flex-none rounded-full px-2 py-0.5 text-[12px] font-medium ${count ? "bg-accent-soft text-accent" : "bg-[#F1F2F4] text-faint"}`}>{count}</span>
-              </Link>
-            </li>
-          );
-        })}
-        {shown.length === 0 && (
-          <li className="rounded-xl border border-line bg-white px-4 py-3 text-[13px] text-muted">
-            {query ? <Label de="Keine Kurse gefunden." vi="Không tìm thấy lớp nào." /> : <Label de="Keine kommenden Klassen in Notion gefunden." vi="Không tìm thấy lớp sắp mở trong Notion." />}
-          </li>
-        )}
-      </ul>
+    <div className="flex flex-col gap-1">
+      <label className="flex items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-2 transition-colors focus-within:border-accent">
+        <Icon name="search" size={15} className="flex-none text-faint" />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Kurs suchen · Tìm lớp"
+          className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-faint"
+        />
+      </label>
+      {groups.map((g) => (
+        <section key={g.key}>
+          <SectionHead count={g.items.length} bg="bg-white/95">
+            <Label de={g.de} vi={g.vi} />
+          </SectionHead>
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {g.items.map((it) => (
+              <ClassRow key={it.c.id} {...it} current={selectedId === it.c.id} />
+            ))}
+          </ul>
+        </section>
+      ))}
+      {shown.length === 0 && (
+        <p className="m-0 mt-2 rounded-xl border border-dashed border-line px-4 py-6 text-center text-[13px] text-muted">
+          {query ? <Label de="Keine Kurse gefunden." vi="Không tìm thấy lớp nào." /> : <Label de="Keine kommenden Klassen in Notion gefunden." vi="Không tìm thấy lớp sắp mở trong Notion." />}
+        </p>
+      )}
     </div>
   );
 }
 
 /** "Infos" in the header of the selected class: opens the class info (image, dates, students, Notion link). */
-export function ClassInfoButton({ c }: { c: AssignableClass }) {
+function ClassInfoButton({ c }: { c: AssignableClass }) {
   const [open, setOpen] = useState(false);
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex-none rounded-full border border-line px-2.5 py-1 text-[12px] font-medium text-accent transition-colors hover:bg-accent-soft"
+        className="flex h-8 flex-none items-center gap-1.5 rounded-full border border-line bg-white px-3 text-[12.5px] font-medium text-accent transition-colors hover:border-accent/40 hover:bg-accent-soft"
       >
+        <Icon name="doc" size={14} />
         <Label de="Infos" vi="Thông tin" />
       </button>
       {open && <ClassInfoModal c={c} onClose={() => setOpen(false)} />}
@@ -112,7 +168,23 @@ export function ClassInfoButton({ c }: { c: AssignableClass }) {
   );
 }
 
-export type ProspectItem ={ id: string; name: string; channel: string | null; chipDe: string; chipVi: string; time: string };
+export type ProspectTone = "open" | "student" | "zalo" | "closed";
+export type ProspectItem = { id: string; name: string; channel: string | null; chipDe: string; chipVi: string; tone: ProspectTone; time: string };
+
+const TONE: Record<ProspectTone, string> = {
+  open: "bg-[#FDF1E2] text-[#94560F]",
+  student: "bg-[#E2F4EF] text-[#1B6E5D]",
+  zalo: "bg-[#E6EEFB] text-[#2558A3]",
+  closed: "bg-[#F1F2F4] text-faint",
+};
+
+function initials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return "?";
+  const first = words[0][0];
+  const last = words.length > 1 ? words[words.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
 
 type PreviewState = { messages: ThreadMessageRow[]; hasOlder: boolean } | { error: true } | null;
 
@@ -141,14 +213,16 @@ function PreviewModal({ item, onClose }: { item: ProspectItem; onClose: () => vo
     if (el) el.scrollTop = el.scrollHeight;
   }, [data]);
 
-  return (
+  // Portal to <body>: a sticky or transformed parent would otherwise trap the dialog under sticky headings.
+  return createPortal(
     <div role="dialog" aria-modal="true" aria-label={item.name} className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40" />
       <div
         className="anim-fade relative flex h-[min(640px,85dvh)] w-full max-w-[440px] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex flex-none items-center gap-2 border-b border-line px-4 py-3">
+        <header className="flex flex-none items-center gap-2.5 border-b border-line px-4 py-3">
+          <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEF0F3] text-[12.5px] font-semibold text-[#3A3F47]">{initials(item.name)}</span>
           <div className="min-w-0 flex-1">
             <p className="m-0 flex items-center gap-1 text-[14.5px] font-semibold">
               <span className="truncate">{item.name}</span>
@@ -156,17 +230,27 @@ function PreviewModal({ item, onClose }: { item: ProspectItem; onClose: () => vo
             </p>
             <p className="m-0 text-[12px] text-muted">{item.channel === "whatsapp" ? "WhatsApp" : "Messenger"}</p>
           </div>
-          <Link href={`/admin/messenger?c=${encodeURIComponent(item.id)}`} className="flex-none rounded-full px-2.5 py-1 text-[12.5px] font-medium text-accent hover:bg-accent-soft">
+          <Link
+            href={`/admin/messenger?c=${encodeURIComponent(item.id)}`}
+            className="flex h-8 flex-none items-center gap-1 rounded-full bg-accent px-3 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90"
+          >
             <Label de="Im Posteingang öffnen" vi="Mở trong hộp thư" />
+            <Icon name="external" size={13} strokeWidth={2.2} />
           </Link>
-          <button type="button" onClick={onClose} aria-label="Schließen" className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-[16px] text-muted hover:bg-hover">
-            ×
+          <button type="button" onClick={onClose} aria-label="Schließen" {...tip("Schließen", "Đóng")} className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-muted hover:bg-hover">
+            <Icon name="close" size={15} />
           </button>
         </header>
-        <div ref={scroller} className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
-          {!data && <p className="m-0 text-[12.5px] text-faint">…</p>}
+        <div ref={scroller} className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[#F6F7F9] px-4 py-3">
+          {!data && (
+            <div className="mt-auto flex flex-col gap-2" aria-hidden="true">
+              {["w-2/3", "ml-auto w-1/2", "w-3/5", "ml-auto w-2/5"].map((w, i) => (
+                <span key={i} className={`h-9 animate-pulse rounded-2xl bg-[#E6E8EC] ${w}`} />
+              ))}
+            </div>
+          )}
           {data && "error" in data && (
-            <p className="m-0 text-[13px] text-muted">
+            <p className="m-0 rounded-lg bg-white px-3 py-2.5 text-[13px] text-muted">
               <Label de="Das Gespräch konnte nicht geladen werden." vi="Không tải được cuộc trò chuyện." />
             </p>
           )}
@@ -191,32 +275,96 @@ function PreviewModal({ item, onClose }: { item: ProspectItem; onClose: () => vo
           )}
         </div>
       </div>
+    </div>,
+    document.body,
+  );
+}
+
+/** A large centred hint card for the empty states of the right column. */
+function EmptyCard({ tone, icon, title, hint }: { tone: "neutral" | "warn"; icon: "cap" | "users"; title: React.ReactNode; hint: React.ReactNode }) {
+  const warn = tone === "warn";
+  return (
+    <div
+      className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center ${
+        warn ? "border-[#E8B96A] bg-[#FDF6E9]" : "border-line bg-[#F6F7F9]"
+      }`}
+    >
+      <span className={`flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(16,24,40,0.08)] ${warn ? "text-[#94560F]" : "text-muted"}`}>
+        <Icon name={icon} size={20} />
+      </span>
+      <p className={`m-0 text-[14px] font-semibold ${warn ? "text-[#7A4A0E]" : "text-ink"}`}>{title}</p>
+      <p className={`m-0 max-w-[300px] text-[12.5px] leading-snug ${warn ? "text-[#94560F]" : "text-muted"}`}>{hint}</p>
     </div>
   );
 }
 
-/** The right column: the chats assigned to the selected class. A click opens the read-only preview. */
-export function ProspectList({ items }: { items: ProspectItem[] }) {
+/** The right column: the selected class and the chats assigned to it. A click on a chat opens the read-only preview. */
+export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: ProspectItem[] }) {
   const [open, setOpen] = useState<ProspectItem | null>(null);
+
+  if (!c) {
+    return (
+      <EmptyCard
+        tone="neutral"
+        icon="cap"
+        title={<Label de="Klasse wählen" vi="Chọn một lớp" />}
+        hint={<Label de="Links eine Klasse anklicken, um ihre Interessenten zu sehen und anzuschreiben." vi="Bấm vào một lớp bên trái để xem và nhắn cho khách quan tâm." />}
+      />
+    );
+  }
+
   return (
-    <>
-      <ul className="m-0 list-none p-0">
-        {items.map((item) => (
-          <li key={item.id} className="border-b border-line last:border-b-0">
-            <button type="button" onClick={() => setOpen(item)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-hover">
-              <div className="min-w-0 flex-1">
-                <p className="m-0 truncate text-[13.5px] font-medium">{item.name}</p>
-                <p className="m-0 mt-0.5 text-[12px] text-muted">{item.channel === "whatsapp" ? "WhatsApp" : "Messenger"}</p>
-              </div>
-              <span className="flex-none rounded-full bg-[#F1F2F4] px-2 py-0.5 text-[11.5px] font-medium text-muted">
-                <Label de={item.chipDe} vi={item.chipVi} />
-              </span>
-              <span className="flex-none text-[12px] text-faint">{item.time}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-xl border border-line bg-white shadow-[0_1px_3px_rgba(16,24,40,0.05)] max-md:max-h-none">
+      <header className="flex flex-none items-start gap-3 border-b border-line px-5 py-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            <h2 className="m-0 truncate text-[20px] font-semibold leading-7 text-ink">{classCode(c.name)}</h2>
+            <ClassChips c={c} />
+            {c.full && <FullChip />}
+          </div>
+          {classCode(c.name) !== c.name && <p className="m-0 truncate text-[12px] text-muted">{c.name}</p>}
+          <ClassFacts c={c} />
+        </div>
+        <ClassInfoButton c={c} />
+      </header>
+      <div className="flex flex-none items-center gap-1.5 border-b border-line bg-[#F6F7F9] px-5 py-2 text-[11.5px] font-semibold text-muted">
+        <Icon name="users" size={13} />
+        <Label de="Interessenten" vi="Khách quan tâm" />
+        <span className={`rounded-full px-1.5 text-[10.5px] leading-4 ${items.length ? "bg-accent text-white" : "bg-[#E6E8EC] text-muted"}`}>{items.length}</span>
+      </div>
+      {items.length === 0 ? (
+        <div className="p-4">
+          <EmptyCard
+            tone="warn"
+            icon="users"
+            title={<Label de="Noch keine Interessenten" vi="Chưa có khách quan tâm" />}
+            hint={<Label de="Im Posteingang im Kurse-Panel eines Chats diese Klasse mit (+) zuordnen." vi="Trong hộp thư, mở bảng Lớp học của một cuộc trò chuyện và bấm (+) để gán lớp này." />}
+          />
+        </div>
+      ) : (
+        <ul className="m-0 min-h-0 flex-1 list-none overflow-y-auto p-0">
+          {items.map((item) => (
+            <li key={item.id} className="border-b border-line last:border-b-0">
+              <button type="button" onClick={() => setOpen(item)} className="group flex w-full items-center gap-3 px-5 py-2.5 text-left transition-colors hover:bg-hover">
+                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEF0F3] text-[12.5px] font-semibold text-[#3A3F47]">{initials(item.name)}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13.5px] font-semibold text-ink">{item.name}</span>
+                  <span className="mt-0.5 flex items-center gap-1 text-[12px] text-muted">
+                    <Icon name="chat" size={12} className="text-faint" />
+                    {item.channel === "whatsapp" ? "WhatsApp" : "Messenger"}
+                    <span className="text-faint">· {item.time}</span>
+                  </span>
+                </span>
+                <Chip className={TONE[item.tone]}>
+                  <Label de={item.chipDe} vi={item.chipVi} />
+                </Chip>
+                <Icon name="chevron" size={14} className="flex-none text-faint opacity-0 transition-opacity group-hover:opacity-100" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {open && <PreviewModal item={open} onClose={() => setOpen(null)} />}
-    </>
+    </div>
   );
 }

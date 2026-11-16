@@ -2,6 +2,7 @@
 
 import { currentDoc } from "./DocLink";
 import { toast } from "./Toaster";
+import { tip } from "@/components/Bi";
 
 /** Where copied links point, also when copied on localhost: they are meant to be shared with the team. */
 const PRODUCTION_URL = "https://nanu-wiki.vercel.app";
@@ -12,7 +13,7 @@ export function SectionLinkButton({ id }: { id: string }) {
     <button
       type="button"
       aria-label="Link zu diesem Abschnitt kopieren · Sao chép link đến mục này"
-      title="Link kopieren · Sao chép link"
+      {...tip("Link kopieren", "Sao chép link")}
       onClick={async (e) => {
         const { area, page } = currentDoc(!!e.currentTarget.closest(".doc-pane"));
         if (!area || !page) return;

@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { Label } from "@/components/Bi";
+import { Label, type TipText } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { ActionChip } from "@/components/admin/ActionChip";
 import { useThreadVersion } from "@/components/admin/InboxLive";
@@ -43,10 +43,16 @@ function GoalChip({ id, children }: { id: string; children: ReactNode }) {
   return <span className={`flex items-center gap-1.5 ${saving ? "label-saving" : ""}`}>{children}</span>;
 }
 
-function goalTitle(data: Loaded) {
-  if (!data.step || !STEP_TASKS.has(data.view.action.id)) return data.view.state.de;
-  const task = data.view.action.de.replace(/^Warten(\s*·\s*(dann\s+)?)?/, "");
-  return [`${STEP_INFO[data.step].short_de}: ${STEP_INFO[data.step].goal_de}`, task && `Jetzt: ${task.charAt(0).toUpperCase()}${task.slice(1)}`].filter(Boolean).join("\n");
+function goalTitle(data: Loaded): TipText {
+  if (!data.step || !STEP_TASKS.has(data.view.action.id)) return { de: data.view.state.de, vi: data.view.state.vi };
+  const info = STEP_INFO[data.step];
+  const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+  const taskDe = data.view.action.de.replace(/^Warten(\s*·\s*(dann\s+)?)?/, "");
+  const taskVi = data.view.action.vi.replace(/^Chờ(\s*·\s*(sau đó\s+)?)?/, "");
+  return {
+    de: [`${info.short_de}: ${info.goal_de}`, taskDe && `Jetzt: ${cap(taskDe)}`].filter(Boolean).join("\n"),
+    vi: [`${info.short_vi}: ${info.goal_vi}`, taskVi && `Bây giờ: ${cap(taskVi)}`].filter(Boolean).join("\n"),
+  };
 }
 
 /** What Status "Automatisch" comes to: whose turn it is, taken from the last message ("Wartet auf uns"). */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { tip } from "@/components/Bi";
 
 /** A small icon button that puts the person's name on the clipboard, with a short ✓ as feedback. */
 export function CopyName({ name, className }: { name: string; className?: string }) {
@@ -11,7 +12,7 @@ export function CopyName({ name, className }: { name: string; className?: string
     <button
       type="button"
       aria-label="Namen kopieren · Sao chép tên"
-      title="Namen kopieren · Sao chép tên"
+      {...tip("Namen kopieren", "Sao chép tên")}
       onClick={() => {
         navigator.clipboard
           .writeText(name)

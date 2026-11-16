@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Label } from "./Bi";
+import { Label, tip } from "./Bi";
 import { RAIL_WIDTH, useCollapseSidebarWhileOpen } from "./AppShell";
 
 const CloseContext = createContext<() => void>(() => {});
@@ -221,7 +221,7 @@ export function PaneFrame({ closeHref, label, children }: { closeHref: string; l
 export function PaneClose({ className }: { className?: string }) {
   const close = useContext(CloseContext);
   return (
-    <button type="button" onClick={close} aria-label="Schließen · Đóng" title="Schließen (Esc) · Đóng" className={className}>
+    <button type="button" onClick={close} aria-label="Schließen · Đóng" {...tip("Schließen (Esc)", "Đóng (Esc)")} className={className}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <path d="M18 6 6 18M6 6l12 12" />
       </svg>

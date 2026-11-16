@@ -1,7 +1,7 @@
 import type { KnowledgeKind } from "@/lib/types";
 import type { QuizState, QuizStatus } from "@/lib/pageQuiz";
 import { isVerified, formatDate } from "@/lib/format";
-import { Label } from "./Bi";
+import { Label, tip } from "./Bi";
 import { Icon } from "./Icon";
 
 export const KIND: Record<KnowledgeKind, { de: string; vi: string; cls: string; dot: string }> = {
@@ -60,7 +60,7 @@ export function QuizChip({ status, short = false }: { status: QuizStatus; short?
   const symbol = { passed: "✓", outdated: "↻", failed: "✗", open: "?" }[status.state];
   if (short) {
     return (
-      <span title={`${q.de} · ${q.vi}`} className={`inline-flex h-[18px] min-w-[18px] flex-none items-center justify-center rounded-full px-1 text-[10px] font-bold ${q.cls}`}>
+      <span {...tip(q.de, q.vi)} className={`inline-flex h-[18px] min-w-[18px] flex-none items-center justify-center rounded-full px-1 text-[10px] font-bold ${q.cls}`}>
         {symbol}
       </span>
     );

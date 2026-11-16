@@ -3,7 +3,7 @@ import type { Area, Profile } from "@/lib/types";
 import { hasRole } from "@/lib/auth";
 import { canUseAssistant } from "@/lib/assistant/access";
 import { Icon } from "./Icon";
-import { Label } from "./Bi";
+import { Label, tip } from "./Bi";
 import { NavLink } from "./NavLink";
 import { initials } from "@/lib/format";
 import { CollapseSidebarButton, SearchTrigger } from "./AppShell";
@@ -41,7 +41,7 @@ export function Sidebar({
         {!isCandidate && (
           <>
             {myArea && (
-              <NavLink href={`/bereich/${myArea.slug}?tab=onboarding`} title="Mein Onboarding">
+              <NavLink href={`/bereich/${myArea.slug}?tab=onboarding`} title={{ de: "Mein Onboarding", vi: "Lộ trình của tôi" }}>
                 <Icon name="layers" size={15} />
                 <span className="side-text min-w-0 truncate">
                   <Label de="Mein Onboarding" vi="Lộ trình của tôi" />
@@ -49,7 +49,7 @@ export function Sidebar({
               </NavLink>
             )}
             {canUseAssistant(profile) && (
-              <NavLink href="/assistent" title="Antwort-Assistent">
+              <NavLink href="/assistent" title={{ de: "Antwort-Assistent", vi: "Trợ lý trả lời" }}>
                 <Icon name="spark" size={15} />
                 <span className="side-text min-w-0 truncate">
                   <Label de="Antwort-Assistent" vi="Trợ lý trả lời" />
@@ -67,7 +67,7 @@ export function Sidebar({
             key={a.slug}
             href={isCandidate ? `/bereich/${a.slug}?tab=handbook` : `/bereich/${a.slug}`}
             matchPrefix={`/bereich/${a.slug}`}
-            title={a.name_de}
+            title={{ de: a.name_de, vi: a.name_vi }}
           >
             <Icon name={a.icon} size={15} color={a.color} strokeWidth={2} />
             <span className="side-text min-w-0 truncate">
@@ -79,7 +79,7 @@ export function Sidebar({
 
       <div className="flex flex-col gap-px pt-2">
         {openComments !== null && (
-          <NavLink href="/admin/kommentare" title="Kommentare">
+          <NavLink href="/admin/kommentare" title={{ de: "Kommentare", vi: "Bình luận" }}>
             <Icon name="chat" size={15} />
             <span className="side-text min-w-0 flex-1 truncate">
               <Label de="Kommentare" vi="Bình luận" />
@@ -96,7 +96,7 @@ export function Sidebar({
           </NavLink>
         )}
         {hasRole(profile.role, "admin") && (
-          <NavLink href="/admin/aufgaben" title="Tägliche Aufgaben">
+          <NavLink href="/admin/aufgaben" title={{ de: "Tägliche Aufgaben", vi: "Việc hằng ngày" }}>
             <Icon name="check" size={15} />
             <span className="side-text min-w-0 truncate">
               <Label de="Tägliche Aufgaben" vi="Việc hằng ngày" />
@@ -104,7 +104,7 @@ export function Sidebar({
           </NavLink>
         )}
         {hasRole(profile.role, "admin") && (
-          <NavLink href="/admin/quiz" title="Quiz-Übersicht">
+          <NavLink href="/admin/quiz" title={{ de: "Quiz-Übersicht", vi: "Tổng quan quiz" }}>
             <Icon name="cap" size={15} />
             <span className="side-text min-w-0 truncate">
               <Label de="Quiz-Übersicht" vi="Tổng quan quiz" />
@@ -112,7 +112,7 @@ export function Sidebar({
           </NavLink>
         )}
         {hasRole(profile.role, "admin") && (
-          <NavLink href="/admin/benutzer" title="Benutzer & Rollen">
+          <NavLink href="/admin/benutzer" title={{ de: "Benutzer & Rollen", vi: "Người dùng & vai trò" }}>
             <Icon name="shield" size={15} />
             <span className="side-text min-w-0 truncate">
               <Label de="Benutzer & Rollen" vi="Người dùng & vai trò" />
@@ -122,7 +122,7 @@ export function Sidebar({
         {onboardingPct !== null && myArea && (
           <Link
             href={`/bereich/${myArea.slug}?tab=onboarding`}
-            title={`Onboarding: ${onboardingPct} %`}
+            {...tip(`Onboarding: ${onboardingPct} %`, `Hội nhập: ${onboardingPct} %`)}
             className="mt-2.5 flex min-h-[34px] items-center gap-2 rounded-md bg-accent-soft px-2.5 text-xs font-medium text-accent-dark"
           >
             <Icon name="layers" size={14} strokeWidth={2} />

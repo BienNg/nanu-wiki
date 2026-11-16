@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { addComment } from "@/app/actions";
 import { COMMENT_TAGS } from "@/lib/comments";
 import type { CommentAnchor, CommentTag } from "@/lib/types";
-import { Label } from "./Bi";
+import { Label, tip } from "./Bi";
 import { anchorFromRange, rangeForAnchor, revealAnchor } from "./commentDom";
 import { CommentView, type PanelComment } from "./CommentView";
 
@@ -146,7 +146,7 @@ export function CommentLayer({
         <button
           type="button"
           data-comment-ui
-          title="Kommentieren · Bình luận"
+          {...tip("Kommentieren", "Bình luận")}
           aria-label="Diesen Abschnitt kommentieren · Bình luận phần này"
           onClick={() => openFor({ anchor: { block: hover.block }, top: hover.top + 30, left: 0 })}
           className="absolute -left-8 z-20 flex h-7 w-7 items-center justify-center rounded-md text-faint before:absolute before:-inset-y-2 before:left-0 before:w-12 before:content-[''] hover:bg-hover hover:text-accent"

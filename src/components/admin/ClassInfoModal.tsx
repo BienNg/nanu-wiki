@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Label } from "@/components/Bi";
 import { copyImageToClipboard } from "@/components/ImageModal";
 import { MODE_LABEL, shortDate } from "@/lib/classes";
@@ -45,7 +46,8 @@ export function ClassInfoModal({ c, onClose }: { c: AssignableClass; onClose: ()
       });
   };
 
-  return (
+  // Portal to <body>: a sticky or transformed parent would otherwise trap the dialog under sticky headings.
+  return createPortal(
     <div role="dialog" aria-modal="true" aria-label={c.name} className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40" />
       <div className="anim-fade relative flex max-h-[85dvh] w-full max-w-[400px] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
@@ -146,6 +148,7 @@ export function ClassInfoModal({ c, onClose }: { c: AssignableClass; onClose: ()
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

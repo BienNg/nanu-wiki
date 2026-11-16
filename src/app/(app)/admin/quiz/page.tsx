@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AREAS, PAGES, requiredQuizPages } from "@/content";
 import { Topbar } from "@/components/Topbar";
-import { Bi, Label } from "@/components/Bi";
+import { Bi, Label, tip } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { formatDate, initials } from "@/lib/format";
 import { PAGE_QUIZ_PREFIX, parsePageQuizId, quizStatus, type QuizAttemptRow, type QuizStatus } from "@/lib/pageQuiz";
@@ -86,7 +86,7 @@ export default async function QuizAdminPage({ searchParams }: { searchParams: Pr
                 <Label de="Person" vi="Người" />
               </span>
               {pages.map((p) => (
-                <Link key={p.id} href={p.href} title={p.title_de} className="line-clamp-3 text-center text-muted hover:text-ink">
+                <Link key={p.id} href={p.href} {...tip(p.title_de, p.title_vi)} className="line-clamp-3 text-center text-muted hover:text-ink">
                   <Label de={p.title_de} vi={p.title_vi} />
                   <span className="block font-normal text-faint">v{p.quiz!.version}</span>
                 </Link>
