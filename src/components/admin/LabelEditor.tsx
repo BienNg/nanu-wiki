@@ -6,7 +6,7 @@ import { INTERESTS } from "@/lib/assistant/schema";
 import { saveMessengerLabel } from "@/app/(app)/admin/messenger/actions";
 import { publishLabelSave, setLabelEditing, setLabelSaving } from "@/components/admin/labelPatch";
 import type { ReactNode } from "react";
-import { Label } from "@/components/Bi";
+import { Bi, Label } from "@/components/Bi";
 import { MenuSelect } from "@/components/admin/MenuSelect";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, isStep } from "@/lib/messenger/steps";
 import { LEVELS, LOSS_REASONS, PLACES, levelOf, placeOf, type LossReason } from "@/lib/messenger/types";
@@ -87,11 +87,7 @@ function Field({ de, vi, pinned, saving, children }: { de: string; vi: string; p
 }
 
 const typed = "h-5 min-w-0 bg-transparent text-[12px] font-medium text-ink outline-none";
-const both = (de: string, vi: string) => (
-  <>
-    {de} <span className="opacity-60">· {vi}</span>
-  </>
-);
+const both = (de: string, vi: string) => <Bi de={de} vi={vi} inline />;
 
 /** Correct the stored label; every change saves at once. A dot means that field stays when the chat is labeled again. */
 export function LabelEditor(props: LabelFormValues) {
