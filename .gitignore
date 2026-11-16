@@ -9,3 +9,6 @@ out
 next-env.d.ts
 .DS_Store
 supabase/.temp
+
+# Firebase CLI crash logs
+firebase-debug.log
