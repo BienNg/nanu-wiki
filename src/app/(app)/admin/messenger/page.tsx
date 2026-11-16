@@ -16,6 +16,8 @@ import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, typ
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
 import { inboxVersion } from "@/lib/messenger/version";
+import { rowClass, type RowClass } from "@/lib/messenger/classes";
+import { assignableClasses } from "@/lib/notion";
 
 export const metadata = { title: "Messenger" };
 
@@ -83,6 +85,33 @@ async function allPages<T>(load: (from: number, to: number) => PromiseLike<{ dat
 }
 
 type Db = Awaited<ReturnType<typeof createClient>>;
+
+/**
+ * The classes each shown chat is assigned to, with their short code. Only classes that are still in
+ * the Notion pool are listed (ended ones are hidden everywhere). Without Notion the rows show none.
+ */
+async function assignedClasses(supabase: Db, ids: string[]): Promise<Map<string, RowClass[]>> {
+  const byChat = new Map<string, RowClass[]>();
+  try {
+    const [rows, pool] = await Promise.all([
+      inChunks<{ conversation_id: string; class_id: string; created_at: string }>(ids, (slice) =>
+        supabase.from("messenger_class_assignments").select("conversation_id, class_id, created_at").in("conversation_id", slice).order("created_at"),
+      ),
+      assignableClasses(),
+    ]);
+    const classById = new Map(pool.map((c) => [c.id, c]));
+    for (const row of rows) {
+      const c = classById.get(row.class_id);
+      if (!c) continue;
+      const list = byChat.get(row.conversation_id) ?? [];
+      list.push(rowClass(c));
+      byChat.set(row.conversation_id, list);
+    }
+  } catch (err) {
+    console.error("[messenger] assigned classes", err);
+  }
+  return byChat;
+}
 type IndexFilter = { channel: string; like: string; interest: string; step: string; steps: readonly Step[]; limit: number };
 /** Counts for the menus and the funnel, plus the ids of the chats to show. `labels` only when they were read anyway. */
 type InboxIndex = { source: "db" | "app"; interestCounts: Map<string, number>; stepCounts: Map<string, number>; qualify: number; statuses: Record<string, number>; total: number; ids: string[]; labels?: Map<string, InboxLabel> };
@@ -244,10 +273,11 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const { interestCounts, stepCounts, qualify, statuses, total, ids: shownIds } = index;
 
   // Full rows (newest message, label, facts) only for the chats that are shown.
-  const [inboxRows, factRows, labelRows] = await Promise.all([
+  const [inboxRows, factRows, labelRows, classesById] = await Promise.all([
     inChunks<InboxDbRow>(shownIds, (slice) => supabase.from("messenger_inbox").select("*").in("id", slice)),
     inChunks<FactRow>(shownIds, (slice) => supabase.from("messenger_facts").select(FACT_COLUMNS).in("id", slice)),
     index.labels ? [] : inChunks<InboxLabel>(shownIds, (slice) => supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", slice)),
+    assignedClasses(supabase, shownIds),
   ]);
   const labelById = index.labels ?? new Map(labelRows.map((row) => [row.conversation_id, row]));
   const inboxById = new Map(inboxRows.map((row) => [row.id, row]));
@@ -442,6 +472,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                     account: c.account_name ?? null,
                     chips: labelChips(label),
                     view: viewById.get(c.id) ?? null,
+                    classes: classesById.get(c.id) ?? [],
                     place: inboxPlace(label),
                   }}
                 />

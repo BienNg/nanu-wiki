@@ -7,13 +7,17 @@ export function ListSkeleton({ rows = 9 }: { rows?: number }) {
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="flex items-center gap-2.5 px-2.5 py-2">
           <Bone className="h-10 w-10 flex-none rounded-full" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
             <div className="flex items-center gap-2">
               <Bone className={`h-3.5 ${["w-28", "w-36", "w-24", "w-32"][i % 4]}`} />
               <Bone className="ml-auto h-2.5 w-8" />
             </div>
             <Bone className={`h-3 ${["w-4/5", "w-3/5", "w-2/3"][i % 3]}`} />
-            <Bone className="h-[18px] w-24 rounded-full" />
+            <div className="flex items-center gap-1">
+              <Bone className={`h-[18px] rounded-full ${["w-20", "w-24", "w-16"][i % 3]}`} />
+              {i % 3 === 0 && <Bone className="h-[18px] w-12 rounded-md" />}
+              <Bone className="h-2.5 w-16" />
+            </div>
           </div>
         </div>
       ))}

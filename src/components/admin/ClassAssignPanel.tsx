@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Label } from "@/components/Bi";
 import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
-import { MODE_SHORT, shortDate } from "@/lib/classes";
-import { hasStarted, matchScore, rankClasses, type AssignableClass } from "@/lib/messenger/classes";
+import { Icon, type AnyIcon } from "@/components/Icon";
+import { MODE_SHORT, shortDate, type ClassMode } from "@/lib/classes";
+import { setRowClasses } from "@/components/admin/classPatch";
+import { classCode, classToday, hasStarted, matchScore, MODE_TONE, rankClasses, rowClass, type AssignableClass } from "@/lib/messenger/classes";
 
 type Data = { classes: AssignableClass[]; assigned: string[] };
 type State = ({ id: string } & Data) | { id: string; error: true } | null;
@@ -14,7 +16,19 @@ type State = ({ id: string } & Data) | { id: string; error: true } | null;
 const recent = new Map<string, Data>();
 const COLLAPSED_KEY = "messenger-classes-panel";
 
-/** Rows get a view-transition name, so moving between Zugeordnet and Vorschläge animates where the browser supports it. */
+/** The row in the inbox list shows the assigned classes; keep it in step with this panel. */
+function publishRow(conversationId: string, data: Data) {
+  const byId = new Map(data.classes.map((c) => [c.id, c]));
+  setRowClasses(
+    conversationId,
+    data.assigned.flatMap((k) => {
+      const c = byId.get(k);
+      return c ? [rowClass(c)] : [];
+    }),
+  );
+}
+
+/** Cards get a view-transition name, so moving between Zugeordnet and the suggestions animates where the browser supports it. */
 function animated(apply: () => void) {
   const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
   if (doc.startViewTransition) doc.startViewTransition(() => flushSync(apply));
@@ -30,81 +44,130 @@ function matchesQuery(c: AssignableClass, q: string) {
     .every((part) => hay.includes(part));
 }
 
-function Badge({ tone, children }: { tone: "accent" | "muted" | "warn"; children: React.ReactNode }) {
-  const cls =
-    tone === "accent"
-      ? "bg-accent-soft text-accent"
-      : tone === "warn"
-        ? "bg-[#FDF1E2] text-[#9A5B13]"
-        : "bg-[#F1F2F4] text-muted";
-  return <span className={`rounded-full px-1.5 py-px text-[10.5px] font-medium ${cls}`}>{children}</span>;
+const WEEKDAY = { de: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"], vi: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] };
+
+/** Whole days from today (class timezone) to an ISO date; negative once it has passed. */
+function daysUntil(iso: string) {
+  const ms = Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${classToday()}T00:00:00Z`);
+  return Math.round(ms / 86_400_000);
 }
 
-/** Name, when and where of one class (a click opens the class info), plus an add or remove button. */
-function ClassRow({
+function Chip({ className, children }: { className: string; children: React.ReactNode }) {
+  return <span className={`inline-flex items-center rounded-md px-1.5 py-px text-[11px] font-semibold leading-[18px] ${className}`}>{children}</span>;
+}
+
+function Fact({ icon, children, title }: { icon: AnyIcon; children: React.ReactNode; title?: string }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1" title={title}>
+      <Icon name={icon} size={13} strokeWidth={2} className="flex-none text-faint" />
+      {children}
+    </span>
+  );
+}
+
+/** One class as a card: code, level and place first, then start, time and seats. A click opens the class info; the round button adds or removes it. */
+function ClassCard({
   c,
-  score,
   busy,
-  actionLabel,
+  assigned,
   onAction,
   onInfo,
 }: {
   c: AssignableClass;
-  score: number;
   busy: boolean;
-  actionLabel: "add" | "remove";
+  assigned: boolean;
   onAction: () => void;
   onInfo: () => void;
 }) {
   const when = c.begin ? shortDate(c.begin) : null;
+  const days = c.begin ? daysUntil(c.begin) : null;
+  const wd = c.begin ? new Date(`${c.begin}T00:00:00Z`).getUTCDay() : 0;
+  const running = hasStarted(c);
+  const code = classCode(c.name);
   return (
-    <li style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }} className="flex items-start gap-2 rounded-lg bg-[#FAFBFC] px-2 py-1.5 hover:bg-hover">
-      <button type="button" onClick={onInfo} title="Infos zum Kurs / Thông tin lớp" className="min-w-0 flex-1 text-left">
-        <p className="m-0 truncate text-[12.5px] font-medium leading-snug" title={c.name}>
-          {c.name}
-        </p>
-        <p className="m-0 mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted">
-          {c.mode && <span>{MODE_SHORT[c.mode]}</span>}
-          {when ? (
-            <span>
-              <Label de={`ab ${when.de}`} vi={`từ ${when.vi}`} />
-              {c.time ? ` · ${c.time}` : ""}
-            </span>
-          ) : (
-            <Badge tone="muted">
-              <Label de="Start offen" vi="Chưa có ngày" />
-            </Badge>
-          )}
-          {score === 2 && (
-            <Badge tone="accent">
-              <Label de="Passt" vi="Phù hợp" />
-            </Badge>
-          )}
-          {c.full && (
-            <Badge tone="warn">
-              <Label de="Voll" vi="Đã đầy" />
-            </Badge>
-          )}
-          {hasStarted(c) && (
-            <Badge tone="muted">
-              <Label de="Läuft" vi="Đang học" />
-            </Badge>
-          )}
-        </p>
+    <li
+      style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }}
+      className={`group relative rounded-xl border transition-[border-color,box-shadow] ${
+        assigned ? "border-accent/40 bg-accent-soft/40" : "border-line bg-white hover:border-[#CBD0D8] hover:shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
+      } ${busy ? "opacity-60" : ""}`}
+    >
+      <button type="button" onClick={onInfo} title={`${c.name} – Infos / Thông tin lớp`} className="block w-full rounded-xl px-3 pb-2.5 pt-2 pr-11 text-left">
+        <span className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <span className="truncate text-[13.5px] font-semibold leading-6 text-ink">{code}</span>
+          {c.level && <Chip className="bg-[#EEF0F3] text-[#3A3F47]">{c.level}</Chip>}
+          {c.mode && <Chip className={MODE_TONE[c.mode]}>{MODE_SHORT[c.mode]}</Chip>}
+        </span>
+        <span className="mt-1.5 flex flex-col gap-1 text-[12px] text-[#3A3F47]">
+          <Fact icon="calendar" title="Start / Khai giảng">
+            {when ? (
+              <span className="truncate">
+                <span className="font-medium">
+                  <Label de={`${WEEKDAY.de[wd]}, ${when.de}`} vi={`${WEEKDAY.vi[wd]}, ${when.vi}`} />
+                </span>
+                <span className="text-faint">
+                  {" · "}
+                  {days === 0 ? (
+                    <Label de="heute" vi="hôm nay" />
+                  ) : running ? (
+                    <Label de={`läuft seit ${-days!} T.`} vi={`đã học ${-days!} ngày`} />
+                  ) : days === 1 ? (
+                    <Label de="morgen" vi="ngày mai" />
+                  ) : (
+                    <Label de={`in ${days} Tagen`} vi={`còn ${days} ngày`} />
+                  )}
+                </span>
+              </span>
+            ) : (
+              <span className="text-faint">
+                <Label de="Start noch offen" vi="Chưa có ngày khai giảng" />
+              </span>
+            )}
+          </Fact>
+          <span className="flex items-center gap-3">
+            <Fact icon="clock" title="Uhrzeit / Giờ học">
+              {c.time ?? <span className="text-faint">–</span>}
+            </Fact>
+            {c.students != null && (
+              <Fact icon="users" title="Angemeldete Schüler / Học viên đã đăng ký">
+                <span>
+                  {c.students} <Label de="Schüler" vi="học viên" />
+                </span>
+              </Fact>
+            )}
+          </span>
+        </span>
+        {c.full && (
+          <span className="mt-2 flex">
+            <Chip className="bg-[#FDECEC] text-[#B3362B]">
+              <Label de="Kurs ist voll" vi="Lớp đã đầy" />
+            </Chip>
+          </span>
+        )}
       </button>
       <button
         type="button"
         disabled={busy}
         onClick={onAction}
-        aria-label={actionLabel === "add" ? "Zuordnen" : "Entfernen"}
-        title={actionLabel === "add" ? "Zuordnen / Gán lớp" : "Entfernen / Bỏ gán"}
-        className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full border text-[14px] leading-none transition-colors disabled:opacity-40 ${
-          actionLabel === "add" ? "border-line text-accent hover:bg-accent-soft" : "border-transparent text-faint hover:bg-[#FBEAEA] hover:text-[#B3362B]"
+        aria-label={assigned ? "Entfernen" : "Zuordnen"}
+        title={assigned ? "Entfernen / Bỏ gán" : "Zuordnen / Gán lớp"}
+        className={`absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full transition-colors disabled:cursor-wait ${
+          assigned
+            ? "text-faint hover:bg-[#FBEAEA] hover:text-[#B3362B]"
+            : "border border-accent/30 bg-white text-accent hover:border-accent hover:bg-accent hover:text-white"
         }`}
       >
-        {actionLabel === "add" ? "+" : "×"}
+        <Icon name={assigned ? "close" : "plus"} size={14} strokeWidth={2.4} />
       </button>
     </li>
+  );
+}
+
+function SectionHead({ children, count }: { children: React.ReactNode; count?: number }) {
+  return (
+    <h3 className="sticky top-0 z-[1] m-0 flex items-center gap-1.5 bg-[#F6F7F9]/95 px-1 pb-1.5 pt-3 text-[11.5px] font-semibold text-muted backdrop-blur first:pt-1">
+      {children}
+      {count != null && <span className="rounded-full bg-[#E6E8EC] px-1.5 text-[10.5px] font-semibold leading-4 text-muted">{count}</span>}
+    </h3>
   );
 }
 
@@ -150,6 +213,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
       .then((data) => {
         if (flight.current !== ctrl) return;
         recent.set(conversationId, data);
+        publishRow(conversationId, data);
         setState({ id: conversationId, ...data });
       })
       .catch((e) => {
@@ -165,6 +229,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     const assigned = remove ? before.filter((k) => k !== classId) : [...before, classId];
     const next = { classes: state.classes, assigned };
     recent.set(conversationId, next);
+    publishRow(conversationId, next);
     animated(() => setState({ id: conversationId, ...next }));
     setBusy(classId);
     fetch("/api/messenger/classes", {
@@ -176,6 +241,7 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
       .catch(() => {
         const rolled = { classes: next.classes, assigned: before };
         recent.set(conversationId, rolled);
+        publishRow(conversationId, rolled);
         animated(() => setState((s) => (s && !("error" in s) && s.id === conversationId ? { id: conversationId, ...rolled } : s)));
       })
       .finally(() => setBusy((b) => (b === classId ? null : b)));
@@ -187,15 +253,16 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
         type="button"
         onClick={toggle}
         title="Kurse zuordnen / Gán lớp"
-        className="flex w-9 flex-none flex-col items-center gap-1.5 border-l border-line bg-[#FAFBFC] pt-3 text-muted transition-colors hover:bg-hover max-lg:hidden"
+        className="flex w-10 flex-none flex-col items-center gap-2 border-l border-line bg-[#F6F7F9] pt-3 text-muted transition-colors hover:bg-hover max-lg:hidden"
       >
-        <span aria-hidden="true" className="text-[14px]">
-          ‹
-        </span>
-        <span className="text-[11px] font-medium [writing-mode:vertical-rl]">
+        <Icon name="chevron" size={14} className="rotate-180" />
+        <Icon name="cap" size={16} />
+        <span className="text-[11.5px] font-semibold [writing-mode:vertical-rl]">
           <Label de="Kurse" vi="Lớp học" />
-          {state && !("error" in state) && state.assigned.length > 0 ? ` · ${state.assigned.length}` : ""}
         </span>
+        {state && !("error" in state) && state.assigned.length > 0 && (
+          <span className="rounded-full bg-accent px-1.5 text-[10.5px] font-semibold leading-4 text-white">{state.assigned.length}</span>
+        )}
       </button>
     );
   }
@@ -204,67 +271,106 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
   const suggestions = ready ? rankClasses(ready.classes.filter((c) => !ready.assigned.includes(c.id) && matchesQuery(c, query)), level, place) : [];
   const assignedClasses = ready ? ready.assigned.map((k) => ready.classes.find((c) => c.id === k)).filter((c): c is AssignableClass => !!c) : [];
   const canSuggest = !!level && level !== "unklar" && !!place && place !== "unklar";
+  const best = canSuggest ? suggestions.filter((c) => matchScore(c, level, place) === 2) : [];
+  const rest = canSuggest ? suggestions.filter((c) => matchScore(c, level, place) < 2) : suggestions;
+  const card = (c: AssignableClass, assigned: boolean) => (
+    <ClassCard key={c.id} c={c} assigned={assigned} busy={busy === c.id} onAction={() => save(c.id, assigned)} onInfo={() => setInfo(c)} />
+  );
 
   return (
-    <aside className="flex w-[264px] flex-none flex-col border-l border-line bg-[#FAFBFC] max-lg:hidden">
-      <header className="flex flex-none items-center justify-between gap-2 border-b border-line px-3 py-2">
-        <h2 className="m-0 text-[12.5px] font-semibold">
+    <aside className="flex w-[288px] flex-none flex-col border-l border-line bg-[#F6F7F9] max-lg:hidden">
+      <header className="flex flex-none items-center gap-2 border-b border-line bg-white px-3 py-2.5">
+        <Icon name="cap" size={16} className="flex-none text-muted" />
+        <h2 className="m-0 flex-1 text-[13.5px] font-semibold text-ink">
           <Label de="Kurse" vi="Lớp học" />
         </h2>
-        <button type="button" onClick={toggle} aria-label="Einklappen" className="rounded px-1.5 text-[14px] text-muted hover:bg-hover">
-          ›
+        <button type="button" onClick={toggle} aria-label="Einklappen" title="Einklappen / Thu gọn" className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-hover">
+          <Icon name="chevron" size={14} />
         </button>
       </header>
-      <div className="flex-none border-b border-line px-2 py-1.5">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Kurs suchen · Tìm lớp"
-          className="w-full rounded-lg border border-line bg-white px-2.5 py-1 text-[12.5px] outline-none placeholder:text-faint focus:border-accent"
-        />
+      <div className="flex-none border-b border-line bg-white px-3 pb-2.5">
+        <label className="flex items-center gap-2 rounded-lg border border-line bg-[#F6F7F9] px-2.5 py-1.5 transition-colors focus-within:border-accent focus-within:bg-white">
+          <Icon name="search" size={14} className="flex-none text-faint" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Kurs suchen · Tìm lớp"
+            className="min-w-0 flex-1 bg-transparent text-[12.5px] outline-none placeholder:text-faint"
+          />
+        </label>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-1.5 py-2">
-        {!state && <p className="m-0 px-2 text-[12px] text-faint">…</p>}
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+        {!state && (
+          <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <li key={i} className="h-[84px] animate-pulse rounded-xl border border-line bg-white" />
+            ))}
+          </ul>
+        )}
         {state && "error" in state && (
-          <p className="m-0 px-2 text-[12px] text-muted">
+          <p className="m-0 mt-3 rounded-lg bg-white px-3 py-2.5 text-[12px] text-muted">
             <Label de="Kurse konnten nicht geladen werden." vi="Không tải được lớp học." />{" "}
-            <button type="button" onClick={() => setRetry((n) => n + 1)} className="text-accent hover:underline">
+            <button type="button" onClick={() => setRetry((n) => n + 1)} className="font-medium text-accent hover:underline">
               <Label de="Nochmal" vi="Thử lại" />
             </button>
           </p>
         )}
         {ready && (
           <>
-            <p className="m-0 px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-faint">
+            <SectionHead count={assignedClasses.length}>
+              <Icon name="check" size={13} className="text-accent" />
               <Label de="Zugeordnet" vi="Đã gán" />
-            </p>
+            </SectionHead>
             {assignedClasses.length === 0 ? (
-              <p className="m-0 px-2 pb-2 text-[12px] text-faint">
-                <Label de="Noch kein Kurs zugeordnet." vi="Chưa gán lớp nào." />
-              </p>
+              <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#E8B96A] bg-[#FDF6E9] px-4 py-5 text-center">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#94560F] shadow-[0_1px_2px_rgba(16,24,40,0.08)]">
+                  <Icon name="cap" size={18} />
+                </span>
+                <p className="m-0 text-[13.5px] font-semibold text-[#7A4A0E]">
+                  <Label de="Noch kein Kurs zugeordnet" vi="Chưa gán lớp nào" />
+                </p>
+                <p className="m-0 flex items-center gap-1 text-[12px] leading-snug text-[#94560F]">
+                  <Label de="Unten mit" vi="Bấm" />
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-accent/40 bg-white text-accent">
+                    <Icon name="plus" size={11} strokeWidth={2.6} />
+                  </span>
+                  <Label de="einen Kurs zuordnen." vi="bên dưới để gán lớp." />
+                </p>
+              </div>
             ) : (
-              <ul className="m-0 list-none p-0 pb-2">
-                {assignedClasses.map((c) => (
-                  <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="remove" onAction={() => save(c.id, true)} onInfo={() => setInfo(c)} />
-                ))}
-              </ul>
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">{assignedClasses.map((c) => card(c, true))}</ul>
             )}
-            <p className="m-0 border-t border-line px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-faint">
-              <Label de="Vorschläge" vi="Gợi ý" />
-            </p>
-            {!canSuggest && (
-              <p className="m-0 px-2 pb-1 text-[11.5px] text-faint">
-                <Label de="Niveau und Ort setzen, dann passen die Vorschläge." vi="Điền trình độ và nơi học để gợi ý đúng hơn." />
+
+            {canSuggest ? (
+              <>
+                <SectionHead count={best.length}>
+                  <Label de={`Für ${level} · ${place}`} vi={`Cho ${level} · ${place}`} />
+                </SectionHead>
+                {best.length === 0 ? (
+                  <p className="m-0 px-1 text-[12px] text-faint">
+                    {query ? <Label de="Kein Treffer." vi="Không có kết quả." /> : <Label de="Gerade kein passender Kurs geplant." vi="Hiện chưa có lớp phù hợp." />}
+                  </p>
+                ) : (
+                  <ul className="m-0 flex list-none flex-col gap-2 p-0">{best.map((c) => card(c, false))}</ul>
+                )}
+              </>
+            ) : (
+              <p className="m-0 mt-3 rounded-lg bg-[#FDF6E9] px-3 py-2 text-[11.5px] leading-snug text-[#7A4A0E]">
+                <Label de="Niveau und Ort setzen, dann erscheinen passende Kurse oben." vi="Điền trình độ và nơi học để hiện lớp phù hợp ở trên." />
               </p>
             )}
-            <ul className="m-0 list-none p-0">
-              {suggestions.map((c) => (
-                <ClassRow key={c.id} c={c} score={matchScore(c, level, place)} busy={busy === c.id} actionLabel="add" onAction={() => save(c.id, false)} onInfo={() => setInfo(c)} />
-              ))}
-            </ul>
-            {suggestions.length === 0 && !!query && (
-              <p className="m-0 px-2 text-[12px] text-faint">
+
+            {rest.length > 0 && (
+              <>
+                <SectionHead count={rest.length}>
+                  {canSuggest ? <Label de="Weitere Kurse" vi="Lớp khác" /> : <Label de="Alle Kurse" vi="Tất cả lớp" />}
+                </SectionHead>
+                <ul className="m-0 flex list-none flex-col gap-2 p-0">{rest.map((c) => card(c, false))}</ul>
+              </>
+            )}
+            {suggestions.length === 0 && !!query && !canSuggest && (
+              <p className="m-0 mt-3 px-1 text-[12px] text-faint">
                 <Label de="Keine Kurse gefunden." vi="Không tìm thấy lớp nào." />
               </p>
             )}

@@ -48,6 +48,8 @@ export type NextAction = {
   /** Lower means do this before the others. `today` is false when nobody needs to act. */
   rank: number;
   today: boolean;
+  /** For "wait": the task we do once the person answers (a stepTask id), so short views can name it. */
+  next?: string;
 };
 
 export type ConversationView = {
@@ -167,7 +169,7 @@ function waitAction(label: ActionLabel | undefined, step: Step | null): NextActi
   const task = stepTask(label, step);
   if (task.id === "answer" || task.id === "pay") return WAIT;
   const de = task.id === "courses" ? task.de.replace(/^Passende/, "passende") : task.de;
-  return { ...WAIT, de: `Warten · dann ${de}`, vi: `Chờ · sau đó ${task.vi.charAt(0).toLowerCase()}${task.vi.slice(1)}` };
+  return { ...WAIT, next: task.id, de: `Warten · dann ${de}`, vi: `Chờ · sau đó ${task.vi.charAt(0).toLowerCase()}${task.vi.slice(1)}` };
 }
 
 function followupAction(step: Step | null): NextAction {

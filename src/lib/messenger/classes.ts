@@ -88,3 +88,24 @@ export function hasStarted(c: AssignableClass, today = classToday()) {
 export function hasEnded(c: Pick<AssignableClass, "end">, today = classToday()) {
   return !!c.end && c.end < today;
 }
+
+/** "G131" from "G131 - A1.1 - OFF HN(9H)"; the whole name when it has no short code. */
+export function classCode(name: string) {
+  const head = name.split(" - ")[0].trim();
+  return head && head.length <= 10 && head !== name ? head : name;
+}
+
+/** Soft colour per class mode, the same in the Kurse panel and on the inbox rows. */
+export const MODE_TONE: Record<ClassMode, string> = {
+  hanoi: "bg-[#F1ECFB] text-[#5E3FA8]",
+  saigon: "bg-[#FDF1E2] text-[#94560F]",
+  "online-vn": "bg-[#E2F4EF] text-[#1B6E5D]",
+  "online-de": "bg-[#E6EEFB] text-[#2558A3]",
+};
+
+/** What an inbox row needs to show a class the chat is assigned to. */
+export type RowClass = { id: string; code: string; name: string; mode: ClassMode | null };
+
+export function rowClass(c: Pick<AssignableClass, "id" | "name" | "mode">): RowClass {
+  return { id: c.id, code: classCode(c.name), name: c.name, mode: c.mode };
+}

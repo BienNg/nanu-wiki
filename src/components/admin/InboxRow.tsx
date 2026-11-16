@@ -2,10 +2,13 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ActionChip } from "@/components/admin/ActionChip";
+import { ActionChipShort } from "@/components/admin/ActionChip";
+import { useRowClasses } from "@/components/admin/classPatch";
+import { Icon } from "@/components/Icon";
 import { ChatLink } from "@/components/admin/MessengerShell";
 import { SavingSpinner, useLabelSave, useLabelSaving } from "@/components/admin/labelPatch";
 import { initials } from "@/lib/format";
+import { MODE_TONE, type RowClass } from "@/lib/messenger/classes";
 import { matchesInboxFilter, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { ConversationView } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
@@ -45,7 +48,12 @@ export type InboxRowData = {
   chips: string[];
   view: ConversationView | null;
   place: InboxPlace;
+  /** Classes this chat is assigned to (Kurse panel), oldest assignment first. */
+  classes: RowClass[];
 };
+
+/** Class chips on a row before the rest is summed up as "+N". */
+const MAX_CLASSES = 2;
 
 /** One chat in the list. A saved label updates this row alone; the row leaves when it no longer matches the filter. */
 export function InboxRow({ row }: { row: InboxRowData }) {
@@ -54,6 +62,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const stepFilter = interestFilter === FUNNEL_INTEREST ? (sp.get("s") ?? "") : "";
   const saved = useLabelSave(row.id);
   const saving = useLabelSaving(row.id);
+  const classes = useRowClasses(row.id, row.classes);
   const place = saved?.next ?? row.place;
   const matches = matchesInboxFilter(place, interestFilter, stepFilter);
   const [gone, setGone] = useState(!matches);
@@ -83,16 +92,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
             {row.unanswered && <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-accent" />}
             <ChannelBadge channel={row.channel} account={row.account} />
           </span>
-          <span className="flex min-w-0 flex-1 flex-col leading-tight">
-            {chips.length > 0 && (
-              <span className={`mb-0.5 flex min-w-0 items-center gap-1 ${saving ? "label-saving" : ""}`}>
-                {chips.map((chip) => (
-                  <span key={chip} className="flex-none rounded-full bg-chip px-1.5 py-px text-[10.5px] font-medium text-muted">
-                    {chip}
-                  </span>
-                ))}
-              </span>
-            )}
+          <span className="flex min-w-0 flex-1 flex-col gap-[3px] leading-tight">
             <span className="flex items-baseline gap-2">
               <span className={`min-w-0 flex-1 truncate text-[14px] ${row.unanswered ? "font-semibold text-ink" : "text-ink"}`}>{row.name}</span>
               <span className="flex flex-none items-center gap-1 text-[11.5px] text-faint">
@@ -104,9 +104,33 @@ export function InboxRow({ row }: { row: InboxRowData }) {
               {row.fromPage ? "Du: " : ""}
               {row.preview}
             </span>
-            {view && (
-              <span className={`mt-1 flex min-w-0 items-center ${saving ? "label-saving" : ""}`} title={view.state.de}>
-                <ActionChip action={view.action} />
+            {(view || classes.length > 0 || chips.length > 0) && (
+              <span className={`mt-px flex min-w-0 items-center gap-1 ${saving ? "label-saving" : ""}`}>
+                {view && (
+                  <span className="flex min-w-0 flex-none" title={`${view.action.de} – ${view.state.de} / ${view.action.vi} – ${view.state.vi}`}>
+                    <ActionChipShort action={view.action} note={view.note} />
+                  </span>
+                )}
+                {classes.slice(0, MAX_CLASSES).map((c) => (
+                  <span
+                    key={c.id}
+                    title={c.name}
+                    className={`inline-flex flex-none items-center gap-0.5 rounded-md px-1 text-[11px] font-semibold leading-[18px] ${c.mode ? MODE_TONE[c.mode] : "bg-chip text-muted"}`}
+                  >
+                    <Icon name="cap" size={11} strokeWidth={2.2} className="flex-none" />
+                    {c.code}
+                  </span>
+                ))}
+                {classes.length > MAX_CLASSES && (
+                  <span title={classes.slice(MAX_CLASSES).map((c) => c.name).join("\n")} className="flex-none text-[11px] font-semibold text-muted">
+                    +{classes.length - MAX_CLASSES}
+                  </span>
+                )}
+                {chips.length > 0 && (
+                  <span title={chips.join(" · ")} className="min-w-0 truncate pl-0.5 text-[11px] text-faint">
+                    {chips.join(" · ")}
+                  </span>
+                )}
               </span>
             )}
           </span>
