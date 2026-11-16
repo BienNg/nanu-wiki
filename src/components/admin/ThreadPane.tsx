@@ -12,7 +12,8 @@ import { MessageComposer } from "@/components/admin/MessageComposer";
 import { ThreadSkeleton } from "@/components/admin/MessengerSkeleton";
 import { MessengerThread, type ThreadMessage } from "@/components/admin/MessengerThread";
 import type { NextAction } from "@/lib/messenger/nextAction";
-import { STEP_INFO, type Step } from "@/lib/messenger/steps";
+import { FUNNEL_INTEREST, STEP_INFO, type Step } from "@/lib/messenger/steps";
+import { ClassAssignPanel } from "@/components/admin/ClassAssignPanel";
 import type { ThreadData, ThreadMessageRow } from "@/lib/messenger/thread";
 import type { Outcome } from "@/lib/messenger/types";
 
@@ -205,8 +206,9 @@ export function ThreadPane() {
   const label = shown.label;
   const channel = shown.channel || "messenger";
   return (
-    <div key={shown.id} className="anim-fade flex min-h-0 flex-1 flex-col">
-      <MessengerThread
+    <div key={shown.id} className="anim-fade flex min-h-0 flex-1">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <MessengerThread
         conversationId={shown.id}
         name={shown.name ?? "Unbekannt"}
         backHref={backHref}
@@ -254,7 +256,9 @@ export function ThreadPane() {
             />
           </div>
         }
-      />
+        />
+      </div>
+      {label && label.interest === FUNNEL_INTEREST && <ClassAssignPanel conversationId={shown.id} level={label.level} place={label.place} />}
     </div>
   );
 }

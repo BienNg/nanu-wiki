@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import type { ClassMode, UpcomingClass } from "@/lib/classes";
+import { classToday, hasEnded, type AssignableClass } from "@/lib/messenger/classes";
 
 /** Minimal Notion API client for the "Klassen Datenbank". Needs an internal integration that the database is shared with:
  *  NOTION_TOKEN, and NOTION_CLASSES_DB = the database's data source id. */
@@ -97,6 +98,88 @@ async function loadUpcoming(): Promise<UpcomingClass[]> {
 
 /** Upcoming group classes, read from Notion at most every 5 minutes. */
 export const upcomingClasses = unstable_cache(loadUpcoming, ["notion-upcoming-classes"], { revalidate: 300 });
+
+/**
+ * The wider pool a Messenger lead can be assigned to (see src/lib/messenger/classes.ts): also
+ * classes without a Begin date, full classes, running classes (End not passed), and classes
+ * without a group level (exam prep, Kommunikation, Training). Never 1-1 or archived classes.
+ */
+function toAssignable(page: NotionPage): AssignableClass | null {
+  const p = page.properties;
+  const name = text(p.Name).trim();
+  if (!name) return null;
+  if (p["1-1"]?.checkbox) return null;
+  const select: string | undefined = p.Level?.select?.name;
+  if (select === "1-1") return null;
+  const level = select ?? name.match(/\b([ABC][12]\.[12])\b/)?.[1] ?? null;
+  const begin: string | null = p.Begin?.date?.start?.slice(0, 10) ?? null;
+  const end: string | null = p.End?.date?.start?.slice(0, 10) ?? null;
+  return {
+    id: page.id,
+    name,
+    level,
+    mode: MODE_BY_LOCATION[p.Location?.select?.name ?? ""] ?? modeFromName(name),
+    time: timeFromName(name) ?? (text(p["Start Time"]).trim() || null),
+    begin,
+    end,
+    full: !!p["🔵 Class full"]?.checkbox,
+  };
+}
+
+async function loadAssignable(): Promise<AssignableClass[]> {
+  const { db } = config();
+  const today = classToday();
+  const pages: NotionPage[] = [];
+  let cursor: string | undefined;
+  do {
+    const res = await notion<{ results: NotionPage[]; has_more: boolean; next_cursor: string | null }>(`/data_sources/${db}/query`, {
+      method: "POST",
+      body: {
+        filter: {
+          and: [
+            { property: "Archiv", checkbox: { equals: false } },
+            { property: "1-1", checkbox: { equals: false } },
+            {
+              or: [
+                { property: "Begin", date: { is_empty: true } },
+                { property: "Begin", date: { on_or_after: today } },
+                { property: "End", date: { on_or_after: today } },
+              ],
+            },
+          ],
+        },
+        sorts: [{ property: "Begin", direction: "ascending" }],
+        page_size: 100,
+        start_cursor: cursor,
+      },
+    });
+    pages.push(...res.results);
+    cursor = res.has_more ? (res.next_cursor ?? undefined) : undefined;
+  } while (cursor);
+  return pages.map(toAssignable).filter((c): c is AssignableClass => !!c);
+}
+
+/** Assignable classes, read from Notion at most every 5 minutes. */
+export const assignableClasses = unstable_cache(loadAssignable, ["notion-assignable-classes"], { revalidate: 300 });
+
+/**
+ * One assigned class read live by its Notion page id, for assignments whose class fell out of the
+ * pool (e.g. Begin passed between cache refreshes). Only pages of the classes database are allowed.
+ * Null when the page is gone, archived, 1-1, or its End date has passed.
+ */
+export async function assignableClassById(id: string): Promise<AssignableClass | null> {
+  const { db } = config();
+  let page: NotionPage;
+  try {
+    page = await notion<NotionPage>(`/pages/${id}`);
+  } catch {
+    return null;
+  }
+  if (page.parent.data_source_id?.replace(/-/g, "") !== db.replace(/-/g, "")) return null;
+  if (page.properties.Archiv?.checkbox) return null;
+  const c = toAssignable(page);
+  return c && !hasEnded(c) ? c : null;
+}
 
 /** A fresh (short-lived) link to the class's marketing image, or null. Only pages of the classes database are allowed. */
 export async function classImageUrl(id: string): Promise<string | null> {

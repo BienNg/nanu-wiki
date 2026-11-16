@@ -277,9 +277,14 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
       <ClearLabelPatches stamp={now} />
       <Topbar
         actions={
-          <Link href="/admin/messenger/statistik" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
-            <Label de="Statistik" vi="Thống kê" />
-          </Link>
+          <>
+            <Link href="/admin/messenger/klassen" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
+              <Label de="Klassen" vi="Lớp học" />
+            </Link>
+            <Link href="/admin/messenger/statistik" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
+              <Label de="Statistik" vi="Thống kê" />
+            </Link>
+          </>
         }
       >
         <Icon name="chat" size={14} />
