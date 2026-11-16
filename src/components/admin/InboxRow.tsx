@@ -71,7 +71,9 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   }, [matches]);
   if (!matches && gone) return null;
   const leaving = !matches;
-  const chips = saved ? saved.chips : row.chips;
+  // "Sprachkurs" only tells something in the unfiltered list and under "Alle"; inside a step or status every chat has it.
+  const showInterest = !interestFilter || (interestFilter === FUNNEL_INTEREST && !stepFilter);
+  const chips = (saved ? saved.chips : row.chips).filter((chip) => showInterest || chip !== FUNNEL_INTEREST);
   const view = saved?.view ?? row.view;
   return (
     <li

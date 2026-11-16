@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight, Patrick_Hand } from "next/font/google";
 import { cookies } from "next/headers";
+import { TooltipLayer } from "@/components/TooltipLayer";
 import type { Lang } from "@/lib/types";
 import "./globals.css";
 
@@ -26,7 +27,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={lang === "vi" ? "vi" : "de"} className={`${inter.variable} ${interTight.variable} ${patrickHand.variable} lang-${lang}`}>
-      <body className="font-sans text-sm leading-relaxed antialiased">{children}</body>
+      <body className="font-sans text-sm leading-relaxed antialiased">
+        {children}
+        <TooltipLayer />
+      </body>
     </html>
   );
 }

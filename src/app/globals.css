@@ -288,3 +288,9 @@ html.lang-vi .vs::before { content: none; }
   .anim-pop, .anim-rise, .menu-pop, .anim-fade { animation: none; }
   .load-bar { animation: none; background-size: 100% 100%; opacity: 0.35; }
 }
+
+/* The app-wide tooltip (TooltipLayer): fades and slides in a little from the side it points at. */
+.tooltip { opacity: 0; visibility: hidden; transition: opacity 0.08s ease-out, visibility 0s linear 0.08s, translate 0.08s ease-out; translate: 0 2px; }
+.tooltip[data-side="bottom"] { translate: 0 -2px; }
+.tooltip[data-open="true"] { opacity: 1; visibility: visible; translate: 0 0; transition: opacity 0.08s ease-out, visibility 0s, translate 0.08s ease-out; }
+@media (prefers-reduced-motion: reduce) { .tooltip { transition: none; translate: none; } }
