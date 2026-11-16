@@ -27,14 +27,18 @@ export function MessengerHeader({ name, status, actions, below }: { name: string
   );
 }
 
-/** One message bubble: grey on the left for the customer, blue on the right for us. */
+/**
+ * One message bubble: grey on the left for the customer, blue on the right for us.
+ * `min-w-0 max-w-full` lets the 78% row win over a long token (a Facebook referral id has no spaces).
+ * `overflow-wrap: anywhere` breaks that token; `break-words` does not, because it leaves the min-content width intact.
+ */
 export function bubbleClass(mine: boolean) {
-  return `block whitespace-pre-line rounded-[18px] px-3.5 py-2 text-[14px] leading-snug ${mine ? "bg-accent text-white" : "bg-[#F0F0F0] text-ink"}`;
+  return `block min-w-0 max-w-full whitespace-pre-line [overflow-wrap:anywhere] rounded-[18px] px-3.5 py-2 text-[14px] leading-snug ${mine ? "bg-accent text-white" : "bg-[#F0F0F0] text-ink"}`;
 }
 
 /** The row around a bubble; `last` = last bubble of a run from the same sender (adds space below). */
 export function bubbleRowClass(mine: boolean, last: boolean) {
-  return `flex max-w-[78%] flex-col ${mine ? "items-end self-end" : "items-start self-start"} ${last ? "mb-2" : ""}`;
+  return `flex min-w-0 max-w-[78%] flex-col ${mine ? "items-end self-end" : "items-start self-start"} ${last ? "mb-2" : ""}`;
 }
 
 /** Three bouncing dots: the other side is typing. */

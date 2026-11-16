@@ -161,7 +161,7 @@ export function MessengerThread({
       </div>
       {banner}
 
-      <div onScroll={() => { const el = scroller.current; if (el) { nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100; if (nearBottom.current) setNewMessages(false); } }} ref={scroller} className={`flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-4 ${wa ? "bg-[#EFEAE2] bg-[url(/messenger/chat-doodle.svg)] bg-[length:260px_260px]" : "bg-white"}`}>
+      <div onScroll={() => { const el = scroller.current; if (el) { nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100; if (nearBottom.current) setNewMessages(false); } }} ref={scroller} className={`flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-4 py-4 ${wa ? "bg-[#EFEAE2] bg-[url(/messenger/chat-doodle.svg)] bg-[length:260px_260px]" : "bg-white"}`}>
         {hasOlder && onLoadOlder && (
           <button
             type="button"

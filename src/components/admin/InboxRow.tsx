@@ -100,7 +100,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
                 {row.time}
               </span>
             </span>
-            <span className={`truncate text-[12.5px] ${row.unanswered ? "font-medium text-body" : "text-muted"}`}>
+            <span className={`min-w-0 truncate text-[12.5px] ${row.unanswered ? "font-medium text-body" : "text-muted"}`}>
               {row.fromPage ? "Du: " : ""}
               {row.preview}
             </span>
