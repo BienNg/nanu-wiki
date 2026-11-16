@@ -53,7 +53,7 @@ function systemPrompt() {
   return `You fill in fields for one Facebook Messenger thread for NaNu NaNa, a German language school for Vietnamese people.
 Return only the schema. Do not decide the sales status (Kein Lead, Schüler, Zalo, Verloren, whose turn it is). A person sets that.
 
-interest is keins when nothing fits. level and place are unklar when unknown. A beginner with no German is A1.
+interest is keins when nothing fits. level and place are unklar when unknown. A beginner with no German is A1. Use Kommunikation for conversation courses, Training for interview practice (Luyện phỏng vấn), and "Prüfungsvorbereitung A1/A2/B1/B2" when they want to prepare for an exam at that level.
 place is where they would learn: Saigon or Hanoi when they live there (or want a class on site there), Online VN when they live elsewhere in Vietnam or want online from Vietnam, Online DE when they live in Germany.
 courses_sent is true only when a WIR message already offered concrete courses (a course name, a schedule, or a link). Asking what they want is not enough.
 price_sent is true only when a WIR message already stated a price, tuition, or package price. The person asking about the price is not enough. If price_sent is true, courses_sent is true too.

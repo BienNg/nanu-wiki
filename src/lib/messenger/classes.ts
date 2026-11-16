@@ -40,6 +40,9 @@ export const MODES_FOR_PLACE: Record<MessengerPlace, ClassMode[]> = {
 /** "A1" matches "A1.1" and "A1.2"; a lead level "unklar" or a class without level matches nothing. */
 function levelMatches(c: AssignableClass, level: string | null | undefined) {
   if (!level || level === "unklar" || !c.level) return false;
+  // Notion calls exam prep "Ôn thi A1"; the label says "Prüfungsvorbereitung A1".
+  const exam = level.match(/^Prüfungsvorbereitung (.+)$/);
+  if (exam) return c.level.toLowerCase() === `ôn thi ${exam[1]}`.toLowerCase();
   return c.level.startsWith(level);
 }
 

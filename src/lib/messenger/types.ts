@@ -22,7 +22,7 @@ export const LOSS_REASONS = [
 ] as const;
 export type LossReason = (typeof LOSS_REASONS)[number];
 
-export const LEVELS = ["A1", "A2", "B1", "B2", "C1", "unklar"] as const;
+export const LEVELS = ["A1", "A2", "B1", "B2", "C1", "Kommunikation", "Training", "Prüfungsvorbereitung A1", "Prüfungsvorbereitung A2", "Prüfungsvorbereitung B1", "Prüfungsvorbereitung B2", "unklar"] as const;
 
 /** One of LEVELS. A0 no longer exists: a beginner is A1. */
 export function levelOf(value: string | null | undefined): (typeof LEVELS)[number] {
