@@ -30,7 +30,8 @@ function stateChip(label: InboxLabel | null) {
 
 /**
  * Upcoming classes and the Messenger chats assigned to them, for reaching out to every prospect of
- * a class. Classes come live from Notion (the assignable pool plus assigned classes fetched by id
+ * a class. Classes come live from Notion (the assignable pool, i.e. not started or started at most a
+ * week ago, plus assigned classes fetched by id
  * until their End date passes); the assignments live in Supabase. A chat opens as a read-only
  * preview; from there it opens in the inbox.
  */

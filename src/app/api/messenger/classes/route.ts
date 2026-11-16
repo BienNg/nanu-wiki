@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import type { AssignableClass } from "@/lib/messenger/classes";
+import { tooLateToAssign, type AssignableClass } from "@/lib/messenger/classes";
 import { assignableClassById, assignableClasses } from "@/lib/notion";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,8 +14,8 @@ async function admin() {
 
 /**
  * The class panel of one chat: the assignable classes from Notion plus which of them this chat is
- * assigned to. An assigned class that is not in the pool any more (e.g. its Begin just passed
- * between cache refreshes) is fetched live by id and listed too, until its End date passes.
+ * assigned to. An assigned class that is not in the pool any more (it started more than a week ago)
+ * is fetched live by id and listed too, until its End date passes.
  */
 export async function GET(req: NextRequest) {
   const id = (req.nextUrl.searchParams.get("c") ?? "").slice(0, 200);
@@ -57,9 +57,10 @@ export async function POST(req: NextRequest) {
       if (error) throw new Error(error.message);
       return NextResponse.json({ ok: true }, { headers: noStore });
     }
-    // Only classes of the pool (or still readable and not ended) can be assigned.
+    // Only classes of the pool (or still readable, not ended and started at most a week ago) can be assigned.
     const pool = await assignableClasses();
     const cls = pool.find((c) => c.id === classId) ?? (await assignableClassById(classId));
+    if (cls && tooLateToAssign(cls)) return NextResponse.json({ error: "Kurs läuft schon länger als eine Woche." }, { status: 409, headers: noStore });
     if (!cls) return NextResponse.json({ error: "Kurs nicht gefunden." }, { status: 404, headers: noStore });
     const session = await getSession();
     const { error } = await supabase

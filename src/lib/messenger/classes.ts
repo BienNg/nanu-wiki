@@ -3,9 +3,10 @@ import { placeOf, type MessengerPlace } from "./types";
 
 /**
  * A class from the Notion "Klassen Datenbank" that a Messenger lead can be assigned to:
- * upcoming (future Begin), not yet dated, or still running (End not passed). 1-1 and archived
- * classes are never assignable. Details are read live from Notion (src/lib/notion.ts), the
- * assignment itself lives in Supabase (messenger_class_assignments).
+ * upcoming (future Begin), not yet dated, or started at most ASSIGN_GRACE_DAYS ago (and End not
+ * passed). 1-1 and archived classes are never assignable. A class that started longer ago is still
+ * shown where chats are already assigned to it, until its End passes. Details are read live from
+ * Notion (src/lib/notion.ts), the assignment itself lives in Supabase (messenger_class_assignments).
  */
 export type AssignableClass = {
   /** Notion page id (dashed uuid). */
@@ -82,6 +83,21 @@ export function classToday() {
 /** A class whose Begin has passed is running; views mark it, they do not hide it (End does that). */
 export function hasStarted(c: AssignableClass, today = classToday()) {
   return !!c.begin && c.begin < today;
+}
+
+/** New leads can join a class up to this many days after its Begin; Begin exactly 7 days ago still counts. */
+export const ASSIGN_GRACE_DAYS = 7;
+
+/** The earliest Begin (ISO date) a class may have to still take new leads. */
+export function assignCutoff(today = classToday()) {
+  const d = new Date(`${today}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ASSIGN_GRACE_DAYS);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Started more than ASSIGN_GRACE_DAYS ago: no longer offered for new assignments. */
+export function tooLateToAssign(c: Pick<AssignableClass, "begin">, today = classToday()) {
+  return !!c.begin && c.begin < assignCutoff(today);
 }
 
 /** Over once the End date has passed; such classes are hidden everywhere, their assignments stay stored. */

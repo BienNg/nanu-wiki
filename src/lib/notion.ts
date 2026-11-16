@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import type { ClassMode, UpcomingClass } from "@/lib/classes";
-import { classToday, hasEnded, type AssignableClass } from "@/lib/messenger/classes";
+import { assignCutoff, classToday, hasEnded, tooLateToAssign, type AssignableClass } from "@/lib/messenger/classes";
 
 /** Minimal Notion API client for the "Klassen Datenbank". Needs an internal integration that the database is shared with:
  *  NOTION_TOKEN, and NOTION_CLASSES_DB = the database's data source id. */
@@ -102,7 +102,7 @@ export const upcomingClasses = unstable_cache(loadUpcoming, ["notion-upcoming-cl
 
 /**
  * The wider pool a Messenger lead can be assigned to (see src/lib/messenger/classes.ts): also
- * classes without a Begin date, full classes, running classes (End not passed), and classes
+ * classes without a Begin date, full classes, running classes in their first week, and classes
  * without a group level (exam prep, Kommunikation, Training). Never 1-1 or archived classes.
  */
 function toAssignable(page: NotionPage): AssignableClass | null {
@@ -148,8 +148,8 @@ async function loadAssignable(): Promise<AssignableClass[]> {
             {
               or: [
                 { property: "Begin", date: { is_empty: true } },
-                { property: "Begin", date: { on_or_after: today } },
-                { property: "End", date: { on_or_after: today } },
+                // Running classes only within their first week; older ones take no new leads.
+                { property: "Begin", date: { on_or_after: assignCutoff(today) } },
               ],
             },
           ],
@@ -162,15 +162,16 @@ async function loadAssignable(): Promise<AssignableClass[]> {
     pages.push(...res.results);
     cursor = res.has_more ? (res.next_cursor ?? undefined) : undefined;
   } while (cursor);
-  return pages.map(toAssignable).filter((c): c is AssignableClass => !!c && !hasEnded(c, today));
+  return pages.map(toAssignable).filter((c): c is AssignableClass => !!c && !hasEnded(c, today) && !tooLateToAssign(c, today));
 }
 
 /** Assignable classes, read from Notion at most every 5 minutes. */
-export const assignableClasses = unstable_cache(loadAssignable, ["notion-assignable-classes", "v4"], { revalidate: 300 });
+export const assignableClasses = unstable_cache(loadAssignable, ["notion-assignable-classes", "v5"], { revalidate: 300 });
 
 /**
  * One assigned class read live by its Notion page id, for assignments whose class fell out of the
- * pool (e.g. Begin passed between cache refreshes). Only pages of the classes database are allowed.
+ * pool (e.g. it started more than a week ago), so chats keep showing it until its End date passes.
+ * Only pages of the classes database are allowed.
  * Null when the page is gone, archived, 1-1, or its End date has passed.
  */
 export async function assignableClassById(id: string): Promise<AssignableClass | null> {
