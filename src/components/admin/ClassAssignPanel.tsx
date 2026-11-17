@@ -17,6 +17,31 @@ type State = ({ id: string } & Data) | { id: string; error: true } | null;
 
 /** Chats whose classes were loaded in this tab; going back shows them at once. */
 const recent = new Map<string, Data>();
+
+/**
+ * The assignable classes, loaded once per tab and shared by every chat. Seats and new classes can
+ * change in Notion, so after 5 minutes (the server's cache time) the next chat loads them again.
+ */
+const POOL_TTL = 5 * 60_000;
+let pool: { at: number; classes: Promise<AssignableClass[]> } | null = null;
+function loadPool(): Promise<AssignableClass[]> {
+  if (pool && Date.now() - pool.at < POOL_TTL) return pool.classes;
+  const entry = {
+    at: Date.now(),
+    classes: fetch("/api/messenger/classes", { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ classes: AssignableClass[] }>) : Promise.reject(r.status)))
+      .then((res) => res.classes),
+  };
+  // A failed load is not kept, so the next chat (or Nochmal) tries again.
+  entry.classes.catch(() => {
+    if (pool === entry) pool = null;
+  });
+  pool = entry;
+  return entry.classes;
+}
+
+/** One chat's assignments; `extra` are assigned classes that left the pool. */
+type ChatData = { assigned: string[]; offers?: Record<string, OfferState>; extra?: AssignableClass[] };
 const COLLAPSED_KEY = "messenger-classes-panel";
 
 /** The row in the inbox list shows the assigned classes; keep it in step with this panel. */
@@ -132,7 +157,8 @@ function ClassCard({
 /**
  * The right panel of a Sprachkurs chat: which upcoming classes this lead is assigned to, and the
  * assignable classes ranked by how well they fit Niveau and Ort (best match, then start date).
- * Assignments are stored in Supabase; class details come live from Notion (api/messenger/classes).
+ * Assignments are stored in Supabase and loaded per chat; the class list comes from Notion and is
+ * loaded once per tab (api/messenger/classes).
  */
 export function ClassAssignPanel({ conversationId, level, place }: { conversationId: string; level: string | null; place: string | null }) {
   const [state, setState] = useState<State>(() => {
@@ -166,10 +192,14 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     flight.current = ctrl;
     const cached = recent.get(conversationId);
     setState(cached ? { id: conversationId, ...cached } : null);
-    fetch(`/api/messenger/classes?c=${encodeURIComponent(conversationId)}`, { signal: ctrl.signal, cache: "no-store" })
-      .then((r) => (r.ok ? (r.json() as Promise<Data>) : Promise.reject(r.status)))
-      .then((res) => {
-        const data: Data = { ...res, offers: res.offers ?? {} };
+    const chat = fetch(`/api/messenger/classes?c=${encodeURIComponent(conversationId)}`, { signal: ctrl.signal, cache: "no-store" }).then((r) =>
+      r.ok ? (r.json() as Promise<ChatData>) : Promise.reject(r.status),
+    );
+    Promise.all([loadPool(), chat])
+      .then(([classes, res]) => {
+        const inPool = new Set(classes.map((c) => c.id));
+        const extra = (res.extra ?? []).filter((c) => !inPool.has(c.id));
+        const data: Data = { classes: extra.length ? [...classes, ...extra] : classes, assigned: res.assigned, offers: res.offers ?? {} };
         if (flight.current !== ctrl) return;
         recent.set(conversationId, data);
         publishRow(conversationId, data);

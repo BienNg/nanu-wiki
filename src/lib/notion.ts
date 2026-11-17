@@ -168,24 +168,30 @@ async function loadAssignable(): Promise<AssignableClass[]> {
 /** Assignable classes, read from Notion at most every 5 minutes. */
 export const assignableClasses = unstable_cache(loadAssignable, ["notion-assignable-classes", "v5"], { revalidate: 300 });
 
-/**
- * One assigned class read live by its Notion page id, for assignments whose class fell out of the
- * pool (e.g. it started more than a week ago), so chats keep showing it until its End date passes.
- * Only pages of the classes database are allowed.
- * Null when the page is gone, archived, 1-1, or its End date has passed.
- */
-export async function assignableClassById(id: string): Promise<AssignableClass | null> {
+async function loadAssignableById(id: string): Promise<AssignableClass | null> {
   const { db } = config();
-  let page: NotionPage;
-  try {
-    page = await notion<NotionPage>(`/pages/${id}`);
-  } catch {
-    return null;
-  }
+  // A failed read throws, so it is not cached; the wrapper below turns it into null.
+  const page = await notion<NotionPage>(`/pages/${id}`);
   if (page.parent.data_source_id?.replace(/-/g, "") !== db.replace(/-/g, "")) return null;
   if (page.properties.Archiv?.checkbox) return null;
   const c = toAssignable(page);
   return c && !hasEnded(c) ? c : null;
+}
+
+const cachedAssignableById = unstable_cache(loadAssignableById, ["notion-assignable-class", "v1"], { revalidate: 300 });
+
+/**
+ * One assigned class read by its Notion page id (at most every 5 minutes), for assignments whose
+ * class fell out of the pool (e.g. it started more than a week ago), so chats keep showing it until
+ * its End date passes. Only pages of the classes database are allowed.
+ * Null when the page is gone, archived, 1-1, or its End date has passed.
+ */
+export async function assignableClassById(id: string): Promise<AssignableClass | null> {
+  try {
+    return await cachedAssignableById(id);
+  } catch {
+    return null;
+  }
 }
 
 /** A fresh (short-lived) link to the class's marketing image, or null. Only pages of the classes database are allowed. */

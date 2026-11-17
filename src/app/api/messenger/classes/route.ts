@@ -13,16 +13,18 @@ async function admin() {
 }
 
 /**
- * The class panel of one chat: the assignable classes from Notion plus which of them this chat is
- * assigned to. An assigned class that is not in the pool any more (it started more than a week ago)
- * is fetched live by id and listed too, until its End date passes. `offers` holds the special-offer
- * status of each assigned class.
+ * Without `c`: the assignable classes from Notion (the pool, cached for 5 minutes). The Kurse panel
+ * loads it once and reuses it for every chat.
+ *
+ * With `c`: which classes this chat is assigned to, and `offers`, the special-offer status of each
+ * one. `extra` holds the assigned classes that are not in the pool any more (they started more than
+ * a week ago), read by id, so the chat keeps showing them until their End date passes.
  */
 export async function GET(req: NextRequest) {
   const id = (req.nextUrl.searchParams.get("c") ?? "").slice(0, 200);
-  if (!id) return NextResponse.json({}, { status: 400, headers: noStore });
   if (!(await admin())) return NextResponse.json({}, { status: 403, headers: noStore });
   try {
+    if (!id) return NextResponse.json({ classes: await assignableClasses() }, { headers: noStore });
     const supabase = await createClient();
     const [classes, { data: rows, error }] = await Promise.all([
       assignableClasses(),
@@ -33,7 +35,7 @@ export async function GET(req: NextRequest) {
     const offers: Record<string, OfferState> = Object.fromEntries((rows ?? []).map((r) => [r.class_id, isOfferState(r.offer_status) ? r.offer_status : "offen"]));
     const known = new Set(classes.map((c) => c.id));
     const extra = (await Promise.all(assigned.filter((k) => !known.has(k)).map(assignableClassById))).filter((c): c is AssignableClass => !!c);
-    return NextResponse.json({ classes: [...classes, ...extra], assigned, offers }, { headers: noStore });
+    return NextResponse.json({ assigned, offers, extra }, { headers: noStore });
   } catch (err) {
     console.error("[messenger/classes]", err);
     return NextResponse.json({ error: "Kurse konnten nicht geladen werden." }, { status: 503, headers: noStore });
