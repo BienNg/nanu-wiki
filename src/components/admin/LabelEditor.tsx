@@ -313,12 +313,12 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
           saving={dirty.has("one_on_one")}
           ariaLabel="1-1 / Kèm 1-1"
           label={<Label de="1-1" vi="Kèm 1-1" />}
-          emptyValue="nein"
           defaultValue={oneOnOne ? "ja" : "nein"}
           onChange={() => save("one_on_one")}
+          // Gruppe is the default: every Sprachkurs chat starts there and shows it as a filled chip.
           options={[
+            { value: "nein", label: both("Gruppe", "Lớp nhóm"), chip: <Label de="Gruppe" vi="Lớp nhóm" /> },
             { value: "ja", label: both("Will 1-1", "Muốn học kèm 1-1"), chip: <Label de="✓ 1-1" vi="✓ Kèm 1-1" /> },
-            { value: "nein", label: both("Gruppe", "Lớp nhóm") },
           ]}
         />
       ) : (
