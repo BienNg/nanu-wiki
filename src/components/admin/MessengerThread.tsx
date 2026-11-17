@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Label } from "@/components/Bi";
 import { BubbleTime, MessengerHeader, bubbleClass, bubbleRowClass, messageDay, messageTime } from "@/components/MessengerParts";
 import { CopyName } from "@/components/admin/CopyName";
@@ -22,6 +23,58 @@ export type ThreadMessage = {
   created_time: string;
 };
 
+/** Image thumbnail; a click opens it large in a modal (Esc or click outside closes it). */
+function ImageAttachment({ src, alt }: { src: string; alt: string }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className="block cursor-zoom-in">
+        {/* eslint-disable-next-line @next/next/no-img-element -- Meta CDN, expiring signed URLs */}
+        <img src={src} alt={alt} loading="lazy" referrerPolicy="no-referrer" className="max-h-64 max-w-[260px] rounded-[14px] border border-line bg-[#F0F0F0] object-cover" />
+      </button>
+      {open &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={alt}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 p-4"
+          >
+            <button
+              type="button"
+              aria-label="Schließen"
+              onClick={() => setOpen(false)}
+              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-2xl leading-none text-white hover:bg-white/25"
+            >
+              ×
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element -- Meta CDN, expiring signed URLs */}
+            <img
+              src={src}
+              alt={alt}
+              referrerPolicy="no-referrer"
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+            />
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
 /** Image/video/file of a message. Meta's links expire after a while; then the image shows as broken. */
 function AttachmentView({ a, mine }: { a: Attachment; mine: boolean }) {
   if (a.mime_type === "application/x-sent-elsewhere") {
@@ -35,14 +88,7 @@ function AttachmentView({ a, mine }: { a: Attachment; mine: boolean }) {
     );
   }
   const img = a.image_data?.url ?? a.image_data?.preview_url;
-  if (img) {
-    return (
-      <a href={img} target="_blank" rel="noopener noreferrer" className="block">
-        {/* eslint-disable-next-line @next/next/no-img-element -- Meta CDN, expiring signed URLs */}
-        <img src={img} alt={a.name ?? "Bild"} loading="lazy" referrerPolicy="no-referrer" className="max-h-64 max-w-[260px] rounded-[14px] border border-line bg-[#F0F0F0] object-cover" />
-      </a>
-    );
-  }
+  if (img) return <ImageAttachment src={img} alt={a.name ?? "Bild"} />;
   const href = a.video_data?.url ?? a.file_url;
   const label = a.mime_type?.startsWith("video/") ? "🎬 Video" : a.mime_type?.startsWith("audio/") ? "🎤 Audio" : `📎 ${a.name ?? "Datei"}`;
   return href ? (

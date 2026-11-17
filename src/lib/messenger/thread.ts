@@ -20,6 +20,8 @@ export type InboxLabel = {
   courses_sent: boolean | null;
   price_sent: boolean | null;
   paid: boolean | null;
+  /** Staff only: wants a 1-1 class (Sprachkurs). The chat shows only under the inbox filter 1-1. */
+  one_on_one: boolean | null;
   updated_at: string | null;
 };
 
@@ -34,7 +36,7 @@ export type FactRow = {
   channel: string | null;
 };
 
-export const LABEL_COLUMNS = "conversation_id, stage, interest, level, place, outcome, loss_reason, labeled_through, resume_on, pinned, courses_sent, price_sent, paid, updated_at";
+export const LABEL_COLUMNS = "conversation_id, stage, interest, level, place, outcome, loss_reason, labeled_through, resume_on, pinned, courses_sent, price_sent, paid, one_on_one, updated_at";
 export const FACT_COLUMNS = "id, customer_name, last_from_page, last_page_at, last_customer_at, followup_sent, last_page_has_zalo, channel";
 
 export function toActionLabel(row: InboxLabel): ActionLabel {

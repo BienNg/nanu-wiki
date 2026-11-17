@@ -86,6 +86,8 @@ export type StoredLabel = {
   price_sent?: boolean;
   /** Staff only: the person paid for the course. */
   paid?: boolean;
+  /** Staff only: wants a 1-1 class. Only with Interesse Sprachkurs, which it pins. */
+  one_on_one?: boolean;
 };
 
 export type LabelDraft = {

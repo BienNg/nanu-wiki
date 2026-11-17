@@ -12,7 +12,7 @@ import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, Step
 import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
-import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, matchesInboxFilter, NO_INTEREST, ONE_ON_ONE, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import { openFollowups } from "@/lib/messenger/followups";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
@@ -179,20 +179,14 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
     const key = interestKey(label);
     interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
     const status = statusOf(label);
-    statuses[status] = (statuses[status] ?? 0) + 1;
+    if (key !== ONE_ON_ONE) statuses[status] = (statuses[status] ?? 0) + 1;
     if (key === NO_INTEREST && isOpen(label)) qualify++;
     if (key === FUNNEL_INTEREST && inFunnelStep(status)) {
       const step = stepKey(labels.get(c.id));
       stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
     }
   }
-  const matching = everyChat.filter((c) => {
-    const label = labels.get(c.id);
-    if ((STATUS_FILTERS as readonly string[]).includes(f.interest)) return statusOf(label) === f.interest;
-    if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
-    if (f.step && (!inFunnelStep(statusOf(label)) || stepKey(label) !== f.step)) return false;
-    return true;
-  });
+  const matching = everyChat.filter((c) => matchesInboxFilter(inboxPlace(labels.get(c.id), false), f.interest, f.step, "alle", !!f.like));
   return { source: "app", interestCounts, stepCounts, qualify, statuses, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
 }
 
@@ -238,7 +232,7 @@ function indexTodo(states: ChatStates, f: IndexFilter): InboxIndex {
     const key = interestKey(label);
     interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
     const status = statusOf(label);
-    statuses[status] = (statuses[status] ?? 0) + 1;
+    if (key !== ONE_ON_ONE) statuses[status] = (statuses[status] ?? 0) + 1;
     if (key === NO_INTEREST && isOpen(label)) qualify++;
     if (key === FUNNEL_INTEREST && inFunnelStep(status)) {
       const step = stepKey(label);
@@ -246,16 +240,26 @@ function indexTodo(states: ChatStates, f: IndexFilter): InboxIndex {
     }
   }
   const matching = todo
-    .filter((c) => {
-      const label = labels.get(c.id);
-      if ((STATUS_FILTERS as readonly string[]).includes(f.interest)) return statusOf(label) === f.interest;
-      if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
-      if (f.step && (!inFunnelStep(statusOf(label)) || stepKey(label) !== f.step)) return false;
-      return true;
-    })
+    .filter((c) => matchesInboxFilter(inboxPlace(labels.get(c.id), true), f.interest, f.step, "alle", !!f.like))
     .map((c) => ({ c, view: views.get(c.id)! }))
-    .sort((a, b) => a.view.action.rank - b.view.action.rank || (a.view.since ?? "9").localeCompare(b.view.since ?? "9") || b.c.updated_time.localeCompare(a.c.updated_time));
+    .sort(byUrgency);
   return { source: "app", interestCounts, stepCounts, qualify, statuses, total: matching.length, ids: matching.slice(0, f.limit).map((m) => m.c.id), labels };
+}
+
+/** Most urgent first (action rank), then whoever has waited longest, then the newest chat. */
+function byUrgency(a: { c: ChatKey; view: ConversationView }, b: { c: ChatKey; view: ConversationView }) {
+  return a.view.action.rank - b.view.action.rank || (a.view.since ?? "9").localeCompare(b.view.since ?? "9") || b.c.updated_time.localeCompare(a.c.updated_time);
+}
+
+/**
+ * The 1-1 list: every 1-1 chat whatever its status or tab. Those with something to do now come first
+ * (most urgent first, as under "Zu tun"), then the rest, newest first.
+ */
+function oneOnOneList(states: ChatStates) {
+  const all = states.chats.filter((c) => interestKey(states.labels.get(c.id)) === ONE_ON_ONE).map((c) => ({ c, view: states.views.get(c.id)! }));
+  const now = all.filter((m) => m.view.action.today).sort(byUrgency);
+  const rest = all.filter((m) => !m.view.action.today);
+  return [...now, ...rest].map((m) => m.c.id);
 }
 
 type MenuOption = { id: string; de: string; vi: string; href: string; count?: number };
@@ -351,7 +355,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const sp = await searchParams;
   const channel = sp.ch === "whatsapp" || sp.ch === "messenger" ? sp.ch : "";
   const q = (sp.q ?? "").trim().slice(0, 80);
-  const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || (STATUS_FILTERS as readonly string[]).includes(sp.i ?? "") || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
+  const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || sp.i === ONE_ON_ONE || (STATUS_FILTERS as readonly string[]).includes(sp.i ?? "") || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
   const funnel = FUNNELS[interestFilter];
   const stepFilter = funnel && sp.s && Number(sp.s) >= 1 && Number(sp.s) <= funnel.length ? sp.s : "";
   const tab = tabOf(sp.t);
@@ -369,10 +373,17 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
     tab === "alle" ? indexFromDb(supabase, filter, funnelSteps) : null,
   ]);
   const index = tab === "zu_tun" ? indexTodo(states, filter) : (dbIndex ?? (await indexFromRows(supabase, filter, funnelSteps)));
-  const { interestCounts, stepCounts, qualify, statuses, total, ids: shownIds } = index;
+  // 1-1 chats are counted only under 1-1 (that list ignores the tab), or with the rest while a name is searched.
+  const oneOnOneIds = oneOnOneList(states);
+  const oneOnOneView = interestFilter === ONE_ON_ONE;
+  const { interestCounts, stepCounts, qualify, statuses } = index;
+  const total = oneOnOneView ? oneOnOneIds.length : index.total;
+  const shownIds = oneOnOneView ? oneOnOneIds.slice(0, limit) : index.ids;
+  interestCounts.set(ONE_ON_ONE, oneOnOneIds.length);
+  const hidden = new Set(q ? [] : oneOnOneIds);
   let todoCount = 0;
-  for (const view of states.views.values()) if (view.action.today) todoCount++;
-  const allCount = states.chats.length;
+  for (const [id, view] of states.views) if (view.action.today && !hidden.has(id)) todoCount++;
+  const allCount = states.chats.length - hidden.size;
 
   // Full rows (newest message) and classes only for the chats that are shown.
   const [inboxRows, classesById] = await Promise.all([
@@ -411,7 +422,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               </h1>
               <SyncBadge at={version.syncAt} error={version.syncError} now={now} />
             </div>
-            {/* What needs doing now (the default) or every chat. Filters and steps stay when switching. */}
+            {/* What needs doing now (the default) or every chat. Filters and steps stay when switching. The 1-1 list has no tabs. */}
+            {!oneOnOneView && (
             <nav aria-label="Liste" className="flex h-8 items-center rounded-full bg-[#F0F2F5] p-0.5">
               {(
                 [
@@ -434,6 +446,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 </Link>
               ))}
             </nav>
+            )}
             <div className="ml-auto flex flex-wrap items-center gap-2 max-md:ml-0 max-md:w-full">
               <form action="/admin/messenger" data-inbox-search="" className="relative flex max-md:w-full">
                 <Icon name="search" size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
@@ -455,7 +468,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 current={interestFilter}
                 clearHref={href({ i: "", s: "", c: "" })}
                 options={[
-                  ...INTERESTS.map((id) => ({ id, de: id, vi: id })),
+                  ...INTERESTS.flatMap((id) => (id === FUNNEL_INTEREST ? [{ id, de: id, vi: id }, { id: ONE_ON_ONE, de: "1-1", vi: "Kèm 1-1" }] : [{ id, de: id, vi: id }])),
                   { id: NO_INTEREST, de: "Ohne Interesse", vi: "Chưa rõ nhu cầu" },
                 ].map((o) => ({ ...o, count: interestCounts.get(o.id) ?? 0, href: href({ i: o.id, s: "", c: "" }) }))}
               />
@@ -551,6 +564,8 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
             <p className="m-0 text-[12px] text-faint">
               {interestFilter === NO_INTEREST ? (
                 <Label de="Diese Gespräche haben noch kein Interesse." vi="Các cuộc này chưa có nhu cầu." />
+              ) : oneOnOneView ? (
+                <Label de="Alle Chats, die 1-1 wollen, mit jedem Status. Was jetzt zu tun ist, steht oben." vi="Tất cả khách muốn học kèm 1-1, mọi trạng thái. Việc cần làm ngay nằm trên cùng." />
               ) : (
                 <Label de={`Die Schritte für ${interestFilter} legen wir noch fest.`} vi={`Các bước cho ${interestFilter} sẽ có sau.`} />
               )}
@@ -567,14 +582,14 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
             className="anim-fade m-0 min-h-0 flex-1 list-none overflow-y-auto p-1.5 transition-opacity duration-200 group-data-[busy=true]/shell:pointer-events-none group-data-[busy=true]/shell:opacity-40"
           >
             {conversations.length === 0 &&
-              (tab === "zu_tun" ? (
+              (tab === "zu_tun" && !oneOnOneView ? (
                 <TodoEmpty allHref={href({ t: "alle", c: "" })} searching={!!q || !!channel || !!interestFilter} />
               ) : (
                 <li className="px-3 py-8 text-center text-[13px] text-muted">
                   <Label de="Keine Gespräche gefunden." vi="Không tìm thấy cuộc trò chuyện." />
                 </li>
               ))}
-            <InboxEmpty shown={conversations.length} listedIds={conversations.map((c) => c.id)} empty={tab === "zu_tun" ? <TodoEmpty allHref={href({ t: "alle", c: "" })} searching={!!q || !!channel || !!interestFilter} /> : undefined} />
+            <InboxEmpty shown={conversations.length} listedIds={conversations.map((c) => c.id)} empty={tab === "zu_tun" && !oneOnOneView ? <TodoEmpty allHref={href({ t: "alle", c: "" })} searching={!!q || !!channel || !!interestFilter} /> : undefined} />
             {conversations.map((c) => {
               const label = labelById.get(c.id);
               return (

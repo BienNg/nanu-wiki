@@ -57,6 +57,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   let priceSent = field(formData, "price_sent") === "ja";
   let coursesPick = field(formData, "courses_sent") === "ja";
   let paid = field(formData, "paid") === "ja";
+  let oneOnOne = field(formData, "one_on_one") === "ja";
   const judgmentRaw = field(formData, "judgment") || "auto";
   if (!(JUDGMENTS as readonly string[]).includes(judgmentRaw)) return { error: "Status ungültig." };
   let judgment = judgmentRaw as Judgment;
@@ -75,7 +76,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
     supabase.from("messenger_conversations").select("id").eq("id", id).maybeSingle(),
     supabase
       .from("messenger_labels")
-      .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent, paid")
+      .select("conversation_id, stage, interest, level, place, outcome, loss_reason, evidence, labeled_through, source, pinned, resume_on, courses_sent, price_sent, paid, one_on_one")
       .eq("conversation_id", id)
       .maybeSingle(),
     supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
@@ -95,7 +96,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   // Fields this person left as the form showed them take the stored value (see above).
   const base = (key: string) => (formData.has(`base_${key}`) ? field(formData, `base_${key}`) : null);
   if (row) {
-    const was = { stage: base("stage"), interest: base("interest"), level: base("level"), place: base("place"), courses: base("courses_sent"), price: base("price_sent"), paid: base("paid"), judgment: base("judgment") };
+    const was = { stage: base("stage"), interest: base("interest"), level: base("level"), place: base("place"), courses: base("courses_sent"), price: base("price_sent"), paid: base("paid"), oneOnOne: base("one_on_one"), judgment: base("judgment") };
     if (was.stage !== null && stagePick === was.stage) stagePick = prevStage;
     if (was.interest !== null && interest === normInterest(was.interest)) interest = normInterest(row.interest);
     if (was.level !== null && level === normLevel(was.level)) level = normLevel(row.level);
@@ -103,6 +104,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
     if (was.courses !== null && coursesPick === (was.courses === "ja")) coursesPick = !!row.courses_sent;
     if (was.price !== null && priceSent === (was.price === "ja")) priceSent = !!row.price_sent;
     if (was.paid !== null && paid === (was.paid === "ja")) paid = !!row.paid;
+    if (was.oneOnOne !== null && oneOnOne === (was.oneOnOne === "ja")) oneOnOne = !!row.one_on_one;
     // Status, Grund and Datum belong together.
     if (was.judgment !== null && judgmentRaw === was.judgment && field(formData, "loss_reason") === (base("loss_reason") ?? "") && field(formData, "resume_on") === (base("resume_on") ?? "")) {
       judgment = prevJudgment;
@@ -119,6 +121,8 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   if (paid && (judgment === "auto" || judgment === "bestandskunde")) judgment = "bestandskunde";
   // A Schüler is a Sprachkurs chat. The Interesse follows the status.
   if (judgment === "bestandskunde" || (row?.outcome === "bestandskunde" && judgment === prevJudgment)) interest = FUNNEL_INTEREST;
+  // 1-1 is a Sprachkurs chat only, and it holds the Interesse there: the labeler can't move it away.
+  if (interest !== FUNNEL_INTEREST) oneOnOne = false;
   // Paid means the price and the courses went out too.
   priceSent = paid || priceSent;
   const coursesSent = priceSent || coursesPick;
@@ -128,7 +132,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   // Bezahlt decides the step. A Schüler step that is no longer paid follows the fields again.
   if (paid && stagePick !== "schueler") pins.delete("stage");
   if (!paid && stagePick === "schueler") pins.delete("stage");
-  if (interest !== normInterest(row?.interest)) pins.add("interest");
+  if (interest !== normInterest(row?.interest) || oneOnOne) pins.add("interest");
   if (level !== normLevel(row?.level)) pins.add("level");
   if (place !== placeOf(row?.place)) pins.add("place");
   if (coursesSent !== !!row?.courses_sent) pins.add("courses_sent");
@@ -177,11 +181,13 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
     coursesSent === !!row.courses_sent &&
     priceSent === !!row.price_sent &&
     paid === !!row.paid &&
+    oneOnOne === !!row.one_on_one &&
+    pins.has("interest") === !!row.pinned?.includes("interest") &&
     judgment === prevJudgment &&
     loss === (row.loss_reason ?? null) &&
     resume === (row.resume_on ?? null);
   if (unchanged) return {};
-  if (!row && (stagePick === "auto" || stagePick === prevStage) && !interest && level === "unklar" && place === "unklar" && !coursesSent && !paid && judgment === "auto") return {};
+  if (!row && (stagePick === "auto" || stagePick === prevStage) && !interest && level === "unklar" && place === "unklar" && !coursesSent && !paid && !oneOnOne && judgment === "auto") return {};
 
   const times = [fact?.last_customer_at, fact?.last_page_at].filter((t): t is string => !!t);
   const labeledThrough = times.reduce((a, b) => (a > b ? a : b), new Date().toISOString());
@@ -201,6 +207,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
     courses_sent: coursesSent,
     price_sent: priceSent,
     paid,
+    one_on_one: oneOnOne,
     updated_at: updatedAt,
   };
   const { error } = await supabase.from("messenger_labels").upsert({
@@ -219,6 +226,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
     courses_sent: coursesSent,
     price_sent: priceSent,
     paid,
+    one_on_one: oneOnOne,
     updated_at: updatedAt,
   });
   if (error) return { error: error.message };

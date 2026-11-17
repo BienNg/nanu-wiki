@@ -10,7 +10,7 @@ import { ChatLink } from "@/components/admin/MessengerShell";
 import { SavingSpinner, useLabelSave, useLabelSaving } from "@/components/admin/labelPatch";
 import { initials } from "@/lib/format";
 import { MODE_TONE, OFFER_INFO, type RowClass } from "@/lib/messenger/classes";
-import { matchesInboxFilter, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { matchesInboxFilter, ONE_ON_ONE, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { ConversationView } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
 import { tip } from "@/components/Bi";
@@ -66,7 +66,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const saving = useLabelSaving(row.id);
   const classes = useRowClasses(row.id, row.classes);
   const place = saved?.next ?? row.place;
-  const matches = matchesInboxFilter(place, interestFilter, stepFilter, tabOf(sp.get("t")));
+  const matches = matchesInboxFilter(place, interestFilter, stepFilter, tabOf(sp.get("t")), !!sp.get("q"));
   const [gone, setGone] = useState(!matches);
   useEffect(() => {
     if (matches) setGone(false);
@@ -75,7 +75,8 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const leaving = !matches;
   // "Sprachkurs" only tells something in the unfiltered list and under "Alle"; inside a step or status every chat has it.
   const showInterest = !interestFilter || (interestFilter === FUNNEL_INTEREST && !stepFilter);
-  const chips = (saved ? saved.chips : row.chips).filter((chip) => showInterest || chip !== FUNNEL_INTEREST);
+  // Inside 1-1 every chat is one, so the 1-1 chip stays off there.
+  const chips = (saved ? saved.chips : row.chips).filter((chip) => (showInterest || chip !== FUNNEL_INTEREST) && (interestFilter !== ONE_ON_ONE || chip !== ONE_ON_ONE));
   const view = saved?.view ?? row.view;
   const followupTip = view?.followup?.note ? `\n📌 ${view.followup.note}` : "";
   return (

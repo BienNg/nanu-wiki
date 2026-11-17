@@ -4,6 +4,11 @@ import { FUNNEL_INTEREST, STEPS } from "./steps";
 export const NO_INTEREST = "ohne";
 /** The Qualifizieren step: no Interesse, and not Schüler, Zalo, or Kein Lead. */
 export const QUALIFY = "qualifizieren";
+/**
+ * Sprachkurs chats that want a 1-1 class (staff tick it in the label editor). Their Interesse key and filter id:
+ * they leave every other list and its counts and show only under this entry. A name search with no filter still finds them.
+ */
+export const ONE_ON_ONE = "1-1";
 /** Chats the Page moved to Zalo. */
 export const ZALO = "zalo";
 
@@ -43,17 +48,19 @@ type PlaceLabel = {
   interest?: string | null;
   stage?: string | null;
   outcome?: string | null;
+  one_on_one?: boolean | null;
 } | null | undefined;
 
 export function interestKey(label: PlaceLabel) {
+  if (label?.one_on_one) return ONE_ON_ONE;
   if (label?.outcome === "bestandskunde") return FUNNEL_INTEREST;
   const v = label?.interest;
   return v && v !== "unklar" && v !== "keins" ? v : NO_INTEREST;
 }
 
-/** The chips on a row: Interesse, Niveau, Ort. Missing and "unklar" stay off the row. */
-export function labelChips(label: { interest?: string | null; level?: string | null; place?: string | null } | null | undefined) {
-  return [label?.interest, label?.level, label?.place].filter((v): v is string => !!v && v !== "unklar" && v !== "keins");
+/** The chips on a row: Interesse (1-1 in place of Sprachkurs), Niveau, Ort. Missing and "unklar" stay off the row. */
+export function labelChips(label: { interest?: string | null; level?: string | null; place?: string | null; one_on_one?: boolean | null } | null | undefined) {
+  return [label?.one_on_one ? ONE_ON_ONE : label?.interest, label?.level, label?.place].filter((v): v is string => !!v && v !== "unklar" && v !== "keins");
 }
 
 /** False for Schüler, Zalo, and Kein Lead: they have no step. */
@@ -88,9 +95,13 @@ export function inboxPlace(label: PlaceLabel, todo: boolean): InboxPlace {
 /**
  * Whether a chat belongs in the list the reader is looking at.
  * Under "Zu tun" only chats with something to do now. A status id other than Schüler matches that status. `stepFilter` applies only inside Sprachkurs, and Status Zalo and Verloren are left out of that step. An empty interest filter is the whole inbox.
+ * 1-1 chats show only under the 1-1 filter (every one of them, whatever the tab), or in a name search (`searching`) with no filter.
  */
-export function matchesInboxFilter(place: InboxPlace, interestFilter: string, stepFilter: string, tab: InboxTab = "alle") {
+export function matchesInboxFilter(place: InboxPlace, interestFilter: string, stepFilter: string, tab: InboxTab = "alle", searching = false) {
+  const oneOnOne = place.interestKey === ONE_ON_ONE;
+  if (interestFilter === ONE_ON_ONE) return oneOnOne;
   if (tab === "zu_tun" && !place.todo) return false;
+  if (oneOnOne) return !interestFilter && searching;
   if ((STATUS_FILTERS as readonly string[]).includes(interestFilter)) return place.status === interestFilter;
   if (interestFilter === QUALIFY) return place.interestKey === NO_INTEREST && place.open;
   if (interestFilter && place.interestKey !== interestFilter) return false;

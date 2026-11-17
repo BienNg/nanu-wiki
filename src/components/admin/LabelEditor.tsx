@@ -55,6 +55,8 @@ export type LabelFormValues = {
   priceSent: boolean;
   /** The person paid for the course. The chat becomes Schüler. */
   paid: boolean;
+  /** Staff only: wants a 1-1 class. Only with Interesse Sprachkurs; the inbox shows these chats under 1-1 alone. */
+  oneOnOne: boolean;
   /** What "Automatisch" comes to right now, e.g. "Wartet auf uns". */
   autoText: { de: string; vi: string };
 };
@@ -96,8 +98,11 @@ export function LabelEditor(props: LabelFormValues) {
 /** Correct the stored label. Several fields in a row are one save: the write waits until the person pauses. */
 const SAVE_PAUSE_MS = 1200;
 
-function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, pinned, statusSlot, stageSlot, coursesSent, priceSent, paid, autoText }: LabelFormValues) {
+function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, pinned, statusSlot, stageSlot, coursesSent, priceSent, paid, oneOnOne, autoText }: LabelFormValues) {
   const [status, setStatus] = useState(judgment);
+  // The 1-1 switch shows only while the Interesse is Sprachkurs (a Schüler always is).
+  const [interestNow, setInterestNow] = useState(interest);
+  const sprachkurs = status === "bestandskunde" || interestNow === FUNNEL_INTEREST;
   const [reason, setReason] = useState(loss);
   /** Fields changed since the last finished save. Their chips show that they are still saving. */
   const [dirty, setDirty] = useState<ReadonlySet<string>>(() => new Set());
@@ -111,6 +116,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     courses_sent: coursesSent ? "ja" : "nein",
     price_sent: priceSent ? "ja" : "nein",
     paid: paid ? "ja" : "nein",
+    one_on_one: oneOnOne ? "ja" : "nein",
     judgment,
     loss_reason: judgment === "verloren" ? loss : "",
   });
@@ -148,6 +154,7 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
       courses_sent: get("courses_sent"),
       price_sent: get("price_sent"),
       paid: get("paid"),
+      one_on_one: get("one_on_one"),
       judgment: get("judgment"),
       loss_reason: get("loss_reason"),
     };
@@ -293,9 +300,30 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
         pinned={locked("interest")}
         labeled={!locked("interest")}
         defaultValue={status === "bestandskunde" ? FUNNEL_INTEREST : interest}
-        onChange={() => save("interest")}
+        onChange={(v) => {
+          setInterestNow(v);
+          save("interest");
+        }}
         options={[{ value: "", label: "—" }, ...INTERESTS.map((id) => ({ value: id as string, label: id }))]}
       />
+      {/* 1-1 is set by hand only and pins the Interesse Sprachkurs. Away from Sprachkurs it is off (the server clears it too). */}
+      {sprachkurs ? (
+        <MenuSelect
+          name="one_on_one"
+          saving={dirty.has("one_on_one")}
+          ariaLabel="1-1 / Kèm 1-1"
+          label={<Label de="1-1" vi="Kèm 1-1" />}
+          emptyValue="nein"
+          defaultValue={oneOnOne ? "ja" : "nein"}
+          onChange={() => save("one_on_one")}
+          options={[
+            { value: "ja", label: both("Will 1-1", "Muốn học kèm 1-1"), chip: <Label de="✓ 1-1" vi="✓ Kèm 1-1" /> },
+            { value: "nein", label: both("Gruppe", "Lớp nhóm") },
+          ]}
+        />
+      ) : (
+        <input type="hidden" name="one_on_one" value="nein" />
+      )}
       <MenuSelect
         name="level"
         saving={dirty.has("level")}

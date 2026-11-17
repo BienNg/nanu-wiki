@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/Bi";
 import { acknowledgeOwnInbox } from "@/components/admin/InboxLive";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
-import { inFunnelStep, matchesInboxFilter, NO_INTEREST, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { inFunnelStep, matchesInboxFilter, NO_INTEREST, ONE_ON_ONE, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { SavedLabel } from "@/lib/messenger/labelSave";
 
 /**
@@ -140,6 +140,7 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
   const tab = tabOf(sp.get("t"));
   const interest = sp.get("i") ?? "";
   const step = interest === FUNNEL_INTEREST ? (sp.get("s") ?? "") : "";
+  const searching = !!sp.get("q");
   const interestDelta: Record<string, number> = {};
   const stepDelta: Record<string, number> = {};
   let qualify = 0;
@@ -153,22 +154,24 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
   const qualifyOf = (p: InboxPlace) => p.interestKey === NO_INTEREST && p.open;
   // Under "Zu tun" the counts only hold chats with something to do.
   const counted = (p: InboxPlace) => tab === "alle" || p.todo;
+  // 1-1 chats are left out of every count but their own, and that one holds all of them whatever the tab.
+  const oneOnOne = (p: InboxPlace) => p.interestKey === ONE_ON_ONE;
   const stepOf = (p: InboxPlace) => (p.interestKey === FUNNEL_INTEREST && inFunnelStep(p.status) ? p.stepKey : null);
   for (const e of saved) {
     const was = counted(e.prev) ? 1 : 0;
     const is = counted(e.next) ? 1 : 0;
-    add(interestDelta, e.prev.interestKey, -was);
-    add(interestDelta, e.next.interestKey, is);
+    add(interestDelta, e.prev.interestKey, oneOnOne(e.prev) ? -1 : -was);
+    add(interestDelta, e.next.interestKey, oneOnOne(e.next) ? 1 : is);
     const prevStep = stepOf(e.prev);
     const nextStep = stepOf(e.next);
     if (prevStep) add(stepDelta, prevStep, -was);
     if (nextStep) add(stepDelta, nextStep, is);
     qualify += (qualifyOf(e.next) ? is : 0) - (qualifyOf(e.prev) ? was : 0);
-    add(status, e.prev.status, -was);
-    add(status, e.next.status, is);
-    todo += (e.next.todo ? 1 : 0) - (e.prev.todo ? 1 : 0);
-    const before = matchesInboxFilter(e.prev, interest, step, tab);
-    const now = matchesInboxFilter(e.next, interest, step, tab);
+    if (!oneOnOne(e.prev)) add(status, e.prev.status, -was);
+    if (!oneOnOne(e.next)) add(status, e.next.status, is);
+    todo += (e.next.todo && (searching || !oneOnOne(e.next)) ? 1 : 0) - (e.prev.todo && (searching || !oneOnOne(e.prev)) ? 1 : 0);
+    const before = matchesInboxFilter(e.prev, interest, step, tab, searching);
+    const now = matchesInboxFilter(e.next, interest, step, tab, searching);
     total += (now ? 1 : 0) - (before ? 1 : 0);
     if (listedIds?.includes(e.conversationId) && !now) hidden += 1;
   }

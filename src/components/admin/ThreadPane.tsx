@@ -278,6 +278,7 @@ export function ThreadPane() {
               coursesSent={!!label?.courses_sent}
               priceSent={!!label?.price_sent}
               paid={!!label?.paid}
+              oneOnOne={!!label?.one_on_one}
               autoText={autoText(shown)}
               pinned={(label?.pinned ?? []).filter((field) => field !== "stage" || label?.stage === shown.step)}
             />
