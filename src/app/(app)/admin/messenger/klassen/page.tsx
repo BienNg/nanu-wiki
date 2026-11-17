@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { Topbar, Crumb } from "@/components/Topbar";
+import { Topbar } from "@/components/Topbar";
+import { MessengerCrumb } from "@/components/admin/MessengerTabs";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { KlassenDetail, KlassenList, type ProspectItem, type ProspectTone } from "@/components/admin/KlassenView";
@@ -94,19 +95,8 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
 
   return (
     <>
-      <Topbar
-        actions={
-          <Link href="/admin/messenger" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
-            <Label de="Posteingang" vi="Hộp thư" />
-          </Link>
-        }
-      >
-        <Link href="/admin/messenger" className="text-body">
-          <Icon name="chat" size={14} />
-        </Link>
-        <Crumb>
-          <Label de="Klassen" vi="Lớp học" />
-        </Crumb>
+      <Topbar>
+        <MessengerCrumb current="klassen" />
       </Topbar>
       <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-8 pb-20 pt-8 max-sm:px-4">
         <header>

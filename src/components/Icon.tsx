@@ -1,6 +1,6 @@
 import type { IconName } from "@/lib/types";
 
-const PATHS: Record<IconName | "search" | "clock" | "layers" | "bell" | "spark" | "doc" | "chevron" | "check" | "lock" | "edit" | "plus" | "logout" | "shield" | "external" | "calendar" | "pin" | "close", string> = {
+const PATHS: Record<IconName | "search" | "clock" | "layers" | "bell" | "spark" | "doc" | "chevron" | "check" | "lock" | "edit" | "plus" | "logout" | "shield" | "external" | "calendar" | "pin" | "close" | "chart", string> = {
   users: "M9 4.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7ZM3 20a6 6 0 0 1 12 0M16 4.5a3.5 3.5 0 0 1 0 7M21 20a6 6 0 0 0-4-5.6",
   chat: "M4 5h16v11H9l-5 4z",
   heart: "M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z",
@@ -28,6 +28,7 @@ const PATHS: Record<IconName | "search" | "clock" | "layers" | "bell" | "spark" 
   calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
   pin: "M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11ZM12 8a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z",
   close: "M6 6l12 12M18 6 6 18",
+  chart: "M4 20h16M7 16v-5M12 16V6M17 16v-8",
 };
 
 export type AnyIcon = keyof typeof PATHS;

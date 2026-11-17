@@ -76,6 +76,7 @@ export function NavigationLoader({ children }: { children: React.ReactNode }) {
       if ((a.target && a.target !== "_self") || a.hasAttribute("download")) return;
       if (a.hasAttribute("data-pane")) return; // side pane: the list stays on screen (see PaneLink)
       if (a.hasAttribute("data-filter")) return; // a filter of the page you are on: the page shows its own progress
+      if (a.hasAttribute("data-preview")) return; // a plain click opens a preview in place; only Cmd/Ctrl-click navigates
       start(a.href);
     }
     function onSubmit(e: SubmitEvent) {

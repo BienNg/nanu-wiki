@@ -132,8 +132,14 @@ export function SyncBadge({ at, error, now }: { at: string | null; error: string
   const age = syncAt ? Math.max(0, Math.round(((live?.checked ?? now) - new Date(syncAt).getTime()) / 60_000)) : null;
   const ok = !syncError && age !== null && age <= 5;
   return (
-    <span className={`flex items-center gap-1.5 text-[11.5px] ${ok ? "text-faint" : "text-bad"}`} title={syncError ?? undefined}>
-      <span className={`h-1.5 w-1.5 rounded-full ${ok ? "bg-ok" : "bg-bad"}`} />
+    <span
+      className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[11.5px] font-medium ${ok ? "bg-ok-soft text-ok" : "bg-bad-soft text-bad"}`}
+      title={syncError ?? undefined}
+    >
+      <span className="relative flex h-1.5 w-1.5">
+        {ok && <span className="absolute inset-0 animate-ping rounded-full bg-ok opacity-50 motion-reduce:hidden" />}
+        <span className={`relative h-1.5 w-1.5 rounded-full ${ok ? "bg-ok" : "bg-bad"}`} />
+      </span>
       {syncError ? <Label de="Sync-Fehler" vi="Lỗi đồng bộ" /> : age === null ? <Label de="Noch nie synchronisiert" vi="Chưa đồng bộ" /> : <Label de={`Sync vor ${age} Min.`} vi={`Đồng bộ ${age} phút trước`} />}
     </span>
   );

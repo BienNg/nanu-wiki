@@ -6,6 +6,7 @@ import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { FilterDetails } from "@/components/admin/FilterDetails";
 import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
+import { MessengerCrumb } from "@/components/admin/MessengerTabs";
 import { FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
 import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, StepCount } from "@/components/admin/labelPatch";
 import { InboxRow } from "@/components/admin/InboxRow";
@@ -204,10 +205,19 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
       <FilterDetails className="group relative">
         <summary
           className={`flex h-8 cursor-pointer list-none items-center gap-1.5 border px-3 text-[12.5px] font-medium transition-colors duration-150 [&::-webkit-details-marker]:hidden ${
-            chosen ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line text-body hover:bg-hover"
+            chosen ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line bg-white text-ink hover:border-[#d5d8dd] hover:bg-hover"
           }`}
         >
-          {chosen ? <Label de={chosen.de} vi={chosen.vi} /> : <Label de={label.de} vi={label.vi} />}
+          {chosen ? (
+            <>
+              <span className="font-normal text-accent-dark/65">
+                <Label de={label.de} vi={label.vi} />
+              </span>
+              <Label de={chosen.de} vi={chosen.vi} />
+            </>
+          ) : (
+            <Label de={label.de} vi={label.vi} />
+          )}
           <span className="rotate-90 transition-transform duration-200 group-open:-rotate-90">
             <Icon name="chevron" size={11} />
           </span>
@@ -241,9 +251,9 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
           href={clearHref}
           data-filter=""
           aria-label={`${label.de} zurücksetzen`}
-          className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1 pr-2.5 text-[13px] text-accent-dark transition-colors duration-150 hover:bg-[#d9e6ff]"
+          className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1.5 pr-2.5 text-accent-dark/70 transition-colors duration-150 hover:bg-[#cddcf7] hover:text-accent-dark"
         >
-          ×
+          <Icon name="close" size={12} strokeWidth={2.2} />
         </Link>
       )}
     </div>
@@ -305,32 +315,21 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
     <>
       <InboxLive version={version.inbox} stamp={now} />
       <ClearLabelPatches stamp={now} />
-      <Topbar
-        actions={
-          <>
-            <Link href="/admin/messenger/klassen" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
-              <Label de="Klassen" vi="Lớp học" />
-            </Link>
-            <Link href="/admin/messenger/statistik" className="rounded-full px-2.5 py-1 font-medium text-accent hover:bg-accent-soft">
-              <Label de="Statistik" vi="Thống kê" />
-            </Link>
-          </>
-        }
-      >
-        <Icon name="chat" size={14} />
-        <Label de="Messenger" vi="Messenger" />
+      <Topbar>
+        <MessengerCrumb current="inbox" />
       </Topbar>
       <MessengerShell stamp={now} className="flex h-[calc(100dvh-48px)] w-full flex-col border-t border-line max-md:h-[calc(100dvh-96px)]">
         <header className="flex flex-none flex-col gap-3 border-b border-line px-4 pb-3 pt-3 max-md:group-data-[chat=open]/shell:hidden">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <div className="flex items-baseline gap-3">
-              <h1 className="title-display m-0 text-[20px] leading-tight tracking-tight">
+            <div className="flex items-center gap-2.5">
+              <h1 className="title-display m-0 text-[22px] leading-tight tracking-tight">
                 <Label de="Posteingang" vi="Hộp thư" />
               </h1>
               <SyncBadge at={version.syncAt} error={version.syncError} now={now} />
             </div>
             <div className="ml-auto flex flex-wrap items-center gap-2 max-md:ml-0 max-md:w-full">
-              <form action="/admin/messenger" data-inbox-search="" className="flex max-md:w-full">
+              <form action="/admin/messenger" data-inbox-search="" className="relative flex max-md:w-full">
+                <Icon name="search" size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
                 {channel && <input type="hidden" name="ch" value={channel} />}
                 {interestFilter && <input type="hidden" name="i" value={interestFilter} />}
                 {stepFilter && <input type="hidden" name="s" value={stepFilter} />}
@@ -339,9 +338,10 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                   name="q"
                   defaultValue={q}
                   placeholder="Name suchen · Tìm tên"
-                  className="h-8 w-60 rounded-full bg-[#F0F2F5] px-3.5 text-[13px] text-ink outline-none transition-shadow duration-150 focus:ring-2 focus:ring-accent-soft max-md:w-full"
+                  className="h-8 w-60 rounded-full border border-transparent bg-[#F0F2F5] pl-8 pr-3.5 text-[13px] text-ink outline-none transition-[box-shadow,background-color,border-color] duration-150 placeholder:text-faint hover:bg-[#E9ECF0] focus:border-accent/40 focus:bg-white focus:ring-2 focus:ring-accent-soft max-md:w-full"
                 />
               </form>
+              <span aria-hidden="true" className="mx-1 h-5 w-px bg-line max-md:hidden" />
               <FilterMenu
                 label={{ de: "Interesse", vi: "Nhu cầu" }}
                 current={interestFilter}
@@ -364,10 +364,19 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 <FilterDetails className="group relative">
                   <summary
                     className={`flex h-8 cursor-pointer list-none items-center gap-1.5 border px-3 text-[12.5px] font-medium transition-colors duration-150 [&::-webkit-details-marker]:hidden ${
-                      statusOn ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line text-body hover:bg-hover"
+                      statusOn ? "rounded-l-full border-accent-soft bg-accent-soft text-accent-dark" : "rounded-full border-line bg-white text-ink hover:border-[#d5d8dd] hover:bg-hover"
                     }`}
                   >
-                    {statusOn ? <Label de={statusOn.de} vi={statusOn.vi} /> : <Label de="Status" vi="Trạng thái" />}
+                    {statusOn ? (
+                      <>
+                        <span className="font-normal text-accent-dark/65">
+                          <Label de="Status" vi="Trạng thái" />
+                        </span>
+                        <Label de={statusOn.de} vi={statusOn.vi} />
+                      </>
+                    ) : (
+                      <Label de="Status" vi="Trạng thái" />
+                    )}
                     {statusOn && (
                       <span className="tabular-nums text-[12px] text-faint">
                         {statusOn.id === "schueler" ? <StepCount id={schuelerKey} count={stepCounts.get(schuelerKey) ?? 0} /> : <StatusCount id={statusOn.id} count={statuses[statusOn.id] ?? 0} />}
@@ -407,9 +416,9 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                     href={href({ i: FUNNEL_INTEREST, s: "", c: "" })}
                     data-filter=""
                     aria-label="Status zurücksetzen"
-                    className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1 pr-2.5 text-[13px] text-accent-dark transition-colors duration-150 hover:bg-[#d9e6ff]"
+                    className="flex h-8 items-center rounded-r-full border border-l-0 border-accent-soft bg-accent-soft pl-1.5 pr-2.5 text-accent-dark/70 transition-colors duration-150 hover:bg-[#cddcf7] hover:text-accent-dark"
                   >
-                    ×
+                    <Icon name="close" size={12} strokeWidth={2.2} />
                   </Link>
                 )}
               </div>
