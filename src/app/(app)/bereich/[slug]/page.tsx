@@ -95,7 +95,7 @@ export default async function AreaPage({
 
           {tab === "interview" && <InterviewTab pages={pages.filter((p) => p.section === "interview")} profileId={profile.id} canEdit={canEdit} />}
           {tab === "daily" && <DailyTab areaSlug={area.slug} profileId={profile.id} paneBase={base} narrow={narrow} />}
-          {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} />}
+          {tab === "onboarding" && <OnboardingTab areaSlug={area.slug} profileId={profile.id} paneBase={base} narrow={narrow} />}
           {tab === "handbook" && (
             <HandbookTab areaSlug={area.slug} pages={pages.filter((p) => p.section === "handbook")} paneHref={paneHref} narrow={narrow} quiz={quiz} />
           )}
@@ -237,9 +237,20 @@ async function DailyTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: s
   );
 }
 
-async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: string; profileId: string; paneBase: string }) {
+async function OnboardingTab({ areaSlug, profileId, paneBase, narrow }: { areaSlug: string; profileId: string; paneBase: string; narrow: boolean }) {
   const weeks = getOnboarding(areaSlug);
-  if (!weeks.length) return <p className="text-muted">Für diese Rolle gibt es noch keinen Lernpfad · Chưa có lộ trình cho vai trò này</p>;
+  if (!weeks.length)
+    return (
+      <div role="tabpanel" className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line bg-side px-6 py-10 text-center">
+        <Icon name="layers" size={22} color="#8A8F98" />
+        <strong className="text-[14px] font-semibold text-ink">
+          <Label de="Noch kein Lernpfad" vi="Chưa có lộ trình" />
+        </strong>
+        <span className="text-[13px] text-muted">
+          <Label de="Für diese Rolle gibt es noch keinen Lernpfad." vi="Vai trò này chưa có lộ trình." />
+        </span>
+      </div>
+    );
 
   const [done, attempts, pageQuiz] = await onboardingProgress(profileId, areaSlug);
 
@@ -277,7 +288,7 @@ async function OnboardingTab({ areaSlug, profileId, paneBase }: { areaSlug: stri
 
   return (
     <div role="tabpanel">
-      <OnboardingPanel weeks={data} initialDone={[...done]} areaSlug={areaSlug} />
+      <OnboardingPanel weeks={data} initialDone={[...done]} areaSlug={areaSlug} narrow={narrow} />
     </div>
   );
 }
