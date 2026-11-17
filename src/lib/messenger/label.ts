@@ -96,7 +96,7 @@ async function saveLabel(
   if (error) throw new Error(error.message);
 }
 
-/** Label threads that changed. At most 8 model calls. Status is left as a person set it. */
+/** Label threads that changed. At most 8 model calls, failed ones included. Status is left as a person set it. */
 export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
   const db = createAdminClient();
   const result: LabelRun = { rules: 0, model: 0, skipped: null };
@@ -172,15 +172,18 @@ export async function labelMessenger(now = Date.now()): Promise<LabelRun> {
     const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
     if (!client) result.skipped = "no-key";
 
+    // Failed calls count too, so an API outage cannot turn one run into 40 calls.
+    let calls = 0;
     for (const fact of fresh) {
       const lines = byId.get(fact.id) ?? [];
       const previous = labels.get(fact.id);
-      if (!client || result.model >= MAX_MODEL) continue;
+      if (!client || calls >= MAX_MODEL) continue;
       if (eurSpent(inputTokens, outputTokens) >= LABEL_BUDGET_EUR) {
         result.skipped = "cap";
         continue;
       }
 
+      calls++;
       try {
         const res = await client.messages.parse({
           model: MODEL,
