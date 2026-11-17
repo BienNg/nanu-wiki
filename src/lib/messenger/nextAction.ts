@@ -133,7 +133,7 @@ function lostView(label: ActionLabel): ConversationView {
 /** What we do in this step when it is our turn. Without a step (other Interesse, not labeled yet): ask or answer. */
 function stepTask(label: ActionLabel | undefined, step: Step | null): { id: string; de: string; vi: string; rank: number } {
   if (step === "schueler") return { id: "class", de: "Das Kursproblem lösen", vi: "Giải quyết vấn đề của buổi học", rank: 50 };
-  if (step === "anmeldung") return { id: "pay", de: "Anmeldung abschließen: Zahlungsdaten schicken", vi: "Chốt đăng ký: gửi thông tin chuyển khoản", rank: 10 };
+  if (step === "anmeldung") return { id: "pay", de: "Chốt: Anmeldung abschließen", vi: "Chốt đăng ký", rank: 10 };
   if (step === "preis") return { id: "offer", de: "Preis und Pakete schicken", vi: "Gửi học phí và các gói", rank: 20 };
   if (step === "kurse") {
     const detail = [label!.level, placeOf(label!.place)].join(", ");

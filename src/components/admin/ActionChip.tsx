@@ -14,7 +14,7 @@ type Text = { de: string; vi: string };
 
 /** One or two words per action for the inbox row; the full sentence stays in the chat header and the tooltip. */
 const SHORT: Record<string, Text> = {
-  pay: { de: "Zahlungsdaten", vi: "Gửi chuyển khoản" },
+  pay: { de: "Chốt", vi: "Chốt" },
   offer: { de: "Preis schicken", vi: "Gửi học phí" },
   courses: { de: "Kurse schicken", vi: "Gửi khóa học" },
   class: { de: "Kursproblem", vi: "Vấn đề lớp" },
