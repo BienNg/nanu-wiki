@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Label } from "@/components/Bi";
-import { MessengerHeader, bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
+import { BubbleTime, MessengerHeader, bubbleClass, bubbleRowClass, messageDay, messageTime } from "@/components/MessengerParts";
 import { CopyName } from "@/components/admin/CopyName";
 
 type Attachment = {
@@ -21,10 +21,6 @@ export type ThreadMessage = {
   attachments: Attachment[] | null;
   created_time: string;
 };
-
-const TZ = "Asia/Ho_Chi_Minh";
-const dayFmt = new Intl.DateTimeFormat("de-DE", { timeZone: TZ, weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
-const timeFmt = new Intl.DateTimeFormat("de-DE", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
 
 /** Image/video/file of a message. Meta's links expire after a while; then the image shows as broken. */
 function AttachmentView({ a, mine }: { a: Attachment; mine: boolean }) {
@@ -185,20 +181,26 @@ export function MessengerThread({
         {messages.map((m, i) => {
           const prev = messages[i - 1];
           const next = messages[i + 1];
-          const newDay = !prev || dayFmt.format(new Date(prev.created_time)) !== dayFmt.format(new Date(m.created_time));
+          const newDay = !prev || messageDay(prev.created_time) !== messageDay(m.created_time);
           const lastOfRun = !next || next.from_page !== m.from_page;
           return (
             <div key={m.id} className="contents">
-              {newDay && <p className={`m-0 my-3 self-center text-[11.5px] font-medium ${wa ? "rounded-lg bg-white/90 px-2.5 py-1 text-muted shadow-sm" : "text-faint"}`}>{dayFmt.format(new Date(m.created_time))}</p>}
-              <div className={`${bubbleRowClass(m.from_page, lastOfRun)} mb-0.5 gap-0.5 ${isNew(m) ? "anim-pop" : ""}`} title={`${m.from_name ?? ""} · ${timeFmt.format(new Date(m.created_time))}`}>
-                {m.text && <span className={`${bubbleClass(m.from_page)} ${wa && !m.from_page ? "!bg-white shadow-[0_1px_0.5px_rgba(11,20,26,0.13)]" : ""}`}>{m.text}</span>}
+              {newDay && <p className={`m-0 my-3 self-center text-[11.5px] font-medium ${wa ? "rounded-lg bg-white/90 px-2.5 py-1 text-muted shadow-sm" : "text-faint"}`}>{messageDay(m.created_time)}</p>}
+              <div className={`${bubbleRowClass(m.from_page, lastOfRun)} mb-0.5 gap-0.5 ${isNew(m) ? "anim-pop" : ""}`} title={`${m.from_name ?? ""} · ${messageTime(m.created_time)}`}>
+                {m.text && (
+                  <span className={`${bubbleClass(m.from_page)} relative ${wa && !m.from_page ? "!bg-white shadow-[0_1px_0.5px_rgba(11,20,26,0.13)]" : ""}`}>
+                    {m.text}
+                    <BubbleTime iso={m.created_time} mine={m.from_page} />
+                  </span>
+                )}
                 {m.attachments?.map((a, k) => <AttachmentView key={k} a={a} mine={m.from_page} />)}
                 {!m.text && !m.attachments?.length && (
                   <span className={`${bubbleClass(m.from_page)} italic opacity-70`}>
                     <Label de="Sticker / Inhalt nicht verfügbar" vi="Sticker / nội dung không hiển thị" />
                   </span>
                 )}
-                {lastOfRun && <span className={`px-1 text-[11px] ${wa ? "text-[#667781]" : "text-faint"}`}>{timeFmt.format(new Date(m.created_time))}</span>}
+                {/* A text bubble carries its time inside; images, files and stickers get it underneath. */}
+                {!m.text && <span className={`px-1 text-[11px] tabular-nums ${wa ? "text-[#667781]" : "text-faint"}`}>{messageTime(m.created_time)}</span>}
               </div>
             </div>
           );

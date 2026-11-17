@@ -52,6 +52,33 @@ export function bubbleClass(mine: boolean) {
   return `block min-w-0 max-w-full whitespace-pre-line [overflow-wrap:anywhere] rounded-[18px] px-3.5 py-2 text-[14px] leading-snug ${mine ? "bg-accent text-white" : "bg-[#F0F0F0] text-ink"}`;
 }
 
+const MESSAGE_TZ = "Asia/Ho_Chi_Minh";
+const messageDayFmt = new Intl.DateTimeFormat("de-DE", { timeZone: MESSAGE_TZ, weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+const messageTimeFmt = new Intl.DateTimeFormat("de-DE", { timeZone: MESSAGE_TZ, hour: "2-digit", minute: "2-digit" });
+
+/** "Di., 17.11.2026" in Vietnam time, for the day dividers of a chat. */
+export function messageDay(iso: string) {
+  return messageDayFmt.format(new Date(iso));
+}
+
+/** "11:51" in Vietnam time, when a message was sent. */
+export function messageTime(iso: string) {
+  return messageTimeFmt.format(new Date(iso));
+}
+
+/**
+ * The send time inside a text bubble, bottom right (the bubble needs `relative`). The invisible
+ * spacer at the end of the text keeps the last line clear of it, so short messages stay on one line.
+ */
+export function BubbleTime({ iso, mine }: { iso: string; mine: boolean }) {
+  return (
+    <>
+      <span aria-hidden="true" className="inline-block w-10" />
+      <span className={`pointer-events-none absolute bottom-[7px] right-3 text-[10.5px] leading-none tabular-nums ${mine ? "text-white/75" : "text-[#8A8F98]"}`}>{messageTime(iso)}</span>
+    </>
+  );
+}
+
 /** The row around a bubble; `last` = last bubble of a run from the same sender (adds space below). */
 export function bubbleRowClass(mine: boolean, last: boolean) {
   return `flex min-w-0 max-w-[78%] flex-col ${mine ? "items-end self-end" : "items-start self-start"} ${last ? "mb-2" : ""}`;

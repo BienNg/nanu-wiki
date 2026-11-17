@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { Label, tip } from "@/components/Bi";
 import { CopyName } from "@/components/admin/CopyName";
 import { Icon } from "@/components/Icon";
-import { bubbleClass, bubbleRowClass } from "@/components/MessengerParts";
+import { BubbleTime, bubbleClass, bubbleRowClass, messageDay, messageTime } from "@/components/MessengerParts";
 import type { ThreadMessageRow } from "@/lib/messenger/thread";
 
 /** What the preview needs to know about a chat. */
@@ -98,10 +98,17 @@ export function ChatPreviewModal({ chat: item, onClose, footer }: { chat: Previe
               {data.messages.map((m, i) => {
                 const mine = m.from_page;
                 const last = data.messages[i + 1]?.from_page !== mine;
+                const prev = data.messages[i - 1];
+                const newDay = !prev || messageDay(prev.created_time) !== messageDay(m.created_time);
                 return (
-                  <div key={m.id} className={`${bubbleRowClass(mine, last)} mt-0.5`}>
-                    {!!m.text && <span className={bubbleClass(mine)}>{m.text}</span>}
-                    {!m.text && <span className={`${bubbleClass(mine)} italic`}>📎 Anhang</span>}
+                  <div key={m.id} className="contents">
+                    {newDay && <p className="m-0 my-2 self-center text-[11.5px] font-medium text-faint">{messageDay(m.created_time)}</p>}
+                    <div className={`${bubbleRowClass(mine, last)} mt-0.5`}>
+                      <span className={`${bubbleClass(mine)} relative ${m.text ? "" : "italic"}`}>
+                        {m.text || "📎 Anhang"}
+                        <BubbleTime iso={m.created_time} mine={mine} />
+                      </span>
+                    </div>
                   </div>
                 );
               })}
