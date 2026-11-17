@@ -43,6 +43,38 @@ export async function openFollowups(supabase: Db): Promise<Map<string, Followup>
   return new Map(((data ?? []) as Followup[]).map((f) => [f.conversation_id, f]));
 }
 
+/**
+ * When each chat's follow-ups were last set, moved or closed (newest updated_at of any of its rows).
+ * A chat whose last message is older than this was seen: see conversationView.
+ */
+export async function followupTouches(supabase: Db): Promise<Map<string, string>> {
+  const touched = new Map<string, string>();
+  const page = 1000;
+  for (let from = 0; from < 50_000; from += page) {
+    const { data, error } = await supabase
+      .from("messenger_followups")
+      .select("conversation_id, updated_at")
+      .order("updated_at", { ascending: false })
+      .order("id")
+      .range(from, from + page - 1);
+    if (error) {
+      if (missing(error)) return touched;
+      throw new Error(error.message);
+    }
+    const rows = (data ?? []) as Pick<Followup, "conversation_id" | "updated_at">[];
+    for (const row of rows) if (!touched.has(row.conversation_id)) touched.set(row.conversation_id, row.updated_at);
+    if (rows.length < page) break;
+  }
+  return touched;
+}
+
+/** The newest set, move or close among one chat's follow-ups (from chatFollowups). */
+export function touchedAt(chat: { open: Followup | null; done: Followup[] }): string | null {
+  let newest: string | null = null;
+  for (const f of [chat.open, ...chat.done]) if (f && (!newest || new Date(f.updated_at) > new Date(newest))) newest = f.updated_at;
+  return newest;
+}
+
 /** One chat's open follow-up and its newest closed ones. */
 export async function chatFollowups(supabase: Db, id: string): Promise<{ open: Followup | null; done: Followup[] }> {
   const { data, error } = await supabase

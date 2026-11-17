@@ -7,7 +7,7 @@ import { conversationView, PIN_FIELDS, type PinField } from "@/lib/messenger/nex
 import { inboxPlace, labelChips } from "@/lib/messenger/inboxPlace";
 import type { LabelSaveResult } from "@/lib/messenger/labelSave";
 import { FUNNEL_INTEREST, isStep, stepFor, stepOf } from "@/lib/messenger/steps";
-import { chatFollowups, isDay, NOTE_MAX, type Followup } from "@/lib/messenger/followups";
+import { chatFollowups, isDay, NOTE_MAX, touchedAt } from "@/lib/messenger/followups";
 import type { SavedLabel } from "@/lib/messenger/labelSave";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type ChatFollowups, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { levelOf, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
@@ -234,8 +234,9 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   const factRow = (fact as FactRow | null) ?? undefined;
   const timing = toTiming(factRow, factRow?.last_from_page);
   const now = Date.now();
-  const before = conversationView(row ? { ...row, resume_on: row.resume_on ?? null } : undefined, timing, now, followups.open);
-  const view = conversationView(toActionLabel(savedRow), timing, now, followups.open);
+  const touched = touchedAt(followups);
+  const before = conversationView(row ? { ...row, resume_on: row.resume_on ?? null } : undefined, timing, now, followups.open, touched);
+  const view = conversationView(toActionLabel(savedRow), timing, now, followups.open, touched);
   const version = await inboxVersion(supabase, id);
   return {
     saved: {
@@ -258,8 +259,8 @@ function who(session: Awaited<ReturnType<typeof requireRole>>) {
   return (session.profile.full_name || session.profile.email || "Admin").slice(0, 120);
 }
 
-/** The chat as the list and the open chat show it, with its follow-ups. `prevOpen` is the open follow-up before the change. */
-async function followupPatch(supabase: Db, id: string, prevOpen: Followup | null): Promise<FollowupResult> {
+/** The chat as the list and the open chat show it, with its follow-ups. `prev` is its follow-ups before the change. */
+async function followupPatch(supabase: Db, id: string, prev: ChatFollowups): Promise<FollowupResult> {
   const [{ data: label, error: labelErr }, { data: fact, error: factErr }, followups] = await Promise.all([
     supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", id).maybeSingle(),
     supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
@@ -271,8 +272,8 @@ async function followupPatch(supabase: Db, id: string, prevOpen: Followup | null
   const timing = toTiming(factRow, factRow?.last_from_page);
   const now = Date.now();
   const action = row ? toActionLabel(row) : undefined;
-  const before = conversationView(action, timing, now, prevOpen);
-  const view = conversationView(action, timing, now, followups.open);
+  const before = conversationView(action, timing, now, prev.open, touchedAt(prev));
+  const view = conversationView(action, timing, now, followups.open, touchedAt(followups));
   const version = await inboxVersion(supabase, id);
   return {
     followups,
@@ -315,7 +316,7 @@ export async function setFollowup(input: { conversationId: string; dueOn: string
   const { error } = await write;
   // A colleague started one a moment ago (one open per chat): the list shows theirs.
   if (error) return { error: error.code === "23505" ? "Ein Kollege hat gerade einen Follow-up angelegt. Bitte neu laden." : error.message };
-  return followupPatch(supabase, id, current.open);
+  return followupPatch(supabase, id, current);
 }
 
 /** "Erledigt": closes the open follow-up. It stays in the chat's history. */
@@ -335,5 +336,5 @@ export async function closeFollowup(input: { conversationId: string; id: string 
       .is("done_at", null);
     if (error) return { error: error.message };
   }
-  return followupPatch(supabase, conversationId, current.open);
+  return followupPatch(supabase, conversationId, current);
 }

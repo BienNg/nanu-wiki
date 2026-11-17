@@ -13,7 +13,7 @@ import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
 import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, matchesInboxFilter, NO_INTEREST, ONE_ON_ONE, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
-import { openFollowups } from "@/lib/messenger/followups";
+import { followupTouches, openFollowups } from "@/lib/messenger/followups";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
@@ -194,7 +194,7 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
 type ChatStates = { chats: ChatKey[]; labels: Map<string, InboxLabel>; views: Map<string, ConversationView> };
 
 async function chatStates(supabase: Db, f: Pick<IndexFilter, "channel" | "like">, now: number): Promise<ChatStates> {
-  const [chats, labelRows, factRows, followups] = await Promise.all([
+  const [chats, labelRows, factRows, followups, touches] = await Promise.all([
     allPages<ChatKey>((from, to) => {
       let keys = supabase.from("messenger_conversations").select("id, updated_time").order("updated_time", { ascending: false }).order("id");
       if (f.channel) keys = keys.eq("channel", f.channel);
@@ -204,6 +204,7 @@ async function chatStates(supabase: Db, f: Pick<IndexFilter, "channel" | "like">
     allPages<InboxLabel>((from, to) => supabase.from("messenger_labels").select(LABEL_COLUMNS).order("conversation_id").range(from, to)),
     allPages<FactRow>((from, to) => supabase.from("messenger_facts").select(FACT_COLUMNS).order("id").range(from, to)),
     openFollowups(supabase),
+    followupTouches(supabase),
   ]);
   const labels = new Map(labelRows.map((row) => [row.conversation_id, row]));
   const facts = new Map(factRows.map((row) => [row.id, row]));
@@ -211,7 +212,7 @@ async function chatStates(supabase: Db, f: Pick<IndexFilter, "channel" | "like">
   for (const c of chats) {
     const label = labels.get(c.id);
     const fact = facts.get(c.id);
-    views.set(c.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(fact, fact?.last_from_page), now, followups.get(c.id) ?? null));
+    views.set(c.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(fact, fact?.last_from_page), now, followups.get(c.id) ?? null, touches.get(c.id) ?? null));
   }
   return { chats, labels, views };
 }

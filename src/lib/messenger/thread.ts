@@ -1,6 +1,6 @@
 import type { createClient } from "@/lib/supabase/server";
 import { conversationView, type ActionLabel, type ActionTiming, type ConversationView } from "./nextAction";
-import { chatFollowups, type Followup } from "./followups";
+import { chatFollowups, touchedAt, type Followup } from "./followups";
 import { stepOf, type Step } from "./steps";
 import type { LossReason, Outcome } from "./types";
 
@@ -165,7 +165,7 @@ export async function loadThread(supabase: Db, id: string, version: string | nul
     version: version ?? "",
     label: labelRow,
     step: stepOf(labelRow),
-    view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now, followups.open),
+    view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now, followups.open, touchedAt(followups)),
     followups,
     attempts: ((outbox.data ?? []) as OutboxRow[]).reverse(),
     lastInbound: inbound.data?.created_time ?? null,

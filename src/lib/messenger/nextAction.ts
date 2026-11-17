@@ -173,9 +173,19 @@ function followupAction(step: Step | null): NextAction {
  * An open manual follow-up turns the automatic one (24h nudge, "Nicht noch einmal schreiben") off.
  * When the person wrote, answering comes first; otherwise a due follow-up is the action, in every
  * status (Verloren, Kein Lead, Zalo too). Before its day, an open chat waits for that day.
+ *
+ * `touchedAt` is when someone last set, moved or closed ("Erledigt") a follow-up of this chat. If that
+ * was after the person's last message, we saw it and chose to write later: no "Antworten", the chat
+ * waits (for the follow-up's day, if one is open) until the person writes again.
  */
-export function conversationView(label: ActionLabel | undefined, timing: ActionTiming, now = Date.now(), followup: OpenFollowup | null = null): ConversationView {
-  const base = baseView(label, timing, now, !!followup);
+export function conversationView(
+  label: ActionLabel | undefined,
+  timing: ActionTiming,
+  now = Date.now(),
+  followup: OpenFollowup | null = null,
+  touchedAt: string | null = null,
+): ConversationView {
+  const base = baseView(label, timing, now, !!followup, seenByFollowup(timing, touchedAt));
   if (!followup) return { ...base, followup: null };
   const today = formatVnDate(new Date(now));
   const due = followup.due_on <= today;
@@ -197,15 +207,21 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
   return { ...base, action: { id: "followup_wait", de: `Follow-up am ${day}`, vi: `Nhắc lại ngày ${day}`, rank: 115, today: false }, followup: fu };
 }
 
-function baseView(label: ActionLabel | undefined, timing: ActionTiming, now: number, manual: boolean): ConversationView {
-  const view = innerView(label, timing, now, manual);
+/** The person's last message is ours to answer, but a follow-up was saved or closed after it. */
+export function seenByFollowup(timing: ActionTiming, touchedAt: string | null) {
+  if (!ourTurn(timing) || !touchedAt || !timing.last_customer_at) return false;
+  return new Date(timing.last_customer_at).getTime() <= new Date(touchedAt).getTime();
+}
+
+function baseView(label: ActionLabel | undefined, timing: ActionTiming, now: number, manual: boolean, seen: boolean): ConversationView {
+  const view = innerView(label, timing, now, manual, seen);
   if (!view.action.today) return { ...view, since: null };
   return { ...view, since: view.action.id.startsWith("nudge") ? timing.last_page_at : (timing.last_customer_at ?? timing.last_page_at) };
 }
 
-function innerView(label: ActionLabel | undefined, timing: ActionTiming, now: number, manual: boolean): ConversationView {
+function innerView(label: ActionLabel | undefined, timing: ActionTiming, now: number, manual: boolean, seen: boolean): ConversationView {
   const stale = wroteAfter(label, timing);
-  const ball = ourTurn(timing);
+  const ball = !seen && ourTurn(timing);
   const nudge = !manual && followupDue(timing, now);
   const silent = !manual && ignored(timing, now);
   const stage = stepOf(label);
@@ -213,7 +229,9 @@ function innerView(label: ActionLabel | undefined, timing: ActionTiming, now: nu
   const stageVi = stage ? STEP_INFO[stage].short_vi : "Chưa rõ";
   const turn = ball
     ? { de: "wartet auf uns", vi: "chờ mình" }
-    : nudge
+    : seen
+      ? { de: "gesehen, später schreiben", vi: "đã xem, nhắn sau" }
+      : nudge
       ? { de: "Nachfrage fällig", vi: "đến lúc nhắc" }
       : silent
         ? { de: "keine Antwort", vi: "không trả lời" }
