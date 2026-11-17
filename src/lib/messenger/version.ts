@@ -45,15 +45,18 @@ export async function inboxVersion(supabase: Db, conversation?: string | null): 
 
   const newest = (table: string, column: string) => supabase.from(table).select(column).order(column, { ascending: false }).limit(1).maybeSingle();
   const none = Promise.resolve(null);
-  const [chatTime, chatSync, labelTime, states, messages, label, outbox] = await Promise.all([
+  const [chatTime, chatSync, labelTime, followupTime, states, messages, label, outbox, followup] = await Promise.all([
     newest("messenger_conversations", "updated_time"),
     newest("messenger_conversations", "synced_at"),
     newest("messenger_labels", "updated_at"),
+    newest("messenger_followups", "updated_at"),
     supabase.from("messenger_sync_state").select("page_id, last_run_at, last_error"),
     conversation ? supabase.from("messenger_messages").select("created_time", { count: "exact" }).eq("conversation_id", conversation).order("created_time", { ascending: false }).limit(1) : none,
     conversation ? supabase.from("messenger_labels").select("updated_at").eq("conversation_id", conversation).maybeSingle() : none,
     conversation ? supabase.from("messenger_outbox").select("updated_at", { count: "exact" }).eq("conversation_id", conversation).order("updated_at", { ascending: false }).limit(1) : none,
+    conversation ? supabase.from("messenger_followups").select("updated_at", { count: "exact" }).eq("conversation_id", conversation).order("updated_at", { ascending: false }).limit(1) : none,
   ]);
-  const thread = conversation ? JSON.stringify([messages?.count, messages?.data?.[0], label?.data, outbox?.count, outbox?.data?.[0]]) : null;
-  return { inbox: JSON.stringify([chatTime.data, chatSync.data, labelTime.data]), thread, ...syncOf((states.data ?? []) as SyncState[]) };
+  // Follow-ups (migration 20261117150000): before that table exists these reads fail and count as nothing.
+  const thread = conversation ? JSON.stringify([messages?.count, messages?.data?.[0], label?.data, outbox?.count, outbox?.data?.[0], followup?.data?.[0] ?? null]) : null;
+  return { inbox: JSON.stringify([chatTime.data, chatSync.data, labelTime.data, followupTime.data]), thread, ...syncOf((states.data ?? []) as SyncState[]) };
 }

@@ -1,4 +1,5 @@
 import { followupIgnored, formatVnDate } from "./classify";
+import { daysBetween, shortDay, type OpenFollowup } from "./followups";
 import { STEP_INFO, stepOf, type Step } from "./steps";
 import { placeOf, type LabelDraft, type LossReason, type MessengerFact, type Outcome, type StoredLabel } from "./types";
 
@@ -57,6 +58,10 @@ export type ConversationView = {
   /** What the inbox row shows next to the action chip; null when the chip already says it all. */
   note: { de: string; vi: string } | null;
   action: NextAction;
+  /** The open manual follow-up, if any. `due` from the start of its day (Vietnam time). */
+  followup?: (OpenFollowup & { due: boolean }) | null;
+  /** Since when this has been waiting for us (oldest first in "Zu tun"); null when nothing waits. */
+  since?: string | null;
 };
 
 const CLOSED: NextAction = { id: "none", de: "Nichts tun", vi: "Không cần làm gì", rank: 200, today: false };
@@ -120,24 +125,7 @@ export function mergePinned(
   };
 }
 
-function lostView(label: ActionLabel, now: number): ConversationView {
-  if (label.loss_reason === "spaeter") {
-    const when = label.resume_on;
-    if (!when) {
-      return {
-        state: { de: "Später · Datum fehlt", vi: "Để sau · thiếu ngày" },
-        note: { de: "Später", vi: "Để sau" },
-        action: act("spaeter_date", "Datum eintragen", "Ghi ngày hẹn lại", 75),
-      };
-    }
-    const day = when.slice(0, 10);
-    const pretty = `${day.slice(8, 10)}.${day.slice(5, 7)}.`;
-    const state = { de: `Später · ${pretty}`, vi: `Để sau · ${pretty}` };
-    if (day <= formatVnDate(new Date(now))) {
-      return { state, note: state, action: act("spaeter_due", "Wieder schreiben", "Nhắn lại", 65) };
-    }
-    return { state, note: { de: "Später", vi: "Để sau" }, action: act("spaeter_wait", `Am ${pretty} wieder schreiben`, `Nhắn lại ngày ${pretty}`, 120, false) };
-  }
+function lostView(label: ActionLabel): ConversationView {
   const text = LOSS_TEXT[label.loss_reason ?? "unklar"] ?? LOSS_TEXT.unklar;
   return { state: text, note: text, action: CLOSED };
 }
@@ -179,12 +167,47 @@ function followupAction(step: Step | null): NextAction {
   return act("nudge", "Einmal nachfassen", "Nhắc một lần", 70);
 }
 
-/** State of one chat and the single next action. Timing wins over a saved "whose turn". */
-export function conversationView(label: ActionLabel | undefined, timing: ActionTiming, now = Date.now()): ConversationView {
+/**
+ * State of one chat and the single next action. Timing wins over a saved "whose turn".
+ *
+ * An open manual follow-up turns the automatic one (24h nudge, "Nicht noch einmal schreiben") off.
+ * When the person wrote, answering comes first; otherwise a due follow-up is the action, in every
+ * status (Verloren, Kein Lead, Zalo too). Before its day, an open chat waits for that day.
+ */
+export function conversationView(label: ActionLabel | undefined, timing: ActionTiming, now = Date.now(), followup: OpenFollowup | null = null): ConversationView {
+  const base = baseView(label, timing, now, !!followup);
+  if (!followup) return { ...base, followup: null };
+  const today = formatVnDate(new Date(now));
+  const due = followup.due_on <= today;
+  const fu = { due_on: followup.due_on, note: followup.note, due };
+  if (base.action.today) return { ...base, followup: fu };
+  if (due) {
+    const late = daysBetween(followup.due_on, today);
+    const when = late === 0 ? { de: "heute", vi: "hôm nay" } : { de: `überfällig ${late} T.`, vi: `quá ${late} ngày` };
+    return {
+      ...base,
+      action: { id: "followup_due", de: `Follow-up · ${when.de}`, vi: `Nhắc lại · ${when.vi}`, rank: 60, today: true },
+      followup: fu,
+      since: `${followup.due_on}T00:00:00+07:00`,
+    };
+  }
+  // A closed chat keeps its state; the row shows the date beside it.
+  if (base.action.id !== "wait") return { ...base, followup: fu };
+  const day = shortDay(followup.due_on);
+  return { ...base, action: { id: "followup_wait", de: `Follow-up am ${day}`, vi: `Nhắc lại ngày ${day}`, rank: 115, today: false }, followup: fu };
+}
+
+function baseView(label: ActionLabel | undefined, timing: ActionTiming, now: number, manual: boolean): ConversationView {
+  const view = innerView(label, timing, now, manual);
+  if (!view.action.today) return { ...view, since: null };
+  return { ...view, since: view.action.id.startsWith("nudge") ? timing.last_page_at : (timing.last_customer_at ?? timing.last_page_at) };
+}
+
+function innerView(label: ActionLabel | undefined, timing: ActionTiming, now: number, manual: boolean): ConversationView {
   const stale = wroteAfter(label, timing);
   const ball = ourTurn(timing);
-  const nudge = followupDue(timing, now);
-  const silent = ignored(timing, now);
+  const nudge = !manual && followupDue(timing, now);
+  const silent = !manual && ignored(timing, now);
   const stage = stepOf(label);
   const stageDe = stage ? STEP_INFO[stage].short_de : "Unklar";
   const stageVi = stage ? STEP_INFO[stage].short_vi : "Chưa rõ";
@@ -204,7 +227,7 @@ export function conversationView(label: ActionLabel | undefined, timing: ActionT
   if (closed && label.outcome === "weiter_auf_zalo") {
     return { state: { de: "Weiter auf Zalo", vi: "Chuyển sang Zalo" }, note: null, action: ZALO };
   }
-  if (closed && label.outcome === "verloren") return lostView(label, now);
+  if (closed && label.outcome === "verloren") return lostView(label);
 
   // A paid close stays Schüler after a new message. Kein Lead and Verloren can reopen.
   const student = !!label && (label.outcome === "bestandskunde" || stage === "schueler");

@@ -21,7 +21,6 @@ const SHORT: Record<string, Text> = {
   nudge: { de: "Follow up", vi: "Nhắc lại" },
   nudge_offer: { de: "Follow up", vi: "Nhắc lại" },
   nudge_pay: { de: "Follow up", vi: "Nhắc lại" },
-  spaeter_date: { de: "Datum fehlt", vi: "Thiếu ngày" },
   stop: { de: "Nicht schreiben", vi: "Đừng nhắn" },
   zalo: { de: "Zalo", vi: "Zalo" },
   kein_lead: { de: "Kein Lead", vi: "Không phải khách" },
@@ -31,7 +30,7 @@ const SHORT: Record<string, Text> = {
 /** Short text for the inbox row. Closed chats show their state ("Verloren · Preis", "Schüler") instead of "Nichts tun". */
 function shortText(action: NextAction, note: Text | null | undefined): Text {
   if (action.id === "wait") return (action.next && SHORT[action.next]) || { de: "Warten", vi: "Chờ" };
-  if (action.id === "spaeter_wait") {
+  if (action.id === "followup_wait") {
     const day = action.de.match(/\d{2}\.\d{2}\./)?.[0];
     if (day) return { de: day, vi: day };
   }
@@ -42,7 +41,7 @@ function shortText(action: NextAction, note: Text | null | undefined): Text {
 /** The same chip, one or two words long, for the inbox list. Waiting shows a clock. */
 export function ActionChipShort({ action, note }: { action: NextAction; note?: Text | null }) {
   const text = shortText(action, note);
-  const waiting = action.id === "wait" || action.id === "spaeter_wait";
+  const waiting = action.id === "wait" || action.id === "followup_wait";
   return (
     <span
       className={`flex min-w-0 flex-shrink items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-semibold leading-[18px] transition-colors duration-150 group-aria-[current=page]:bg-white ${
@@ -50,9 +49,27 @@ export function ActionChipShort({ action, note }: { action: NextAction; note?: T
       }`}
     >
       {waiting && <Icon name="clock" size={11} strokeWidth={2.2} className="flex-none" />}
+      {action.id === "followup_due" && <Icon name="bell" size={11} strokeWidth={2.2} className="flex-none" />}
       <span className="truncate">
         <Label {...text} />
       </span>
+    </span>
+  );
+}
+
+/**
+ * A manual follow-up beside another action chip: the date with a clock, amber once it is due.
+ * The note is in the row's tooltip.
+ */
+export function FollowupChipShort({ day, due }: { day: string; due: boolean }) {
+  return (
+    <span
+      className={`flex flex-none items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-semibold leading-[18px] group-aria-[current=page]:bg-white ${
+        due ? "bg-[#FDF1DC] text-[#9A5B00]" : "bg-chip text-muted"
+      }`}
+    >
+      <Icon name={due ? "bell" : "clock"} size={11} strokeWidth={2.2} className="flex-none" />
+      {day}
     </span>
   );
 }

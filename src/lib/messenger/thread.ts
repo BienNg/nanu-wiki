@@ -1,5 +1,6 @@
 import type { createClient } from "@/lib/supabase/server";
 import { conversationView, type ActionLabel, type ActionTiming, type ConversationView } from "./nextAction";
+import { chatFollowups, type Followup } from "./followups";
 import { stepOf, type Step } from "./steps";
 import type { LossReason, Outcome } from "./types";
 
@@ -83,6 +84,9 @@ export type OutboxRow = {
   payload: { text?: string; displayText?: string };
 };
 
+/** A chat's open follow-up and its newest closed ones. */
+export type ChatFollowups = { open: Followup | null; done: Followup[] };
+
 /** Everything the chat pane shows for one conversation. */
 export type ThreadData = {
   id: string;
@@ -100,6 +104,7 @@ export type ThreadData = {
   /** The step right now (stepOf), null when the chat has none. */
   step: Step | null;
   view: ConversationView;
+  followups: ChatFollowups;
   attempts: OutboxRow[];
   lastInbound: string | null;
 };
@@ -127,17 +132,18 @@ export function olderMessages(supabase: Db, id: string, before: string) {
 }
 
 /**
- * One round trip: the six reads run side by side, each on an index (conversation id).
+ * One round trip: the seven reads run side by side, each on an index (conversation id).
  * `version` is the chat's version (inboxVersion), read by the caller BEFORE this runs.
  */
 export async function loadThread(supabase: Db, id: string, version: string | null, now = Date.now()): Promise<ThreadData | null> {
-  const [conv, page, label, fact, outbox, inbound] = await Promise.all([
+  const [conv, page, label, fact, outbox, inbound, followups] = await Promise.all([
     supabase.from("messenger_conversations").select("id, customer_name, message_count, channel, account_name").eq("id", id).maybeSingle(),
     messagePage(supabase, id),
     supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", id).maybeSingle(),
     supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
     supabase.from("messenger_outbox").select("*").eq("conversation_id", id).order("created_at", { ascending: false }).limit(20),
     supabase.from("messenger_messages").select("created_time").eq("conversation_id", id).eq("from_page", false).order("created_time", { ascending: false }).limit(1).maybeSingle(),
+    chatFollowups(supabase, id),
   ]);
   const failed = conv.error ?? label.error ?? fact.error;
   if (failed) throw new Error(failed.message);
@@ -157,7 +163,8 @@ export async function loadThread(supabase: Db, id: string, version: string | nul
     version: version ?? "",
     label: labelRow,
     step: stepOf(labelRow),
-    view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now),
+    view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now, followups.open),
+    followups,
     attempts: ((outbox.data ?? []) as OutboxRow[]).reverse(),
     lastInbound: inbound.data?.created_time ?? null,
   };

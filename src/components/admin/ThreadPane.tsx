@@ -14,7 +14,8 @@ import { MessengerThread, type ThreadMessage } from "@/components/admin/Messenge
 import type { NextAction } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST, STEP_INFO, type Step } from "@/lib/messenger/steps";
 import { ClassAssignPanel } from "@/components/admin/ClassAssignPanel";
-import type { ThreadData, ThreadMessageRow } from "@/lib/messenger/thread";
+import { FollowupBanner, FollowupButton, FollowupMarker, type FollowupPopover } from "@/components/admin/FollowupControls";
+import type { ChatFollowups, ThreadData, ThreadMessageRow } from "@/lib/messenger/thread";
 import type { Outcome } from "@/lib/messenger/types";
 
 type Loaded = ThreadData & { sendEnabled: boolean };
@@ -88,6 +89,8 @@ export function ThreadPane() {
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [retry, setRetry] = useState(0);
   const [settled, setSettled] = useState(0);
+  const [popover, setPopover] = useState<FollowupPopover>(null);
+  useEffect(() => setPopover(null), [id]);
   /** The copy that is here: its chat, its version, and the newest version that was known when it was asked for. */
   const have = useRef<{ id: string; version: string | null; asked: string | null } | null>(null);
   /** The request on its way, if any. A check that comes in meanwhile waits for it instead of starting a second one. */
@@ -118,7 +121,7 @@ export function ThreadPane() {
         }
         const saved = labelSaveFor(id) ?? wrote;
         // A slow reload that started earlier must not cover a label this person just stored.
-        const wroteAt = wrote?.label.updated_at ?? "";
+        const wroteAt = wrote?.label?.updated_at ?? "";
         const nextAt = next.label?.updated_at ?? "";
         const label = wrote && nextAt < wroteAt ? wrote.label : (saved?.label ?? next.label);
         const merged = { ...next, view: saved?.view ?? next.view, step: saved?.step ?? next.step, label };
@@ -157,6 +160,18 @@ export function ThreadPane() {
       flight.current = null;
     },
     [],
+  );
+
+  /** A follow-up was set, moved or closed here: show it at once (the list follows through publishLabelSave). */
+  const onFollowups = useCallback(
+    (followups: ChatFollowups) => {
+      if (!id) return;
+      const apply = (d: Loaded): Loaded => (d.id === id ? { ...d, followups } : d);
+      setData((d) => (d && d.id === id ? apply(d) : d));
+      const remembered = recent.get(id);
+      if (remembered) recent.set(id, apply(remembered));
+    },
+    [id],
   );
 
   const head = data?.id === id ? data : id ? (recent.get(id) ?? null) : null;
@@ -211,6 +226,8 @@ export function ThreadPane() {
     .sort((a, b) => Date.parse(a.created_time) - Date.parse(b.created_time));
   const label = shown.label;
   const channel = shown.channel || "messenger";
+  // Copies remembered before follow-ups existed have none.
+  const followups: ChatFollowups = shown.followups ?? { open: null, done: [] };
   return (
     <div key={shown.id} className="anim-fade flex min-h-0 flex-1">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -232,15 +249,20 @@ export function ThreadPane() {
         below={<span id={`status-${shown.id}`} className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5" />}
         actions={
           // Stufe on top, its goal below. The Stufe menu itself comes from the label form (LabelEditor).
-          <span className="flex min-w-0 flex-col items-end gap-1">
-            <span id={`stage-${shown.id}`} className="flex min-w-0 max-w-full" />
-            <GoalChip id={shown.id}>
-              <ActionChip action={goalAction(shown.view.action, shown.step)} title={goalTitle(shown)} />
-            </GoalChip>
+          <span className="flex min-w-0 items-center gap-2">
+            <FollowupButton conversationId={shown.id} followups={followups} popover={popover} setPopover={setPopover} onChange={onFollowups} />
+            <span className="flex min-w-0 flex-col items-end gap-1">
+              <span id={`stage-${shown.id}`} className="flex min-w-0 max-w-full" />
+              <GoalChip id={shown.id}>
+                <ActionChip action={goalAction(shown.view.action, shown.step)} title={goalTitle(shown)} />
+              </GoalChip>
+            </span>
           </span>
         }
+        markers={followups.done.filter((f) => f.done_at).map((f) => ({ id: f.id, time: f.done_at!, node: <FollowupMarker f={f} /> }))}
         composer={<MessageComposer key="composer" conversation={shown.id} channel={channel} enabled={shown.sendEnabled} lastInbound={shown.lastInbound} attempts={shown.attempts} />}
         banner={
+          <>
           <div className="relative z-10 border-b border-line bg-[#FAFBFC] px-3 py-2">
             <LabelEditor
               conversationId={shown.id}
@@ -251,7 +273,6 @@ export function ThreadPane() {
               place={label?.place && label.place !== "unklar" ? label.place : ""}
               judgment={formJudgment(label?.outcome)}
               loss={label?.loss_reason ?? "unklar"}
-              resume={label?.resume_on?.slice(0, 10) ?? ""}
               statusSlot={`status-${shown.id}`}
               stageSlot={`stage-${shown.id}`}
               coursesSent={!!label?.courses_sent}
@@ -261,6 +282,8 @@ export function ThreadPane() {
               pinned={(label?.pinned ?? []).filter((field) => field !== "stage" || label?.stage === shown.step)}
             />
           </div>
+          <FollowupBanner conversationId={shown.id} followups={followups} setPopover={setPopover} onChange={onFollowups} />
+          </>
         }
         />
       </div>

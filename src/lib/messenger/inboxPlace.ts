@@ -28,7 +28,16 @@ export type InboxPlace = {
   open: boolean;
   /** One of STATUSES. */
   status: (typeof STATUSES)[number]["id"];
+  /** Something to do now: it shows under "Zu tun". */
+  todo: boolean;
 };
+
+/** The two lists: what needs doing now (the default), and every chat. URL `?t=alle`. */
+export const TABS = ["zu_tun", "alle"] as const;
+export type InboxTab = (typeof TABS)[number];
+export function tabOf(value: string | null | undefined): InboxTab {
+  return value === "alle" ? "alle" : "zu_tun";
+}
 
 type PlaceLabel = {
   interest?: string | null;
@@ -71,15 +80,17 @@ export function stepKey(label: PlaceLabel) {
   return i >= 0 ? String(i + 1) : "unklar";
 }
 
-export function inboxPlace(label: PlaceLabel): InboxPlace {
-  return { interestKey: interestKey(label), stepKey: stepKey(label), open: isOpen(label), status: statusOf(label) };
+/** `todo` comes from the chat's next action (conversationView): `action.today`. */
+export function inboxPlace(label: PlaceLabel, todo: boolean): InboxPlace {
+  return { interestKey: interestKey(label), stepKey: stepKey(label), open: isOpen(label), status: statusOf(label), todo };
 }
 
 /**
  * Whether a chat belongs in the list the reader is looking at.
- * A status id other than Schüler matches that status. `stepFilter` applies only inside Sprachkurs, and Status Zalo and Verloren are left out of that step. An empty interest filter is the whole inbox.
+ * Under "Zu tun" only chats with something to do now. A status id other than Schüler matches that status. `stepFilter` applies only inside Sprachkurs, and Status Zalo and Verloren are left out of that step. An empty interest filter is the whole inbox.
  */
-export function matchesInboxFilter(place: InboxPlace, interestFilter: string, stepFilter: string) {
+export function matchesInboxFilter(place: InboxPlace, interestFilter: string, stepFilter: string, tab: InboxTab = "alle") {
+  if (tab === "zu_tun" && !place.todo) return false;
   if ((STATUS_FILTERS as readonly string[]).includes(interestFilter)) return place.status === interestFilter;
   if (interestFilter === QUALIFY) return place.interestKey === NO_INTEREST && place.open;
   if (interestFilter && place.interestKey !== interestFilter) return false;

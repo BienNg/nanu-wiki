@@ -45,7 +45,6 @@ export type LabelFormValues = {
   place: string;
   judgment: string;
   loss: string;
-  resume: string;
   pinned: string[];
   /** Id of the element in the chat header that takes the Status menu (with Grund and Datum). */
   statusSlot: string;
@@ -97,7 +96,7 @@ export function LabelEditor(props: LabelFormValues) {
 /** Correct the stored label. Several fields in a row are one save: the write waits until the person pauses. */
 const SAVE_PAUSE_MS = 1200;
 
-function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, resume, pinned, statusSlot, stageSlot, coursesSent, priceSent, paid, autoText }: LabelFormValues) {
+function LabelEditorForm({ conversationId, stage, interest, level, place, judgment, loss, pinned, statusSlot, stageSlot, coursesSent, priceSent, paid, autoText }: LabelFormValues) {
   const [status, setStatus] = useState(judgment);
   const [reason, setReason] = useState(loss);
   /** Fields changed since the last finished save. Their chips show that they are still saving. */
@@ -114,7 +113,6 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     paid: paid ? "ja" : "nein",
     judgment,
     loss_reason: judgment === "verloren" ? loss : "",
-    resume_on: judgment === "verloren" && loss === "spaeter" ? resume : "",
   });
   const baseRef = useRef(base);
   baseRef.current = base;
@@ -152,7 +150,6 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
       paid: get("paid"),
       judgment: get("judgment"),
       loss_reason: get("loss_reason"),
-      resume_on: get("resume_on"),
     };
     return data;
   };
@@ -413,13 +410,9 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
                   setReason(v);
                   save("loss_reason");
                 }}
-                options={LOSS_REASONS.map((id) => ({ value: id as string, label: both(LOSS_TEXT[id].de, LOSS_TEXT[id].vi) }))}
+                // "Später" is a follow-up now (button in the chat header), not a reason.
+                options={LOSS_REASONS.filter((id) => id !== "spaeter").map((id) => ({ value: id as string, label: both(LOSS_TEXT[id].de, LOSS_TEXT[id].vi) }))}
               />
-            )}
-            {status === "verloren" && reason === "spaeter" && (
-              <Field de="Datum" vi="Ngày" pinned={locked("resume_on")} saving={dirty.has("resume_on")}>
-                <input name="resume_on" type="date" form={formId} defaultValue={resume} onChange={() => save("resume_on")} className={typed} />
-              </Field>
             )}
           </>,
           slot,

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/Bi";
 import { acknowledgeOwnInbox } from "@/components/admin/InboxLive";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
-import { inFunnelStep, matchesInboxFilter, NO_INTEREST, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { inFunnelStep, matchesInboxFilter, NO_INTEREST, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { SavedLabel } from "@/lib/messenger/labelSave";
 
 /**
@@ -137,6 +137,7 @@ export function ClearLabelPatches({ stamp }: { stamp: number }) {
 export function useLabelAdjust(listedIds?: readonly string[]) {
   const saved = useSyncExternalStore(subscribe, () => entries, () => EMPTY);
   const sp = useSearchParams();
+  const tab = tabOf(sp.get("t"));
   const interest = sp.get("i") ?? "";
   const step = interest === FUNNEL_INTEREST ? (sp.get("s") ?? "") : "";
   const interestDelta: Record<string, number> = {};
@@ -145,32 +146,39 @@ export function useLabelAdjust(listedIds?: readonly string[]) {
   const status: Record<string, number> = {};
   let total = 0;
   let hidden = 0;
+  let todo = 0;
   const add = (map: Record<string, number>, key: string, n: number) => {
     map[key] = (map[key] ?? 0) + n;
   };
   const qualifyOf = (p: InboxPlace) => p.interestKey === NO_INTEREST && p.open;
+  // Under "Zu tun" the counts only hold chats with something to do.
+  const counted = (p: InboxPlace) => tab === "alle" || p.todo;
+  const stepOf = (p: InboxPlace) => (p.interestKey === FUNNEL_INTEREST && inFunnelStep(p.status) ? p.stepKey : null);
   for (const e of saved) {
-    if (e.prev.interestKey !== e.next.interestKey) {
-      add(interestDelta, e.prev.interestKey, -1);
-      add(interestDelta, e.next.interestKey, 1);
-    }
-    const prevStep = e.prev.interestKey === FUNNEL_INTEREST && inFunnelStep(e.prev.status) ? e.prev.stepKey : null;
-    const nextStep = e.next.interestKey === FUNNEL_INTEREST && inFunnelStep(e.next.status) ? e.next.stepKey : null;
-    if (prevStep !== nextStep) {
-      if (prevStep) add(stepDelta, prevStep, -1);
-      if (nextStep) add(stepDelta, nextStep, 1);
-    }
-    qualify += (qualifyOf(e.next) ? 1 : 0) - (qualifyOf(e.prev) ? 1 : 0);
-    if (e.prev.status !== e.next.status) {
-      add(status, e.prev.status, -1);
-      add(status, e.next.status, 1);
-    }
-    const was = matchesInboxFilter(e.prev, interest, step);
-    const now = matchesInboxFilter(e.next, interest, step);
-    total += (now ? 1 : 0) - (was ? 1 : 0);
+    const was = counted(e.prev) ? 1 : 0;
+    const is = counted(e.next) ? 1 : 0;
+    add(interestDelta, e.prev.interestKey, -was);
+    add(interestDelta, e.next.interestKey, is);
+    const prevStep = stepOf(e.prev);
+    const nextStep = stepOf(e.next);
+    if (prevStep) add(stepDelta, prevStep, -was);
+    if (nextStep) add(stepDelta, nextStep, is);
+    qualify += (qualifyOf(e.next) ? is : 0) - (qualifyOf(e.prev) ? was : 0);
+    add(status, e.prev.status, -was);
+    add(status, e.next.status, is);
+    todo += (e.next.todo ? 1 : 0) - (e.prev.todo ? 1 : 0);
+    const before = matchesInboxFilter(e.prev, interest, step, tab);
+    const now = matchesInboxFilter(e.next, interest, step, tab);
+    total += (now ? 1 : 0) - (before ? 1 : 0);
     if (listedIds?.includes(e.conversationId) && !now) hidden += 1;
   }
-  return { interest: interestDelta, step: stepDelta, qualify, status, total, hidden };
+  return { interest: interestDelta, step: stepDelta, qualify, status, total, hidden, todo };
+}
+
+/** The "Zu tun" tab's count, plus the saves since this list was rendered. */
+export function TodoCount({ count }: { count: number }) {
+  const adjust = useLabelAdjust();
+  return <>{Math.max(0, count + adjust.todo)}</>;
 }
 
 /** One funnel step's count, plus the saves since this list was rendered. */
@@ -200,9 +208,10 @@ export function InboxMore({ shown, total, listedIds }: { shown: number; total: n
 }
 
 /** The list had rows, and every one of them has left the open filter. */
-export function InboxEmpty({ shown, listedIds }: { shown: number; listedIds: readonly string[] }) {
+export function InboxEmpty({ shown, listedIds, empty }: { shown: number; listedIds: readonly string[]; empty?: ReactNode }) {
   const adjust = useLabelAdjust(listedIds);
   if (shown === 0 || shown - adjust.hidden > 0) return null;
+  if (empty) return <>{empty}</>;
   return (
     <li className="px-3 py-8 text-center text-[13px] text-muted">
       <Label de="Keine Gespräche gefunden." vi="Không tìm thấy cuộc trò chuyện." />

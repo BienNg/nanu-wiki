@@ -70,6 +70,7 @@ export function MessengerThread({
   conversationId,
   actions,
   wallpaper,
+  markers = [],
 }: {
   name: string;
   backHref: string;
@@ -89,6 +90,8 @@ export function MessengerThread({
   actions?: ReactNode;
   /** "whatsapp": beige chat wallpaper with doodles and white bubbles for the customer. */
   wallpaper?: "whatsapp";
+  /** Small notes in the timeline at their time (closed follow-ups). Ones before the loaded messages wait for "Ältere laden". */
+  markers?: { id: string; time: string; node: ReactNode }[];
 }) {
   const wa = wallpaper === "whatsapp";
   // Messages that arrive while the chat is open pop in; the ones already there do not move.
@@ -183,8 +186,16 @@ export function MessengerThread({
           const next = messages[i + 1];
           const newDay = !prev || messageDay(prev.created_time) !== messageDay(m.created_time);
           const lastOfRun = !next || next.from_page !== m.from_page;
+          const at = Date.parse(m.created_time);
+          const from = prev ? Date.parse(prev.created_time) : hasOlder ? at : -Infinity;
+          const here = markers.filter((k) => Date.parse(k.time) > from && Date.parse(k.time) <= at);
           return (
             <div key={m.id} className="contents">
+              {here.map((k) => (
+                <div key={k.id} className="my-2 flex justify-center">
+                  {k.node}
+                </div>
+              ))}
               {newDay && <p className={`m-0 my-3 self-center text-[11.5px] font-medium ${wa ? "rounded-lg bg-white/90 px-2.5 py-1 text-muted shadow-sm" : "text-faint"}`}>{messageDay(m.created_time)}</p>}
               <div className={`${bubbleRowClass(m.from_page, lastOfRun)} mb-0.5 gap-0.5 ${isNew(m) ? "anim-pop" : ""}`} title={`${m.from_name ?? ""} · ${messageTime(m.created_time)}`}>
                 {m.text && (
@@ -205,6 +216,13 @@ export function MessengerThread({
             </div>
           );
         })}
+        {markers
+          .filter((k) => Date.parse(k.time) > (messages.length ? Date.parse(messages.at(-1)!.created_time) : -Infinity))
+          .map((k) => (
+            <div key={k.id} className="my-2 flex justify-center">
+              {k.node}
+            </div>
+          ))}
       </div>
       {newMessages && <button className="anim-fade bg-chip p-2 text-xs transition-colors hover:bg-hover" onClick={() => { const el=scroller.current; if(el) el.scrollTop=el.scrollHeight; setNewMessages(false); }}>↓ <Label de="Neue Nachrichten" vi="Tin nhắn mới" /></button>}
       {composer}

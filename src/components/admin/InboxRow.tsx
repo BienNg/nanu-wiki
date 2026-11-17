@@ -2,14 +2,15 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ActionChipShort } from "@/components/admin/ActionChip";
+import { ActionChipShort, FollowupChipShort } from "@/components/admin/ActionChip";
+import { shortDay } from "@/lib/messenger/followups";
 import { useRowClasses } from "@/components/admin/classPatch";
 import { Icon } from "@/components/Icon";
 import { ChatLink } from "@/components/admin/MessengerShell";
 import { SavingSpinner, useLabelSave, useLabelSaving } from "@/components/admin/labelPatch";
 import { initials } from "@/lib/format";
 import { MODE_TONE, OFFER_INFO, type RowClass } from "@/lib/messenger/classes";
-import { matchesInboxFilter, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { matchesInboxFilter, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { ConversationView } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
 import { tip } from "@/components/Bi";
@@ -65,7 +66,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const saving = useLabelSaving(row.id);
   const classes = useRowClasses(row.id, row.classes);
   const place = saved?.next ?? row.place;
-  const matches = matchesInboxFilter(place, interestFilter, stepFilter);
+  const matches = matchesInboxFilter(place, interestFilter, stepFilter, tabOf(sp.get("t")));
   const [gone, setGone] = useState(!matches);
   useEffect(() => {
     if (matches) setGone(false);
@@ -76,6 +77,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const showInterest = !interestFilter || (interestFilter === FUNNEL_INTEREST && !stepFilter);
   const chips = (saved ? saved.chips : row.chips).filter((chip) => showInterest || chip !== FUNNEL_INTEREST);
   const view = saved?.view ?? row.view;
+  const followupTip = view?.followup?.note ? `\n📌 ${view.followup.note}` : "";
   return (
     <li
       className={leaving ? "row-leave" : undefined}
@@ -110,8 +112,13 @@ export function InboxRow({ row }: { row: InboxRowData }) {
             {(view || classes.length > 0 || chips.length > 0) && (
               <span className={`mt-px flex min-w-0 items-center gap-1 ${saving ? "label-saving" : ""}`}>
                 {view && (
-                  <span className="flex min-w-0 flex-none" {...tip(`${view.action.de} – ${view.state.de}`, `${view.action.vi} – ${view.state.vi}`)}>
+                  <span className="flex min-w-0 flex-none" {...tip(`${view.action.de} – ${view.state.de}${followupTip}`, `${view.action.vi} – ${view.state.vi}${followupTip}`)}>
                     <ActionChipShort action={view.action} note={view.note} />
+                  </span>
+                )}
+                {view?.followup && !view.action.id.startsWith("followup_") && (
+                  <span className="flex flex-none" {...tip(`Follow-up am ${shortDay(view.followup.due_on)}${followupTip}`, `Nhắc lại ngày ${shortDay(view.followup.due_on)}${followupTip}`)}>
+                    <FollowupChipShort day={shortDay(view.followup.due_on)} due={view.followup.due} />
                   </span>
                 )}
                 {classes.slice(0, MAX_CLASSES).map((c) => (

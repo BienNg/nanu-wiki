@@ -8,11 +8,12 @@ import { FilterDetails } from "@/components/admin/FilterDetails";
 import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
 import { MessengerCrumb } from "@/components/admin/MessengerTabs";
 import { FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
-import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, StepCount } from "@/components/admin/labelPatch";
+import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, StepCount, TodoCount } from "@/components/admin/labelPatch";
 import { InboxRow } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
-import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, NO_INTEREST, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
+import { openFollowups } from "@/lib/messenger/followups";
 import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
@@ -33,7 +34,7 @@ type InboxDbRow = {
   channel?: string | null;
   account_name?: string | null;
 };
-type Params = { c?: string; q?: string; ch?: string; i?: string; s?: string; n?: string };
+type Params = { c?: string; q?: string; ch?: string; i?: string; s?: string; n?: string; t?: string };
 /** Just enough of a conversation to count it and to put it in order. */
 type ChatKey = { id: string; updated_time: string };
 
@@ -195,6 +196,68 @@ async function indexFromRows(supabase: Db, f: IndexFilter, funnelSteps: readonly
   return { source: "app", interestCounts, stepCounts, qualify, statuses, total: matching.length, ids: matching.slice(0, f.limit).map((c) => c.id), labels };
 }
 
+/** Every chat (Kanal + Name), with its label and its next action. "Zu tun" and its counts need all of them. */
+type ChatStates = { chats: ChatKey[]; labels: Map<string, InboxLabel>; views: Map<string, ConversationView> };
+
+async function chatStates(supabase: Db, f: Pick<IndexFilter, "channel" | "like">, now: number): Promise<ChatStates> {
+  const [chats, labelRows, factRows, followups] = await Promise.all([
+    allPages<ChatKey>((from, to) => {
+      let keys = supabase.from("messenger_conversations").select("id, updated_time").order("updated_time", { ascending: false }).order("id");
+      if (f.channel) keys = keys.eq("channel", f.channel);
+      if (f.like) keys = keys.ilike("customer_name", f.like);
+      return keys.range(from, to);
+    }),
+    allPages<InboxLabel>((from, to) => supabase.from("messenger_labels").select(LABEL_COLUMNS).order("conversation_id").range(from, to)),
+    allPages<FactRow>((from, to) => supabase.from("messenger_facts").select(FACT_COLUMNS).order("id").range(from, to)),
+    openFollowups(supabase),
+  ]);
+  const labels = new Map(labelRows.map((row) => [row.conversation_id, row]));
+  const facts = new Map(factRows.map((row) => [row.id, row]));
+  const views = new Map<string, ConversationView>();
+  for (const c of chats) {
+    const label = labels.get(c.id);
+    const fact = facts.get(c.id);
+    views.set(c.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(fact, fact?.last_from_page), now, followups.get(c.id) ?? null));
+  }
+  return { chats, labels, views };
+}
+
+/**
+ * "Zu tun": only chats with something to do now (action.today), counted like the full list.
+ * Most urgent first (action rank: Zahlung, Preis, Kurse, Antworten, Follow-ups), then whoever has waited longest.
+ */
+function indexTodo(states: ChatStates, f: IndexFilter): InboxIndex {
+  const { labels, views } = states;
+  const todo = states.chats.filter((c) => views.get(c.id)?.action.today);
+  const interestCounts = new Map<string, number>();
+  const stepCounts = new Map<string, number>();
+  let qualify = 0;
+  const statuses: Record<string, number> = {};
+  for (const c of todo) {
+    const label = labels.get(c.id);
+    const key = interestKey(label);
+    interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
+    const status = statusOf(label);
+    statuses[status] = (statuses[status] ?? 0) + 1;
+    if (key === NO_INTEREST && isOpen(label)) qualify++;
+    if (key === FUNNEL_INTEREST && inFunnelStep(status)) {
+      const step = stepKey(label);
+      stepCounts.set(step, (stepCounts.get(step) ?? 0) + 1);
+    }
+  }
+  const matching = todo
+    .filter((c) => {
+      const label = labels.get(c.id);
+      if ((STATUS_FILTERS as readonly string[]).includes(f.interest)) return statusOf(label) === f.interest;
+      if (f.interest === QUALIFY ? interestKey(label) !== NO_INTEREST || !isOpen(label) : f.interest && interestKey(label) !== f.interest) return false;
+      if (f.step && (!inFunnelStep(statusOf(label)) || stepKey(label) !== f.step)) return false;
+      return true;
+    })
+    .map((c) => ({ c, view: views.get(c.id)! }))
+    .sort((a, b) => a.view.action.rank - b.view.action.rank || (a.view.since ?? "9").localeCompare(b.view.since ?? "9") || b.c.updated_time.localeCompare(a.c.updated_time));
+  return { source: "app", interestCounts, stepCounts, qualify, statuses, total: matching.length, ids: matching.slice(0, f.limit).map((m) => m.c.id), labels };
+}
+
 type MenuOption = { id: string; de: string; vi: string; href: string; count?: number };
 
 /** A pill that opens a list of choices (plain <details>, so it works without JS). Shows the chosen value with × to clear it. */
@@ -260,6 +323,26 @@ function FilterMenu({ label, current, options, clearHref }: { label: { de: strin
   );
 }
 
+/** "Zu tun" is empty: nothing waits for us. With a search or filter, the chat may just have nothing to do: link to "Alle". */
+function TodoEmpty({ allHref, searching }: { allHref: string; searching: boolean }) {
+  return (
+    <li className="flex flex-col items-center gap-2 px-4 py-12 text-center">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E7F6EC] text-[#1E8E3E]">
+        <Icon name="tick" size={20} strokeWidth={2.6} />
+      </span>
+      <span className="text-[14px] font-medium text-ink">
+        {searching ? <Label de="Hier gibt es gerade nichts zu tun." vi="Ở đây hiện không có việc cần làm." /> : <Label de="Alles erledigt." vi="Đã xong hết." />}
+      </span>
+      <span className="max-w-[260px] text-[12.5px] text-muted">
+        <Label de="Neue Nachrichten und fällige Follow-ups erscheinen hier." vi="Tin nhắn mới và các lần nhắc lại đến hạn sẽ hiện ở đây." />
+      </span>
+      <Link href={allHref} scroll={false} data-filter="" className="mt-1 text-[12.5px] font-medium text-accent hover:underline">
+        <Label de="Alle Gespräche ansehen" vi="Xem tất cả cuộc trò chuyện" />
+      </Link>
+    </li>
+  );
+}
+
 /** Read-only copy of Messenger and WhatsApp Business chats, with the next action for each chat. */
 export default async function MessengerInboxPage({ searchParams }: { searchParams: Promise<Params> }) {
   const supabase = await createClient();
@@ -271,6 +354,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const interestFilter = sp.i === NO_INTEREST || sp.i === QUALIFY || (STATUS_FILTERS as readonly string[]).includes(sp.i ?? "") || (INTERESTS as readonly string[]).includes(sp.i ?? "") ? (sp.i as string) : "";
   const funnel = FUNNELS[interestFilter];
   const stepFilter = funnel && sp.s && Number(sp.s) >= 1 && Number(sp.s) <= funnel.length ? sp.s : "";
+  const tab = tabOf(sp.t);
   const limit = Math.min(LIST_MAX, Math.max(LIST_STEP, Math.ceil((Number(sp.n) || 0) / LIST_STEP) * LIST_STEP));
   const now = Date.now();
 
@@ -278,27 +362,27 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
 
   const funnelSteps = FUNNELS[FUNNEL_INTEREST]!;
   const filter: IndexFilter = { channel, like, interest: interestFilter, step: funnel ? stepFilter : "", steps: funnel ?? [], limit };
-  // Counted and picked in the database; the app-side way only runs until the migration is applied.
-  const index = (await indexFromDb(supabase, filter, funnelSteps)) ?? (await indexFromRows(supabase, filter, funnelSteps));
+  // Every chat's next action, for "Zu tun" and its count. "Alle" is counted and picked in the database
+  // (the app-side way only runs until that migration is applied).
+  const [states, dbIndex] = await Promise.all([
+    chatStates(supabase, filter, now),
+    tab === "alle" ? indexFromDb(supabase, filter, funnelSteps) : null,
+  ]);
+  const index = tab === "zu_tun" ? indexTodo(states, filter) : (dbIndex ?? (await indexFromRows(supabase, filter, funnelSteps)));
   const { interestCounts, stepCounts, qualify, statuses, total, ids: shownIds } = index;
+  let todoCount = 0;
+  for (const view of states.views.values()) if (view.action.today) todoCount++;
+  const allCount = states.chats.length;
 
-  // Full rows (newest message, label, facts) only for the chats that are shown.
-  const [inboxRows, factRows, labelRows, classesById] = await Promise.all([
+  // Full rows (newest message) and classes only for the chats that are shown.
+  const [inboxRows, classesById] = await Promise.all([
     inChunks<InboxDbRow>(shownIds, (slice) => supabase.from("messenger_inbox").select("*").in("id", slice)),
-    inChunks<FactRow>(shownIds, (slice) => supabase.from("messenger_facts").select(FACT_COLUMNS).in("id", slice)),
-    index.labels ? [] : inChunks<InboxLabel>(shownIds, (slice) => supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", slice)),
     assignedClasses(supabase, shownIds),
   ]);
-  const labelById = index.labels ?? new Map(labelRows.map((row) => [row.conversation_id, row]));
+  const labelById = states.labels;
   const inboxById = new Map(inboxRows.map((row) => [row.id, row]));
   const conversations = shownIds.map((id) => inboxById.get(id)).filter((row): row is InboxDbRow => !!row);
-
-  const factById = new Map(factRows.map((row) => [row.id, row]));
-  const viewById = new Map<string, ConversationView>();
-  for (const row of conversations) {
-    const label = labelById.get(row.id);
-    viewById.set(row.id, conversationView(label ? toActionLabel(label) : undefined, toTiming(factById.get(row.id), row.last_from_page), now));
-  }
+  const viewById = states.views;
 
   const schuelerKey = String(funnelSteps.indexOf("schueler") + 1);
   const schuelerOn = interestFilter === FUNNEL_INTEREST && stepFilter === schuelerKey;
@@ -306,7 +390,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
   const statusOn = STATUSES.find((s) => s.id === statusId);
 
   const href = (patch: Partial<Params>) => {
-    const next = { ch: channel, i: interestFilter, s: stepFilter, q, ...patch };
+    const next = { t: tab === "alle" ? "alle" : "", ch: channel, i: interestFilter, s: stepFilter, q, ...patch };
     const qs = new URLSearchParams(Object.entries(next).filter(([, v]) => v) as [string, string][]);
     return `/admin/messenger${qs.size ? `?${qs}` : ""}`;
   };
@@ -327,9 +411,33 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
               </h1>
               <SyncBadge at={version.syncAt} error={version.syncError} now={now} />
             </div>
+            {/* What needs doing now (the default) or every chat. Filters and steps stay when switching. */}
+            <nav aria-label="Liste" className="flex h-8 items-center rounded-full bg-[#F0F2F5] p-0.5">
+              {(
+                [
+                  { id: "zu_tun", de: "Zu tun", vi: "Cần làm", count: <TodoCount count={todoCount} />, href: href({ t: "", c: "" }) },
+                  { id: "alle", de: "Alle", vi: "Tất cả", count: allCount, href: href({ t: "alle", c: "" }) },
+                ] as const
+              ).map((o) => (
+                <Link
+                  key={o.id}
+                  href={o.href}
+                  scroll={false}
+                  data-filter=""
+                  aria-current={tab === o.id ? "page" : undefined}
+                  className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors duration-150 ${
+                    tab === o.id ? "bg-white text-ink shadow-[0_1px_2px_rgba(0,0,0,0.12)]" : "text-muted hover:text-ink"
+                  }`}
+                >
+                  <Label de={o.de} vi={o.vi} />
+                  <span className={`tabular-nums text-[12px] ${tab === o.id && o.id === "zu_tun" ? "font-semibold text-accent-dark" : "text-faint"}`}>{o.count}</span>
+                </Link>
+              ))}
+            </nav>
             <div className="ml-auto flex flex-wrap items-center gap-2 max-md:ml-0 max-md:w-full">
               <form action="/admin/messenger" data-inbox-search="" className="relative flex max-md:w-full">
                 <Icon name="search" size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+                {tab === "alle" && <input type="hidden" name="t" value="alle" />}
                 {channel && <input type="hidden" name="ch" value={channel} />}
                 {interestFilter && <input type="hidden" name="i" value={interestFilter} />}
                 {stepFilter && <input type="hidden" name="s" value={stepFilter} />}
@@ -455,15 +563,18 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
           {/* While a filter loads, the old list stays and dims under a thin progress line; the new one fades in. */}
           <div aria-hidden="true" className="load-bar invisible h-0.5 flex-none group-data-[busy=true]/shell:visible" />
           <ul
-            key={`${channel}|${interestFilter}|${stepFilter}|${q}`}
+            key={`${tab}|${channel}|${interestFilter}|${stepFilter}|${q}`}
             className="anim-fade m-0 min-h-0 flex-1 list-none overflow-y-auto p-1.5 transition-opacity duration-200 group-data-[busy=true]/shell:pointer-events-none group-data-[busy=true]/shell:opacity-40"
           >
-            {conversations.length === 0 && (
-              <li className="px-3 py-8 text-center text-[13px] text-muted">
-                <Label de="Keine Gespräche gefunden." vi="Không tìm thấy cuộc trò chuyện." />
-              </li>
-            )}
-            <InboxEmpty shown={conversations.length} listedIds={conversations.map((c) => c.id)} />
+            {conversations.length === 0 &&
+              (tab === "zu_tun" ? (
+                <TodoEmpty allHref={href({ t: "alle", c: "" })} searching={!!q || !!channel || !!interestFilter} />
+              ) : (
+                <li className="px-3 py-8 text-center text-[13px] text-muted">
+                  <Label de="Keine Gespräche gefunden." vi="Không tìm thấy cuộc trò chuyện." />
+                </li>
+              ))}
+            <InboxEmpty shown={conversations.length} listedIds={conversations.map((c) => c.id)} empty={tab === "zu_tun" ? <TodoEmpty allHref={href({ t: "alle", c: "" })} searching={!!q || !!channel || !!interestFilter} /> : undefined} />
             {conversations.map((c) => {
               const label = labelById.get(c.id);
               return (
@@ -482,7 +593,7 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                     chips: labelChips(label),
                     view: viewById.get(c.id) ?? null,
                     classes: classesById.get(c.id) ?? [],
-                    place: inboxPlace(label),
+                    place: inboxPlace(label, !!viewById.get(c.id)?.action.today),
                   }}
                 />
               );

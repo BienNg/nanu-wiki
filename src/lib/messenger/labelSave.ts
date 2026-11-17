@@ -11,7 +11,7 @@ export type SavedLabel = {
   view: ConversationView;
   step: Step | null;
   /** The stored label, so the open chat shows what was saved, including a step worked out from the fields. */
-  label: InboxLabel;
+  label: InboxLabel | null;
   /** Where the chat sat in the inbox before this save (the first save keeps this). */
   prev: InboxPlace;
   next: InboxPlace;

@@ -7,10 +7,14 @@ import { conversationView, PIN_FIELDS, type PinField } from "@/lib/messenger/nex
 import { inboxPlace, labelChips } from "@/lib/messenger/inboxPlace";
 import type { LabelSaveResult } from "@/lib/messenger/labelSave";
 import { FUNNEL_INTEREST, isStep, stepFor, stepOf } from "@/lib/messenger/steps";
-import { FACT_COLUMNS, toActionLabel, toTiming, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
+import { chatFollowups, isDay, NOTE_MAX, type Followup } from "@/lib/messenger/followups";
+import type { SavedLabel } from "@/lib/messenger/labelSave";
+import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type ChatFollowups, type FactRow, type InboxLabel } from "@/lib/messenger/thread";
 import { levelOf, placeOf, type LossReason, type Outcome, type StoredLabel } from "@/lib/messenger/types";
 import { inboxVersion } from "@/lib/messenger/version";
 import { createClient } from "@/lib/supabase/server";
+
+type Db = Awaited<ReturnType<typeof createClient>>;
 
 const JUDGMENTS = ["auto", "kein_lead", "bestandskunde", "weiter_auf_zalo", "verloren"] as const;
 type Judgment = (typeof JUDGMENTS)[number];
@@ -61,17 +65,13 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   let resume: string | null = null;
   if (judgment === "verloren") {
     const reason = field(formData, "loss_reason");
-    if (!isLossReason(reason)) return { error: "Grund fehlt." };
+    // "Später" is a follow-up now (a date and a note on an open chat), not a reason to lose someone.
+    if (!isLossReason(reason) || reason === "spaeter") return { error: "Grund fehlt." };
     loss = reason;
-    if (reason === "spaeter") {
-      const date = field(formData, "resume_on");
-      if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: "Datum ungültig." };
-      resume = date || null;
-    }
   }
 
   const supabase = await createClient();
-  const [{ data: conv, error: convErr }, { data: existing, error: labelErr }, { data: fact, error: factErr }] = await Promise.all([
+  const [{ data: conv, error: convErr }, { data: existing, error: labelErr }, { data: fact, error: factErr }, followups] = await Promise.all([
     supabase.from("messenger_conversations").select("id").eq("id", id).maybeSingle(),
     supabase
       .from("messenger_labels")
@@ -79,6 +79,7 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
       .eq("conversation_id", id)
       .maybeSingle(),
     supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
+    chatFollowups(supabase, id),
   ]);
   if (convErr || labelErr || factErr) return { error: (convErr ?? labelErr ?? factErr)!.message };
   if (!conv) return { error: "Gespräch nicht gefunden." };
@@ -223,18 +224,108 @@ export async function saveMessengerLabel(_prev: LabelSaveResult | null, formData
   if (error) return { error: error.message };
 
   const factRow = (fact as FactRow | null) ?? undefined;
+  const timing = toTiming(factRow, factRow?.last_from_page);
+  const now = Date.now();
+  const before = conversationView(row ? { ...row, resume_on: row.resume_on ?? null } : undefined, timing, now, followups.open);
+  const view = conversationView(toActionLabel(savedRow), timing, now, followups.open);
   const version = await inboxVersion(supabase, id);
   return {
     saved: {
       conversationId: id,
       chips: labelChips(savedRow),
-      view: conversationView(toActionLabel(savedRow), toTiming(factRow, factRow?.last_from_page)),
+      view,
       step: stepOf(savedRow),
       label: savedRow,
-      prev: inboxPlace(row),
-      next: inboxPlace(savedRow),
+      prev: inboxPlace(row, before.action.today),
+      next: inboxPlace(savedRow, view.action.today),
       inbox: version.inbox,
       thread: version.thread,
     },
   };
+}
+
+export type FollowupResult = { error?: string; saved?: SavedLabel; followups?: ChatFollowups };
+
+function who(session: Awaited<ReturnType<typeof requireRole>>) {
+  return (session.profile.full_name || session.profile.email || "Admin").slice(0, 120);
+}
+
+/** The chat as the list and the open chat show it, with its follow-ups. `prevOpen` is the open follow-up before the change. */
+async function followupPatch(supabase: Db, id: string, prevOpen: Followup | null): Promise<FollowupResult> {
+  const [{ data: label, error: labelErr }, { data: fact, error: factErr }, followups] = await Promise.all([
+    supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", id).maybeSingle(),
+    supabase.from("messenger_facts").select(FACT_COLUMNS).eq("id", id).maybeSingle(),
+    chatFollowups(supabase, id),
+  ]);
+  if (labelErr || factErr) return { error: (labelErr ?? factErr)!.message };
+  const row = (label as InboxLabel | null) ?? null;
+  const factRow = (fact as FactRow | null) ?? undefined;
+  const timing = toTiming(factRow, factRow?.last_from_page);
+  const now = Date.now();
+  const action = row ? toActionLabel(row) : undefined;
+  const before = conversationView(action, timing, now, prevOpen);
+  const view = conversationView(action, timing, now, followups.open);
+  const version = await inboxVersion(supabase, id);
+  return {
+    followups,
+    saved: {
+      conversationId: id,
+      chips: labelChips(row),
+      view,
+      step: stepOf(row),
+      label: row,
+      prev: inboxPlace(row, before.action.today),
+      next: inboxPlace(row, view.action.today),
+      inbox: version.inbox,
+      thread: version.thread,
+    },
+  };
+}
+
+/**
+ * Sets the chat's follow-up: a Vietnam date and an optional note. With one open, this moves it
+ * (new date and note); otherwise a new one starts. Only one is ever open per chat.
+ */
+export async function setFollowup(input: { conversationId: string; dueOn: string; note: string }): Promise<FollowupResult> {
+  const session = await requireRole("admin");
+  const id = String(input.conversationId ?? "").slice(0, 200);
+  const dueOn = String(input.dueOn ?? "");
+  const note = String(input.note ?? "").trim().slice(0, NOTE_MAX) || null;
+  if (!id) return { error: "Gespräch fehlt." };
+  if (!isDay(dueOn)) return { error: "Datum ungültig." };
+  const supabase = await createClient();
+  const [{ data: conv, error: convErr }, current] = await Promise.all([
+    supabase.from("messenger_conversations").select("id").eq("id", id).maybeSingle(),
+    chatFollowups(supabase, id),
+  ]);
+  if (convErr) return { error: convErr.message };
+  if (!conv) return { error: "Gespräch nicht gefunden." };
+  const now = new Date().toISOString();
+  const write = current.open
+    ? supabase.from("messenger_followups").update({ due_on: dueOn, note, updated_at: now }).eq("id", current.open.id).is("done_at", null)
+    : supabase.from("messenger_followups").insert({ conversation_id: id, due_on: dueOn, note, created_by: session.user.id, created_by_name: who(session) });
+  const { error } = await write;
+  // A colleague started one a moment ago (one open per chat): the list shows theirs.
+  if (error) return { error: error.code === "23505" ? "Ein Kollege hat gerade einen Follow-up angelegt. Bitte neu laden." : error.message };
+  return followupPatch(supabase, id, current.open);
+}
+
+/** "Erledigt": closes the open follow-up. It stays in the chat's history. */
+export async function closeFollowup(input: { conversationId: string; id: string }): Promise<FollowupResult> {
+  const session = await requireRole("admin");
+  const conversationId = String(input.conversationId ?? "").slice(0, 200);
+  const followupId = String(input.id ?? "").slice(0, 60);
+  if (!conversationId || !followupId) return { error: "Follow-up fehlt." };
+  const supabase = await createClient();
+  const current = await chatFollowups(supabase, conversationId);
+  if (current.open?.id === followupId) {
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("messenger_followups")
+      .update({ done_at: now, done_by: session.user.id, done_by_name: who(session), updated_at: now })
+      .eq("id", followupId)
+      .is("done_at", null);
+    if (error) return { error: error.message };
+  }
+  return followupPatch(supabase, conversationId, current.open);
 }
