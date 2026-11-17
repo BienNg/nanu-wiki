@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { INTERESTS } from "@/lib/assistant/schema";
 import { saveMessengerLabel } from "@/app/(app)/admin/messenger/actions";
@@ -201,17 +201,32 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     if (afterFlight.current) {
       const latest = afterFlight.current;
       afterFlight.current = null;
-      void saveMessengerLabel(null, latest).then((again) => {
-        if (again.saved) publishLabelSave(again.saved, true);
-        setLabelEditing(conversationId, false);
-        setLabelSaving(conversationId, false);
-      });
+      sendClosed(latest);
+      return;
+    }
+    // The form closed while this write was on the way and nothing else waits: the save is over.
+    if (!mounted.current) {
+      setLabelSaving(conversationId, false);
       return;
     }
     if (pending.current) {
       pending.current = false;
       if (!wait.current) void flush();
     }
+  };
+
+  /** Send a change the form still had when it closed (another chat was opened). The spinner stays until the server answers. */
+  const sendClosed = (data: FormData) => {
+    void saveMessengerLabel(null, data)
+      .then((result) => {
+        if (result.saved) publishLabelSave(result.saved, true);
+        else if (result.error) console.error("Label save failed", result.error);
+      })
+      .catch((err) => console.error("Label save failed", err))
+      .finally(() => {
+        setLabelEditing(conversationId, false);
+        setLabelSaving(conversationId, false);
+      });
   };
 
   // A new field resets the wait, so Interesse + Niveau + Ort become one write.
@@ -228,30 +243,26 @@ function LabelEditorForm({ conversationId, stage, interest, level, place, judgme
     }, SAVE_PAUSE_MS);
   };
 
-  useEffect(() => {
+  // A layout cleanup, not useEffect: React clears `form.current` (and removes the Status/Stufe portals) before
+  // useEffect cleanups run, so reading the form there found nothing and the waiting change was dropped.
+  useLayoutEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
       setLabelEditing(conversationId, false);
-      if (!wait.current || !form.current) {
-        if (!flight.current) setLabelSaving(conversationId, false);
-        return;
-      }
-      window.clearTimeout(wait.current);
+      // A change is waiting for the pause, or for the write on the way to finish.
+      const waiting = !!wait.current || pending.current;
+      if (wait.current) window.clearTimeout(wait.current);
       wait.current = undefined;
-      const data = readForm();
-      if (!differs(data)) {
+      pending.current = false;
+      const data = waiting && form.current ? readForm() : null;
+      // While a write is on the way the base is older than what is stored, so the waiting change is always sent.
+      if (!data || (!flight.current && !differs(data))) {
         if (!flight.current) setLabelSaving(conversationId, false);
         return;
       }
-      const send = () => {
-        void saveMessengerLabel(null, data).then((result) => {
-          if (result.saved) publishLabelSave(result.saved);
-          setLabelSaving(conversationId, false);
-        });
-      };
       if (flight.current) afterFlight.current = data;
-      else send();
+      else sendClosed(data);
     };
     // The form closes: send whatever is still waiting. `differs` reads the base from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
