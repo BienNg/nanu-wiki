@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 
 const TZ = "Asia/Ho_Chi_Minh";
 const dayFmt = new Intl.DateTimeFormat("de-DE", { timeZone: TZ, day: "2-digit", month: "2-digit", year: "2-digit" });
+const replyFmt = new Intl.DateTimeFormat("de-DE", { timeZone: TZ, day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 type ConversationRow = { id: string; customer_name: string | null; updated_time: string; channel: string | null };
 
@@ -73,17 +74,22 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
     const assignments = new Map((byClass.get(selected.id) ?? []).map((a) => [a.id, a]));
     const ids = [...assignments.keys()];
     if (ids.length) {
-      const [{ data: convs, error: convErr }, { data: labels, error: labelErr }] = await Promise.all([
+      const [{ data: convs, error: convErr }, { data: labels, error: labelErr }, { data: facts, error: factErr }] = await Promise.all([
         supabase.from("messenger_conversations").select("id, customer_name, updated_time, channel").in("id", ids),
         supabase.from("messenger_labels").select(LABEL_COLUMNS).in("conversation_id", ids),
+        supabase.from("messenger_facts").select("id, last_customer_at").in("id", ids),
       ]);
-      if (convErr || labelErr) throw new Error(convErr?.message ?? labelErr?.message);
+      if (convErr || labelErr || factErr) throw new Error(convErr?.message ?? labelErr?.message ?? factErr?.message);
       const labelById = new Map((labels ?? []).map((l) => [l.conversation_id, l as InboxLabel]));
+      const lastCustomerAt = new Map((facts ?? []).map((f) => [f.id as string, f.last_customer_at as string | null]));
       prospects = ((convs ?? []) as ConversationRow[])
         .sort((a, b) => (a.updated_time < b.updated_time ? 1 : -1))
         .map((conv) => {
           const chip = stateChip(labelById.get(conv.id) ?? null);
           const a = assignments.get(conv.id);
+          // A reply counts when the lead wrote after the offer was marked Geschickt.
+          const last = lastCustomerAt.get(conv.id) ?? null;
+          const replied = a?.offer === "geschickt" && !!a.offerAt && !!last && new Date(last) > new Date(a.offerAt);
           return {
             id: conv.id,
             name: conv.customer_name ?? "Unbekannt",
@@ -94,6 +100,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
             time: dayFmt.format(new Date(conv.updated_time)),
             offer: a?.offer ?? "offen",
             offerAt: a?.offerAt ? dayFmt.format(new Date(a.offerAt)) : null,
+            repliedAt: replied && last ? replyFmt.format(new Date(last)).replace(",", "") : null,
           };
         });
     }

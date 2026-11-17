@@ -199,7 +199,11 @@ export type ProspectItem = {
   /** Special-offer status for this class, and the day it was set (dd.mm.yy, null while Offen). */
   offer: OfferState;
   offerAt: string | null;
+  /** When the lead last wrote, if that was after the offer was marked Geschickt (dd.mm. hh:mm); else null. */
+  repliedAt: string | null;
 };
+
+type ReplyFilter = "alle" | "ja" | "nein";
 
 const TONE: Record<ProspectTone, string> = {
   open: "bg-[#FDF1E2] text-[#94560F]",
@@ -275,6 +279,7 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
   // Status changes made here, shown at once; the server copy catches up after router.refresh().
   const [overrides, setOverrides] = useState<ReadonlyMap<string, OfferState>>(new Map());
   const [busy, setBusy] = useState<ReadonlySet<string>>(new Set());
+  const [replyFilter, setReplyFilter] = useState<ReplyFilter>("alle");
 
   if (!c) {
     return (
@@ -289,7 +294,11 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
 
   const offerOf = (it: ProspectItem) => overrides.get(it.id) ?? it.offer;
   const counts = Object.fromEntries(OFFER_STATES.map((s) => [s, items.filter((it) => offerOf(it) === s).length])) as Record<OfferState, number>;
-  const shown = items.filter((it) => offerOf(it) === tab);
+  const inTab = items.filter((it) => offerOf(it) === tab);
+  // Under Geschickt: who wrote back after the offer. A row moved to Geschickt here counts once the page refreshes.
+  const hasReplied = (it: ProspectItem) => offerOf(it) === it.offer && !!it.repliedAt;
+  const replied = tab === "geschickt" ? inTab.filter(hasReplied).length : 0;
+  const shown = tab !== "geschickt" || replyFilter === "alle" ? inTab : inTab.filter((it) => hasReplied(it) === (replyFilter === "ja"));
   const openItem = openId ? (items.find((it) => it.id === openId) ?? null) : null;
 
   // `undoOf`: this call undoes a change to that status. The toast holds an old closure, so the status before is passed in, not read.
@@ -371,6 +380,50 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
           <Label de={`${items.length} Interessenten`} vi={`${items.length} khách quan tâm`} />
         </span>
       </div>
+      {tab === "geschickt" && inTab.length > 0 && (
+        <div className="flex flex-none flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-white px-5 py-3">
+          <div className="flex min-w-0 items-center gap-3" {...tip("Hat nach dem Klick auf „Geschickt“ geschrieben", "Đã nhắn lại sau khi bấm „Đã gửi“")}>
+            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#E6EEFB] text-[#2558A3]">
+              <Icon name="chat" size={17} />
+            </span>
+            <div className="flex min-w-0 flex-col gap-1">
+              <span className="flex items-baseline gap-1.5 leading-none">
+                <span className="text-[20px] font-semibold text-ink">{replied}</span>
+                <span className="text-[13px] text-muted">/ {inTab.length}</span>
+                <span className="ml-1 text-[12.5px] font-medium text-[#3A3F47]">
+                  <Label de="haben geantwortet" vi="đã trả lời" />
+                </span>
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-[140px] overflow-hidden rounded-full bg-[#E6E8EC]">
+                  <span className="block h-full rounded-full bg-[#2C6ECB] transition-[width]" style={{ width: `${(replied / inTab.length) * 100}%` }} />
+                </span>
+                <span className="text-[11.5px] font-semibold text-[#2558A3]">{Math.round((replied / inTab.length) * 100)}%</span>
+              </span>
+            </div>
+          </div>
+          <div role="radiogroup" className="ml-auto flex items-center rounded-full bg-[#F1F2F4] p-0.5">
+            {(
+              [
+                ["alle", "Alle", "Tất cả", inTab.length],
+                ["ja", "Geantwortet", "Đã trả lời", replied],
+                ["nein", "Keine Antwort", "Chưa trả lời", inTab.length - replied],
+              ] as const
+            ).map(([key, de, vi, n]) => (
+              <button
+                key={key}
+                type="button"
+                role="radio"
+                aria-checked={replyFilter === key}
+                onClick={() => setReplyFilter(key)}
+                className={`h-7 rounded-full px-2.5 text-[12px] font-medium transition-colors ${replyFilter === key ? "bg-white text-ink shadow-[0_1px_2px_rgba(16,24,40,0.12)]" : "text-muted hover:text-ink"}`}
+              >
+                <Label de={de} vi={vi} /> <span className="text-faint">{n}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {items.length === 0 ? (
         <div className="p-4">
           <EmptyCard
@@ -380,6 +433,10 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
             hint={<Label de="Im Posteingang im Kurse-Panel eines Chats diese Klasse mit (+) zuordnen." vi="Trong hộp thư, mở bảng Lớp học của một cuộc trò chuyện và bấm (+) để gán lớp này." />}
           />
         </div>
+      ) : shown.length === 0 && inTab.length > 0 ? (
+        <p className="m-0 px-5 py-6 text-center text-[12.5px] text-muted">
+          {replyFilter === "ja" ? <Label de="Noch niemand hat nach dem Angebot geantwortet." vi="Chưa ai trả lời sau ưu đãi." /> : <Label de="Alle haben geantwortet." vi="Tất cả đã trả lời." />}
+        </p>
       ) : shown.length === 0 ? (
         <div className="p-4">
           <EmptyCard tone={empty.tone} icon={empty.icon} title={<Label de={empty.de} vi={empty.vi} />} hint={<Label de={empty.hintDe} vi={empty.hintVi} />} />
@@ -433,11 +490,34 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
                   </span>
                 ) : (
                   <span className="flex flex-none items-center gap-2">
-                    <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${tab === "geschickt" ? "text-[#1B6E5D]" : "text-muted"}`}>
-                      {tab === "geschickt" && <Icon name="check" size={12} strokeWidth={2.6} />}
-                      <Label de={OFFER_INFO[tab].de} vi={OFFER_INFO[tab].vi} />
-                      {at && <span className="font-normal text-faint">· {at}</span>}
-                    </span>
+                    {tab === "geschickt" ? (
+                      <>
+                        <span className="flex w-[150px] justify-end">
+                          {hasReplied(item) ? (
+                            <span {...tip("Hat nach dem Angebot geschrieben", "Đã nhắn lại sau ưu đãi")}>
+                              <Chip className="gap-1 bg-[#E6EEFB] text-[#2558A3]">
+                                <Icon name="chat" size={11} strokeWidth={2.4} />
+                                <Label de="Antwort" vi="Trả lời" />
+                                <span className="font-medium opacity-80">{item.repliedAt}</span>
+                              </Chip>
+                            </span>
+                          ) : (
+                            <span {...tip("Noch keine Antwort nach dem Angebot", "Chưa trả lời sau ưu đãi")} className="text-[12px] text-faint">
+                              <Label de="Keine Antwort" vi="Chưa trả lời" />
+                            </span>
+                          )}
+                        </span>
+                        <span {...tip("Angebot geschickt am", "Ngày gửi ưu đãi")} className="inline-flex w-[78px] items-center gap-1 text-[12px] font-medium text-[#1B6E5D]">
+                          <Icon name="check" size={12} strokeWidth={2.6} />
+                          {at ?? <Label de="Geschickt" vi="Đã gửi" />}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[12px] font-medium text-muted">
+                        <Label de={OFFER_INFO[tab].de} vi={OFFER_INFO[tab].vi} />
+                        {at && <span className="font-normal text-faint">· {at}</span>}
+                      </span>
+                    )}
                     <button
                       type="button"
                       disabled={isBusy}
