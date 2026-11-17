@@ -4,13 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Label, tip } from "@/components/Bi";
 import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
-import { Chip, ClassWhen, Fact, SectionHead } from "@/components/admin/classParts";
+import { Chip, ClassWhen, Fact, OfferSwitch, saveOffer, SectionHead } from "@/components/admin/classParts";
 import { Icon } from "@/components/Icon";
+import { toast } from "@/components/Toaster";
 import { MODE_SHORT } from "@/lib/classes";
 import { setRowClasses } from "@/components/admin/classPatch";
-import { classCode, isLevelStart, matchScore,MODE_TONE, rankClasses, rowClass, sortByLevel, type AssignableClass } from "@/lib/messenger/classes";
+import { classCode, isLevelStart, matchScore, MODE_TONE, rankClasses, rowClass, sortByLevel, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
 
-type Data = { classes: AssignableClass[]; assigned: string[] };
+/** `offers`: the special-offer status per assigned class id (missing means Offen). */
+type Data = { classes: AssignableClass[]; assigned: string[]; offers: Record<string, OfferState> };
 type State = ({ id: string } & Data) | { id: string; error: true } | null;
 
 /** Chats whose classes were loaded in this tab; going back shows them at once. */
@@ -24,7 +26,7 @@ function publishRow(conversationId: string, data: Data) {
     conversationId,
     data.assigned.flatMap((k) => {
       const c = byId.get(k);
-      return c ? [rowClass(c)] : [];
+      return c ? [rowClass(c, data.offers[k] ?? "offen")] : [];
     }),
   );
 }
@@ -45,19 +47,25 @@ function matchesQuery(c: AssignableClass, q: string) {
     .every((part) => hay.includes(part));
 }
 
-/** One class as a card: code, level and place first, then start, time and seats. A click opens the class info; the round button adds or removes it. */
+/**
+ * One class as a card: code, level and place first, then start, time and seats. A click opens the
+ * class info; the round button adds or removes it. An assigned class also shows the special-offer
+ * switch (Offen / Geschickt / Übersprungen) for this chat.
+ */
 function ClassCard({
   c,
   busy,
   assigned,
   onAction,
   onInfo,
+  offer,
 }: {
   c: AssignableClass;
   busy: boolean;
   assigned: boolean;
   onAction: () => void;
   onInfo: () => void;
+  offer?: { value: OfferState; busy: boolean; onChange: (next: OfferState) => void };
 }) {
   const code = classCode(c.name);
   return (
@@ -98,6 +106,11 @@ function ClassCard({
           </span>
         )}
       </button>
+      {offer && (
+        <div {...tip("Sonderangebot vor dem Kursstart", "Ưu đãi trước khi khai giảng")} className="border-t border-accent/15 px-3 py-2">
+          <OfferSwitch size="sm" full value={offer.value} busy={offer.busy} onChange={offer.onChange} />
+        </div>
+      )}
       <button
         type="button"
         disabled={busy}
@@ -155,7 +168,8 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     setState(cached ? { id: conversationId, ...cached } : null);
     fetch(`/api/messenger/classes?c=${encodeURIComponent(conversationId)}`, { signal: ctrl.signal, cache: "no-store" })
       .then((r) => (r.ok ? (r.json() as Promise<Data>) : Promise.reject(r.status)))
-      .then((data) => {
+      .then((res) => {
+        const data: Data = { ...res, offers: res.offers ?? {} };
         if (flight.current !== ctrl) return;
         recent.set(conversationId, data);
         publishRow(conversationId, data);
@@ -172,7 +186,10 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     if (!state || "error" in state) return;
     const before = state.assigned;
     const assigned = remove ? before.filter((k) => k !== classId) : [...before, classId];
-    const next = { classes: state.classes, assigned };
+    // A removed assignment loses its offer status; assigning again starts at Offen.
+    const offers = { ...state.offers };
+    if (remove) delete offers[classId];
+    const next = { classes: state.classes, assigned, offers };
     recent.set(conversationId, next);
     publishRow(conversationId, next);
     animated(() => setState({ id: conversationId, ...next }));
@@ -184,10 +201,31 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
     })
       .then((r) => (r.ok ? null : Promise.reject(r.status)))
       .catch(() => {
-        const rolled = { classes: next.classes, assigned: before };
+        const rolled = { classes: next.classes, assigned: before, offers: state.offers };
         recent.set(conversationId, rolled);
         publishRow(conversationId, rolled);
         animated(() => setState((s) => (s && !("error" in s) && s.id === conversationId ? { id: conversationId, ...rolled } : s)));
+      })
+      .finally(() => setBusy((b) => (b === classId ? null : b)));
+  };
+
+  /** Sets the special-offer status of this chat on an assigned class; shown at once, rolled back if saving fails. */
+  const setOffer = (classId: string, offer: OfferState) => {
+    if (!state || "error" in state) return;
+    const apply = (value: OfferState) => {
+      const cur = recent.get(conversationId) ?? { classes: state.classes, assigned: state.assigned, offers: state.offers };
+      const data = { ...cur, offers: { ...cur.offers, [classId]: value } };
+      recent.set(conversationId, data);
+      publishRow(conversationId, data);
+      setState((s) => (s && !("error" in s) && s.id === conversationId ? { id: conversationId, ...data } : s));
+    };
+    const before = state.offers[classId] ?? "offen";
+    apply(offer);
+    setBusy(classId);
+    saveOffer(conversationId, classId, offer)
+      .catch(() => {
+        apply(before);
+        toast("Speichern fehlgeschlagen · Lưu không thành công");
       })
       .finally(() => setBusy((b) => (b === classId ? null : b)));
   };
@@ -221,7 +259,15 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
   const best = canSuggest ? suggestions.filter(isBest) : [];
   const rest = sortByLevel(canSuggest ? suggestions.filter((c) => !isBest(c)) : suggestions);
   const card = (c: AssignableClass, assigned: boolean) => (
-    <ClassCard key={c.id} c={c} assigned={assigned} busy={busy === c.id} onAction={() => save(c.id, assigned)} onInfo={() => setInfo(c)} />
+    <ClassCard
+      key={c.id}
+      c={c}
+      assigned={assigned}
+      busy={busy === c.id}
+      onAction={() => save(c.id, assigned)}
+      onInfo={() => setInfo(c)}
+      offer={assigned && ready ? { value: ready.offers[c.id] ?? "offen", busy: busy === c.id, onChange: (next) => setOffer(c.id, next) } : undefined}
+    />
   );
 
   return (

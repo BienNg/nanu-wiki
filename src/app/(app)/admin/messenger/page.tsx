@@ -17,7 +17,7 @@ import { FACT_COLUMNS, LABEL_COLUMNS, toActionLabel, toTiming, type FactRow, typ
 import { INTERESTS } from "@/lib/assistant/schema";
 import { FUNNEL_INTEREST, STEPS, STEP_INFO, type Step } from "@/lib/messenger/steps";
 import { inboxVersion } from "@/lib/messenger/version";
-import { rowClass, type RowClass } from "@/lib/messenger/classes";
+import { isOfferState, rowClass, type RowClass } from "@/lib/messenger/classes";
 import { assignableClasses } from "@/lib/notion";
 
 export const metadata = { title: "Messenger" };
@@ -95,8 +95,8 @@ async function assignedClasses(supabase: Db, ids: string[]): Promise<Map<string,
   const byChat = new Map<string, RowClass[]>();
   try {
     const [rows, pool] = await Promise.all([
-      inChunks<{ conversation_id: string; class_id: string; created_at: string }>(ids, (slice) =>
-        supabase.from("messenger_class_assignments").select("conversation_id, class_id, created_at").in("conversation_id", slice).order("created_at"),
+      inChunks<{ conversation_id: string; class_id: string; created_at: string; offer_status: string }>(ids, (slice) =>
+        supabase.from("messenger_class_assignments").select("conversation_id, class_id, created_at, offer_status").in("conversation_id", slice).order("created_at"),
       ),
       assignableClasses(),
     ]);
@@ -105,7 +105,7 @@ async function assignedClasses(supabase: Db, ids: string[]): Promise<Map<string,
       const c = classById.get(row.class_id);
       if (!c) continue;
       const list = byChat.get(row.conversation_id) ?? [];
-      list.push(rowClass(c));
+      list.push(rowClass(c, isOfferState(row.offer_status) ? row.offer_status : "offen"));
       byChat.set(row.conversation_id, list);
     }
   } catch (err) {

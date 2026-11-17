@@ -4,11 +4,16 @@ import { useEffect, useRef, useState } from "react";
 
 const DEFAULT_MESSAGE = "Noch nicht verfügbar · Chưa có nội dung";
 const SHOW_MS = 2600;
+/** A toast with a button (e.g. "Rückgängig") stays longer, so there is time to click it. */
+const ACTION_MS = 6000;
 const EVENT = "nanu:toast";
 
-/** Shows a short message at the bottom of the screen, from any client component. */
-export function toast(text: string) {
-  window.dispatchEvent(new CustomEvent(EVENT, { detail: text }));
+export type ToastAction = { label: string; onClick: () => void };
+type ToastDetail = { text: string; action?: ToastAction };
+
+/** Shows a short message at the bottom of the screen, from any client component; `action` adds a button to it. */
+export function toast(text: string, action?: ToastAction) {
+  window.dispatchEvent(new CustomEvent<ToastDetail>(EVENT, { detail: { text, action } }));
 }
 
 /**
@@ -16,14 +21,14 @@ export function toast(text: string) {
  * app-wide and shows a short toast instead of doing nothing. A link can set its own text with `data-toast="…"`.
  */
 export function Toaster() {
-  const [toast, setToast] = useState<{ id: number; text: string } | null>(null);
+  const [toast, setToast] = useState<({ id: number } & ToastDetail) | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    function show(text: string) {
+    function show(text: string, action?: ToastAction) {
       clearTimeout(timer.current);
-      setToast({ id: Date.now(), text });
-      timer.current = setTimeout(() => setToast(null), SHOW_MS);
+      setToast({ id: Date.now(), text, action });
+      timer.current = setTimeout(() => setToast(null), action ? ACTION_MS : SHOW_MS);
     }
     function onClick(e: MouseEvent) {
       const a = (e.target as Element | null)?.closest?.('a[href="#"]');
@@ -32,7 +37,8 @@ export function Toaster() {
       show(a.dataset.toast || DEFAULT_MESSAGE);
     }
     function onToast(e: Event) {
-      show((e as CustomEvent<string>).detail);
+      const { text, action } = (e as CustomEvent<ToastDetail>).detail;
+      show(text, action);
     }
     // Capture phase: cancel before next/link sees the click (it skips default-prevented events).
     document.addEventListener("click", onClick, true);
@@ -57,6 +63,19 @@ export function Toaster() {
             <path d="M12 8v5M12 16h.01" />
           </svg>
           {toast.text}
+          {toast.action && (
+            <button
+              type="button"
+              onClick={() => {
+                toast.action?.onClick();
+                clearTimeout(timer.current);
+                setToast(null);
+              }}
+              className="pointer-events-auto -my-1 ml-1 flex-none rounded-md px-2 py-1 font-semibold text-[#9EC2FF] transition-colors hover:bg-white/10"
+            >
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
     </div>

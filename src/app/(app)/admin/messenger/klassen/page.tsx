@@ -6,7 +6,7 @@ import { MessengerCrumb } from "@/components/admin/MessengerTabs";
 import { Label } from "@/components/Bi";
 import { Icon } from "@/components/Icon";
 import { KlassenDetail, KlassenList, type ProspectItem, type ProspectTone } from "@/components/admin/KlassenView";
-import { type AssignableClass } from "@/lib/messenger/classes";
+import { isOfferState, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
 import { STEP_INFO, stepOf } from "@/lib/messenger/steps";
 import { toActionLabel, LABEL_COLUMNS, type InboxLabel } from "@/lib/messenger/thread";
 import { assignableClassById, assignableClasses } from "@/lib/notion";
@@ -31,7 +31,8 @@ function stateChip(label: InboxLabel | null): { de: string; vi: string; tone: Pr
 
 /**
  * Upcoming classes and the Messenger chats assigned to them, for reaching out to every prospect of
- * a class. Classes come live from Notion (the assignable pool, i.e. not started or started at most a
+ * a class. Right before a class starts everyone assigned gets a special offer; each chat is marked
+ * Offen / Geschickt / Übersprungen for that class, so the class works as a to-do list. Classes come live from Notion (the assignable pool, i.e. not started or started at most a
  * week ago, plus assigned classes fetched by id
  * until their End date passes); the assignments live in Supabase. A chat opens as a read-only
  * preview; from there it opens in the inbox.
@@ -42,15 +43,16 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
   const supabase = await createClient();
 
   const [{ data: rows, error }, pool] = await Promise.all([
-    supabase.from("messenger_class_assignments").select("conversation_id, class_id"),
+    supabase.from("messenger_class_assignments").select("conversation_id, class_id, offer_status, offer_set_at"),
     assignableClasses(),
   ]);
   if (error) throw new Error(error.message);
 
-  const byClass = new Map<string, string[]>();
+  type Assignment = { id: string; offer: OfferState; offerAt: string | null };
+  const byClass = new Map<string, Assignment[]>();
   for (const r of rows ?? []) {
     const list = byClass.get(r.class_id) ?? [];
-    list.push(r.conversation_id);
+    list.push({ id: r.conversation_id, offer: isOfferState(r.offer_status) ? r.offer_status : "offen", offerAt: r.offer_set_at });
     byClass.set(r.class_id, list);
   }
   const known = new Set(pool.map((c) => c.id));
@@ -68,7 +70,8 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
   const withProspects = classes.filter((c) => (byClass.get(c.id)?.length ?? 0) > 0).length;
   let prospects: ProspectItem[] = [];
   if (selected) {
-    const ids = byClass.get(selected.id) ?? [];
+    const assignments = new Map((byClass.get(selected.id) ?? []).map((a) => [a.id, a]));
+    const ids = [...assignments.keys()];
     if (ids.length) {
       const [{ data: convs, error: convErr }, { data: labels, error: labelErr }] = await Promise.all([
         supabase.from("messenger_conversations").select("id, customer_name, updated_time, channel").in("id", ids),
@@ -80,6 +83,7 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
         .sort((a, b) => (a.updated_time < b.updated_time ? 1 : -1))
         .map((conv) => {
           const chip = stateChip(labelById.get(conv.id) ?? null);
+          const a = assignments.get(conv.id);
           return {
             id: conv.id,
             name: conv.customer_name ?? "Unbekannt",
@@ -88,6 +92,8 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
             chipVi: chip.vi,
             tone: chip.tone,
             time: dayFmt.format(new Date(conv.updated_time)),
+            offer: a?.offer ?? "offen",
+            offerAt: a?.offerAt ? dayFmt.format(new Date(a.offerAt)) : null,
           };
         });
     }
@@ -98,15 +104,15 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
       <Topbar>
         <MessengerCrumb current="klassen" />
       </Topbar>
-      <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-8 pb-20 pt-8 max-sm:px-4">
+      <main className="flex w-full flex-col gap-6 px-8 pb-20 pt-8 max-sm:px-4">
         <header>
           <h1 className="title-display m-0 text-[34px] leading-tight">
             <Label de="Klassen" vi="Lớp học" />
           </h1>
           <p className="m-0 mt-1 text-[13px] text-muted">
             <Label
-              de="Kommende Kurse aus Notion und die Chats, die ihnen zugeordnet sind. Eine Klasse öffnen und jeden Interessenten anschreiben."
-              vi="Các lớp sắp mở từ Notion và các cuộc trò chuyện đã gán. Mở một lớp để nhắn cho từng khách quan tâm."
+              de="Kommende Kurse aus Notion und die Chats, die ihnen zugeordnet sind. Vor dem Start bekommt jeder Interessent ein Sonderangebot: Klasse öffnen, anschreiben und als geschickt markieren."
+              vi="Các lớp sắp mở từ Notion và các cuộc trò chuyện đã gán. Trước khi khai giảng, mỗi khách quan tâm nhận một ưu đãi: mở lớp, nhắn tin và đánh dấu đã gửi."
             />
           </p>
           <p className="m-0 mt-3 flex flex-wrap gap-2 text-[12.5px]">
@@ -120,8 +126,14 @@ export default async function MessengerKlassenPage({ searchParams }: { searchPar
             </span>
           </p>
         </header>
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] items-start gap-6 max-md:grid-cols-1">
-          <KlassenList items={classes.map((c) => ({ c, count: byClass.get(c.id)?.length ?? 0 }))} selectedId={selected?.id ?? null} />
+        <div className="grid grid-cols-[400px_minmax(0,1fr)] items-start gap-6 max-lg:grid-cols-[340px_minmax(0,1fr)] max-md:grid-cols-1">
+          <KlassenList
+            items={classes.map((c) => {
+              const list = byClass.get(c.id) ?? [];
+              return { c, count: list.length, open: list.filter((a) => a.offer === "offen").length };
+            })}
+            selectedId={selected?.id ?? null}
+          />
           <section className="sticky top-4 max-md:static">
             <KlassenDetail key={selected?.id ?? "none"} c={selected} items={prospects} />
           </section>

@@ -22,8 +22,8 @@ function initials(name: string) {
 
 type PreviewState = { messages: ThreadMessageRow[]; hasOlder: boolean } | { error: true } | null;
 
-/** The newest messages of one chat, read-only, with the name to copy and a jump into the inbox. */
-export function ChatPreviewModal({ chat: item, onClose }: { chat: PreviewChat; onClose: () => void }) {
+/** The newest messages of one chat, read-only, with the name to copy and a jump into the inbox. `footer` adds a bar under the messages (e.g. the special-offer switch on the Klassen page). */
+export function ChatPreviewModal({ chat: item, onClose, footer }: { chat: PreviewChat; onClose: () => void; footer?: React.ReactNode }) {
   const [data, setData] = useState<PreviewState>(null);
   const scroller = useRef<HTMLDivElement | null>(null);
 
@@ -108,6 +108,7 @@ export function ChatPreviewModal({ chat: item, onClose }: { chat: PreviewChat; o
             </>
           )}
         </div>
+        {footer && <footer className="flex-none border-t border-line bg-white px-4 py-2.5">{footer}</footer>}
       </div>
     </div>,
     document.body,

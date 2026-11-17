@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { tooLateToAssign, type AssignableClass } from "@/lib/messenger/classes";
+import { isOfferState, tooLateToAssign, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
 import { assignableClassById, assignableClasses } from "@/lib/notion";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,7 +15,8 @@ async function admin() {
 /**
  * The class panel of one chat: the assignable classes from Notion plus which of them this chat is
  * assigned to. An assigned class that is not in the pool any more (it started more than a week ago)
- * is fetched live by id and listed too, until its End date passes.
+ * is fetched live by id and listed too, until its End date passes. `offers` holds the special-offer
+ * status of each assigned class.
  */
 export async function GET(req: NextRequest) {
   const id = (req.nextUrl.searchParams.get("c") ?? "").slice(0, 200);
@@ -25,23 +26,27 @@ export async function GET(req: NextRequest) {
     const supabase = await createClient();
     const [classes, { data: rows, error }] = await Promise.all([
       assignableClasses(),
-      supabase.from("messenger_class_assignments").select("class_id").eq("conversation_id", id),
+      supabase.from("messenger_class_assignments").select("class_id, offer_status").eq("conversation_id", id),
     ]);
     if (error) throw new Error(error.message);
     const assigned = (rows ?? []).map((r) => r.class_id as string);
+    const offers: Record<string, OfferState> = Object.fromEntries((rows ?? []).map((r) => [r.class_id, isOfferState(r.offer_status) ? r.offer_status : "offen"]));
     const known = new Set(classes.map((c) => c.id));
     const extra = (await Promise.all(assigned.filter((k) => !known.has(k)).map(assignableClassById))).filter((c): c is AssignableClass => !!c);
-    return NextResponse.json({ classes: [...classes, ...extra], assigned }, { headers: noStore });
+    return NextResponse.json({ classes: [...classes, ...extra], assigned, offers }, { headers: noStore });
   } catch (err) {
     console.error("[messenger/classes]", err);
     return NextResponse.json({ error: "Kurse konnten nicht geladen werden." }, { status: 503, headers: noStore });
   }
 }
 
-/** Assign a chat to a class, or take the assignment back ({ remove: true }). */
+/**
+ * Assign a chat to a class, take the assignment back ({ remove: true }), or set the special-offer
+ * status of an existing assignment ({ offer: "offen" | "geschickt" | "uebersprungen" }).
+ */
 export async function POST(req: NextRequest) {
   if (!(await admin())) return NextResponse.json({}, { status: 403, headers: noStore });
-  let body: { c?: unknown; k?: unknown; remove?: unknown };
+  let body: { c?: unknown; k?: unknown; remove?: unknown; offer?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -50,8 +55,22 @@ export async function POST(req: NextRequest) {
   const conversation = typeof body.c === "string" ? body.c.slice(0, 200) : "";
   const classId = typeof body.k === "string" ? body.k.toLowerCase() : "";
   if (!conversation || !UUID.test(classId)) return NextResponse.json({}, { status: 400, headers: noStore });
+  if (body.offer !== undefined && !isOfferState(body.offer)) return NextResponse.json({}, { status: 400, headers: noStore });
   const supabase = await createClient();
   try {
+    if (isOfferState(body.offer)) {
+      const session = await getSession();
+      const open = body.offer === "offen";
+      const { data, error } = await supabase
+        .from("messenger_class_assignments")
+        .update({ offer_status: body.offer, offer_set_at: open ? null : new Date().toISOString(), offer_set_by: open ? null : (session?.user.id ?? null) })
+        .eq("conversation_id", conversation)
+        .eq("class_id", classId)
+        .select("class_id");
+      if (error) throw new Error(error.message);
+      if (!data?.length) return NextResponse.json({ error: "Chat ist dieser Klasse nicht zugeordnet." }, { status: 404, headers: noStore });
+      return NextResponse.json({ ok: true }, { headers: noStore });
+    }
     if (body.remove === true) {
       const { error } = await supabase.from("messenger_class_assignments").delete().eq("conversation_id", conversation).eq("class_id", classId);
       if (error) throw new Error(error.message);

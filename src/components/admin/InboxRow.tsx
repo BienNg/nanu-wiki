@@ -8,7 +8,7 @@ import { Icon } from "@/components/Icon";
 import { ChatLink } from "@/components/admin/MessengerShell";
 import { SavingSpinner, useLabelSave, useLabelSaving } from "@/components/admin/labelPatch";
 import { initials } from "@/lib/format";
-import { MODE_TONE, type RowClass } from "@/lib/messenger/classes";
+import { MODE_TONE, OFFER_INFO, type RowClass } from "@/lib/messenger/classes";
 import { matchesInboxFilter, type InboxPlace } from "@/lib/messenger/inboxPlace";
 import type { ConversationView } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST } from "@/lib/messenger/steps";
@@ -115,13 +115,17 @@ export function InboxRow({ row }: { row: InboxRowData }) {
                   </span>
                 )}
                 {classes.slice(0, MAX_CLASSES).map((c) => (
+                  // The class chip also shows the special offer: a tick once it went out, faded and struck through when skipped.
                   <span
                     key={c.id}
-                    title={c.name}
-                    className={`inline-flex flex-none items-center gap-0.5 rounded-md px-1 text-[11px] font-semibold leading-[18px] ${c.mode ? MODE_TONE[c.mode] : "bg-chip text-muted"}`}
+                    title={`${c.name}\nSonderangebot: ${OFFER_INFO[c.offer].de} · Ưu đãi: ${OFFER_INFO[c.offer].vi}`}
+                    className={`inline-flex flex-none items-center gap-0.5 rounded-md px-1 text-[11px] font-semibold leading-[18px] ${c.mode ? MODE_TONE[c.mode] : "bg-chip text-muted"} ${
+                      c.offer === "uebersprungen" ? "line-through opacity-50" : ""
+                    }`}
                   >
                     <Icon name="cap" size={11} strokeWidth={2.2} className="flex-none" />
                     {c.code}
+                    {c.offer === "geschickt" && <Icon name="check" size={11} strokeWidth={2.8} className="flex-none" />}
                   </span>
                 ))}
                 {classes.length > MAX_CLASSES && (

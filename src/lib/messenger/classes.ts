@@ -137,9 +137,29 @@ export const MODE_TONE: Record<ClassMode, string> = {
   "online-de": "bg-[#E6EEFB] text-[#2558A3]",
 };
 
-/** What an inbox row needs to show a class the chat is assigned to. */
-export type RowClass = { id: string; code: string; name: string; mode: ClassMode | null };
+/**
+ * Special-offer outreach per chat and class (messenger_class_assignments.offer_status), set by hand:
+ * right before a class starts, everyone assigned to it gets a message with a special offer.
+ *   offen          still to write
+ *   geschickt      the offer went out (sent outside the app, e.g. in Meta Business Suite)
+ *   uebersprungen  deliberately not written (already a Schüler, not a lead …)
+ */
+export const OFFER_STATES = ["offen", "geschickt", "uebersprungen"] as const;
+export type OfferState = (typeof OFFER_STATES)[number];
 
-export function rowClass(c: Pick<AssignableClass, "id" | "name" | "mode">): RowClass {
-  return { id: c.id, code: classCode(c.name), name: c.name, mode: c.mode };
+export const OFFER_INFO: Record<OfferState, { de: string; vi: string }> = {
+  offen: { de: "Offen", vi: "Chưa gửi" },
+  geschickt: { de: "Geschickt", vi: "Đã gửi" },
+  uebersprungen: { de: "Übersprungen", vi: "Bỏ qua" },
+};
+
+export function isOfferState(value: unknown): value is OfferState {
+  return typeof value === "string" && (OFFER_STATES as readonly string[]).includes(value);
+}
+
+/** What an inbox row needs to show a class the chat is assigned to. */
+export type RowClass = { id: string; code: string; name: string; mode: ClassMode | null; offer: OfferState };
+
+export function rowClass(c: Pick<AssignableClass, "id" | "name" | "mode">, offer: OfferState = "offen"): RowClass {
+  return { id: c.id, code: classCode(c.name), name: c.name, mode: c.mode, offer };
 }

@@ -3,7 +3,7 @@
 import { Label, tip, type TipText } from "@/components/Bi";
 import { Icon, type AnyIcon } from "@/components/Icon";
 import { shortDate } from "@/lib/classes";
-import { classToday, hasStarted, type AssignableClass } from "@/lib/messenger/classes";
+import { classToday, hasStarted, OFFER_INFO, OFFER_STATES, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
 
 /** Shared pieces of the class cards in the Kurse panel and on /admin/messenger/klassen. */
 
@@ -68,5 +68,63 @@ export function SectionHead({ children, count, bg = "bg-[#F6F7F9]/95" }: { child
       {children}
       {count != null && <span className="rounded-full bg-[#E6E8EC] px-1.5 text-[10.5px] font-semibold leading-4 text-muted">{count}</span>}
     </h3>
+  );
+}
+
+/** Stores the special-offer status of one chat on one class; rejects when the server did not save it. */
+export async function saveOffer(conversationId: string, classId: string, offer: OfferState) {
+  const r = await fetch("/api/messenger/classes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ c: conversationId, k: classId, offer }),
+  });
+  if (!r.ok) throw new Error(String(r.status));
+}
+
+/** Colour of each offer status: open is neutral, sent is green, skipped is grey. */
+export const OFFER_TONE: Record<OfferState, string> = {
+  offen: "bg-white text-ink shadow-[0_1px_2px_rgba(16,24,40,0.12)]",
+  geschickt: "bg-[#1B8A6B] text-white shadow-[0_1px_2px_rgba(16,24,40,0.12)]",
+  uebersprungen: "bg-[#8A909A] text-white shadow-[0_1px_2px_rgba(16,24,40,0.12)]",
+};
+
+/** Offen / Geschickt / Übersprungen as one segmented switch, for the special offer of one chat on one class. */
+export function OfferSwitch({
+  value,
+  onChange,
+  busy = false,
+  size = "md",
+  full = false,
+}: {
+  value: OfferState;
+  onChange: (next: OfferState) => void;
+  busy?: boolean;
+  size?: "sm" | "md";
+  /** Stretch over the whole width, segments sharing it equally. */
+  full?: boolean;
+}) {
+  const sm = size === "sm";
+  return (
+    <span role="radiogroup" aria-label="Sonderangebot" className={`${full ? "flex w-full" : "inline-flex"} rounded-lg bg-[#ECEEF1] p-0.5 ${busy ? "opacity-60" : ""}`}>
+      {OFFER_STATES.map((state) => {
+        const active = state === value;
+        return (
+          <button
+            key={state}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            disabled={busy}
+            onClick={() => !active && onChange(state)}
+            className={`inline-flex items-center justify-center gap-1 rounded-md font-semibold transition-colors disabled:cursor-wait ${full ? "flex-1" : ""} ${sm ? "px-1.5 py-0.5 text-[11px]" : "px-2.5 py-1 text-[12px]"} ${
+              active ? OFFER_TONE[state] : "text-muted hover:text-ink"
+            }`}
+          >
+            {state === "geschickt" && <Icon name="check" size={sm ? 11 : 12} strokeWidth={2.6} />}
+            <Label de={OFFER_INFO[state].de} vi={OFFER_INFO[state].vi} />
+          </button>
+        );
+      })}
+    </span>
   );
 }

@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Label, tip } from "@/components/Bi";
 import { ChatPreviewModal } from "@/components/admin/ChatPreviewModal";
 import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
-import { Chip, ClassWhen, Fact, SectionHead } from "@/components/admin/classParts";
-import { Icon } from "@/components/Icon";
+import { Chip, ClassWhen, Fact, OfferSwitch, saveOffer, SectionHead } from "@/components/admin/classParts";
+import { Icon, type AnyIcon } from "@/components/Icon";
+import { toast } from "@/components/Toaster";
 import { MODE_SHORT } from "@/lib/classes";
-import { classCode, hasStarted, MODE_TONE, type AssignableClass } from "@/lib/messenger/classes";
+import { classCode, hasStarted, MODE_TONE, OFFER_INFO, OFFER_STATES, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
 
 /** Client pieces of /admin/messenger/klassen: the searchable class list, the selected class with its prospects, and the chat preview. */
 
@@ -62,10 +64,38 @@ function FullChip() {
   );
 }
 
-export type KlassenItem = { c: AssignableClass; count: number };
+/** `open`: assigned chats whose special offer is still Offen. */
+export type KlassenItem = { c: AssignableClass; count: number; open: number };
 
-/** One class in the left list: code and chips, then start/time/students; the prospect count sits on the right. */
-function ClassRow({ c, count, current }: KlassenItem & { current: boolean }) {
+/** Prospects of a class on the right of its card: "12 offen · 45" while offers are open, a green tick once none is left. */
+function OfferBadge({ count, open }: { count: number; open: number }) {
+  const base = "mt-0.5 inline-flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-semibold";
+  if (!count) {
+    return (
+      <span {...tip("Keine Interessenten", "Chưa có khách quan tâm")} className={`${base} bg-[#F1F2F4] text-faint`}>
+        <Icon name="users" size={12} strokeWidth={2.2} />0
+      </span>
+    );
+  }
+  if (!open) {
+    return (
+      <span {...tip(`Alle ${count} Interessenten erledigt`, `Đã xử lý cả ${count} khách quan tâm`)} className={`${base} bg-[#E2F4EF] text-[#1B6E5D]`}>
+        <Icon name="check" size={12} strokeWidth={2.6} />
+        {count}
+      </span>
+    );
+  }
+  return (
+    <span {...tip(`Sonderangebot: ${open} von ${count} noch offen`, `Ưu đãi: ${open}/${count} khách chưa gửi`)} className={`${base} bg-accent text-white`}>
+      <Icon name="users" size={12} strokeWidth={2.2} />
+      <Label de={`${open} offen`} vi={`${open} chưa gửi`} />
+      <span className="font-medium opacity-70">· {count}</span>
+    </span>
+  );
+}
+
+/** One class in the left list: code and chips, then start/time/students; the open offers and prospect count sit on the right. */
+function ClassRow({ c, count, open, current }: KlassenItem & { current: boolean }) {
   return (
     <li style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }}>
       <Link
@@ -90,15 +120,7 @@ function ClassRow({ c, count, current }: KlassenItem & { current: boolean }) {
             </span>
           )}
         </span>
-        <span
-          {...tip(`${count} Interessenten`, `${count} khách quan tâm`)}
-          className={`mt-0.5 inline-flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-semibold ${
-            count ? "bg-accent text-white" : "bg-[#F1F2F4] text-faint"
-          }`}
-        >
-          <Icon name="users" size={12} strokeWidth={2.2} />
-          {count}
-        </span>
+        <OfferBadge count={count} open={open} />
       </Link>
     </li>
   );
@@ -166,7 +188,18 @@ function ClassInfoButton({ c }: { c: AssignableClass }) {
 }
 
 export type ProspectTone = "open" | "student" | "zalo" | "closed";
-export type ProspectItem = { id: string; name: string; channel: string | null; chipDe: string; chipVi: string; tone: ProspectTone; time: string };
+export type ProspectItem = {
+  id: string;
+  name: string;
+  channel: string | null;
+  chipDe: string;
+  chipVi: string;
+  tone: ProspectTone;
+  time: string;
+  /** Special-offer status for this class, and the day it was set (dd.mm.yy, null while Offen). */
+  offer: OfferState;
+  offerAt: string | null;
+};
 
 const TONE: Record<ProspectTone, string> = {
   open: "bg-[#FDF1E2] text-[#94560F]",
@@ -184,26 +217,64 @@ function initials(name: string) {
 }
 
 /** A large centred hint card for the empty states of the right column. */
-function EmptyCard({ tone, icon, title, hint }: { tone: "neutral" | "warn"; icon: "cap" | "users"; title: React.ReactNode; hint: React.ReactNode }) {
-  const warn = tone === "warn";
+function EmptyCard({ tone, icon, title, hint }: { tone: "neutral" | "warn" | "done"; icon: AnyIcon; title: React.ReactNode; hint: React.ReactNode }) {
+  const look = {
+    neutral: { box: "border-line bg-[#F6F7F9]", icon: "text-muted", title: "text-ink", hint: "text-muted" },
+    warn: { box: "border-[#E8B96A] bg-[#FDF6E9]", icon: "text-[#94560F]", title: "text-[#7A4A0E]", hint: "text-[#94560F]" },
+    done: { box: "border-[#9FD6C6] bg-[#EEF8F5]", icon: "text-[#1B6E5D]", title: "text-[#155447]", hint: "text-[#1B6E5D]" },
+  }[tone];
   return (
-    <div
-      className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center ${
-        warn ? "border-[#E8B96A] bg-[#FDF6E9]" : "border-line bg-[#F6F7F9]"
-      }`}
-    >
-      <span className={`flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(16,24,40,0.08)] ${warn ? "text-[#94560F]" : "text-muted"}`}>
+    <div className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center ${look.box}`}>
+      <span className={`flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(16,24,40,0.08)] ${look.icon}`}>
         <Icon name={icon} size={20} />
       </span>
-      <p className={`m-0 text-[14px] font-semibold ${warn ? "text-[#7A4A0E]" : "text-ink"}`}>{title}</p>
-      <p className={`m-0 max-w-[300px] text-[12.5px] leading-snug ${warn ? "text-[#94560F]" : "text-muted"}`}>{hint}</p>
+      <p className={`m-0 text-[14px] font-semibold ${look.title}`}>{title}</p>
+      <p className={`m-0 max-w-[340px] text-[12.5px] leading-snug ${look.hint}`}>{hint}</p>
     </div>
   );
 }
 
-/** The right column: the selected class and the chats assigned to it. A click on a chat opens the read-only preview. */
+/** What each tab shows when it is empty. */
+const TAB_EMPTY: Record<OfferState, { tone: "neutral" | "done"; icon: AnyIcon; de: string; vi: string; hintDe: string; hintVi: string }> = {
+  offen: {
+    tone: "done",
+    icon: "check",
+    de: "Alle angeschrieben",
+    vi: "Đã nhắn hết",
+    hintDe: "Jeder Interessent dieser Klasse hat das Sonderangebot bekommen oder wurde übersprungen.",
+    hintVi: "Mọi khách quan tâm lớp này đã nhận ưu đãi hoặc đã được bỏ qua.",
+  },
+  geschickt: {
+    tone: "neutral",
+    icon: "megaphone",
+    de: "Noch kein Angebot geschickt",
+    vi: "Chưa gửi ưu đãi nào",
+    hintDe: "Unter Offen nach dem Anschreiben auf „Geschickt“ klicken.",
+    hintVi: "Sau khi nhắn, bấm „Đã gửi“ ở tab Chưa gửi.",
+  },
+  uebersprungen: {
+    tone: "neutral",
+    icon: "users",
+    de: "Niemand übersprungen",
+    vi: "Chưa bỏ qua ai",
+    hintDe: "Wer kein Angebot bekommen soll (schon Schüler, kein Lead …), unter Offen überspringen.",
+    hintVi: "Ai không cần nhận ưu đãi (đã là học viên, không phải khách …) thì bỏ qua ở tab Chưa gửi.",
+  },
+};
+
+/**
+ * The right column: the selected class and the chats assigned to it, as a to-do list for the special
+ * offer before the class starts. Tabs split the chats into Offen / Geschickt / Übersprungen; a row is
+ * moved with its buttons (or in the preview) and can be undone from the toast. A click on a chat
+ * opens the read-only preview.
+ */
 export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: ProspectItem[] }) {
-  const [open, setOpen] = useState<ProspectItem | null>(null);
+  const router = useRouter();
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [tab, setTab] = useState<OfferState>("offen");
+  // Status changes made here, shown at once; the server copy catches up after router.refresh().
+  const [overrides, setOverrides] = useState<ReadonlyMap<string, OfferState>>(new Map());
+  const [busy, setBusy] = useState<ReadonlySet<string>>(new Set());
 
   if (!c) {
     return (
@@ -215,6 +286,40 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
       />
     );
   }
+
+  const offerOf = (it: ProspectItem) => overrides.get(it.id) ?? it.offer;
+  const counts = Object.fromEntries(OFFER_STATES.map((s) => [s, items.filter((it) => offerOf(it) === s).length])) as Record<OfferState, number>;
+  const shown = items.filter((it) => offerOf(it) === tab);
+  const openItem = openId ? (items.find((it) => it.id === openId) ?? null) : null;
+
+  // `undoOf`: this call undoes a change to that status. The toast holds an old closure, so the status before is passed in, not read.
+  const setOffer = (it: ProspectItem, next: OfferState, undoOf?: OfferState) => {
+    const undoable = !undoOf;
+    const prev = undoOf ?? offerOf(it);
+    if (prev === next) return;
+    setOverrides((m) => new Map(m).set(it.id, next));
+    setBusy((b) => new Set(b).add(it.id));
+    saveOffer(it.id, c.id, next)
+      .then(() => {
+        router.refresh();
+        if (undoable) {
+          toast(`${it.name}: ${OFFER_INFO[next].de} · ${OFFER_INFO[next].vi}`, { label: "Rückgängig · Hoàn tác", onClick: () => setOffer(it, prev, next) });
+        }
+      })
+      .catch(() => {
+        setOverrides((m) => new Map(m).set(it.id, prev));
+        toast("Speichern fehlgeschlagen · Lưu không thành công");
+      })
+      .finally(() =>
+        setBusy((b) => {
+          const n = new Set(b);
+          n.delete(it.id);
+          return n;
+        }),
+      );
+  };
+
+  const empty = TAB_EMPTY[tab];
 
   return (
     <div className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-xl border border-line bg-white shadow-[0_1px_3px_rgba(16,24,40,0.05)] max-md:max-h-none">
@@ -230,10 +335,41 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
         </div>
         <ClassInfoButton c={c} />
       </header>
-      <div className="flex flex-none items-center gap-1.5 border-b border-line bg-[#F6F7F9] px-5 py-2 text-[11.5px] font-semibold text-muted">
-        <Icon name="users" size={13} />
-        <Label de="Interessenten" vi="Khách quan tâm" />
-        <span className={`rounded-full px-1.5 text-[10.5px] leading-4 ${items.length ? "bg-accent text-white" : "bg-[#E6E8EC] text-muted"}`}>{items.length}</span>
+      <div className="flex flex-none flex-wrap items-center gap-x-4 gap-y-1 border-b border-line bg-[#F6F7F9] px-5">
+        <span className="flex items-center gap-1.5 py-2.5 text-[11.5px] font-semibold text-muted">
+          <Icon name="megaphone" size={13} />
+          <Label de="Sonderangebot" vi="Ưu đãi" />
+        </span>
+        <div role="tablist" className="flex items-stretch gap-1">
+          {OFFER_STATES.map((state) => {
+            const active = tab === state;
+            return (
+              <button
+                key={state}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(state)}
+                className={`-mb-px flex items-center gap-1.5 border-b-2 px-2.5 py-2.5 text-[12.5px] font-semibold transition-colors ${
+                  active ? "border-accent text-ink" : "border-transparent text-muted hover:text-ink"
+                }`}
+              >
+                <Label de={OFFER_INFO[state].de} vi={OFFER_INFO[state].vi} />
+                <span
+                  className={`rounded-full px-1.5 text-[10.5px] leading-4 ${
+                    !counts[state] ? "bg-[#E6E8EC] text-muted" : state === "offen" ? "bg-accent text-white" : state === "geschickt" ? "bg-[#E2F4EF] text-[#1B6E5D]" : "bg-[#E6E8EC] text-[#3A3F47]"
+                  }`}
+                >
+                  {counts[state]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <span className="ml-auto flex items-center gap-1 py-2.5 text-[11.5px] text-muted">
+          <Icon name="users" size={12} />
+          <Label de={`${items.length} Interessenten`} vi={`${items.length} khách quan tâm`} />
+        </span>
       </div>
       {items.length === 0 ? (
         <div className="p-4">
@@ -244,30 +380,95 @@ export function KlassenDetail({ c, items }: { c: AssignableClass | null; items: 
             hint={<Label de="Im Posteingang im Kurse-Panel eines Chats diese Klasse mit (+) zuordnen." vi="Trong hộp thư, mở bảng Lớp học của một cuộc trò chuyện và bấm (+) để gán lớp này." />}
           />
         </div>
+      ) : shown.length === 0 ? (
+        <div className="p-4">
+          <EmptyCard tone={empty.tone} icon={empty.icon} title={<Label de={empty.de} vi={empty.vi} />} hint={<Label de={empty.hintDe} vi={empty.hintVi} />} />
+        </div>
       ) : (
         <ul className="m-0 min-h-0 flex-1 list-none overflow-y-auto p-0">
-          {items.map((item) => (
-            <li key={item.id} className="border-b border-line last:border-b-0">
-              <button type="button" onClick={() => setOpen(item)} className="group flex w-full items-center gap-3 px-5 py-2.5 text-left transition-colors hover:bg-hover">
-                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEF0F3] text-[12.5px] font-semibold text-[#3A3F47]">{initials(item.name)}</span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13.5px] font-semibold text-ink">{item.name}</span>
-                  <span className="mt-0.5 flex items-center gap-1 text-[12px] text-muted">
-                    <Icon name="chat" size={12} className="text-faint" />
-                    {item.channel === "whatsapp" ? "WhatsApp" : "Messenger"}
-                    <span className="text-faint">· {item.time}</span>
+          {shown.map((item) => {
+            const isBusy = busy.has(item.id);
+            // The saved day is only known for the status the server sent; a change made here shows none until the refresh.
+            const at = item.offer === tab ? item.offerAt : null;
+            return (
+              <li key={item.id} className={`flex items-center gap-2 border-b border-line pr-4 last:border-b-0 hover:bg-hover ${isBusy ? "opacity-60" : ""}`}>
+                <button type="button" onClick={() => setOpenId(item.id)} className="group flex min-w-0 flex-1 items-center gap-3 py-2.5 pl-5 text-left">
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEF0F3] text-[12.5px] font-semibold text-[#3A3F47]">{initials(item.name)}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <span className="truncate text-[13.5px] font-semibold text-ink">{item.name}</span>
+                      <Icon name="chevron" size={13} className="flex-none text-faint opacity-0 transition-opacity group-hover:opacity-100" />
+                    </span>
+                    <span className="mt-0.5 flex items-center gap-1 text-[12px] text-muted">
+                      <Icon name="chat" size={12} className="text-faint" />
+                      {item.channel === "whatsapp" ? "WhatsApp" : "Messenger"}
+                      <span className="text-faint">· {item.time}</span>
+                    </span>
                   </span>
-                </span>
-                <Chip className={TONE[item.tone]}>
-                  <Label de={item.chipDe} vi={item.chipVi} />
-                </Chip>
-                <Icon name="chevron" size={14} className="flex-none text-faint opacity-0 transition-opacity group-hover:opacity-100" />
-              </button>
-            </li>
-          ))}
+                  <Chip className={TONE[item.tone]}>
+                    <Label de={item.chipDe} vi={item.chipVi} />
+                  </Chip>
+                </button>
+                {tab === "offen" ? (
+                  <span className="flex flex-none items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => setOffer(item, "uebersprungen")}
+                      {...tip("Kein Angebot an diese Person", "Không gửi ưu đãi cho người này")}
+                      className="h-8 rounded-full px-3 text-[12.5px] font-medium text-muted transition-colors hover:bg-[#E6E8EC] hover:text-ink disabled:cursor-wait"
+                    >
+                      <Label de="Überspringen" vi="Bỏ qua" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => setOffer(item, "geschickt")}
+                      {...tip("Sonderangebot ist geschickt", "Đã gửi ưu đãi")}
+                      className="flex h-8 items-center gap-1 rounded-full border border-[#1B8A6B]/40 bg-white px-3 text-[12.5px] font-semibold text-[#1B6E5D] transition-colors hover:border-[#1B8A6B] hover:bg-[#1B8A6B] hover:text-white disabled:cursor-wait"
+                    >
+                      <Icon name="check" size={13} strokeWidth={2.6} />
+                      <Label de="Geschickt" vi="Đã gửi" />
+                    </button>
+                  </span>
+                ) : (
+                  <span className="flex flex-none items-center gap-2">
+                    <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${tab === "geschickt" ? "text-[#1B6E5D]" : "text-muted"}`}>
+                      {tab === "geschickt" && <Icon name="check" size={12} strokeWidth={2.6} />}
+                      <Label de={OFFER_INFO[tab].de} vi={OFFER_INFO[tab].vi} />
+                      {at && <span className="font-normal text-faint">· {at}</span>}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => setOffer(item, "offen")}
+                      {...tip("Wieder auf Offen setzen", "Đưa về chưa gửi")}
+                      className="h-8 rounded-full px-3 text-[12.5px] font-medium text-accent transition-colors hover:bg-accent-soft disabled:cursor-wait"
+                    >
+                      <Label de="Auf Offen" vi="Về chưa gửi" />
+                    </button>
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
-      {open && <ChatPreviewModal chat={open} onClose={() => setOpen(null)} />}
+      {openItem && (
+        <ChatPreviewModal
+          chat={openItem}
+          onClose={() => setOpenId(null)}
+          footer={
+            <div className="flex items-center gap-2">
+              <span className="flex flex-1 items-center gap-1.5 text-[12px] font-semibold text-muted">
+                <Icon name="megaphone" size={13} />
+                <Label de={`Sonderangebot ${classCode(c.name)}`} vi={`Ưu đãi ${classCode(c.name)}`} />
+              </span>
+              <OfferSwitch value={offerOf(openItem)} busy={busy.has(openItem.id)} onChange={(next) => setOffer(openItem, next)} />
+            </div>
+          }
+        />
+      )}
     </div>
   );
 }
