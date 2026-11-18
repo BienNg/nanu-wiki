@@ -27,6 +27,8 @@ export type AssignableClass = {
   students: number | null;
   /** The class page in Notion. */
   notionUrl: string | null;
+  /** The class's Google Sheets (Notion URL field "Excel"); null when not set. */
+  sheetUrl: string | null;
 };
 
 /** Which modes fit where the lead wants to learn (label field Ort). */

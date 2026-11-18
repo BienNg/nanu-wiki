@@ -129,6 +129,7 @@ function toAssignable(page: NotionPage): AssignableClass | null {
     hasImage: files(page).length > 0,
     students,
     notionUrl: page.url ?? null,
+    sheetUrl: (p.Excel?.url as string | null) || null,
   };
 }
 
