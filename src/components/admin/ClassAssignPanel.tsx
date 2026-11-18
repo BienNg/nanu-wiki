@@ -8,7 +8,7 @@ import { Chip, ClassWhen, Fact, OfferSwitch, saveOffer, SectionHead } from "@/co
 import { Icon } from "@/components/Icon";
 import { toast } from "@/components/Toaster";
 import { MODE_SHORT } from "@/lib/classes";
-import { setRowClasses } from "@/components/admin/classPatch";
+import { setAssignedClasses, setRowClasses } from "@/components/admin/classPatch";
 import { classCode, isLevelStart, matchScore, MODE_TONE, rankClasses, rowClass, sortByLevel, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
 
 /** `offers`: the special-offer status per assigned class id (missing means Offen). */
@@ -47,6 +47,10 @@ const COLLAPSED_KEY = "messenger-classes-panel";
 /** The row in the inbox list shows the assigned classes; keep it in step with this panel. */
 function publishRow(conversationId: string, data: Data) {
   const byId = new Map(data.classes.map((c) => [c.id, c]));
+  setAssignedClasses(
+    conversationId,
+    data.assigned.flatMap((k) => byId.get(k) ?? []),
+  );
   setRowClasses(
     conversationId,
     data.assigned.flatMap((k) => {
@@ -77,30 +81,34 @@ function matchesQuery(c: AssignableClass, q: string) {
  * class info; the round button adds or removes it. An assigned class also shows the special-offer
  * switch (Offen / Geschickt / Übersprungen) for this chat.
  */
-function ClassCard({
+export function ClassCard({
   c,
   busy,
   assigned,
   onAction,
   onInfo,
   offer,
+  plain,
 }: {
   c: AssignableClass;
   busy: boolean;
   assigned: boolean;
-  onAction: () => void;
+  /** Without it the card has no add/remove button. */
+  onAction?: () => void;
   onInfo: () => void;
+  /** No view-transition name (a second copy of a card that is also in the panel). */
+  plain?: boolean;
   offer?: { value: OfferState; busy: boolean; onChange: (next: OfferState) => void };
 }) {
   const code = classCode(c.name);
   return (
     <li
-      style={{ viewTransitionName: `k${c.id.replace(/-/g, "")}` }}
+      style={plain ? undefined : { viewTransitionName: `k${c.id.replace(/-/g, "")}` }}
       className={`group relative rounded-xl border transition-[border-color,box-shadow] ${
         assigned ? "border-accent/40 bg-accent-soft/40" : "border-line bg-white hover:border-[#CBD0D8] hover:shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
       } ${busy ? "opacity-60" : ""}`}
     >
-      <button type="button" onClick={onInfo} {...tip(`${c.name} – Infos`, `${c.name} – Thông tin lớp`)} className="block w-full rounded-xl px-3 pb-2.5 pt-2 pr-11 text-left">
+      <button type="button" onClick={onInfo} {...tip(`${c.name} – Infos`, `${c.name} – Thông tin lớp`)} className={`block w-full rounded-xl px-3 pb-2.5 pt-2 text-left ${onAction ? "pr-11" : ""}`}>
         <span className="flex min-w-0 flex-wrap items-center gap-1.5">
           <span className="truncate text-[13.5px] font-semibold leading-6 text-ink">{code}</span>
           {c.level && <Chip className="bg-[#EEF0F3] text-[#3A3F47]">{c.level}</Chip>}
@@ -136,20 +144,22 @@ function ClassCard({
           <OfferSwitch size="sm" full value={offer.value} busy={offer.busy} onChange={offer.onChange} />
         </div>
       )}
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onAction}
-        aria-label={assigned ? "Entfernen" : "Zuordnen"}
-        {...(assigned ? tip("Entfernen", "Bỏ gán") : tip("Zuordnen", "Gán lớp"))}
-        className={`absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full transition-colors disabled:cursor-wait ${
-          assigned
-            ? "text-faint hover:bg-[#FBEAEA] hover:text-[#B3362B]"
-            : "border border-accent/30 bg-white text-accent hover:border-accent hover:bg-accent hover:text-white"
-        }`}
-      >
-        <Icon name={assigned ? "close" : "plus"} size={14} strokeWidth={2.4} />
-      </button>
+      {onAction && (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onAction}
+          aria-label={assigned ? "Entfernen" : "Zuordnen"}
+          {...(assigned ? tip("Entfernen", "Bỏ gán") : tip("Zuordnen", "Gán lớp"))}
+          className={`absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full transition-colors disabled:cursor-wait ${
+            assigned
+              ? "text-faint hover:bg-[#FBEAEA] hover:text-[#B3362B]"
+              : "border border-accent/30 bg-white text-accent hover:border-accent hover:bg-accent hover:text-white"
+          }`}
+        >
+          <Icon name={assigned ? "close" : "plus"} size={14} strokeWidth={2.4} />
+        </button>
+      )}
     </li>
   );
 }

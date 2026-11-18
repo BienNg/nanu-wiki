@@ -6,6 +6,11 @@ import { replyWindow } from '@/lib/messenger/policy';
 import { createClient } from '@/lib/supabase/client';
 import type { Template } from '@/lib/messenger/templates';
 import { tip } from "@/components/Bi";
+import { Icon } from '@/components/Icon';
+import { useAssignedClasses } from '@/components/admin/classPatch';
+import { ClassCard } from '@/components/admin/ClassAssignPanel';
+import { ClassInfoModal } from '@/components/admin/ClassInfoModal';
+import type { AssignableClass } from '@/lib/messenger/classes';
 export type Outgoing = { id: string; status: string; sender_name: string; provider_message_id: string | null; created_at: string; error: string | null; payload: { text?: string; displayText?: string } };
 export function MessageComposer({ conversation, channel, enabled, lastInbound, attempts }: { conversation: string; channel: string; enabled: boolean; lastInbound: string | null; attempts: Outgoing[] }) {
   const [text, setText] = useState(''); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
@@ -14,6 +19,7 @@ export function MessageComposer({ conversation, channel, enabled, lastInbound, a
   const pending = useRef<{ id: string; payload: object } | null>(null);
   const [connection, setConnection] = useState('');
   const [uncertain, setUncertain] = useState(false);
+  const assigned = useAssignedClasses(conversation); const [info, setInfo] = useState<AssignableClass | null>(null);
   const key = `inbox-draft:${conversation}`;
   useEffect(() => { try { setText(sessionStorage.getItem(key) || ''); } catch {} }, [key]);
   useEffect(() => {
@@ -61,10 +67,13 @@ export function MessageComposer({ conversation, channel, enabled, lastInbound, a
     {attempts.slice(-5).map(a => <div key={a.id} className="rounded bg-chip px-2 py-1 text-xs"><span>{a.sender_name} · <Label de={({sending:'Wird gesendet',sent:'Gesendet',delivered:'Zugestellt',read:'Gelesen',failed:'Fehlgeschlagen',unknown:'Bestätigung ausstehend'} as Record<string,string>)[a.status] || a.status} vi={({sending:'Đang gửi',sent:'Đã gửi',delivered:'Đã nhận',read:'Đã đọc',failed:'Thất bại',unknown:'Chờ xác nhận'} as Record<string,string>)[a.status] || a.status} /> · {a.payload.displayText || a.payload.text || '📎'}</span>{a.error && <span> · {a.error}</span>}</div>)}
     {(uncertain || unresolved) && <p role="status" className="text-xs text-amber-800"><Label de="Sendebestätigung ausstehend. Nicht erneut als neue Nachricht senden." vi="Đang chờ xác nhận. Không gửi lại thành tin mới." /></p>}
     {!enabled ? (
-      // Sending is switched off for this channel: say so once instead of showing a composer that cannot send.
-      <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-chip px-3.5 py-2.5 text-[13px] text-body">
-        <span className="min-w-0 flex-1"><Label de={channel === 'whatsapp' ? 'Senden ist hier noch nicht aktiviert. Bitte in der WhatsApp Business App antworten.' : 'Senden ist hier noch nicht aktiviert. Bitte in der Business Suite antworten.'} vi={channel === 'whatsapp' ? 'Chưa bật gửi tin ở đây. Hãy trả lời trong WhatsApp Business.' : 'Chưa bật gửi tin ở đây. Hãy trả lời trong Business Suite.'} /></span>
-        {checkButton}
+      // Sending is switched off: show the assigned classes as the same cards as in the Kurse panel (without the offer switch).
+      <div>
+        <p className="m-0 mb-1.5 flex items-center gap-1.5 text-[12px] font-semibold text-muted"><Icon name="cap" size={14} /><Label de="Zugeordnet" vi="Đã gán" /></p>
+        {assigned.length === 0
+          ? <p className="m-0 rounded-xl bg-chip px-3.5 py-2.5 text-[12.5px] text-faint"><Label de="Noch kein Kurs zugeordnet" vi="Chưa gán lớp nào" /></p>
+          : <ul className="m-0 flex list-none gap-2 overflow-x-auto p-0 pb-1 [&>li]:w-[256px] [&>li]:flex-none">{assigned.map(c => <ClassCard key={c.id} c={c} assigned busy={false} plain onInfo={() => setInfo(c)} />)}</ul>}
+        {info && <ClassInfoModal c={info} onClose={() => setInfo(null)} />}
       </div>
     ) : <>
       {!!catalog.length && <select aria-label="Vorlage / Mẫu" value={choice} onChange={e => { setChoice(e.target.value); setValues([]); setConsent(false); }} className="w-full rounded border border-line p-2 text-sm"><option value="">Freier Text / Văn bản tự do</option>{catalog.map(t => <option key={`${t.name}:${t.language}`} value={`${t.name}:${t.language}`}>{t.name} · {t.language}</option>)}</select>}
