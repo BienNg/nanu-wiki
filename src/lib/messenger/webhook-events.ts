@@ -17,8 +17,8 @@ async function handleEvent(id: string, channel: 'whatsapp' | 'messenger', body: 
   const db = createAdminClient();
   if (channel === 'whatsapp') await ingestWhatsappPayload(body);
   await applyStatuses(channel, body);
-  // Delivery/read/echo callbacks do not need a full conversation sync.
-  if (channel === 'messenger' && hasInboundMessage(body)) await syncMessenger({ timeBudgetMs: 20000 });
+  // Delivery/read callbacks and echoes of our own sends do not need a full conversation sync.
+  if (channel === 'messenger' && needsSync(body)) await syncMessenger({ timeBudgetMs: 20000 });
   const done = await db.from('messenger_webhook_events').update({ processed_at: new Date().toISOString() }).eq('id', id);
   if (done.error) throw done.error;
 }
@@ -110,7 +110,12 @@ async function restoreMessage(mid: string) {
  if(updated.error) throw updated.error;
 }
 
-function hasInboundMessage(body: unknown) {
-  const entries = (body as { entry?: Array<{ messaging?: Array<{ message?: { is_echo?: boolean } }> }> })?.entry || [];
-  return entries.some(e => (e.messaging || []).some(m => m.message && !m.message.is_echo));
+/**
+ * A message from the person, or a reply typed outside this app (Meta Business Suite, the Messenger app).
+ * Those echoes carry no outbox id in `metadata`, and only a sync stores them; without it the chat
+ * stayed under "Zu tun" until the next cron run.
+ */
+function needsSync(body: unknown) {
+  const entries = (body as { entry?: Array<{ messaging?: Array<{ message?: { is_echo?: boolean; metadata?: string } }> }> })?.entry || [];
+  return entries.some(e => (e.messaging || []).some(m => m.message && (!m.message.is_echo || !/^[0-9a-f-]{36}$/.test(m.message.metadata || ''))));
 }

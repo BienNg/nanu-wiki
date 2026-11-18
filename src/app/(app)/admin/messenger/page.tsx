@@ -9,7 +9,7 @@ import { InboxLive, SyncBadge } from "@/components/admin/InboxLive";
 import { MessengerCrumb } from "@/components/admin/MessengerTabs";
 import { FunnelNav, MessengerShell, MoreLink } from "@/components/admin/MessengerShell";
 import { ClearLabelPatches, InboxCount, InboxEmpty, InboxMore, StatusCount, StepCount, TodoCount } from "@/components/admin/labelPatch";
-import { InboxRow } from "@/components/admin/InboxRow";
+import { InboxRows } from "@/components/admin/InboxRow";
 import { ThreadPane } from "@/components/admin/ThreadPane";
 import { conversationView, type ConversationView } from "@/lib/messenger/nextAction";
 import { inboxPlace, inFunnelStep, interestKey, isOpen, labelChips, matchesInboxFilter, NO_INTEREST, ONE_ON_ONE, QUALIFY, STATUS_FILTERS, STATUSES, statusOf, stepKey, tabOf, type InboxPlace } from "@/lib/messenger/inboxPlace";
@@ -591,29 +591,26 @@ export default async function MessengerInboxPage({ searchParams }: { searchParam
                 </li>
               ))}
             <InboxEmpty shown={conversations.length} listedIds={conversations.map((c) => c.id)} empty={tab === "zu_tun" && !oneOnOneView ? <TodoEmpty allHref={href({ t: "alle", c: "" })} searching={!!q || !!channel || !!interestFilter} /> : undefined} />
-            {conversations.map((c) => {
-              const label = labelById.get(c.id);
-              return (
-                <InboxRow
-                  key={c.id}
-                  row={{
-                    id: c.id,
-                    href: href({ c: c.id, n: limit > LIST_STEP ? String(limit) : "" }),
-                    name: c.customer_name ?? "Unbekannt",
-                    time: shortTime(c.last_time ?? c.updated_time),
-                    preview: c.last_text ?? (c.last_has_attachment ? "📎 Anhang" : ""),
-                    fromPage: !!c.last_from_page,
-                    unanswered: c.last_from_page === false,
-                    channel: c.channel ?? null,
-                    account: c.account_name ?? null,
-                    chips: labelChips(label),
-                    view: viewById.get(c.id) ?? null,
-                    classes: classesById.get(c.id) ?? [],
-                    place: inboxPlace(label, !!viewById.get(c.id)?.action.today),
-                  }}
-                />
-              );
-            })}
+            <InboxRows
+              rows={conversations.map((c) => {
+                const label = labelById.get(c.id);
+                return {
+                  id: c.id,
+                  href: href({ c: c.id, n: limit > LIST_STEP ? String(limit) : "" }),
+                  name: c.customer_name ?? "Unbekannt",
+                  time: shortTime(c.last_time ?? c.updated_time),
+                  preview: c.last_text ?? (c.last_has_attachment ? "📎 Anhang" : ""),
+                  fromPage: !!c.last_from_page,
+                  unanswered: c.last_from_page === false,
+                  channel: c.channel ?? null,
+                  account: c.account_name ?? null,
+                  chips: labelChips(label),
+                  view: viewById.get(c.id) ?? null,
+                  classes: classesById.get(c.id) ?? [],
+                  place: inboxPlace(label, !!viewById.get(c.id)?.action.today),
+                };
+              })}
+            />
             {total > conversations.length && limit < LIST_MAX && (
               <li className="px-3 py-2 text-center">
                 <MoreLink

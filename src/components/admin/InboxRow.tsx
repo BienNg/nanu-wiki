@@ -57,8 +57,58 @@ export type InboxRowData = {
 /** Class chips on a row before the rest is summed up as "+N". */
 const MAX_CLASSES = 2;
 
-/** One chat in the list. A saved label updates this row alone; the row leaves when it no longer matches the filter. */
-export function InboxRow({ row }: { row: InboxRowData }) {
+type ListedRow = { row: InboxRowData; departed: boolean };
+
+/**
+ * The new list in its order, plus the rows that were on screen before and are not in it any more
+ * (a reply sent in WhatsApp or Meta Business Suite took the chat out of "Zu tun"). Those stay once more
+ * right after the row they followed, marked `departed`, so they slide out like a saved label does.
+ * Rows that already left in an earlier render are dropped.
+ */
+function withDeparted(before: ListedRow[], rows: InboxRowData[]): ListedRow[] {
+  const ids = new Set(rows.map((r) => r.id));
+  const after = new Map<string | null, ListedRow[]>();
+  let anchor: string | null = null;
+  for (const item of before) {
+    if (ids.has(item.row.id)) {
+      anchor = item.row.id;
+      continue;
+    }
+    if (item.departed) continue;
+    const list = after.get(anchor) ?? [];
+    list.push({ row: item.row, departed: true });
+    after.set(anchor, list);
+  }
+  const out: ListedRow[] = [...(after.get(null) ?? [])];
+  for (const row of rows) out.push({ row, departed: false }, ...(after.get(row.id) ?? []));
+  return out;
+}
+
+/**
+ * The chat list. Render it inside the `<ul>` that is keyed by tab and filters: a new filter mounts a new
+ * list, so only chats that left while the same list stayed open animate out.
+ */
+export function InboxRows({ rows }: { rows: InboxRowData[] }) {
+  const [shown, setShown] = useState(() => ({ rows, list: rows.map((row) => ({ row, departed: false })) }));
+  let list = shown.list;
+  if (shown.rows !== rows) {
+    list = withDeparted(shown.list, rows);
+    setShown({ rows, list });
+  }
+  return (
+    <>
+      {list.map((item) => (
+        <InboxRow key={item.row.id} row={item.row} departed={item.departed} />
+      ))}
+    </>
+  );
+}
+
+/**
+ * One chat in the list. A saved label updates this row alone; the row leaves when it no longer matches the filter,
+ * or when the list loaded again without it (`departed`).
+ */
+export function InboxRow({ row, departed = false }: { row: InboxRowData; departed?: boolean }) {
   const sp = useSearchParams();
   const interestFilter = sp.get("i") ?? "";
   const stepFilter = interestFilter === FUNNEL_INTEREST ? (sp.get("s") ?? "") : "";
@@ -66,7 +116,7 @@ export function InboxRow({ row }: { row: InboxRowData }) {
   const saving = useLabelSaving(row.id);
   const classes = useRowClasses(row.id, row.classes);
   const place = saved?.next ?? row.place;
-  const matches = matchesInboxFilter(place, interestFilter, stepFilter, tabOf(sp.get("t")), !!sp.get("q"));
+  const matches = !departed && matchesInboxFilter(place, interestFilter, stepFilter, tabOf(sp.get("t")), !!sp.get("q"));
   const [gone, setGone] = useState(!matches);
   useEffect(() => {
     if (matches) setGone(false);
