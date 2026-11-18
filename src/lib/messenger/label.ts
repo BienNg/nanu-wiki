@@ -7,6 +7,7 @@ import { redact } from "@/lib/assistant/suggest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LABEL_BUDGET_EUR, eurSpent, monthKey, newestActivity } from "./classify";
 import { mergePinned } from "./nextAction";
+import { reopenLost } from "./reopen";
 import { isStep, stepFor } from "./steps";
 import { LEVELS, PLACES, type ChatLineRow, type LabelDraft, type MessengerFact, type StoredLabel } from "./types";
 
@@ -65,8 +66,10 @@ async function saveLabel(
   fact: MessengerFact,
   draft: LabelDraft,
   tokens: { input: number; output: number },
-  previous?: StoredLabel,
+  stored?: StoredLabel,
 ) {
+  // A Verloren person who wrote again is open again (see reopenLost).
+  const previous = reopenLost(stored, fact);
   const merged = mergePinned(draft, previous);
   // A Schüler stays a Sprachkurs chat. The step follows from the fields unless a person picked it.
   // A pin only counts when it holds one of the steps (old stage names were pinned too).
