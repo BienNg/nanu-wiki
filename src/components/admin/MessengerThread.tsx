@@ -237,12 +237,18 @@ export function MessengerThread({
           const here = markers.filter((k) => Date.parse(k.time) > from && Date.parse(k.time) <= at);
           return (
             <div key={m.id} className="contents">
-              {here.map((k) => (
+              {/* A marker from an earlier day stays above this day's label; one from this day goes under it (e.g. "1. Nachfrage" right above its message). */}
+              {here.filter((k) => messageDay(k.time) !== messageDay(m.created_time)).map((k) => (
                 <div key={k.id} className="my-2 flex justify-center">
                   {k.node}
                 </div>
               ))}
               {newDay && <p className={`m-0 my-3 self-center text-[11.5px] font-medium ${wa ? "rounded-lg bg-white/90 px-2.5 py-1 text-muted shadow-sm" : "text-faint"}`}>{messageDay(m.created_time)}</p>}
+              {here.filter((k) => messageDay(k.time) === messageDay(m.created_time)).map((k) => (
+                <div key={k.id} className="my-2 flex justify-center">
+                  {k.node}
+                </div>
+              ))}
               <div className={`${bubbleRowClass(m.from_page, lastOfRun)} mb-0.5 gap-0.5 ${isNew(m) ? "anim-pop" : ""}`} title={`${m.from_name ?? ""} · ${messageTime(m.created_time)}`}>
                 {m.text && (
                   <span className={`${bubbleClass(m.from_page)} relative ${wa && !m.from_page ? "!bg-white shadow-[0_1px_0.5px_rgba(11,20,26,0.13)]" : ""}`}>

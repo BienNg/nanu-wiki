@@ -10,6 +10,7 @@ import { toast } from "@/components/Toaster";
 import { formatVnDate } from "@/lib/messenger/classify";
 import { addDays, daysBetween, NOTE_MAX, shortDay, type Followup } from "@/lib/messenger/followups";
 import type { ChatFollowups } from "@/lib/messenger/thread";
+import type { FollowupEvent } from "@/lib/messenger/followupReplies";
 
 const QUICK = [
   { days: 1, de: "Morgen", vi: "Ngày mai" },
@@ -344,6 +345,46 @@ export function FollowupMarker({ f }: { f: Followup }) {
         <Label de="Follow-up erledigt" vi="Đã nhắc lại" />
       </span>
       {f.note && <span className="truncate">· {f.note}</span>}
+    </span>
+  );
+}
+
+/** "nach 3 Std." – short, for the follow-up marker. */
+function after(seconds: number) {
+  const min = Math.round(seconds / 60);
+  if (min < 60) return { de: `${min} Min.`, vi: `${min} phút` };
+  const h = Math.round(min / 60);
+  if (h < 48) return { de: `${h} Std.`, vi: `${h} giờ` };
+  const d = Math.round(h / 24);
+  return { de: `${d} Tagen`, vi: `${d} ngày` };
+}
+
+/** Above one of our messages that counted as a follow-up (findFollowups): which one, and whether the person answered. */
+export function FollowupReplyMarker({ e }: { e: FollowupEvent }) {
+  const answered = e.answeredAt != null && e.answerSeconds != null ? after(e.answerSeconds) : null;
+  const state = e.zalo
+    ? { de: "Zalo angeboten · zählt nicht in der Statistik", vi: "Đã mời qua Zalo · không tính vào thống kê", dot: "bg-[#0B7793]" }
+    : answered
+      ? { de: `beantwortet nach ${answered.de}`, vi: `khách trả lời sau ${answered.vi}`, dot: "bg-[#1E8E3E]" }
+      : e.superseded
+        ? { de: "keine Antwort", vi: "không trả lời", dot: "bg-[#D9695C]" }
+        : { de: "noch keine Antwort", vi: "chưa trả lời", dot: "bg-[#B5BBC4]" };
+  return (
+    <span
+      {...tip(
+        "Wir haben geschrieben, als die Person seit 24 Std. still war.",
+        "Mình nhắn khi khách đã im lặng 24 giờ.",
+      )}
+      className="flex max-w-[80%] items-center gap-1.5 rounded-full bg-chip px-2.5 py-0.5 text-[11.5px] text-muted"
+    >
+      <Icon name="bell" size={11} strokeWidth={2.4} className="flex-none" />
+      <span className="flex-none font-medium text-ink">
+        <Label de={`${e.nth}. Nachfrage`} vi={`Nhắc lần ${e.nth}`} />
+      </span>
+      <span className={`h-1.5 w-1.5 flex-none rounded-full ${state.dot}`} />
+      <span className="truncate">
+        <Label de={state.de} vi={state.vi} />
+      </span>
     </span>
   );
 }

@@ -1,6 +1,7 @@
 import type { createClient } from "@/lib/supabase/server";
 import { conversationView, type ActionLabel, type ActionTiming, type ConversationView } from "./nextAction";
 import { chatFollowups, touchedAt, type Followup } from "./followups";
+import { findFollowups, type FollowupEvent, type FollowupMessage } from "./followupReplies";
 import { stepOf, type Step } from "./steps";
 import type { LossReason, Outcome } from "./types";
 
@@ -107,6 +108,8 @@ export type ThreadData = {
   step: Step | null;
   view: ConversationView;
   followups: ChatFollowups;
+  /** Our follow-ups in this chat and whether they were answered, from the whole history (findFollowups). */
+  followupEvents: FollowupEvent[];
   attempts: OutboxRow[];
   lastInbound: string | null;
 };
@@ -134,11 +137,38 @@ export function olderMessages(supabase: Db, id: string, before: string) {
 }
 
 /**
- * One round trip: the seven reads run side by side, each on an index (conversation id).
+ * A chat's follow-ups: from the database function messenger_followup_events, or, until that
+ * migration is applied, worked out here from every message of the chat (findFollowups, same rule).
+ */
+async function followupEventsOf(supabase: Db, id: string): Promise<FollowupEvent[]> {
+  const fn = await supabase.rpc("messenger_followup_events", { p_from: "1970-01-01T00:00:00Z", p_to: "9999-01-01T00:00:00Z", p_conversation: id });
+  if (!fn.error) {
+    type Row = { at: string; nth: number; answered_at: string | null; answer_seconds: number | null; superseded: boolean; zalo: boolean };
+    return ((fn.data ?? []) as Row[]).map((r) => ({ at: r.at, nth: r.nth, answeredAt: r.answered_at, answerSeconds: r.answer_seconds, superseded: r.superseded, zalo: r.zalo }));
+  }
+  if (!(fn.error.code === "PGRST202" || fn.error.code === "42883" || /messenger_followup_events/.test(fn.error.message))) throw new Error(fn.error.message);
+  const rows: FollowupMessage[] = [];
+  for (let from = 0; from < 20_000; from += 1000) {
+    const { data, error } = await supabase
+      .from("messenger_messages")
+      .select("from_page, created_time, text")
+      .eq("conversation_id", id)
+      .order("created_time")
+      .order("id")
+      .range(from, from + 999);
+    if (error) throw new Error(error.message);
+    rows.push(...((data ?? []) as FollowupMessage[]));
+    if (!data || data.length < 1000) break;
+  }
+  return findFollowups(rows);
+}
+
+/**
+ * One round trip: the eight reads run side by side, each on an index (conversation id).
  * `version` is the chat's version (inboxVersion), read by the caller BEFORE this runs.
  */
 export async function loadThread(supabase: Db, id: string, version: string | null, now = Date.now()): Promise<ThreadData | null> {
-  const [conv, page, label, fact, outbox, inbound, followups] = await Promise.all([
+  const [conv, page, label, fact, outbox, inbound, followups, followupEvents] = await Promise.all([
     supabase.from("messenger_conversations").select("id, customer_name, message_count, channel, account_name").eq("id", id).maybeSingle(),
     messagePage(supabase, id),
     supabase.from("messenger_labels").select(LABEL_COLUMNS).eq("conversation_id", id).maybeSingle(),
@@ -146,6 +176,11 @@ export async function loadThread(supabase: Db, id: string, version: string | nul
     supabase.from("messenger_outbox").select("*").eq("conversation_id", id).order("created_at", { ascending: false }).limit(20),
     supabase.from("messenger_messages").select("created_time").eq("conversation_id", id).eq("from_page", false).order("created_time", { ascending: false }).limit(1).maybeSingle(),
     chatFollowups(supabase, id),
+    // A failure here only costs the markers in the chat.
+    followupEventsOf(supabase, id).catch((err) => {
+      console.error("[thread] follow-up events", err);
+      return [] as FollowupEvent[];
+    }),
   ]);
   const failed = conv.error ?? label.error ?? fact.error;
   if (failed) throw new Error(failed.message);
@@ -167,6 +202,7 @@ export async function loadThread(supabase: Db, id: string, version: string | nul
     step: stepOf(labelRow),
     view: conversationView(labelRow ? toActionLabel(labelRow) : undefined, timing, now, followups.open, touchedAt(followups)),
     followups,
+    followupEvents,
     attempts: ((outbox.data ?? []) as OutboxRow[]).reverse(),
     lastInbound: inbound.data?.created_time ?? null,
   };

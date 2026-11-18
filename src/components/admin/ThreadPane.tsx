@@ -14,7 +14,7 @@ import { MessengerThread, type ThreadMessage } from "@/components/admin/Messenge
 import type { NextAction } from "@/lib/messenger/nextAction";
 import { FUNNEL_INTEREST, STEP_INFO, type Step } from "@/lib/messenger/steps";
 import { ClassAssignPanel } from "@/components/admin/ClassAssignPanel";
-import { FollowupBanner, FollowupButton, FollowupMarker, type FollowupPopover } from "@/components/admin/FollowupControls";
+import { FollowupBanner, FollowupButton, FollowupMarker, FollowupReplyMarker, type FollowupPopover } from "@/components/admin/FollowupControls";
 import type { ChatFollowups, ThreadData, ThreadMessageRow } from "@/lib/messenger/thread";
 import type { Outcome } from "@/lib/messenger/types";
 
@@ -259,7 +259,11 @@ export function ThreadPane() {
             </span>
           </span>
         }
-        markers={followups.done.filter((f) => f.done_at).map((f) => ({ id: f.id, time: f.done_at!, node: <FollowupMarker f={f} /> }))}
+        markers={[
+          ...followups.done.filter((f) => f.done_at).map((f) => ({ id: f.id, time: f.done_at!, node: <FollowupMarker f={f} /> })),
+          // Copies remembered before this existed have none. Each sits just above the follow-up message.
+          ...(shown.followupEvents ?? []).map((e) => ({ id: `nf:${e.at}`, time: e.at, node: <FollowupReplyMarker e={e} /> })),
+        ]}
         composer={<MessageComposer key="composer" conversation={shown.id} channel={channel} enabled={shown.sendEnabled} lastInbound={shown.lastInbound} attempts={shown.attempts} />}
         banner={
           <>

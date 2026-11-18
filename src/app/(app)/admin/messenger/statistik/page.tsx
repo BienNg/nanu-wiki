@@ -10,6 +10,8 @@ import { FilterDetails } from "@/components/admin/FilterDetails";
 import { StatsTodo, type TodoGroup, type TodoRow } from "@/components/admin/StatsTodo";
 import { LABEL_BUDGET_EUR, addDays, formatVnDate, parseWeekStart } from "@/lib/messenger/classify";
 import { formatDuration, formatWhen, loadMessengerStats, type PersonRow, type StatsSnapshot } from "@/lib/messenger/stats";
+import { cachedFollowupStats, type FollowupChannel, type FollowupStats } from "@/lib/messenger/followupStats";
+import { FollowupReplyCard } from "@/components/admin/FollowupReplyCard";
 
 export const metadata = { title: "Messenger-Statistik" };
 export const dynamic = "force-dynamic";
@@ -21,13 +23,18 @@ const LIST_CAP = 30;
 /** Weeks offered in the calendar dropdown, the current one included. */
 const CALENDAR_WEEKS = 12;
 
-function href(stats: StatsSnapshot, patch: { w?: string; interesse?: string; niveau?: string }) {
+/** The page's state in the address. `nf` is the channel of the Nachfassen card ("" = all). */
+type Nav = StatsSnapshot & { nf?: FollowupChannel };
+
+function href(stats: Nav, patch: { w?: string; interesse?: string; niveau?: string; nf?: FollowupChannel }) {
   const interest = patch.interesse !== undefined ? patch.interesse : stats.interest;
   const level = patch.niveau !== undefined ? patch.niveau : stats.level;
+  const nf = patch.nf !== undefined ? patch.nf : stats.nf;
   const q = new URLSearchParams();
   q.set("w", patch.w ?? stats.weekStart);
   if (interest) q.set("interesse", interest);
   if (level) q.set("niveau", level);
+  if (nf) q.set("nf", nf);
   return `/admin/messenger/statistik?${q}`;
 }
 
@@ -220,7 +227,7 @@ function FilterPill({ label, current, options, clearHref }: { label: { de: strin
 }
 
 /** ‹ [📅 KW 47 · 16.11.–22.11. ▾] ›  – the dropdown is a small calendar of the last weeks; a click on a row opens that week. */
-function WeekPicker({ stats, currentWeek }: { stats: StatsSnapshot; currentWeek: string }) {
+function WeekPicker({ stats, currentWeek }: { stats: Nav; currentWeek: string }) {
   const weeks = Array.from({ length: CALENDAR_WEEKS }, (_, i) => formatVnDate(addDays(parseWeekStart(currentWeek), -7 * i)));
   const isCurrent = stats.weekStart === currentWeek;
   const arrow = "flex h-8 w-8 items-center justify-center rounded-full border border-line bg-white text-ink transition-colors duration-150 hover:bg-hover";
@@ -600,19 +607,25 @@ function BudgetCard({ stats, euro }: { stats: StatsSnapshot; euro: string }) {
 
 /* ───────────────────────────── page ───────────────────────────── */
 
-export default async function MessengerStatsPage({ searchParams }: { searchParams: Promise<{ w?: string; interesse?: string; niveau?: string }> }) {
+export default async function MessengerStatsPage({ searchParams }: { searchParams: Promise<{ w?: string; interesse?: string; niveau?: string; nf?: string }> }) {
   await requireRole("admin");
   const sp = await searchParams;
   const supabase = await createClient();
   const prevWeek = formatVnDate(addDays(parseWeekStart(sp.w), -7));
   // The week before is loaded alongside, with the same filter, only for the "ggü. Vorwoche" changes. If it fails, the page still shows.
-  const [stats, before] = await Promise.all([
+  // Nachfassen loads alongside; if it fails, the rest of the page still shows.
+  const [base, before, followups] = await Promise.all([
     loadMessengerStats(supabase, { week: sp.w, interest: sp.interesse, level: sp.niveau }),
     loadMessengerStats(supabase, { week: prevWeek, interest: sp.interesse, level: sp.niveau }).catch((err) => {
       console.error("[statistik] previous week", err);
       return null;
     }),
+    cachedFollowupStats({ week: sp.w, interest: sp.interesse, level: sp.niveau, channel: sp.nf }).catch((err): FollowupStats | null => {
+      console.error("[statistik] follow-ups", err);
+      return null;
+    }),
   ]);
+  const stats: Nav = { ...base, nf: followups?.channel ?? "" };
   const now = Date.now();
   const today = formatVnDate(new Date(now));
   const currentWeek = formatVnDate(parseWeekStart(undefined));
@@ -711,8 +724,8 @@ export default async function MessengerStatsPage({ searchParams }: { searchParam
               <p className="m-0 flex items-start gap-2 rounded-lg bg-accent-soft/50 px-3 py-2 text-[12.5px] text-accent-dark">
                 <Icon name="layers" size={14} className="mt-0.5 flex-none" />
                 <Label
-                  de="Filter gilt für die Woche und den Trichter. Gespräche ohne passende Einordnung fallen weg. „Nachrichten von Kunden“ und die Listen rechts bleiben ungefiltert."
-                  vi="Bộ lọc áp cho tuần và phễu. Cuộc chưa gắn đúng nhãn sẽ ẩn. „Tin nhắn của khách“ và các danh sách bên phải không bị lọc."
+                  de="Filter gilt für die Woche, den Trichter und Nachfassen. Gespräche ohne passende Einordnung fallen weg. „Nachrichten von Kunden“ und die Listen rechts bleiben ungefiltert."
+                  vi="Bộ lọc áp cho tuần, phễu và phần nhắc lại. Cuộc chưa gắn đúng nhãn sẽ ẩn. „Tin nhắn của khách“ và các danh sách bên phải không bị lọc."
                 />
               </p>
             </div>
@@ -772,6 +785,26 @@ export default async function MessengerStatsPage({ searchParams }: { searchParam
               <OutcomeCard stats={stats} />
               <LossCard stats={stats} />
             </div>
+
+            {followups ? (
+              <FollowupReplyCard
+                f={followups}
+                // Not while the week runs: most of its follow-ups can still be answered.
+                delta={running ? undefined : (() => {
+                  const [prev, cur] = followups.trend.slice(-2);
+                  const rate = (w: typeof cur) => (w?.sent ? Math.round((w.answered / w.sent) * 100) : null);
+                  return <Delta now={rate(cur)} before={rate(prev)} better="up" unit=" Pkt." />;
+                })()}
+                channelHref={(nf) => href(stats, { nf })}
+                weekHref={(w) => href(stats, { w })}
+                weekName={(w) => `KW ${isoWeek(w)}`}
+                currentWeek={currentWeek}
+              />
+            ) : (
+              <p className="m-0 rounded-xl border border-line bg-white px-4 py-3 text-[12.5px] text-bad">
+                <Label de="Nachfassen konnte nicht geladen werden." vi="Không tải được phần nhắc lại." />
+              </p>
+            )}
 
             <BudgetCard stats={stats} euro={euro} />
           </main>
