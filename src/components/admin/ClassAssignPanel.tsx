@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Label, tip } from "@/components/Bi";
 import { ClassInfoModal } from "@/components/admin/ClassInfoModal";
-import { Chip, ClassWhen, Fact, OfferSwitch, saveOffer, SectionHead } from "@/components/admin/classParts";
+import { Chip, ClassWhen, Fact, SectionHead } from "@/components/admin/classParts";
 import { Icon } from "@/components/Icon";
-import { toast } from "@/components/Toaster";
 import { MODE_SHORT } from "@/lib/classes";
 import { setAssignedClasses, setRowClasses } from "@/components/admin/classPatch";
 import { classCode, isLevelStart, matchScore, MODE_TONE, rankClasses, rowClass, sortByLevel, type AssignableClass, type OfferState } from "@/lib/messenger/classes";
@@ -78,8 +77,8 @@ function matchesQuery(c: AssignableClass, q: string) {
 
 /**
  * One class as a card: code, level and place first, then start, time and seats. A click opens the
- * class info; the round button adds or removes it. An assigned class also shows the special-offer
- * switch (Offen / Geschickt / Übersprungen) for this chat.
+ * class info; the round button adds or removes it. Below, links open the class in Notion and its
+ * Google Sheets in a new tab. (The special-offer status is set only on the Klassen page.)
  */
 export function ClassCard({
   c,
@@ -87,7 +86,6 @@ export function ClassCard({
   assigned,
   onAction,
   onInfo,
-  offer,
   plain,
 }: {
   c: AssignableClass;
@@ -98,7 +96,6 @@ export function ClassCard({
   onInfo: () => void;
   /** No view-transition name (a second copy of a card that is also in the panel). */
   plain?: boolean;
-  offer?: { value: OfferState; busy: boolean; onChange: (next: OfferState) => void };
 }) {
   const code = classCode(c.name);
   return (
@@ -139,9 +136,28 @@ export function ClassCard({
           </span>
         )}
       </button>
-      {offer && (
-        <div {...tip("Sonderangebot vor dem Kursstart", "Ưu đãi trước khi khai giảng")} className="border-t border-accent/15 px-3 py-2">
-          <OfferSwitch size="sm" full value={offer.value} busy={offer.busy} onChange={offer.onChange} />
+      {(c.notionUrl || c.sheetUrl) && (
+        <div className="flex gap-1.5 border-t border-line/70 px-3 py-2">
+          {c.notionUrl && (
+            <a
+              href={c.notionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-line bg-white px-2 py-1 text-[11.5px] font-medium text-ink hover:bg-hover"
+            >
+              Notion ↗
+            </a>
+          )}
+          {c.sheetUrl && (
+            <a
+              href={c.sheetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-line bg-white px-2 py-1 text-[11.5px] font-medium text-ink hover:bg-hover"
+            >
+              Google Sheets ↗
+            </a>
+          )}
         </div>
       )}
       {onAction && (
@@ -249,27 +265,6 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
       .finally(() => setBusy((b) => (b === classId ? null : b)));
   };
 
-  /** Sets the special-offer status of this chat on an assigned class; shown at once, rolled back if saving fails. */
-  const setOffer = (classId: string, offer: OfferState) => {
-    if (!state || "error" in state) return;
-    const apply = (value: OfferState) => {
-      const cur = recent.get(conversationId) ?? { classes: state.classes, assigned: state.assigned, offers: state.offers };
-      const data = { ...cur, offers: { ...cur.offers, [classId]: value } };
-      recent.set(conversationId, data);
-      publishRow(conversationId, data);
-      setState((s) => (s && !("error" in s) && s.id === conversationId ? { id: conversationId, ...data } : s));
-    };
-    const before = state.offers[classId] ?? "offen";
-    apply(offer);
-    setBusy(classId);
-    saveOffer(conversationId, classId, offer)
-      .catch(() => {
-        apply(before);
-        toast("Speichern fehlgeschlagen · Lưu không thành công");
-      })
-      .finally(() => setBusy((b) => (b === classId ? null : b)));
-  };
-
   if (collapsed) {
     return (
       <button
@@ -306,7 +301,6 @@ export function ClassAssignPanel({ conversationId, level, place }: { conversatio
       busy={busy === c.id}
       onAction={() => save(c.id, assigned)}
       onInfo={() => setInfo(c)}
-      offer={assigned && ready ? { value: ready.offers[c.id] ?? "offen", busy: busy === c.id, onChange: (next) => setOffer(c.id, next) } : undefined}
     />
   );
 
